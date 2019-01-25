@@ -90,8 +90,16 @@ private extension InstanaEvents {
         guard let jsonData = try? JSONSerialization.data(withJSONObject: jsonEvents) else {
             throw InstanaError(code: .invalidRequest, description: "Could not serialize events data.")
         }
-        urlRequest.httpBody = jsonData
         
+        if let gzippedData = try? (jsonData as NSData).gzipped(withCompressionLevel: -1) { // -1 default compression level
+            urlRequest.httpBody = gzippedData
+            urlRequest.setValue("gzip", forHTTPHeaderField: "Content-Encoding")
+            urlRequest.setValue("\(gzippedData.count)", forHTTPHeaderField: "Content-Length")
+        }
+        else {
+            urlRequest.httpBody = jsonData
+        }
+
         return urlRequest
     }
     
