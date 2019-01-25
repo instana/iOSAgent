@@ -23,7 +23,7 @@
 
 - (IBAction)onTapUrlRequest:(id)sender {
     // custom event
-//    [Instana.events submitEvent:[[InstanaCustomEvent alloc] initWithName:@"manual evenet" timestamp:[[NSDate new] timeIntervalSince1970] duration:1.5]];
+    [Instana.events submitEvent:[[InstanaCustomEvent alloc] initWithName:@"manual evenet" timestamp:[[NSDate new] timeIntervalSince1970] duration:1.5]];
     
     // shared session
     [[[NSURLSession sharedSession] dataTaskWithURL:[NSURL URLWithString:@"https://www.apple.com"] completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {

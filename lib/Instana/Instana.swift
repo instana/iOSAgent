@@ -55,6 +55,7 @@ private extension Instana {
     static func setupEvents(with config: InstanaConfiguration) {
         events.suspendReporting = config.suspendReporting
         events.bufferSize = config.eventsBufferSize
+        events.submit(event: InstanaSessionProfileEvent())
     }
     
     static func setupRemoteCallInstrumentation(with config: InstanaConfiguration) {
