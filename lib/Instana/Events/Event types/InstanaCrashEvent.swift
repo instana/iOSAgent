@@ -21,8 +21,9 @@ class InstanaCrashEvent: InstanaInternalEvent, InstanaEventResultNotifiable {
         return [
             "sessionId": sessionId,
             "id": eventId,
-            // TODO: add app data (version, build, etc.)
             "crash": [
+                "appVersion": InstanaSystemUtils.applicationVersion,
+                "appBuildNumber": InstanaSystemUtils.applicationBuildNumber,
                 "type": "iOS",
                 "timestamp": timestamp,
                 "report": report
