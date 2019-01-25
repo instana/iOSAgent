@@ -20,11 +20,11 @@ class InstanaSessionProfileEvent: InstanaInternalEvent, InstanaEventResultNotifi
     func toJSON() -> [String : Any] {
         let sessionProfile = [
             "platform": "iOS",
-            "osLevel": UIDevice.current.systemVersion,
             "osDistro": "Apple",
-            "deviceType": UIDevice.current.modelName,
-            "appVersion": Bundle.main.versionNumber ?? "unknown-version",
-            "appBuild": Bundle.main.buildNumber ?? "unknown-build"
+            "osLevel": InstanaSystemUtils.systemVersion,
+            "deviceType": InstanaSystemUtils.deviceModel,
+            "appVersion": InstanaSystemUtils.applicationVersion,
+            "appBuild": InstanaSystemUtils.applicationBuildNumber
         ]
         return [
             "sessionId": sessionId,
@@ -45,28 +45,6 @@ private extension InstanaSessionProfileEvent {
             }
             retryInterval *= 2
         }
-    }
-}
-
-private extension UIDevice {
-    var modelName: String {
-        var systemInfo = utsname()
-        uname(&systemInfo)
-        let machineMirror = Mirror(reflecting: systemInfo.machine)
-        let identifier = machineMirror.children.reduce("") { identifier, element in
-            guard let value = element.value as? Int8, value != 0 else { return identifier }
-            return identifier + String(UnicodeScalar(UInt8(value)))
-        }
-        return identifier
-    }
-}
-
-private extension Bundle {
-    var versionNumber: String? {
-        return infoDictionary?["CFBundleShortVersionString"] as? String
-    }
-    var buildNumber: String? {
-        return infoDictionary?["CFBundleVersion"] as? String
     }
 }
 
