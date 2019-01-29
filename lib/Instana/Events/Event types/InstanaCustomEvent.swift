@@ -3,12 +3,9 @@
 
 import Foundation
 
-@objc public class InstanaCustomEvent: NSObject, InstanaEvent {
-    public let sessionId: String = Instana.sessionId
-    public let eventId: String = UUID().uuidString
-    public let timestamp: Instana.Types.UTCTimestamp
+@objc public class InstanaCustomEvent: InstanaEvent {
     public let name: String
-    public let duration: Instana.Types.Milliseconds?
+    public let duration: Instana.Types.Milliseconds
     
     @objc public convenience init(name: String) {
         self.init(name: name, timestamp: Date().timeIntervalSince1970)
@@ -16,34 +13,25 @@ import Foundation
     
     @objc public init(name: String, timestamp: Instana.Types.UTCTimestamp) {
         self.name = name
-        self.timestamp = timestamp
-        self.duration = nil
-        super.init()
+        self.duration = 0
+        super.init(timestamp: timestamp)
     }
     
     @objc public init(name: String, timestamp: Instana.Types.UTCTimestamp, duration: Instana.Types.Milliseconds) {
         self.name = name
-        self.timestamp = timestamp
         self.duration = duration
-        super.init()
+        super.init(timestamp: timestamp)
     }
-}
-
-extension InstanaCustomEvent: InstanaInternalEvent {
-    func toJSON() -> [String : Any] {
-        var event: [String: Any] = [
+    
+    override func toJSON() -> [String : Any] {
+        var json = super.toJSON()
+        json["event"] = [
             "timestamp": timestamp,
+            "durationMs": duration,
             "customEvent": [
                 "name": name
             ]
         ]
-        if let duration = duration {
-            event["durationMs"] = duration
-        }
-        return [
-            "sessionId": sessionId,
-            "id": eventId,
-            "event": event
-        ]
+        return json
     }
 }

@@ -12,7 +12,7 @@ import Foundation
     private let delay: TimeInterval = 1
     private let queue = DispatchQueue(label: "com.instana.events")
     private let session = URLSession(configuration: .default)
-    private var buffer = InstanaRingBuffer<InstanaInternalEvent>(size: 200)
+    private var buffer = InstanaRingBuffer<InstanaEvent>(size: 200)
     @objc var bufferSize = 200 {
         didSet {
             queue.sync {
@@ -24,10 +24,8 @@ import Foundation
     
     @objc(submitEvent:)
     public func submit(event: InstanaEvent) {
-        guard let event = event as? InstanaInternalEvent else {
-            Instana.log.add("Custom implementations of events are not supported", level: .error)
-            return
-        }
+        // TODO: invoke callback of overwritten event
+        
         queue.async {
             self.buffer.write(event)
             self.startSendEventsTimer()
@@ -58,7 +56,7 @@ private extension InstanaEvents {
 }
 
 private extension InstanaEvents {
-    func send(events: [InstanaInternalEvent]) {
+    func send(events: [InstanaEvent]) {
         let request: URLRequest
         do {
             request = try batchRequest(for: events)
@@ -73,7 +71,7 @@ private extension InstanaEvents {
         }.resume()
     }
     
-    func batchRequest(for events: [InstanaInternalEvent]) throws -> URLRequest {
+    func batchRequest(for events: [InstanaEvent]) throws -> URLRequest {
         guard var url = URL(string: Instana.reportingUrl) else {
             throw InstanaError(code: .invalidRequest, description: "Invalid reporting url. No data will be sent.")
         }
@@ -103,7 +101,7 @@ private extension InstanaEvents {
         return urlRequest
     }
     
-    func invokeCallback(for events: [InstanaInternalEvent], result: InstanaEventResult) {
+    func invokeCallback(for events: [InstanaEvent], result: InstanaEventResult) {
         events.forEach { event in
             if let notifiableEvent = event as? InstanaEventResultNotifiable {
                 notifiableEvent.completion(result);
@@ -115,7 +113,7 @@ private extension InstanaEvents {
         }
     }
     
-    func handle(response: URLResponse?, error: Error?, for events: [InstanaInternalEvent]) {
+    func handle(response: URLResponse?, error: Error?, for events: [InstanaEvent]) {
         // TODO: failed requests handling, after prototype
         if let error = error {
             self.invokeCallback(for: events, result: .failure(error: error))

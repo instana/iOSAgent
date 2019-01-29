@@ -81,6 +81,6 @@ extension InstanaRemoteCallMarker {
             result = String(describing: error)
         }
 
-        return InstanaRemoteCallEvent(timestamp: startTime, duration: duration(), method: method, url: url, responseCode: responseCode, result: result)
+        return InstanaRemoteCallEvent(timestamp: startTime, duration: duration(), method: method, url: url, responseCode: responseCode ?? -1, result: result)
     }
 }
