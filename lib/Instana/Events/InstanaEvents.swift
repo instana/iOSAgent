@@ -59,11 +59,10 @@ private extension InstanaEvents {
     func send(events: [InstanaEvent]) {
         let request: URLRequest
         do {
-            request = try batchRequest(for: events)
+            request = try events.toBatchRequest()
         }
         catch {
-            Instana.log.add(error.localizedDescription)
-            invokeCallback(for: events, result: .failure(error: error))
+            complete(events, with: .failure(error: error))
             return
         }
         session.dataTask(with: request) { (data, response, error) in
@@ -71,62 +70,28 @@ private extension InstanaEvents {
         }.resume()
     }
     
-    func batchRequest(for events: [InstanaEvent]) throws -> URLRequest {
-        guard var url = URL(string: Instana.reportingUrl) else {
-            throw InstanaError(code: .invalidRequest, description: "Invalid reporting url. No data will be sent.")
-        }
-        guard let key = Instana.key else {
-            throw InstanaError(code: .notAuthenticated, description: "Missing application key. No data will be sent.")
-        }
-        url.appendPathComponent("v1/api/\(key)/batch")
-        
-        var urlRequest = URLRequest(url: url)
-        urlRequest.httpMethod = "POST"
-        urlRequest.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        
-        let jsonEvents = events.compactMap { $0.toJSON() }
-        guard let jsonData = try? JSONSerialization.data(withJSONObject: jsonEvents) else {
-            throw InstanaError(code: .invalidRequest, description: "Could not serialize events data.")
-        }
-        
-        if let gzippedData = try? (jsonData as NSData).gzipped(withCompressionLevel: -1) { // -1 default compression level
-            urlRequest.httpBody = gzippedData
-            urlRequest.setValue("gzip", forHTTPHeaderField: "Content-Encoding")
-            urlRequest.setValue("\(gzippedData.count)", forHTTPHeaderField: "Content-Length")
-        }
-        else {
-            urlRequest.httpBody = jsonData
-        }
-
-        return urlRequest
-    }
-    
-    func invokeCallback(for events: [InstanaEvent], result: InstanaEventResult) {
-        events.forEach { event in
-            if let notifiableEvent = event as? InstanaEventResultNotifiable {
-                notifiableEvent.completion(result);
-            }
-        }
-        switch result {
-        case .success: Instana.log.add("Event batch sent.")
-        case .failure(let error): Instana.log.add("Failed to send event batch: \(error)", level: .warning)
-        }
-    }
-    
     func handle(response: URLResponse?, error: Error?, for events: [InstanaEvent]) {
         // TODO: failed requests handling, after prototype
         if let error = error {
-            self.invokeCallback(for: events, result: .failure(error: error))
+            complete(events, with: .failure(error: error))
         }
         guard let httpResponse = response as? HTTPURLResponse else {
-            self.invokeCallback(for: events, result: .failure(error: InstanaError(code: .invalidResponse, description: "Can't parse server response.")))
+            complete(events, with: .failure(error: InstanaError(code: .invalidResponse, description: "Can't parse server response.")))
             return
         }
         switch httpResponse.statusCode {
         case 200...299:
-            self.invokeCallback(for: events, result: .success)
+            complete(events, with: .success)
         default:
-            self.invokeCallback(for: events, result: .failure(error: InstanaError(code: .invalidResponse, description: String(describing: httpResponse))))
+            complete(events, with: .failure(error: InstanaError(code: .invalidResponse, description: String(describing: httpResponse))))
+        }
+    }
+    
+    func complete(_ events: [InstanaEvent], with result: InstanaEventResult) {
+        events.invokeCallbackIfNeeded(with: result)
+        switch result {
+        case .success: Instana.log.add("Event batch sent.")
+        case .failure(let error): Instana.log.add("Failed to send event batch: \(error)", level: .warning)
         }
     }
 }
