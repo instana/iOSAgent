@@ -3,31 +3,25 @@
 
 import Foundation
 
-class InstanaCrashEvent: InstanaInternalEvent, InstanaEventResultNotifiable {
-    let sessionId: String
-    let eventId: String = UUID().uuidString
-    let timestamp: Instana.Types.UTCTimestamp
+class InstanaCrashEvent: InstanaEvent, InstanaEventResultNotifiable {
     let completion: InstanaEventResultNotifiable.CompletionBlock
     let report: String
     
     init(sessionId: String, timestamp: Instana.Types.UTCTimestamp, report: String, completion: @escaping InstanaEventResultNotifiable.CompletionBlock) {
-        self.sessionId = sessionId
-        self.timestamp = timestamp
         self.report = report
         self.completion = completion
+        super.init(sessionId: sessionId, eventId: nil, timestamp: timestamp)
     }
     
-    func toJSON() -> [String : Any] {
-        return [
-            "sessionId": sessionId,
-            "id": eventId,
-            "crash": [
-                "appVersion": InstanaSystemUtils.applicationVersion,
-                "appBuildNumber": InstanaSystemUtils.applicationBuildNumber,
-                "type": "iOS",
-                "timestamp": timestamp,
-                "report": report
-            ]
+    override func toJSON() -> [String : Any] {
+        var json = super.toJSON()
+        json["crash"] = [
+            "appVersion": InstanaSystemUtils.applicationVersion,
+            "appBuildNumber": InstanaSystemUtils.applicationBuildNumber,
+            "type": "iOS",
+            "timestamp": timestamp,
+            "report": report
         ]
+        return json
     }
 }

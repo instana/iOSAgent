@@ -3,14 +3,27 @@
 
 import Foundation
 
-@objc public protocol InstanaEvent {
-    var sessionId: String { get }
-    var eventId: String { get }
-    var timestamp: Instana.Types.UTCTimestamp { get }
-}
-
-protocol InstanaInternalEvent: InstanaEvent {
-    func toJSON() -> [String: Any]
+@objc public class InstanaEvent: NSObject {
+    let sessionId: String
+    let eventId: String?
+    let timestamp: Instana.Types.UTCTimestamp
+    
+    init(sessionId: String = Instana.sessionId, eventId: String? = UUID().uuidString, timestamp: Instana.Types.UTCTimestamp) {
+        self.sessionId = sessionId
+        self.eventId = eventId
+        self.timestamp = timestamp
+        super.init()
+    }
+    
+    private override init() { fatalError() }
+    
+    func toJSON() -> [String : Any] {
+        var json = ["sessionId": sessionId]
+        if let eventId = eventId {
+            json["id"] = eventId
+        }
+        return json
+    }
 }
 
 enum InstanaEventResult {

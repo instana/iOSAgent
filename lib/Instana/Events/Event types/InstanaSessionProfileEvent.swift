@@ -3,10 +3,7 @@
 
 import Foundation
 
-class InstanaSessionProfileEvent: InstanaInternalEvent, InstanaEventResultNotifiable {
-    let sessionId: String = Instana.sessionId
-    let eventId: String = ""
-    let timestamp: Instana.Types.UTCTimestamp = 0
+class InstanaSessionProfileEvent: InstanaEvent, InstanaEventResultNotifiable {
     var completion: CompletionBlock {
         get { return handleCompletion }
     }
@@ -17,8 +14,17 @@ class InstanaSessionProfileEvent: InstanaInternalEvent, InstanaEventResultNotifi
         }
     }
     
-    func toJSON() -> [String : Any] {
-        let sessionProfile = [
+    init() {
+        super.init(eventId: nil, timestamp: 0)
+    }
+    
+    private override init(sessionId: String, eventId: String?, timestamp: Instana.Types.UTCTimestamp) {
+        fatalError()
+    }
+    
+    override func toJSON() -> [String : Any] {
+        var json = super.toJSON()
+        json["profile"] = [
             "platform": "iOS",
             "osDistro": "Apple",
             "osLevel": InstanaSystemUtils.systemVersion,
@@ -26,10 +32,7 @@ class InstanaSessionProfileEvent: InstanaInternalEvent, InstanaEventResultNotifi
             "appVersion": InstanaSystemUtils.applicationVersion,
             "appBuild": InstanaSystemUtils.applicationBuildNumber
         ]
-        return [
-            "sessionId": sessionId,
-            "sessionProfile": sessionProfile
-        ]
+        return json
     }
 }
 
