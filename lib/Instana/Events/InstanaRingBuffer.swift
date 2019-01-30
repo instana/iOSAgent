@@ -13,11 +13,11 @@ struct InstanaRingBuffer<T> {
     }
     
     @discardableResult
-    mutating func write(_ element: T) -> Bool {
-        guard isFull == false else { return false }
+    mutating func write(_ element: T) -> T? {
+        let overwritten = isFull ? read() : nil
         contents[writeIndex % contents.count] = element
         writeIndex += 1
-        return true
+        return overwritten
     }
     
     mutating func read() -> T? {

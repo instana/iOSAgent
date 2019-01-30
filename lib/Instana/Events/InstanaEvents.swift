@@ -24,10 +24,10 @@ import Foundation
     
     @objc(submitEvent:)
     public func submit(event: InstanaEvent) {
-        // TODO: invoke callback of overwritten event
-        
         queue.async {
-            self.buffer.write(event)
+            if let overwritten = self.buffer.write(event), let notifiableEvent = overwritten as? InstanaEventResultNotifiable {
+                notifiableEvent.completion(.failure(error: InstanaError(code: .bufferOverwrite, description: "Event overwrite casued by buffer size limit.")))
+            }
             self.startSendEventsTimer()
         }
     }
