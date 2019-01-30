@@ -7,12 +7,17 @@ import Foundation
     @objc public enum SuspendReporting: Int {
         case never, lowBattery, cellularConnection, lowBatteryAndCellularConnection
     }
-    @objc public var suspendReporting: SuspendReporting = .never // TODO: handle
+    @objc public var suspendReporting: SuspendReporting = .never
     private var timer: Timer?
     private let delay: TimeInterval = 1
     private let lowBatteryDelay: TimeInterval = 10
     private let queue = DispatchQueue(label: "com.instana.events")
     private let session = URLSession(configuration: .default)
+    private lazy var wifiSession: URLSession = {
+        var configuration = URLSessionConfiguration.default
+        configuration.allowsCellularAccess = false
+        return URLSession(configuration: configuration)
+    }()
     private lazy var buffer = { InstanaRingBuffer<InstanaEvent>(size: bufferSize) }()
     @objc var bufferSize = InstanaConfiguration.Defaults.eventsBufferSize {
         didSet {
@@ -71,7 +76,8 @@ private extension InstanaEvents {
             complete(events, with: .failure(error: error))
             return
         }
-        session.dataTask(with: request) { (data, response, error) in
+        let usedSession = [.cellularConnection, .lowBatteryAndCellularConnection].contains(suspendReporting) ? wifiSession : session
+        usedSession.dataTask(with: request) { (data, response, error) in
             self.handle(response: response, error: error, for: events)
         }.resume()
     }
