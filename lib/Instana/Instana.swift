@@ -9,6 +9,7 @@ import Foundation
     @objc public static let crashReporting = InstanaCrashReporting()
     @objc public static let remoteCallInstrumentation = InstanaRemoteCallInstrumentation()
     static let log = InstanaLogger()
+    static let battery = InstanaBatteryUtils()
 
     @objc public static let sessionId = UUID().uuidString
     private(set) static var reportingUrl = InstanaConfiguration.Defaults.reportingUrl

@@ -5,11 +5,12 @@ import Foundation
 
 @objc public class InstanaEvents: NSObject {
     @objc public enum SuspendReporting: Int {
-        case never, lowBatery, cellularConnection, lowBatteryAndCellularConnection
+        case never, lowBattery, cellularConnection, lowBatteryAndCellularConnection
     }
     @objc public var suspendReporting: SuspendReporting = .never // TODO: handle
     private var timer: Timer?
     private let delay: TimeInterval = 1
+    private let lowBatteryDelay: TimeInterval = 10
     private let queue = DispatchQueue(label: "com.instana.events")
     private let session = URLSession(configuration: .default)
     private lazy var buffer = { InstanaRingBuffer<InstanaEvent>(size: bufferSize) }()
@@ -28,7 +29,7 @@ import Foundation
             if let overwritten = self.buffer.write(event), let notifiableEvent = overwritten as? InstanaEventResultNotifiable {
                 notifiableEvent.completion(.failure(error: InstanaError(code: .bufferOverwrite, description: "Event overwrite casued by buffer size limit.")))
             }
-            self.startSendEventsTimer()
+            self.startSendEventsTimer(delay: self.delay)
         }
     }
 }
@@ -37,13 +38,18 @@ private extension InstanaEvents {
     func sendBufferEvents() {
         self.timer?.invalidate()
         self.timer = nil
+        
+        if Instana.battery.safeForNetworking == false, [.lowBattery, .lowBatteryAndCellularConnection].contains(suspendReporting) {
+            startSendEventsTimer(delay: lowBatteryDelay)
+            return
+        }
+        
         let events = self.buffer.readAll()
-        // TODO: do we discard events while suspension is on?
         guard events.count > 0 else { return }
         send(events: events)
     }
     
-    func startSendEventsTimer() {
+    func startSendEventsTimer(delay: TimeInterval) {
         guard timer == nil || timer?.isValid == false else { return }
         let t = Timer(timeInterval: delay, target: self, selector: #selector(onSendEventsTimer), userInfo: nil, repeats: false)
         RunLoop.main.add(t, forMode: .common)
