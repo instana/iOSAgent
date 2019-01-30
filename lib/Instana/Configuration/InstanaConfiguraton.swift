@@ -42,7 +42,7 @@ struct InstanaConfiguration {
                          remoteCallInstrumentationType: dictionary.fromRawValue(forKey: "remoteCallInstrumentationType") ?? Defaults.remoteCallInstrumentationType,
                          enableCrashReporting: dictionary.bool(forKey: "enableCrashReporting", fallback: true),
                          suspendReporting: dictionary.fromRawValue(forKey: "suspendReporting") ?? Defaults.suspendReporting,
-                         eventsBufferSize: dictionary.value(forKey: "suspendReportingOnCellularConnection") as? Int ?? Defaults.eventsBufferSize,
+                         eventsBufferSize: dictionary.value(forKey: "eventsBufferSize") as? Int ?? Defaults.eventsBufferSize,
                          sendDeviceLocationIfAvailable: dictionary.bool(forKey: "sendDeviceLocationIfAvailable", fallback: Defaults.sendDeviceLocationIfAvailable),
                          alertApplicationNotRespondingTreshold: dictionary.value(forKey: "alertApplicationNotRespondingTreshold") as? Float,
                          alertHighCPUUsageTreshold: dictionary.value(forKey: "alertHighCPUUsageTreshold") as? Float,
