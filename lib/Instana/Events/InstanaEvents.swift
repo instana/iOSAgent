@@ -12,8 +12,8 @@ import Foundation
     private let delay: TimeInterval = 1
     private let queue = DispatchQueue(label: "com.instana.events")
     private let session = URLSession(configuration: .default)
-    private var buffer = InstanaRingBuffer<InstanaEvent>(size: 200)
-    @objc var bufferSize = 200 {
+    private lazy var buffer = { InstanaRingBuffer<InstanaEvent>(size: bufferSize) }()
+    @objc var bufferSize = InstanaConfiguration.Defaults.eventsBufferSize {
         didSet {
             queue.sync {
                 sendBufferEvents()
