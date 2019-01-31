@@ -10,7 +10,7 @@ class InstanaCrashEvent: InstanaEvent, InstanaEventResultNotifiable {
     init(sessionId: String, timestamp: Instana.Types.UTCTimestamp, report: String, completion: @escaping InstanaEventResultNotifiable.CompletionBlock) {
         self.report = report
         self.completion = completion
-        super.init(sessionId: sessionId, eventId: nil, timestamp: timestamp)
+        super.init(sessionId: sessionId, timestamp: timestamp)
     }
     
     override func toJSON() -> [String : Any] {
