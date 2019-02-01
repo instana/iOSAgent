@@ -16,8 +16,13 @@ import Foundation
             }
         }
     }
-    var highCPUUsageTreshold: Float?
+    var lowMemory: Bool = InstanaConfiguration.Defaults.alertLowMemory {
+        didSet {
+            lowMemoryMonitor = lowMemory ? InstanaLowMemoryMonitor() : nil
+        }
+    }
     var framerateDipTreshold: UInt?
     
     private var applicationNotRespondingMonitor: InstanaApplicationNotRespondingMonitor?
+    private var lowMemoryMonitor: InstanaLowMemoryMonitor?
 }
