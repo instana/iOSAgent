@@ -19,7 +19,7 @@ struct InstanaConfiguration {
     let suspendReporting: InstanaEvents.SuspendReporting
     let eventsBufferSize: Int
     let sendDeviceLocationIfAvailable: Bool
-    let alertApplicationNotRespondingTreshold: Float?
+    let alertApplicationNotRespondingTreshold: Instana.Types.Seconds?
     let alertHighCPUUsageTreshold: Float?
     let alertFramerateDipTreshold: UInt?
     
@@ -44,7 +44,7 @@ struct InstanaConfiguration {
                          suspendReporting: dictionary.fromRawValue(forKey: "suspendReporting") ?? Defaults.suspendReporting,
                          eventsBufferSize: dictionary.value(forKey: "eventsBufferSize") as? Int ?? Defaults.eventsBufferSize,
                          sendDeviceLocationIfAvailable: dictionary.bool(forKey: "sendDeviceLocationIfAvailable", fallback: Defaults.sendDeviceLocationIfAvailable),
-                         alertApplicationNotRespondingTreshold: dictionary.value(forKey: "alertApplicationNotRespondingTreshold") as? Float,
+                         alertApplicationNotRespondingTreshold: dictionary.value(forKey: "alertApplicationNotRespondingTreshold") as? Instana.Types.Seconds,
                          alertHighCPUUsageTreshold: dictionary.value(forKey: "alertHighCPUUsageTreshold") as? Float,
                          alertFramerateDipTreshold: dictionary.value(forKey: "alertFramerateDipTreshold") as? UInt)
     }

@@ -4,9 +4,20 @@
 import Foundation
 
 @objc public class InstanaAlerts: NSObject {
-    var applicationNotRespondingTreshold: Float?
+    var applicationNotRespondingTreshold: Instana.Types.Seconds? {
+        didSet {
+            switch (applicationNotRespondingTreshold, applicationNotRespondingMonitor) {
+            case (let anrTreshold?, let anrMonitor?):
+                anrMonitor.treshold = anrTreshold
+            case (let anrTreshold?, .none):
+                applicationNotRespondingMonitor = InstanaApplicationNotRespondingMonitor(treshold: anrTreshold)
+            default:
+                applicationNotRespondingMonitor = nil
+            }
+        }
+    }
     var highCPUUsageTreshold: Float?
     var framerateDipTreshold: UInt?
     
-    // TODO: implement
+    private var applicationNotRespondingMonitor: InstanaApplicationNotRespondingMonitor?
 }

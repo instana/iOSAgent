@@ -38,6 +38,7 @@ public extension Instana {
     @objc public class Types: NSObject {
         private override init() {}
         public typealias Milliseconds = Double
+        public typealias Seconds = Double
         public typealias UTCTimestamp = TimeInterval
     }
 }

@@ -21,6 +21,16 @@
 //    *p = 0;
 }
 
+#pragma optimize("", off)
+- (IBAction)onHighIntensityWorkload:(id)sender {
+    for (int i = 0; i < 100000000; i++) {
+        float a = arc4random_uniform(1000000000);
+        float b = arc4random_uniform(1000000000);
+        __unused float c = a / b / a / b;
+    }
+}
+#pragma optimize("", on)
+
 - (IBAction)onTapUrlRequest:(id)sender {
     // custom event
     [Instana.events submitEvent:[[InstanaCustomEvent alloc] initWithName:@"manual evenet" timestamp:[[NSDate new] timeIntervalSince1970] duration:1.5]];
