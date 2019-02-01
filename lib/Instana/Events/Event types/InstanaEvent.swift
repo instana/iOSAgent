@@ -19,9 +19,7 @@ import Foundation
     
     func toJSON() -> [String : Any] {
         var json = ["sessionId": sessionId]
-        if let eventId = eventId {
-            json["id"] = eventId
-        }
+        json.set(ifNotNil: eventId, forKey: "id")
         return json
     }
 }
