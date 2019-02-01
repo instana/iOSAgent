@@ -44,11 +44,7 @@ extension InstanaApplicationNotRespondingMonitor: InstanaTimerProxyDelegate {
         
         let delay = CFAbsoluteTimeGetCurrent() - start - samplingInterval
         if delay > treshold {
-            var screen: String?
-            if let root = UIApplication.shared.delegate?.window??.rootViewController {
-                screen = String(describing: type(of: root))
-            }
-            let event = InstanaAlertEvent(alertType: .anr(duration: delay), screen: screen)
+            let event = InstanaAlertEvent(alertType: .anr(duration: delay), screen: InstanaSystemUtils.viewControllersHierarchy())
             Instana.events.submit(event: event)
         }
         scheduleTimer()

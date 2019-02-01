@@ -12,5 +12,7 @@
 	<string>testing</string>
 	<key>eventsBufferSize</key>
 	<integer>10</integer>
+	<key>alertLowMemory</key>
+	<true/>
 </dict>
 </plist>

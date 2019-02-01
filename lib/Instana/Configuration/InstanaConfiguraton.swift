@@ -10,6 +10,7 @@ struct InstanaConfiguration {
         static let eventsBufferSize = 200
         static let suspendReporting = InstanaEvents.SuspendReporting.never
         static let sendDeviceLocationIfAvailable = false
+        static let alertLowMemory = false
     }
     
     let reportingUrl: String
@@ -20,7 +21,7 @@ struct InstanaConfiguration {
     let eventsBufferSize: Int
     let sendDeviceLocationIfAvailable: Bool
     let alertApplicationNotRespondingTreshold: Instana.Types.Seconds?
-    let alertHighCPUUsageTreshold: Float?
+    let alertLowMemory: Bool
     let alertFramerateDipTreshold: UInt?
     
     static func read(from path: String?) -> InstanaConfiguration? {
@@ -45,7 +46,7 @@ struct InstanaConfiguration {
                          eventsBufferSize: dictionary.value(forKey: "eventsBufferSize") as? Int ?? Defaults.eventsBufferSize,
                          sendDeviceLocationIfAvailable: dictionary.bool(forKey: "sendDeviceLocationIfAvailable", fallback: Defaults.sendDeviceLocationIfAvailable),
                          alertApplicationNotRespondingTreshold: dictionary.value(forKey: "alertApplicationNotRespondingTreshold") as? Instana.Types.Seconds,
-                         alertHighCPUUsageTreshold: dictionary.value(forKey: "alertHighCPUUsageTreshold") as? Float,
+                         alertLowMemory: dictionary.bool(forKey: "alertLowMemory", fallback: Defaults.alertLowMemory),
                          alertFramerateDipTreshold: dictionary.value(forKey: "alertFramerateDipTreshold") as? UInt)
     }
     
@@ -58,7 +59,7 @@ struct InstanaConfiguration {
                          eventsBufferSize: Defaults.eventsBufferSize,
                          sendDeviceLocationIfAvailable: Defaults.sendDeviceLocationIfAvailable,
                          alertApplicationNotRespondingTreshold: nil,
-                         alertHighCPUUsageTreshold: nil,
+                         alertLowMemory: Defaults.alertLowMemory,
                          alertFramerateDipTreshold: nil)
     }
 }

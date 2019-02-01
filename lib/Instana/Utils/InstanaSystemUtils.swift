@@ -30,4 +30,33 @@ class InstanaSystemUtils {
     static var applicationBuildNumber: String {
         return Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "unkown-build-number"
     }
+    
+    /// Returns a ' > ' sepparated string of view controller class names in the app hierarchy.
+    /// This is only a superficial check, and doesn't go deeper than one level.
+    static func viewControllersHierarchy() -> String? {
+        guard let root = UIApplication.shared.delegate?.window??.rootViewController else { return nil }
+        var vcs: [UIViewController] = []
+        let rootName = String(describing: type(of: root))
+        
+        switch root {
+        case let nvc as UINavigationController:
+            vcs.append(contentsOf: nvc.viewControllers)
+        case let tvc as UITabBarController:
+            if let selected = tvc.selectedViewController {
+                vcs.append(selected)
+            }
+        case let svc as UISplitViewController:
+            vcs.append(contentsOf: svc.viewControllers)
+        default:
+            break
+        }
+        
+        if let modal = (vcs.last ?? root).presentedViewController {
+            vcs.append(modal)
+        }
+        
+        return vcs
+            .map { String(describing: type(of: $0)) }
+            .reduce(rootName) { "\($0) > \($1)" }
+    }
 }
