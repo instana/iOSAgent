@@ -14,7 +14,7 @@ class InstanaFramerateDipMonitor {
     private let treshold: UInt
     private let displayLink: CADisplayLink
     private let samplingInterval: Instana.Types.Seconds = 1
-    private var samplingStart: CFAbsoluteTime = 0
+    private var samplingStart: CFTimeInterval = 0
     private var elapsedFrames: UInt = 0
     private var dipStart: CFAbsoluteTime?
     private var runningAverage: Float = 0
@@ -28,6 +28,8 @@ class InstanaFramerateDipMonitor {
         displayLink = CADisplayLink(target: proxy, selector: #selector(proxy.onDisplayLinkUpdate))
         proxy.proxied = self
         displayLink.add(to: RunLoop.main, forMode: .common)
+        NotificationCenter.default.addObserver(self, selector: #selector(onApplicationEnteredForeground), name: UIApplication.didBecomeActiveNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(onApplicationEnteredBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
     }
     
     deinit {
@@ -36,14 +38,28 @@ class InstanaFramerateDipMonitor {
 }
 
 private extension InstanaFramerateDipMonitor {
+
+    @objc func onApplicationEnteredForeground() {
+        displayLink.isPaused = false
+    }
+    
+    @objc func onApplicationEnteredBackground() {
+        displayLink.isPaused = true
+        dipStart = nil
+        samplingStart = 0
+        elapsedFrames = 0
+    }
+}
+
+private extension InstanaFramerateDipMonitor {
     func onDisplayLinkUpdate() {
         guard samplingStart > 0 else {
-            samplingStart = CFAbsoluteTimeGetCurrent()
+            samplingStart = displayLink.timestamp
             return
         }
         
         elapsedFrames += 1
-        let samplingDuration = CFAbsoluteTimeGetCurrent() - samplingStart
+        let samplingDuration = displayLink.timestamp - samplingStart
         
         if samplingDuration > samplingInterval {
             handle(fps: UInt(round(Double(elapsedFrames) / samplingDuration)))
