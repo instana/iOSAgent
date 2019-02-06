@@ -21,8 +21,18 @@ import Foundation
             lowMemoryMonitor = lowMemory ? InstanaLowMemoryMonitor() : nil
         }
     }
-    var framerateDipTreshold: UInt?
+    var framerateDipTreshold: UInt? {
+        didSet {
+            switch framerateDipTreshold {
+            case let treshold?:
+                framerateDipMonitor = InstanaFramerateDipMonitor(treshold: treshold)
+            default:
+                framerateDipMonitor = nil
+            }
+        }
+    }
     
     private var applicationNotRespondingMonitor: InstanaApplicationNotRespondingMonitor?
     private var lowMemoryMonitor: InstanaLowMemoryMonitor?
+    private var framerateDipMonitor: InstanaFramerateDipMonitor?
 }

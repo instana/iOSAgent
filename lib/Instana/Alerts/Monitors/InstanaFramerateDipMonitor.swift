@@ -1,0 +1,76 @@
+//  Created by Nikola Lajic on 2/4/19.
+//  Copyright © 2019 Nikola Lajic. All rights reserved.
+
+import Foundation
+
+class InstanaFramerateDipMonitor {
+    // needed since CADisplayLink retains the target
+    private class DisplayLinkProxy {
+        weak var proxied: InstanaFramerateDipMonitor?
+        @objc func onDisplayLinkUpdate() {
+            proxied?.onDisplayLinkUpdate()
+        }
+    }
+    private let treshold: UInt
+    private let displayLink: CADisplayLink
+    private let samplingInterval: Instana.Types.Seconds = 1
+    private var samplingStart: CFAbsoluteTime = 0
+    private var elapsedFrames: UInt = 0
+    private var dipStart: CFAbsoluteTime?
+    private var runningAverage: Float = 0
+    private var consecutiveFrameDip: UInt = 0
+    
+    private init() { fatalError() }
+    
+    init(treshold: UInt) {
+        self.treshold = treshold
+        let proxy = DisplayLinkProxy()
+        displayLink = CADisplayLink(target: proxy, selector: #selector(proxy.onDisplayLinkUpdate))
+        proxy.proxied = self
+        displayLink.add(to: RunLoop.main, forMode: .common)
+    }
+    
+    deinit {
+        displayLink.invalidate()
+    }
+}
+
+private extension InstanaFramerateDipMonitor {
+    func onDisplayLinkUpdate() {
+        guard samplingStart > 0 else {
+            samplingStart = CFAbsoluteTimeGetCurrent()
+            return
+        }
+        
+        elapsedFrames += 1
+        let samplingDuration = CFAbsoluteTimeGetCurrent() - samplingStart
+        
+        if samplingDuration > samplingInterval {
+            handle(fps: UInt(round(Double(elapsedFrames) / samplingDuration)))
+            samplingStart = 0
+            elapsedFrames = 0
+        }
+    }
+    
+    func handle(fps: UInt) {
+        switch (fps < treshold, dipStart) {
+        case (true, nil):
+            dipStart = samplingStart
+            runningAverage = Float(fps)
+            consecutiveFrameDip = 1
+        case (true, _?):
+            consecutiveFrameDip += 1
+            runningAverage -= runningAverage / Float(consecutiveFrameDip)
+            runningAverage += Float(fps) / Float(consecutiveFrameDip)
+        case (false, let start?):
+            let duration = CFAbsoluteTimeGetCurrent() - start
+            let event = InstanaAlertEvent(alertType: .framerateDip(duration: duration, averageFramerate: runningAverage), screen: InstanaSystemUtils.viewControllersHierarchy())
+            Instana.events.submit(event: event)
+            dipStart = nil
+            runningAverage = 0
+            consecutiveFrameDip = 0
+        default:
+            break
+        }
+    }
+}

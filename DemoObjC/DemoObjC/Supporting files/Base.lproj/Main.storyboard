@@ -19,7 +19,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacing="7" translatesAutoresizingMaskIntoConstraints="NO" id="WS6-7F-aIF">
-                                <rect key="frame" x="85.5" y="291.5" width="204" height="104"/>
+                                <rect key="frame" x="85.5" y="273" width="204" height="141"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="T6m-ni-tgc">
                                         <rect key="frame" x="76.5" y="0.0" width="51" height="30"/>
@@ -42,6 +42,13 @@
                                         <state key="normal" title="HIGH INTENSITY WORKLOAD"/>
                                         <connections>
                                             <action selector="onHighIntensityWorkload:" destination="BYZ-38-t0r" eventType="touchUpInside" id="j5F-IP-B2d"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="z5c-yW-0Wn">
+                                        <rect key="frame" x="50" y="111" width="104" height="30"/>
+                                        <state key="normal" title="DROP FRAMES"/>
+                                        <connections>
+                                            <action selector="onDropFrames:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Eoo-ho-Iju"/>
                                         </connections>
                                     </button>
                                 </subviews>
