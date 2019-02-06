@@ -31,6 +31,18 @@
 }
 #pragma optimize("", on)
 
+- (IBAction)onDropFrames:(id)sender {
+    [self sleep:100];
+}
+
+- (void)sleep:(int)count {
+    if (count <= 0) return;
+    [NSThread sleepForTimeInterval:0.065];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.016 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+        [self sleep:count - 1];
+    });
+}
+
 - (IBAction)onTapUrlRequest:(id)sender {
     // custom event
     [Instana.events submitEvent:[[InstanaCustomEvent alloc] initWithName:@"manual evenet" timestamp:[[NSDate new] timeIntervalSince1970] duration:1.5]];

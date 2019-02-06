@@ -7,7 +7,7 @@ class InstanaAlertEvent: InstanaEvent {
     enum AlertType {
         case anr(duration: Instana.Types.Seconds)
         case lowMemory
-        case framerateDip
+        case framerateDip(duration: Instana.Types.Seconds, averageFramerate: Float)
     }
     private let alertType: AlertType
     private let screen: String?
@@ -25,7 +25,9 @@ class InstanaAlertEvent: InstanaEvent {
         body.set(ifNotNil: screen, forKey: "screen")
         
         switch alertType {
-        case .framerateDip:
+        case .framerateDip(let duration, let average):
+            body["durationMs"] = duration * 1000
+            body["averageFramerate"] = average
             alert["framerateDip"] = body
         case .lowMemory:
             alert["lowMemory"] = body
