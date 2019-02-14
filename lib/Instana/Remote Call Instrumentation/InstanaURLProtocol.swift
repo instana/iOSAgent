@@ -63,7 +63,6 @@ extension InstanaURLProtocol: URLSessionTaskDelegate {
 
 extension InstanaURLProtocol: URLSessionDataDelegate {
     internal func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse, completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
-        // TODO: do we actually need this?
         completionHandler(.allow)
         client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .allowed)
     }
