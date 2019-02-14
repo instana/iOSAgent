@@ -5,17 +5,25 @@ import Foundation
 
 @objc public class InstanaRemoteCallInstrumentation: NSObject {
     @objc public enum ReportingType: Int {
-        case automaticAndManual, automatic, manual
+        case automaticAndManual, automatic, manual, none
     }
-    @objc public var type: ReportingType = .automaticAndManual // TODO: implement actual check
-    // TODO: install in observer?
+    @objc public var reporting: ReportingType = .none {
+        didSet {
+            switch reporting {
+            case .automaticAndManual, .automatic:
+                install()
+            case .manual, .none:
+                uninstall()
+            }
+        }
+    }
     
     @objc public func install(in configuration: URLSessionConfiguration) {
         configuration.protocolClasses?.insert(InstanaURLProtocol.self, at: 0)
     }
     
     @objc public func markCall(to url: String, method: String) -> InstanaRemoteCallMarker {
-        return InstanaRemoteCallMarker(url: url, method: method, delegate: self)
+        return InstanaRemoteCallMarker(url: url, method: method, trigger: .manual, delegate: self)
     }
 }
 
@@ -31,18 +39,30 @@ extension InstanaRemoteCallInstrumentation {
     func markCall(with task: URLSessionTask) -> InstanaRemoteCallMarker {
         return InstanaRemoteCallMarker(task: task, delegate: self)
     }
+    
+    private func shouldReport(marker: InstanaRemoteCallMarker) -> Bool {
+        switch reporting {
+        case .automaticAndManual: return true
+        case .automatic: return marker.trigger == .automatic
+        case .manual: return marker.trigger == .manual
+        case .none: return false
+        }
+    }
 }
 
 extension InstanaRemoteCallInstrumentation: InstanaRemoteCallMarkerDelegate {
     func marker(_ marker: InstanaRemoteCallMarker, enededWith responseCode: Int) {
+        guard shouldReport(marker: marker) else { return }
         Instana.events.submit(event: marker.event())
     }
     
     func marker(_ marker: InstanaRemoteCallMarker, enededWith error: Error) {
+        guard shouldReport(marker: marker) else { return }
         Instana.events.submit(event: marker.event())
     }
     
     func markerCanceled(_ marker: InstanaRemoteCallMarker) {
+        guard shouldReport(marker: marker) else { return }
         Instana.events.submit(event: marker.event())
     }
 }
