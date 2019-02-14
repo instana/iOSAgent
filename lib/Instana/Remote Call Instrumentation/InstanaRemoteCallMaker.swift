@@ -46,18 +46,21 @@ extension InstanaRemoteCallMarker {
     }
     
     @objc public func endedWith(responseCode: Int) {
+        guard case .started = state else { return }
         state = .finished(responseCode: responseCode)
         endTime = Date().timeIntervalSince1970
         delegate?.marker(self, enededWith: responseCode)
     }
     
     @objc public func endedWith(error: Error) {
+        guard case .started = state else { return }
         state = .failed(error: error)
         endTime = Date().timeIntervalSince1970
         delegate?.marker(self, enededWith: error)
     }
     
     @objc public func canceled() {
+        guard case .started = state else { return }
         state = .canceled
         endTime = Date().timeIntervalSince1970
         delegate?.markerCanceled(self)
