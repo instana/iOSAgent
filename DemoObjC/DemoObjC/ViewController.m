@@ -43,14 +43,16 @@
     });
 }
 
-- (IBAction)onTapUrlRequest:(id)sender {
-    // custom event
+- (IBAction)onTapCustomEvent:(id)sender {
     [Instana.events submitEvent:[[InstanaCustomEvent alloc] initWithName:@"manual evenet" timestamp:[[NSDate new] timeIntervalSince1970] duration:1.5]];
-    
+}
+
+- (IBAction)onTapUrlRequest:(id)sender {
     // shared session
     [[[NSURLSession sharedSession] dataTaskWithURL:[NSURL URLWithString:@"https://www.apple.com"] completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         NSLog(@"[DemoObjC] Finished shared session task (apple)");
     }] resume];
+    
     
     // custom session
     NSURLSessionConfiguration *customConfig = [NSURLSessionConfiguration defaultSessionConfiguration];
@@ -59,14 +61,14 @@
     [[[NSURLSession sessionWithConfiguration:customConfig] dataTaskWithURL:[NSURL URLWithString:@"http://www.google.com/"] completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         NSLog(@"[DemoObjC] Finished custom session task (google)");
     }] resume];
-    
+
     // manual tracking
     NSURLSessionConfiguration *ephemeralConfig = [NSURLSessionConfiguration ephemeralSessionConfiguration];
     NSURL *url = [NSURL URLWithString:@"https://www.microsoft.com"];
     NSURLRequest *request = [NSURLRequest requestWithURL:url];
     self.marker = [Instana.remoteCallInstrumentation markCallTo:url.absoluteString method:@"GET"];
     [[[NSURLSession sessionWithConfiguration:ephemeralConfig delegate:self delegateQueue:nil] dataTaskWithRequest:request] resume];
-    
+
     // cancelled request
     NSURLSessionTask *task = [[NSURLSession sharedSession] dataTaskWithURL:[NSURL URLWithString:@"https://www.yahoo.com"] completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         NSLog(@"[DemoObjC] Finished cancelled task (yahoo)");

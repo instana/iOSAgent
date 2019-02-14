@@ -61,7 +61,7 @@ private extension Instana {
     }
     
     static func setupRemoteCallInstrumentation(with config: InstanaConfiguration) {
-        remoteCallInstrumentation.type = config.remoteCallInstrumentationType
+        remoteCallInstrumentation.reporting = config.remoteCallInstrumentationType
     }
     
     static func setupCrashReporting(with config: InstanaConfiguration) {

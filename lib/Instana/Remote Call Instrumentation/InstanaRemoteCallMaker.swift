@@ -13,22 +13,27 @@ protocol InstanaRemoteCallMarkerDelegate: class {
     enum State {
         case started, failed(error: Error), finished(responseCode: Int), canceled
     }
+    enum Trigger {
+        case manual, automatic
+    }
     let url: String
     let method: String
     let id = UUID().uuidString
+    let trigger: Trigger
     public let startTime: Instana.Types.UTCTimestamp
     private var endTime: Instana.Types.UTCTimestamp?
     private(set) var state: State = .started
     private weak var delegate: InstanaRemoteCallMarkerDelegate?
     
-    init(url: String, method: String, delegate: InstanaRemoteCallMarkerDelegate) {
+    init(url: String, method: String, trigger: Trigger = .automatic, delegate: InstanaRemoteCallMarkerDelegate) {
         startTime = Date().timeIntervalSince1970
         self.url = url
         self.method = method
         self.delegate = delegate
+        self.trigger = trigger
     }
     
-    convenience init(task: URLSessionTask, delegate: InstanaRemoteCallMarkerDelegate) {
+    convenience init(task: URLSessionTask, trigger: Trigger = .automatic, delegate: InstanaRemoteCallMarkerDelegate) {
         self.init(url: task.originalRequest?.url?.absoluteString ?? "", method: task.originalRequest?.httpMethod ?? "", delegate: delegate)
     }
 }
