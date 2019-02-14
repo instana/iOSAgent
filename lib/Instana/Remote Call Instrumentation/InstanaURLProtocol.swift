@@ -56,7 +56,7 @@ extension InstanaURLProtocol: URLSessionTaskDelegate {
         }
         else {
             client?.urlProtocolDidFinishLoading(self)
-            marker?.endedWith(responseCode: 200) // TODO: extract response code
+            marker?.endedWith(responseCode: (task.response as? HTTPURLResponse)?.statusCode ?? 0)
         }
     }
 }
