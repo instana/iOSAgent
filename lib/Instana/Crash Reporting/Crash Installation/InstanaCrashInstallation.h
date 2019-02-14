@@ -4,4 +4,5 @@
 @import KSCrash;
 
 @interface InstanaCrashInstallation : KSCrashInstallation
+- (void)addBreadcrumb:(NSString *)breadcrumb;
 @end

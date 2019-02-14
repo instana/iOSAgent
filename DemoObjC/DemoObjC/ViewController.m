@@ -16,6 +16,7 @@
 @implementation ViewController
 
 - (IBAction)onTapCrash:(id)sender {
+    [Instana.crashReporting leaveBreadcrumb:@"intentiaonally crashing"];
     @throw NSInternalInconsistencyException;
 //    int* p = 0;
 //    *p = 0;
@@ -23,6 +24,7 @@
 
 #pragma optimize("", off)
 - (IBAction)onHighIntensityWorkload:(id)sender {
+    [Instana.crashReporting leaveBreadcrumb:@"high intensity workload"];
     for (int i = 0; i < 100000000; i++) {
         float a = arc4random_uniform(1000000000);
         float b = arc4random_uniform(1000000000);
@@ -32,6 +34,7 @@
 #pragma optimize("", on)
 
 - (IBAction)onDropFrames:(id)sender {
+    [Instana.crashReporting leaveBreadcrumb:@"dropping frames"];
     [self sleep:100];
 }
 
@@ -44,10 +47,12 @@
 }
 
 - (IBAction)onTapCustomEvent:(id)sender {
+    [Instana.crashReporting leaveBreadcrumb:@"sending custom event"];
     [Instana.events submitEvent:[[InstanaCustomEvent alloc] initWithName:@"manual evenet" timestamp:[[NSDate new] timeIntervalSince1970] duration:1.5]];
 }
 
 - (IBAction)onTapUrlRequest:(id)sender {
+    [Instana.crashReporting leaveBreadcrumb:@"sending url requests"];
     // shared session
     [[[NSURLSession sharedSession] dataTaskWithURL:[NSURL URLWithString:@"https://www.apple.com"] completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         NSLog(@"[DemoObjC] Finished shared session task (apple)");

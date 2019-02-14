@@ -75,11 +75,11 @@ private extension InstanaCrashReportSink {
         let date = ISO8601DateFormatter().date(from: datetime) ?? Date()
         let timestamp = date.timeIntervalSince1970
         
+        let breadcrumbs = standardReport.value(forKeyPath: "user.breadcrumbs") as? [String]
+        
         let sessionId = standardReport.value(forKeyPath: "user.sessionId") as? String ?? "unknown-session"
         let jsonReport = String(data: jsonDataReport ?? Data(), encoding: .utf8) ?? ""
         
-        // TODO: add breadcrumbs
-        return InstanaCrashEvent(sessionId: sessionId, timestamp: timestamp, report: jsonReport, completion: completion)
+        return InstanaCrashEvent(sessionId: sessionId, timestamp: timestamp, report: jsonReport, breadcrumbs: breadcrumbs, completion: completion)
     }
-    
 }
