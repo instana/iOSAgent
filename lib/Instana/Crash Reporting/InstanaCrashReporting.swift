@@ -6,8 +6,9 @@ import Foundation
 @objc public class InstanaCrashReporting: NSObject {
     private var crashInstallation: InstanaCrashInstallation?
     
-    @objc public func leave(breadcrumb: String) {
-        // TODO: implement event
+    @objc(leaveBreadcrumb:)
+    public func leave(breadcrumb: String) {
+        crashInstallation?.addBreadcrumb(breadcrumb)
     }
     
     func setup() {

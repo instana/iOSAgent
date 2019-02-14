@@ -6,9 +6,11 @@ import Foundation
 class InstanaCrashEvent: InstanaEvent, InstanaEventResultNotifiable {
     let completion: InstanaEventResultNotifiable.CompletionBlock
     let report: String
+    let breadcrumbs: [String]?
     
-    init(sessionId: String, timestamp: Instana.Types.UTCTimestamp, report: String, completion: @escaping InstanaEventResultNotifiable.CompletionBlock) {
+    init(sessionId: String, timestamp: Instana.Types.UTCTimestamp, report: String, breadcrumbs: [String]?, completion: @escaping InstanaEventResultNotifiable.CompletionBlock) {
         self.report = report
+        self.breadcrumbs = breadcrumbs
         self.completion = completion
         super.init(sessionId: sessionId, timestamp: timestamp)
     }
@@ -20,7 +22,8 @@ class InstanaCrashEvent: InstanaEvent, InstanaEventResultNotifiable {
             "appBuildNumber": InstanaSystemUtils.applicationBuildNumber,
             "type": "iOS",
             "timestamp": timestamp,
-            "report": report
+            "report": report,
+            "breadcrumbs": breadcrumbs ?? []
         ]
         return json
     }
