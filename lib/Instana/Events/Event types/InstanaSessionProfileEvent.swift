@@ -26,11 +26,11 @@ class InstanaSessionProfileEvent: InstanaEvent, InstanaEventResultNotifiable {
         var json = super.toJSON()
         json["profile"] = [
             "platform": "iOS",
-            "osDistro": "Apple",
             "osLevel": InstanaSystemUtils.systemVersion,
             "deviceType": InstanaSystemUtils.deviceModel,
             "appVersion": InstanaSystemUtils.applicationVersion,
-            "appBuild": InstanaSystemUtils.applicationBuildNumber
+            "appBuild": InstanaSystemUtils.applicationBuildNumber,
+            "clientId": InstanaSystemUtils.clientId
         ]
         return json
     }
