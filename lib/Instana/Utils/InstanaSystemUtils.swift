@@ -59,4 +59,17 @@ class InstanaSystemUtils {
             .map { String(describing: type(of: $0)) }
             .reduce(rootName) { "\($0) > \($1)" }
     }
+    
+    /// Persistent client id stored in user defaults.
+    static let clientId: String = {
+        let clientIdKey = "INSTANA_CLIENT_ID"
+        if let id = UserDefaults.standard.value(forKey: clientIdKey) as? String {
+            return id
+        }
+        else {
+            let id = UUID().uuidString
+            UserDefaults.standard.set(id, forKey: clientIdKey)
+            return id
+        }
+    }()
 }
