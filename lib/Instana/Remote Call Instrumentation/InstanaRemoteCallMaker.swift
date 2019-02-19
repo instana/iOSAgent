@@ -18,7 +18,7 @@ protocol InstanaRemoteCallMarkerDelegate: class {
     }
     let url: String
     let method: String
-    let id = UUID().uuidString
+    let eventId = UUID().uuidString
     let trigger: Trigger
     public let startTime: Instana.Types.UTCTimestamp
     private var endTime: Instana.Types.UTCTimestamp?
@@ -33,15 +33,20 @@ protocol InstanaRemoteCallMarkerDelegate: class {
         self.trigger = trigger
     }
     
-    convenience init(task: URLSessionTask, trigger: Trigger = .automatic, delegate: InstanaRemoteCallMarkerDelegate) {
-        self.init(url: task.originalRequest?.url?.absoluteString ?? "", method: task.originalRequest?.httpMethod ?? "", delegate: delegate)
+    @objc public func addTrackingHeaders(to request: NSMutableURLRequest?) {
+        guard let request = request else { return }
+        headers.forEach { (key, value) in request.addValue(value, forHTTPHeaderField: key) }
+    }
+    
+    public func addTrackingHeaders(to request: inout URLRequest) {
+        headers.forEach { (key, value) in request.addValue(value, forHTTPHeaderField: key) }
     }
 }
 
 extension InstanaRemoteCallMarker {
     @objc public var headers: [String: String] {
         get {
-            return [:]
+            return ["X-INSTANA-T": eventId]
         }
     }
     
@@ -89,6 +94,6 @@ extension InstanaRemoteCallMarker {
             result = String(describing: error)
         }
 
-        return InstanaRemoteCallEvent(timestamp: startTime, duration: duration(), method: method, url: url, responseCode: responseCode ?? -1, result: result)
+        return InstanaRemoteCallEvent(eventId: eventId, timestamp: startTime, duration: duration(), method: method, url: url, responseCode: responseCode ?? -1, result: result)
     }
 }

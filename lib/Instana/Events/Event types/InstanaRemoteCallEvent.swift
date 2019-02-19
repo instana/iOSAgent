@@ -10,13 +10,13 @@ class InstanaRemoteCallEvent: InstanaEvent {
     let responseCode: Int
     let result: String
     
-    init(timestamp: Instana.Types.UTCTimestamp = Date().timeIntervalSince1970, duration: Instana.Types.Milliseconds, method: String, url: String, responseCode: Int = -1, result: String) {
+    init(eventId: String, timestamp: Instana.Types.UTCTimestamp = Date().timeIntervalSince1970, duration: Instana.Types.Milliseconds, method: String, url: String, responseCode: Int = -1, result: String) {
         self.duration = duration
         self.method = method
         self.url = url
         self.responseCode = responseCode
         self.result = result
-        super.init(timestamp: timestamp)
+        super.init(eventId: eventId, timestamp: timestamp)
     }
     
     override func toJSON() -> [String : Any] {
