@@ -11,7 +11,7 @@
 	<key>suspendReporting</key>
 	<integer>0</integer>
 	<key>key</key>
-	<string>testing</string>
+	<string>42</string>
 	<key>eventsBufferSize</key>
 	<integer>10</integer>
 	<key>alertLowMemory</key>
