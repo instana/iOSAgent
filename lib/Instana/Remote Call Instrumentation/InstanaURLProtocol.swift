@@ -24,21 +24,14 @@ internal class InstanaURLProtocol: URLProtocol {
     }
     
     override class func canonicalRequest(for request: URLRequest) -> URLRequest {
-        // TODO: remove test headers
-        var mutableRequest = request
-        if mutableRequest.allHTTPHeaderFields != nil {
-            mutableRequest.allHTTPHeaderFields?["Instana"] = "X-Tracker"
-        }
-        else {
-            mutableRequest.allHTTPHeaderFields = ["Instana": "X-Tracker"]
-        }
-        return mutableRequest
+        return request
     }
     
     override func startLoading() {
-        // TODO: add headers
-        let task = session.dataTask(with: request)
-        marker = Instana.remoteCallInstrumentation.markCall(with: task)
+        marker = Instana.remoteCallInstrumentation.markAutomaticCall(to: request.url?.absoluteString ?? "", method: request.httpMethod ?? "")
+        var mutableRequest = request
+        marker?.addTrackingHeaders(to: &mutableRequest)
+        let task = session.dataTask(with: mutableRequest)
         task.resume()
     }
     

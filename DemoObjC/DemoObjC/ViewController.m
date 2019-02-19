@@ -70,8 +70,9 @@
     // manual tracking
     NSURLSessionConfiguration *ephemeralConfig = [NSURLSessionConfiguration ephemeralSessionConfiguration];
     NSURL *url = [NSURL URLWithString:@"https://www.microsoft.com"];
-    NSURLRequest *request = [NSURLRequest requestWithURL:url];
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
     self.marker = [Instana.remoteCallInstrumentation markCallTo:url.absoluteString method:@"GET"];
+    [self.marker addTrackingHeadersTo:request];
     [[[NSURLSession sessionWithConfiguration:ephemeralConfig delegate:self delegateQueue:nil] dataTaskWithRequest:request] resume];
 
     // cancelled request
