@@ -28,7 +28,7 @@ internal class InstanaURLProtocol: URLProtocol {
     }
     
     override func startLoading() {
-        marker = Instana.remoteCallInstrumentation.markAutomaticCall(to: request.url?.absoluteString ?? "", method: request.httpMethod ?? "")
+        marker = Instana.remoteCallInstrumentation.markCall(for: request)
         var mutableRequest = request
         marker?.addTrackingHeaders(to: &mutableRequest)
         let task = session.dataTask(with: mutableRequest)
@@ -45,11 +45,11 @@ extension InstanaURLProtocol: URLSessionTaskDelegate {
     internal func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
         if let error = error {
             client?.urlProtocol(self, didFailWithError: error)
-            marker?.endedWith(error: error)
+            marker?.endedWith(error: error, responseSize: task.countOfBytesReceived)
         }
         else {
             client?.urlProtocolDidFinishLoading(self)
-            marker?.endedWith(responseCode: (task.response as? HTTPURLResponse)?.statusCode ?? 0)
+            marker?.endedWith(responseCode: (task.response as? HTTPURLResponse)?.statusCode ?? 0, responseSize: task.countOfBytesReceived)
         }
     }
 }
