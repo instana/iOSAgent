@@ -20,17 +20,20 @@ protocol InstanaRemoteCallMarkerDelegate: class {
     let method: String
     let eventId = UUID().uuidString
     let trigger: Trigger
+    let requestSize: Instana.Types.Bytes
+    private(set) var responseSize: Instana.Types.Bytes = 0
     public let startTime: Instana.Types.UTCTimestamp
     private var endTime: Instana.Types.UTCTimestamp?
     private(set) var state: State = .started
     private weak var delegate: InstanaRemoteCallMarkerDelegate?
     
-    init(url: String, method: String, trigger: Trigger = .automatic, delegate: InstanaRemoteCallMarkerDelegate) {
+    init(url: String, method: String, trigger: Trigger = .automatic, requestSize: Instana.Types.Bytes = 0, delegate: InstanaRemoteCallMarkerDelegate) {
         startTime = Date().timeIntervalSince1970
         self.url = url
         self.method = method
         self.delegate = delegate
         self.trigger = trigger
+        self.requestSize = requestSize
     }
     
     @objc public func addTrackingHeaders(to request: NSMutableURLRequest?) {
@@ -50,16 +53,18 @@ extension InstanaRemoteCallMarker {
         }
     }
     
-    @objc public func endedWith(responseCode: Int) {
+    @objc public func endedWith(responseCode: Int, responseSize: Instana.Types.Bytes = 0) {
         guard case .started = state else { return }
         state = .finished(responseCode: responseCode)
+        self.responseSize = responseSize
         endTime = Date().timeIntervalSince1970
         delegate?.marker(self, enededWith: responseCode)
     }
     
-    @objc public func endedWith(error: Error) {
+    @objc public func endedWith(error: Error, responseSize: Instana.Types.Bytes = 0) {
         guard case .started = state else { return }
         state = .failed(error: error)
+        self.responseSize = responseSize
         endTime = Date().timeIntervalSince1970
         delegate?.marker(self, enededWith: error)
     }
@@ -94,6 +99,14 @@ extension InstanaRemoteCallMarker {
             result = String(describing: error)
         }
 
-        return InstanaRemoteCallEvent(eventId: eventId, timestamp: startTime, duration: duration(), method: method, url: url, responseCode: responseCode ?? -1, result: result)
+        return InstanaRemoteCallEvent(eventId: eventId,
+                                      timestamp: startTime,
+                                      duration: duration(),
+                                      method: method,
+                                      url: url,
+                                      responseCode: responseCode ?? -1,
+                                      requestSize: requestSize,
+                                      responseSize: responseSize,
+                                      result: result)
     }
 }

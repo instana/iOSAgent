@@ -36,8 +36,12 @@ extension InstanaRemoteCallInstrumentation {
         URLProtocol.unregisterClass(InstanaURLProtocol.self)
     }
     
-    func markAutomaticCall(to url: String, method: String) -> InstanaRemoteCallMarker {
-        return InstanaRemoteCallMarker(url: url, method: method, trigger: .automatic, delegate: self)
+    func markCall(for request: URLRequest) -> InstanaRemoteCallMarker {
+        return InstanaRemoteCallMarker(url: request.url?.absoluteString ?? "",
+                                       method: request.httpMethod ?? "",
+                                       trigger: .automatic,
+                                       requestSize: Instana.Types.Bytes(request.httpBody?.count ?? 0),
+                                       delegate: self)
     }
     
     private func shouldReport(marker: InstanaRemoteCallMarker) -> Bool {

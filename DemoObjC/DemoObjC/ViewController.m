@@ -91,8 +91,8 @@
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error
 {
-    if (error) [self.marker endedWithError:error];
-    else [self.marker endedWithResponseCode:200];
+    if (error) [self.marker endedWithError:error responseSize:task.countOfBytesReceived];
+    else [self.marker endedWithResponseCode:200 responseSize:task.countOfBytesReceived];
     NSLog(@"[DemoObjC] Finished manually tracked delegated task (microsoft)");
 }
 

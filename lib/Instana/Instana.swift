@@ -40,6 +40,7 @@ public extension Instana {
         public typealias Milliseconds = Double
         public typealias Seconds = Double
         public typealias UTCTimestamp = TimeInterval
+        public typealias Bytes = Int64
     }
 }
 
