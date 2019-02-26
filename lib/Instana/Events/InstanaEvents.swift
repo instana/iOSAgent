@@ -86,6 +86,7 @@ private extension InstanaEvents {
         // TODO: failed requests handling, after prototype
         if let error = error {
             complete(events, with: .failure(error: error))
+            return
         }
         guard let httpResponse = response as? HTTPURLResponse else {
             complete(events, with: .failure(error: InstanaError(code: .invalidResponse, description: "Can't parse server response.")))
