@@ -37,11 +37,12 @@
 		6C4DE3922208426600EDD018 /* InstanaFramerateDipMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C4DE3912208426600EDD018 /* InstanaFramerateDipMonitor.swift */; };
 		6C8D6EF221FB4D910029CAD7 /* InstanaSystemUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C8D6EF121FB4D910029CAD7 /* InstanaSystemUtils.swift */; };
 		6C8D6EF521FF4BF40029CAD7 /* InstanaBatteryUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C8D6EF421FF4BF40029CAD7 /* InstanaBatteryUtils.swift */; };
-		CC9044D3CB49F0FD465DE194 /* Pods_Instana.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EC62C4FEA0D70098AA9F7CA9 /* Pods_Instana.framework */; };
+		CFDEB8378607AB027FF8EC11 /* Pods_Instana.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2158CDB0CB1E158B3DFAB46B /* Pods_Instana.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		5230CB1E4E3A4ACE60695334 /* Pods-Instana.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Instana.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Instana/Pods-Instana.debug.xcconfig"; sourceTree = "<group>"; };
+		2158CDB0CB1E158B3DFAB46B /* Pods_Instana.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Instana.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		631C111F6A054D5239C38D6B /* Pods-Instana.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Instana.release.xcconfig"; path = "Pods/Target Support Files/Pods-Instana/Pods-Instana.release.xcconfig"; sourceTree = "<group>"; };
 		6C10880821F9BEC400C9EF70 /* InstanaError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanaError.swift; sourceTree = "<group>"; };
 		6C10880D21FB1F5B00C9EF70 /* InstanaSessionProfileEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanaSessionProfileEvent.swift; sourceTree = "<group>"; };
 		6C37CDB821BE9CB2007D90E9 /* Instana.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Instana.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -74,8 +75,7 @@
 		6C4DE3912208426600EDD018 /* InstanaFramerateDipMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanaFramerateDipMonitor.swift; sourceTree = "<group>"; };
 		6C8D6EF121FB4D910029CAD7 /* InstanaSystemUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanaSystemUtils.swift; sourceTree = "<group>"; };
 		6C8D6EF421FF4BF40029CAD7 /* InstanaBatteryUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanaBatteryUtils.swift; sourceTree = "<group>"; };
-		8A4B544DDE306D2536EEDA5F /* Pods-Instana.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Instana.release.xcconfig"; path = "Pods/Target Support Files/Pods-Instana/Pods-Instana.release.xcconfig"; sourceTree = "<group>"; };
-		EC62C4FEA0D70098AA9F7CA9 /* Pods_Instana.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Instana.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		D31A2725BAC3AB48AC301799 /* Pods-Instana.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Instana.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Instana/Pods-Instana.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -83,18 +83,18 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CC9044D3CB49F0FD465DE194 /* Pods_Instana.framework in Frameworks */,
+				CFDEB8378607AB027FF8EC11 /* Pods_Instana.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		3823265CFFCBB9112F094540 /* Pods */ = {
+		600EEB68884B454B5384CE66 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				5230CB1E4E3A4ACE60695334 /* Pods-Instana.debug.xcconfig */,
-				8A4B544DDE306D2536EEDA5F /* Pods-Instana.release.xcconfig */,
+				D31A2725BAC3AB48AC301799 /* Pods-Instana.debug.xcconfig */,
+				631C111F6A054D5239C38D6B /* Pods-Instana.release.xcconfig */,
 			);
 			name = Pods;
 			sourceTree = "<group>";
@@ -112,8 +112,8 @@
 			children = (
 				6C37CDBA21BE9CB2007D90E9 /* Instana */,
 				6C37CDB921BE9CB2007D90E9 /* Products */,
-				3823265CFFCBB9112F094540 /* Pods */,
-				D3163B6510A0BDB8A6E6AFAC /* Frameworks */,
+				6C4FB979222586560037C703 /* Frameworks */,
+				600EEB68884B454B5384CE66 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -258,6 +258,14 @@
 			path = Monitors;
 			sourceTree = "<group>";
 		};
+		6C4FB979222586560037C703 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				2158CDB0CB1E158B3DFAB46B /* Pods_Instana.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		6C8D6EF321FB4DA80029CAD7 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
@@ -265,14 +273,6 @@
 				6C8D6EF421FF4BF40029CAD7 /* InstanaBatteryUtils.swift */,
 			);
 			path = Utils;
-			sourceTree = "<group>";
-		};
-		D3163B6510A0BDB8A6E6AFAC /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				EC62C4FEA0D70098AA9F7CA9 /* Pods_Instana.framework */,
-			);
-			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -295,7 +295,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 6C37CDC021BE9CB2007D90E9 /* Build configuration list for PBXNativeTarget "Instana" */;
 			buildPhases = (
-				7AB0C119BA68D62B8EBC4FAE /* [CP] Check Pods Manifest.lock */,
+				BE3B8789FF0D6D0CED56E809 /* [CP] Check Pods Manifest.lock */,
 				6C37CDB321BE9CB2007D90E9 /* Headers */,
 				6C37CDB421BE9CB2007D90E9 /* Sources */,
 				6C37CDB521BE9CB2007D90E9 /* Frameworks */,
@@ -353,16 +353,20 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		7AB0C119BA68D62B8EBC4FAE /* [CP] Check Pods Manifest.lock */ = {
+		BE3B8789FF0D6D0CED56E809 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			inputFileListPaths = (
 			);
 			inputPaths = (
 				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
 				"${PODS_ROOT}/Manifest.lock",
 			);
 			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
 			outputPaths = (
 				"$(DERIVED_FILE_DIR)/Pods-Instana-checkManifestLockResult.txt",
 			);
@@ -537,7 +541,7 @@
 		};
 		6C37CDC121BE9CB2007D90E9 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 5230CB1E4E3A4ACE60695334 /* Pods-Instana.debug.xcconfig */;
+			baseConfigurationReference = D31A2725BAC3AB48AC301799 /* Pods-Instana.debug.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "";
@@ -566,7 +570,7 @@
 		};
 		6C37CDC221BE9CB2007D90E9 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 8A4B544DDE306D2536EEDA5F /* Pods-Instana.release.xcconfig */;
+			baseConfigurationReference = 631C111F6A054D5239C38D6B /* Pods-Instana.release.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "";

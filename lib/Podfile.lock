@@ -64,15 +64,15 @@ PODS:
     - KSCrash/Recording
 
 DEPENDENCIES:
-  - KSCrash (~> 1.15.18)
+  - KSCrash (from `../../KSCrash/`)
 
-SPEC REPOS:
-  https://github.com/cocoapods/specs.git:
-    - KSCrash
+EXTERNAL SOURCES:
+  KSCrash:
+    :path: "../../KSCrash/"
 
 SPEC CHECKSUMS:
-  KSCrash: 5394936f41e5c1ef7b79cf79b30d53299b0c160e
+  KSCrash: 6d9c50e0f95bdfa5932cdb56a495cc3096bfba00
 
-PODFILE CHECKSUM: 5ffc2045eb6eaaf9d6c2c99a5fb4668ae8255bd3
+PODFILE CHECKSUM: 3d1fe9b69a36b5d67d6aa9a5020925b6a42c17d1
 
 COCOAPODS: 1.5.3

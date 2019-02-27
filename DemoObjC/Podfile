@@ -6,5 +6,6 @@ target 'DemoObjC' do
   use_frameworks!
 
   # Pods for DemoObjC
-  pod 'Instana', :path => "../lib/"
+  pod 'Instana', :path => '../lib/'
+  pod 'KSCrash', :path => '../../KSCrash/' # point to custom fork
 end
