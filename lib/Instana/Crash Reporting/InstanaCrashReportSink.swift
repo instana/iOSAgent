@@ -46,9 +46,12 @@ private extension InstanaCrashReportSink {
         group.enter()
         dictReports.forEach {
             group.enter()
-            Instana.events.submit(event: event(from: $0) { result in
+            Instana.events.submit(event: eventReport(from: $0) { localReportId, result in
                 if case let .failure(resultError) = result {
                     error = resultError
+                }
+                else if let localReportId = localReportId {
+                    KSCrash.sharedInstance()?.deleteReport(withID: localReportId)
                 }
                 group.leave()
             })
@@ -67,7 +70,7 @@ private extension InstanaCrashReportSink {
         }
     }
     
-    func event(from report: [String: Any], completion: @escaping InstanaEventResultNotifiable.CompletionBlock) -> InstanaEvent {
+    func eventReport(from report: [String: Any], completion: @escaping (_ localReportId: NSNumber?, _ result: InstanaEventResult) -> Void) -> InstanaEvent {
         let standardReport = report[ReportKeys.standard] as? NSDictionary ?? [:]
         let jsonDataReport = report[ReportKeys.json] as? Data
         
@@ -80,6 +83,14 @@ private extension InstanaCrashReportSink {
         let sessionId = standardReport.value(forKeyPath: "user.sessionId") as? String ?? "unknown-session"
         let jsonReport = String(data: jsonDataReport ?? Data(), encoding: .utf8) ?? ""
         
-        return InstanaCrashEvent(sessionId: sessionId, timestamp: timestamp, report: jsonReport, breadcrumbs: breadcrumbs, completion: completion)
+        let localReportId = standardReport["reportId"] as? NSNumber
+        // revert to default deletion method if it's not possible to find report id
+        if localReportId == nil {
+            KSCrash.sharedInstance()?.deleteBehaviorAfterSendAll = KSCDeleteOnSucess
+        }
+        
+        return InstanaCrashEvent(sessionId: sessionId, timestamp: timestamp, report: jsonReport, breadcrumbs: breadcrumbs) { result in
+            completion(localReportId, result)
+        }
     }
 }
