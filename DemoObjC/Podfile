@@ -7,5 +7,6 @@ target 'DemoObjC' do
 
   # Pods for DemoObjC
   pod 'Instana', :path => '../lib/'
-  pod 'KSCrash', :path => '../../KSCrash/' # point to custom fork
+  # point to custom fork
+  pod 'KSCrash/Core', :path => '../../KSCrash/'
 end
