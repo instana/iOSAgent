@@ -10,5 +10,4 @@ FOUNDATION_EXPORT double InstanaVersionNumber;
 FOUNDATION_EXPORT const unsigned char InstanaVersionString[];
 
 // In this header, you should import all the public headers of your framework using statements like #import <Instana/PublicHeader.h>
-#import "KSCrash+Swift.h"
 #import "InstanaCrashInstallation.h"

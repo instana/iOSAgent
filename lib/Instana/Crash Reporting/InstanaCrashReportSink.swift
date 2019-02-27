@@ -20,15 +20,16 @@ public class InstanaCrashReportSink: NSObject, KSCrashReportFilter {
     }
     
     @objc public func deafultFilterSet() -> KSCrashReportFilter {
-        let json: Any = KSCrashReportFilterPipeline.filter(withFiltersArray: [
+        let json: Any = KSCrashReportFilterPipeline(filtersArray: [
             KSCrashReportFilterAppleFmt(reportStyle: KSAppleReportStyleSymbolicatedSideBySide),
             KSCrashReportFilterJSONEncode.filter(withOptions: KSJSONEncodeOptionPretty),
             ])
-        let combine: Any = KSCrashReportFilterCombine.init(filtersWithKeys: [
-            ReportKeys.standard: KSCrashReportFilterPassthrough.filter(),
-            ReportKeys.json: json
+        let combine: Any = KSCrashReportFilterCombine(filters: [
+            KSCrashReportFilterPassthrough.filter(), json
+            ], keys: [
+                ReportKeys.standard, ReportKeys.json
             ])
-        return KSCrashReportFilterPipeline.filter(withFiltersArray: [combine, self])
+        return KSCrashReportFilterPipeline(filtersArray: [combine, self])
     }
 }
 

@@ -22,8 +22,6 @@
 		6C37CE7B21D3CBD8007D90E9 /* InstanaAlerts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C37CE7A21D3CBD8007D90E9 /* InstanaAlerts.swift */; };
 		6C37CE7E21D3CF22007D90E9 /* InstanaConfiguraton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C37CE7D21D3CF22007D90E9 /* InstanaConfiguraton.swift */; };
 		6C37CE8021DA1C1F007D90E9 /* InstanaRingBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C37CE7F21DA1C1F007D90E9 /* InstanaRingBuffer.swift */; };
-		6C417FCD21EF300900504B4F /* KSCrash+Swift.h in Headers */ = {isa = PBXBuildFile; fileRef = 6C417FCB21EF300900504B4F /* KSCrash+Swift.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		6C417FCE21EF300900504B4F /* KSCrash+Swift.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C417FCC21EF300900504B4F /* KSCrash+Swift.m */; };
 		6C417FEB21F5DA7900504B4F /* InstanaCrashInstallation.h in Headers */ = {isa = PBXBuildFile; fileRef = 6C417FE921F5DA7900504B4F /* InstanaCrashInstallation.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6C417FEC21F5DA7900504B4F /* InstanaCrashInstallation.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C417FEA21F5DA7900504B4F /* InstanaCrashInstallation.m */; };
 		6C417FEF21F86EC100504B4F /* InstanaCrashEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C417FEE21F86EC100504B4F /* InstanaCrashEvent.swift */; };
@@ -60,8 +58,6 @@
 		6C37CE7A21D3CBD8007D90E9 /* InstanaAlerts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanaAlerts.swift; sourceTree = "<group>"; };
 		6C37CE7D21D3CF22007D90E9 /* InstanaConfiguraton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanaConfiguraton.swift; sourceTree = "<group>"; };
 		6C37CE7F21DA1C1F007D90E9 /* InstanaRingBuffer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanaRingBuffer.swift; sourceTree = "<group>"; };
-		6C417FCB21EF300900504B4F /* KSCrash+Swift.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "KSCrash+Swift.h"; sourceTree = "<group>"; };
-		6C417FCC21EF300900504B4F /* KSCrash+Swift.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "KSCrash+Swift.m"; sourceTree = "<group>"; };
 		6C417FE921F5DA7900504B4F /* InstanaCrashInstallation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = InstanaCrashInstallation.h; sourceTree = "<group>"; };
 		6C417FEA21F5DA7900504B4F /* InstanaCrashInstallation.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = InstanaCrashInstallation.m; sourceTree = "<group>"; };
 		6C417FEE21F86EC100504B4F /* InstanaCrashEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanaCrashEvent.swift; sourceTree = "<group>"; };
@@ -149,7 +145,6 @@
 				6C37CDC321BE9DC9007D90E9 /* InstanaCrashReporting.swift */,
 				6C37CDCA21BEA107007D90E9 /* InstanaCrashReportSink.swift */,
 				6C417FED21F720FA00504B4F /* Crash Installation */,
-				6C417FCF21EF300E00504B4F /* Swift Wrapper */,
 			);
 			path = "Crash Reporting";
 			sourceTree = "<group>";
@@ -207,15 +202,6 @@
 				6C37CE7D21D3CF22007D90E9 /* InstanaConfiguraton.swift */,
 			);
 			path = Configuration;
-			sourceTree = "<group>";
-		};
-		6C417FCF21EF300E00504B4F /* Swift Wrapper */ = {
-			isa = PBXGroup;
-			children = (
-				6C417FCB21EF300900504B4F /* KSCrash+Swift.h */,
-				6C417FCC21EF300900504B4F /* KSCrash+Swift.m */,
-			);
-			path = "Swift Wrapper";
 			sourceTree = "<group>";
 		};
 		6C417FD221F0B76C00504B4F /* Event types */ = {
@@ -282,7 +268,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6C417FCD21EF300900504B4F /* KSCrash+Swift.h in Headers */,
 				6C417FEB21F5DA7900504B4F /* InstanaCrashInstallation.h in Headers */,
 				6C37CDBD21BE9CB2007D90E9 /* Instana.h in Headers */,
 			);
@@ -385,7 +370,6 @@
 				6C417FF321F877EB00504B4F /* InstanaCustomEvent.swift in Sources */,
 				6C4DE3922208426600EDD018 /* InstanaFramerateDipMonitor.swift in Sources */,
 				6C37CE7B21D3CBD8007D90E9 /* InstanaAlerts.swift in Sources */,
-				6C417FCE21EF300900504B4F /* KSCrash+Swift.m in Sources */,
 				6C4DE39022048BD800EDD018 /* InstanaLowMemoryMonitor.swift in Sources */,
 				6C37CDCD21BEA386007D90E9 /* Instana.swift in Sources */,
 				6C417FEF21F86EC100504B4F /* InstanaCrashEvent.swift in Sources */,
