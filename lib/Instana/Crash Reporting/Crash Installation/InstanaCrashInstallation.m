@@ -30,6 +30,7 @@ static void onCrash(const KSCrashReportWriter *writer) {
     self = [super initWithRequiredProperties:@[]];
     if (self) {
         _sessionId = [Instana.sessionId UTF8String];
+        [KSCrash sharedInstance].deleteBehaviorAfterSendAll = KSCDeleteNever;
         self.crashReportSink = [InstanaCrashReportSink new];
         self.onCrash = onCrash;
         [self install];
