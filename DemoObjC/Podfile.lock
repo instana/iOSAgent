@@ -67,19 +67,18 @@ PODS:
 
 DEPENDENCIES:
   - Instana (from `../lib/`)
-
-SPEC REPOS:
-  https://github.com/cocoapods/specs.git:
-    - KSCrash
+  - KSCrash (from `../../KSCrash/`)
 
 EXTERNAL SOURCES:
   Instana:
     :path: "../lib/"
+  KSCrash:
+    :path: "../../KSCrash/"
 
 SPEC CHECKSUMS:
   Instana: 76567f18f7c36e64ce0608d9ae6719ed30b7c5cf
-  KSCrash: 5394936f41e5c1ef7b79cf79b30d53299b0c160e
+  KSCrash: 6d9c50e0f95bdfa5932cdb56a495cc3096bfba00
 
-PODFILE CHECKSUM: d49cb685b9fedb2a44543caff4aa8fbd17165282
+PODFILE CHECKSUM: d8075724162ee2c8e533e278c436924b26eef3b9
 
 COCOAPODS: 1.5.3

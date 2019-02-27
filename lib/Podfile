@@ -6,5 +6,5 @@ target 'Instana' do
   use_frameworks!
 
   # Pods for Instana
-  pod 'KSCrash', '~> 1.15.18'
+  pod 'KSCrash', :path => '../../KSCrash/' # point to custom fork
 end
