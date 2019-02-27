@@ -132,7 +132,10 @@ Integrate Instana Application Performance Management into your iOS app.
 
   # s.xcconfig = { "HEADER_SEARCH_PATHS" => "$(SDKROOT)/usr/include/libxml2" }
   
-  s.dependency 'KSCrash', '~> 1.15.18'
+  s.dependency 'KSCrash/Core'
+  s.dependency 'KSCrash/Reporting/Filters/AppleFmt'
+  s.dependency 'KSCrash/Reporting/Filters/JSON'
+  s.dependency 'KSCrash/Reporting/Filters/Tools'
   s.swift_version = "4.2"
 
 end

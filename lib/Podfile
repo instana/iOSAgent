@@ -6,5 +6,9 @@ target 'Instana' do
   use_frameworks!
 
   # Pods for Instana
-  pod 'KSCrash', :path => '../../KSCrash/' # point to custom fork
+  # point to custom fork
+  pod 'KSCrash/Core', :path => '../../KSCrash/'
+  pod 'KSCrash/Reporting/Filters/AppleFmt', :path => '../../KSCrash/'
+  pod 'KSCrash/Reporting/Filters/JSON', :path => '../../KSCrash/'
+  pod 'KSCrash/Reporting/Filters/Tools', :path => '../../KSCrash/'
 end
