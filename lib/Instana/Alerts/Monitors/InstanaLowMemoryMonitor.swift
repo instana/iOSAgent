@@ -5,9 +5,9 @@ import Foundation
 
 class InstanaLowMemoryMonitor {
     
-    let submitEvent: (InstanaEvent) -> Void
+    let submitEvent: InstanaEvents.Submitter
     
-    init(submitEvent: @escaping (InstanaEvent) -> Void = Instana.events.submit(event:)) {
+    init(submitEvent: @escaping InstanaEvents.Submitter = Instana.events.submit(event:)) {
         self.submitEvent = submitEvent
         NotificationCenter.default.addObserver(self, selector: #selector(onLowMemoryWarning(notification:)), name: UIApplication.didReceiveMemoryWarningNotification, object: nil)
     }

@@ -4,6 +4,9 @@
 import Foundation
 
 @objc public class InstanaEvents: NSObject {
+    
+    typealias Submitter = (InstanaEvent) -> Void
+    
     @objc public enum SuspendReporting: Int {
         case never, lowBattery, cellularConnection, lowBatteryAndCellularConnection
     }
