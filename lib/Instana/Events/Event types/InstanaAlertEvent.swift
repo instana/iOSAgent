@@ -9,7 +9,7 @@ class InstanaAlertEvent: InstanaEvent {
         case lowMemory
         case framerateDip(duration: Instana.Types.Seconds, averageFramerate: Float)
     }
-    private let alertType: AlertType
+    let alertType: AlertType
     private let screen: String?
     
     init(alertType: AlertType, screen: String?) {
