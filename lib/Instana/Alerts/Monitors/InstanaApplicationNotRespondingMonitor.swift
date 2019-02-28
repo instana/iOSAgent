@@ -4,23 +4,44 @@
 import Foundation
 
 class InstanaApplicationNotRespondingMonitor {
+    // needed since Timer retains the target
+    private class TimerProxy {
+        weak var proxied: InstanaApplicationNotRespondingMonitor?
+        
+        init(proxied: InstanaApplicationNotRespondingMonitor) {
+            self.proxied = proxied
+        }
+        
+        @objc func onTimer(timer: Timer) {
+            proxied?.onTimer(timer: timer)
+        }
+    }
+    
+    let submitEvent: InstanaEvents.Submitter
     var treshold: Instana.Types.Seconds
     private var timer: Timer?
-    private let samplingInterval = 1.0
+    private let samplingInterval: Double
     
     private init() { fatalError() }
     
-    init(treshold: Instana.Types.Seconds) {
+    init(treshold: Instana.Types.Seconds, samplingInterval: Double = 1.0, submitEvent: @escaping InstanaEvents.Submitter = Instana.events.submit(event:)) {
+        self.submitEvent = submitEvent
         self.treshold = treshold
+        self.samplingInterval = samplingInterval
         NotificationCenter.default.addObserver(self, selector: #selector(onApplicationEnteredForeground), name: UIApplication.didBecomeActiveNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(onApplicationEnteredBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
+        scheduleTimer()
+    }
+    
+    deinit {
+        timer?.invalidate()
     }
 }
 
 private extension InstanaApplicationNotRespondingMonitor {
     func scheduleTimer() {
         timer?.invalidate()
-        let proxy = InstanaTimerProxy(delegate: self)
+        let proxy = TimerProxy(proxied: self)
         let t = Timer(timeInterval: samplingInterval, target: proxy, selector: #selector(proxy.onTimer(timer:)), userInfo: CFAbsoluteTimeGetCurrent(), repeats: false)
         timer = t
         RunLoop.main.add(t, forMode: .common)
@@ -33,9 +54,7 @@ private extension InstanaApplicationNotRespondingMonitor {
     @objc func onApplicationEnteredBackground() {
         timer?.invalidate()
     }
-}
-
-extension InstanaApplicationNotRespondingMonitor: InstanaTimerProxyDelegate {
+    
     func onTimer(timer: Timer) {
         guard let start = timer.userInfo as? CFAbsoluteTime else {
             scheduleTimer()
@@ -45,22 +64,8 @@ extension InstanaApplicationNotRespondingMonitor: InstanaTimerProxyDelegate {
         let delay = CFAbsoluteTimeGetCurrent() - start - samplingInterval
         if delay > treshold {
             let event = InstanaAlertEvent(alertType: .anr(duration: delay), screen: InstanaSystemUtils.viewControllersHierarchy())
-            Instana.events.submit(event: event)
+            submitEvent(event)
         }
         scheduleTimer()
-    }
-}
-
-private protocol InstanaTimerProxyDelegate: class {
-    func onTimer(timer: Timer)
-}
-
-private class InstanaTimerProxy {
-    private weak var delegate: InstanaTimerProxyDelegate?
-    init(delegate: InstanaTimerProxyDelegate) {
-        self.delegate = delegate
-    }
-    @objc func onTimer(timer: Timer) {
-        delegate?.onTimer(timer: timer)
     }
 }
