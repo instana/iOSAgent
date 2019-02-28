@@ -11,4 +11,8 @@ target 'Instana' do
   pod 'KSCrash/Reporting/Filters/AppleFmt', :path => '../../KSCrash/'
   pod 'KSCrash/Reporting/Filters/JSON', :path => '../../KSCrash/'
   pod 'KSCrash/Reporting/Filters/Tools', :path => '../../KSCrash/'
+  
+  target 'InstanaTests' do
+      inherit! :search_paths
+  end
 end
