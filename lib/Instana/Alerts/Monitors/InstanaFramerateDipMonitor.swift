@@ -11,9 +11,11 @@ class InstanaFramerateDipMonitor {
             proxied?.onDisplayLinkUpdate()
         }
     }
+    
+    private let submitEvent: InstanaEvents.Submitter
     private let treshold: UInt
     private let displayLink: CADisplayLink
-    private let samplingInterval: Instana.Types.Seconds = 1
+    private let samplingInterval: Instana.Types.Seconds
     private var samplingStart: CFTimeInterval = 0
     private var elapsedFrames: UInt = 0
     private var dipStart: CFAbsoluteTime?
@@ -22,7 +24,9 @@ class InstanaFramerateDipMonitor {
     
     private init() { fatalError() }
     
-    init(treshold: UInt) {
+    init(treshold: UInt, samplingInterval: Instana.Types.Seconds = 1, submitEvent: @escaping InstanaEvents.Submitter = Instana.events.submit(event:)) {
+        self.submitEvent = submitEvent
+        self.samplingInterval = samplingInterval
         self.treshold = treshold
         let proxy = DisplayLinkProxy()
         displayLink = CADisplayLink(target: proxy, selector: #selector(proxy.onDisplayLinkUpdate))
@@ -79,9 +83,9 @@ private extension InstanaFramerateDipMonitor {
             runningAverage -= runningAverage / Float(consecutiveFrameDip)
             runningAverage += Float(fps) / Float(consecutiveFrameDip)
         case (false, let start?):
-            let duration = CFAbsoluteTimeGetCurrent() - start
+            let duration = displayLink.timestamp - start
             let event = InstanaAlertEvent(alertType: .framerateDip(duration: duration, averageFramerate: runningAverage), screen: InstanaSystemUtils.viewControllersHierarchy())
-            Instana.events.submit(event: event)
+            submitEvent(event)
             dipStart = nil
             runningAverage = 0
             consecutiveFrameDip = 0
