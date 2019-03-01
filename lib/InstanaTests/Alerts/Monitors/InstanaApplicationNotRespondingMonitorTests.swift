@@ -29,7 +29,7 @@ class InstanaApplicationNotRespondingMonitorTests: XCTestCase {
             exp.fulfill()
         }
         
-        usleep(UInt32(0.12 * 1_000_000))
+        Thread.sleep(forTimeInterval: 0.12)
         
         waitForExpectations(timeout: 0.14) { _ in
             guard let alertEvent = event as? InstanaAlertEvent else {
@@ -54,7 +54,7 @@ class InstanaApplicationNotRespondingMonitorTests: XCTestCase {
         }
         
         NotificationCenter.default.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
-        usleep(UInt32(0.12 * 1_000_000))
+        Thread.sleep(forTimeInterval: 0.12)
         
         waitForExpectations(timeout: 0.14)
     }
@@ -74,7 +74,7 @@ class InstanaApplicationNotRespondingMonitorTests: XCTestCase {
         
         NotificationCenter.default.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
         NotificationCenter.default.post(name: UIApplication.didBecomeActiveNotification, object: nil)
-        usleep(UInt32(0.12 * 1_000_000))
+        Thread.sleep(forTimeInterval: 0.12)
         
         waitForExpectations(timeout: 0.14) { _ in
             XCTAssertNotNil(event as? InstanaAlertEvent)

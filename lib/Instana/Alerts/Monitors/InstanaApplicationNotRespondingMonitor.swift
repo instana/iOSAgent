@@ -17,8 +17,8 @@ class InstanaApplicationNotRespondingMonitor {
         }
     }
     
-    let submitEvent: InstanaEvents.Submitter
     var treshold: Instana.Types.Seconds
+    private let submitEvent: InstanaEvents.Submitter
     private var timer: Timer?
     private let samplingInterval: Double
     
