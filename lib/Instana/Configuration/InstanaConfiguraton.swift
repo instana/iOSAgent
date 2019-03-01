@@ -7,10 +7,13 @@ struct InstanaConfiguration {
     enum Defaults {
         static let reportingUrl = "http://localhost:3000"
         static let remoteCallInstrumentationType = InstanaRemoteCallInstrumentation.ReportingType.automaticAndManual
+        static let enableCrashReporting = true
         static let eventsBufferSize = 200
         static let suspendReporting = InstanaEvents.SuspendReporting.never
         static let sendDeviceLocationIfAvailable = false
+        static let alertApplicationNotRespondingTreshold: Instana.Types.Seconds? = nil
         static let alertLowMemory = false
+        static let alertFramerateDipTreshold: UInt? = nil
     }
     
     let reportingUrl: String
@@ -19,7 +22,7 @@ struct InstanaConfiguration {
     let enableCrashReporting: Bool
     let suspendReporting: InstanaEvents.SuspendReporting
     let eventsBufferSize: Int
-    let sendDeviceLocationIfAvailable: Bool
+    let sendDeviceLocationIfAvailable: Bool // TODO: implement
     let alertApplicationNotRespondingTreshold: Instana.Types.Seconds?
     let alertLowMemory: Bool
     let alertFramerateDipTreshold: UInt?
@@ -41,26 +44,26 @@ struct InstanaConfiguration {
         return self.init(reportingUrl: dictionary.value(forKey: "reportingUrl") as? String ?? Defaults.reportingUrl,
                          key: key,
                          remoteCallInstrumentationType: dictionary.fromRawValue(forKey: "remoteCallInstrumentationType") ?? Defaults.remoteCallInstrumentationType,
-                         enableCrashReporting: dictionary.bool(forKey: "enableCrashReporting", fallback: true),
+                         enableCrashReporting: dictionary.bool(forKey: "enableCrashReporting", fallback: Defaults.enableCrashReporting),
                          suspendReporting: dictionary.fromRawValue(forKey: "suspendReporting") ?? Defaults.suspendReporting,
                          eventsBufferSize: dictionary.value(forKey: "eventsBufferSize") as? Int ?? Defaults.eventsBufferSize,
                          sendDeviceLocationIfAvailable: dictionary.bool(forKey: "sendDeviceLocationIfAvailable", fallback: Defaults.sendDeviceLocationIfAvailable),
-                         alertApplicationNotRespondingTreshold: dictionary.value(forKey: "alertApplicationNotRespondingTreshold") as? Instana.Types.Seconds,
+                         alertApplicationNotRespondingTreshold: dictionary.value(forKey: "alertApplicationNotRespondingTreshold") as? Instana.Types.Seconds ?? Defaults.alertApplicationNotRespondingTreshold,
                          alertLowMemory: dictionary.bool(forKey: "alertLowMemory", fallback: Defaults.alertLowMemory),
-                         alertFramerateDipTreshold: dictionary.value(forKey: "alertFramerateDipTreshold") as? UInt)
+                         alertFramerateDipTreshold: dictionary.value(forKey: "alertFramerateDipTreshold") as? UInt ?? Defaults.alertFramerateDipTreshold)
     }
     
     static func `default`(key: String, reportingUrl: String?) -> InstanaConfiguration {
         return self.init(reportingUrl: reportingUrl ?? Defaults.reportingUrl,
                          key: key,
                          remoteCallInstrumentationType: Defaults.remoteCallInstrumentationType,
-                         enableCrashReporting: true,
+                         enableCrashReporting: Defaults.enableCrashReporting,
                          suspendReporting: Defaults.suspendReporting,
                          eventsBufferSize: Defaults.eventsBufferSize,
                          sendDeviceLocationIfAvailable: Defaults.sendDeviceLocationIfAvailable,
-                         alertApplicationNotRespondingTreshold: nil,
+                         alertApplicationNotRespondingTreshold: Defaults.alertApplicationNotRespondingTreshold,
                          alertLowMemory: Defaults.alertLowMemory,
-                         alertFramerateDipTreshold: nil)
+                         alertFramerateDipTreshold: Defaults.alertFramerateDipTreshold)
     }
 }
 
