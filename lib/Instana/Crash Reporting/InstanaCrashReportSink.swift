@@ -11,6 +11,9 @@ public class InstanaCrashReportSink: NSObject, KSCrashReportFilter {
         static let json = "json-encoded"
     }
     
+    var submitEvent: InstanaEvents.Submitter = Instana.events.submit(event:)
+    var deleteReport: (NSNumber) -> () = KSCrash.sharedInstance().deleteReport(withID:)
+    
     public func filterReports(_ reports: [Any]!, onCompletion: KSCrashReportFilterCompletion!) {
         guard reports.count > 0 else {
             kscrash_callCompletion(onCompletion, reports, true, nil)
@@ -37,6 +40,7 @@ private extension InstanaCrashReportSink {
     
     func submit(reports: [Any], onCompletion: @escaping KSCrashReportFilterCompletion) {
         guard let dictReports = reports as? [[String: Any]], dictReports.count > 0 else {
+            KSCrash.sharedInstance().deleteBehaviorAfterSendAll = KSCDeleteOnSucess
             kscrash_callCompletion(onCompletion, reports, true, nil)
             return
         }
@@ -47,18 +51,18 @@ private extension InstanaCrashReportSink {
         group.enter()
         dictReports.forEach {
             group.enter()
-            Instana.events.submit(event: eventReport(from: $0) { localReportId, result in
+            submitEvent(eventReport(from: $0) { localReportId, result in
                 if case let .failure(resultError) = result {
                     error = resultError
                 }
                 else if let localReportId = localReportId {
-                    KSCrash.sharedInstance()?.deleteReport(withID: localReportId)
+                    self.deleteReport(localReportId)
                 }
                 group.leave()
             })
         }
         group.leave()
-        
+
         group.notify(queue: .main) {
             if let error = error {
                 Instana.log.add("Failed to send crash reports: \(error.localizedDescription)")
@@ -87,7 +91,7 @@ private extension InstanaCrashReportSink {
         let localReportId = standardReport["reportId"] as? NSNumber
         // revert to default deletion method if it's not possible to find report id
         if localReportId == nil {
-            KSCrash.sharedInstance()?.deleteBehaviorAfterSendAll = KSCDeleteOnSucess
+            KSCrash.sharedInstance().deleteBehaviorAfterSendAll = KSCDeleteOnSucess
         }
         
         return InstanaCrashEvent(sessionId: sessionId, timestamp: timestamp, report: jsonReport, breadcrumbs: breadcrumbs) { result in
