@@ -47,23 +47,10 @@ static void onCrash(const KSCrashReportWriter *writer) {
 - (void)addBreadcrumb:(NSString *)breadcrumb
 {
     @synchronized (self) {
-        NSString *truncated = [self safelyTruncate:breadcrumb toMaxLength:MAX_BREADCRUMB_LENGTH - 1];
+        NSString *truncated = [breadcrumb safelyTruncatedTo:MAX_BREADCRUMB_LENGTH - 1];;
         strlcpy(_breadcrumbs[_breadcrumbIndex], [truncated UTF8String], MAX_BREADCRUMB_LENGTH);
         _breadcrumbIndex = (_breadcrumbIndex + 1 >= MAX_BREADCRUMBS) ? 0 : _breadcrumbIndex + 1;
     }
-}
-
-// Ensure string is not truncated on a composed character (such as an emoji)
-- (NSString *)safelyTruncate:(NSString *)string toMaxLength:(int)maxLength
-{
-    NSRange stringRange = {0, MIN(string.length, maxLength)};
-    NSRange expandedRange = [string rangeOfComposedCharacterSequencesForRange:stringRange];
-    while (expandedRange.length > maxLength) {
-        stringRange.length -= 1;
-        if (stringRange.length == 0) return @"";
-        expandedRange = [string rangeOfComposedCharacterSequencesForRange:stringRange];
-    }
-    return [string substringWithRange:expandedRange];
 }
 
 @end
