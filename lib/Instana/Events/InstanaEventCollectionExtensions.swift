@@ -4,11 +4,12 @@
 import Foundation
 
 extension Collection where Element: InstanaEvent {
-    func toBatchRequest() throws -> URLRequest {
-        guard var url = URL(string: Instana.reportingUrl) else {
+    
+    func toBatchRequest(key: String? = Instana.key, reportingUrl: String = Instana.reportingUrl, compress: (Data) throws -> Data = compress(data:)) throws -> URLRequest {
+        guard var url = URL(string: reportingUrl) else {
             throw InstanaError(code: .invalidRequest, description: "Invalid reporting url. No data will be sent.")
         }
-        guard let key = Instana.key else {
+        guard let key = key else {
             throw InstanaError(code: .notAuthenticated, description: "Missing application key. No data will be sent.")
         }
         url.appendPathComponent("v1/api/\(key)/batch")
@@ -17,12 +18,9 @@ extension Collection where Element: InstanaEvent {
         urlRequest.httpMethod = "POST"
         urlRequest.addValue("application/json", forHTTPHeaderField: "Content-Type")
         
-        let jsonEvents = compactMap { $0.toJSON() }
-        guard let jsonData = try? JSONSerialization.data(withJSONObject: jsonEvents) else {
-            throw InstanaError(code: .invalidRequest, description: "Could not serialize events data.")
-        }
+        let jsonData = try serializeToJSONData()
         
-        if let gzippedData = try? (jsonData as NSData).gzipped(withCompressionLevel: -1) { // -1 default compression level
+        if let gzippedData = try? compress(jsonData) {
             urlRequest.httpBody = gzippedData
             urlRequest.setValue("gzip", forHTTPHeaderField: "Content-Encoding")
             urlRequest.setValue("\(gzippedData.count)", forHTTPHeaderField: "Content-Length")
@@ -34,6 +32,22 @@ extension Collection where Element: InstanaEvent {
         return urlRequest
     }
     
+    private func serializeToJSONData() throws -> Data {
+        let jsonEvents = compactMap { $0.toJSON() }
+        // we have to check the vailidty of `jsonEvents` since `data(withJSONObject:)` is catchable only for "internal errors"
+        guard JSONSerialization.isValidJSONObject(jsonEvents), let jsonData = try? JSONSerialization.data(withJSONObject: jsonEvents) else {
+            throw InstanaError(code: .invalidRequest, description: "Could not serialize events data.")
+        }
+        return jsonData
+    }
+    
+    private static func compress(data: Data) throws -> Data {
+        // -1 default compression level
+        return try (data as NSData).gzipped(withCompressionLevel: -1)
+    }
+}
+
+extension Collection where Element: InstanaEvent {
     func invokeCallbackIfNeeded(with result: InstanaEventResult) {
         forEach { event in
             if let notifiableEvent = event as? InstanaEventResultNotifiable {
