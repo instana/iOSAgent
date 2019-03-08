@@ -6,21 +6,17 @@ import Foundation
 @objc public class InstanaEvents: NSObject {
     
     typealias Submitter = (InstanaEvent) -> Void
+    typealias Loader = (URLRequest, Bool, @escaping (InstanaNetworking.Result) -> Void) -> Void
     
     @objc public enum SuspendReporting: Int {
         case never, lowBattery, cellularConnection, lowBatteryAndCellularConnection
     }
     @objc public var suspendReporting: SuspendReporting = .never
     private var timer: Timer?
-    private let delay: TimeInterval = 1
-    private let lowBatteryDelay: TimeInterval = 10
+    private let transmissionDelay: Instana.Types.Seconds = 1
+    private let transmissionLowBatteryDelay: TimeInterval = 10
     private let queue = DispatchQueue(label: "com.instana.events")
-    private let session = URLSession(configuration: .default)
-    private lazy var wifiSession: URLSession = {
-        var configuration = URLSessionConfiguration.default
-        configuration.allowsCellularAccess = false
-        return URLSession(configuration: configuration)
-    }()
+    private let load: Loader
     private lazy var buffer = { InstanaRingBuffer<InstanaEvent>(size: bufferSize) }()
     @objc var bufferSize = InstanaConfiguration.Defaults.eventsBufferSize {
         didSet {
@@ -31,13 +27,18 @@ import Foundation
         }
     }
     
+    init(load: @escaping Loader = InstanaNetworking().load(request:restricted:completion:)) {
+        self.load = load
+        super.init()
+    }
+    
     @objc(submitEvent:)
     public func submit(event: InstanaEvent) {
         queue.async {
             if let overwritten = self.buffer.write(event), let notifiableEvent = overwritten as? InstanaEventResultNotifiable {
                 notifiableEvent.completion(.failure(error: InstanaError(code: .bufferOverwrite, description: "Event overwrite casued by buffer size limit.")))
             }
-            self.startSendEventsTimer(delay: self.delay)
+            self.startSendEventsTimer(delay: self.transmissionDelay)
         }
     }
 }
@@ -48,7 +49,7 @@ private extension InstanaEvents {
         self.timer = nil
         
         if Instana.battery.safeForNetworking == false, [.lowBattery, .lowBatteryAndCellularConnection].contains(suspendReporting) {
-            startSendEventsTimer(delay: lowBatteryDelay)
+            startSendEventsTimer(delay: transmissionLowBatteryDelay)
             return
         }
         
@@ -79,27 +80,17 @@ private extension InstanaEvents {
             complete(events, with: .failure(error: error))
             return
         }
-        let usedSession = [.cellularConnection, .lowBatteryAndCellularConnection].contains(suspendReporting) ? wifiSession : session
-        usedSession.dataTask(with: request) { (data, response, error) in
-            self.handle(response: response, error: error, for: events)
-        }.resume()
-    }
-    
-    func handle(response: URLResponse?, error: Error?, for events: [InstanaEvent]) {
-        // TODO: failed requests handling, after prototype
-        if let error = error {
-            complete(events, with: .failure(error: error))
-            return
-        }
-        guard let httpResponse = response as? HTTPURLResponse else {
-            complete(events, with: .failure(error: InstanaError(code: .invalidResponse, description: "Can't parse server response.")))
-            return
-        }
-        switch httpResponse.statusCode {
-        case 200...299:
-            complete(events, with: .success)
-        default:
-            complete(events, with: .failure(error: InstanaError(code: .invalidResponse, description: String(describing: httpResponse))))
+        let restrictLoad = [.cellularConnection, .lowBatteryAndCellularConnection].contains(suspendReporting)
+        load(request, restrictLoad) { result in
+            // TODO: failed requests handling, after prototype
+            switch result {
+            case .failure(let error):
+                self.complete(events, with: .failure(error: error))
+            case .success(200...299):
+                self.complete(events, with: .success)
+            case .success(let statusCode):
+                self.complete(events, with: .failure(error: InstanaError(code: .invalidResponse, description: "Invalid repsonse status code: \(statusCode)")))
+            }
         }
     }
     
