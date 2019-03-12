@@ -4,19 +4,6 @@
 import Foundation
 
 class InstanaApplicationNotRespondingMonitor {
-    // needed since Timer retains the target
-    private class TimerProxy {
-        weak var proxied: InstanaApplicationNotRespondingMonitor?
-        
-        init(proxied: InstanaApplicationNotRespondingMonitor) {
-            self.proxied = proxied
-        }
-        
-        @objc func onTimer(timer: Timer) {
-            proxied?.onTimer(timer: timer)
-        }
-    }
-    
     var treshold: Instana.Types.Seconds
     private let submitEvent: InstanaEvents.Submitter
     private var timer: Timer?
@@ -41,8 +28,7 @@ class InstanaApplicationNotRespondingMonitor {
 private extension InstanaApplicationNotRespondingMonitor {
     func scheduleTimer() {
         timer?.invalidate()
-        let proxy = TimerProxy(proxied: self)
-        let t = Timer(timeInterval: samplingInterval, target: proxy, selector: #selector(proxy.onTimer(timer:)), userInfo: CFAbsoluteTimeGetCurrent(), repeats: false)
+        let t = InstanaTimerProxy.timer(proxied: self, timeInterval: samplingInterval, userInfo: CFAbsoluteTimeGetCurrent(), repeats: false)
         timer = t
         RunLoop.main.add(t, forMode: .common)
     }
@@ -55,6 +41,9 @@ private extension InstanaApplicationNotRespondingMonitor {
         timer?.invalidate()
     }
     
+}
+
+extension InstanaApplicationNotRespondingMonitor: InstanaTimerProxiedTarget {
     func onTimer(timer: Timer) {
         guard let start = timer.userInfo as? CFAbsoluteTime else {
             scheduleTimer()
