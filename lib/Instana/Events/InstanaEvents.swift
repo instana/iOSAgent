@@ -7,16 +7,19 @@ import Foundation
     
     typealias Submitter = (InstanaEvent) -> Void
     typealias Loader = (URLRequest, Bool, @escaping (InstanaNetworking.Result) -> Void) -> Void
-    
+    typealias EventsToRequest = ([InstanaEvent]) throws -> URLRequest
+        
     @objc public enum SuspendReporting: Int {
         case never, lowBattery, cellularConnection, lowBatteryAndCellularConnection
     }
     @objc public var suspendReporting: SuspendReporting = .never
     private var timer: Timer?
-    private let transmissionDelay: Instana.Types.Seconds = 1
-    private let transmissionLowBatteryDelay: TimeInterval = 10
+    private let transmissionDelay: Instana.Types.Seconds
+    private let transmissionLowBatteryDelay: Instana.Types.Seconds
     private let queue = DispatchQueue(label: "com.instana.events")
+    private let eventsToRequest: EventsToRequest
     private let load: Loader
+    private let batterySafeForNetworking: () -> Bool
     private lazy var buffer = { InstanaRingBuffer<InstanaEvent>(size: bufferSize) }()
     @objc var bufferSize = InstanaConfiguration.Defaults.eventsBufferSize {
         didSet {
@@ -27,7 +30,15 @@ import Foundation
         }
     }
     
-    init(load: @escaping Loader = InstanaNetworking().load(request:restricted:completion:)) {
+    init(transmissionDelay: Instana.Types.Seconds = 1,
+         transmissionLowBatteryDelay: Instana.Types.Seconds = 10,
+         eventsToRequest: @escaping EventsToRequest = { try $0.toBatchRequest() },
+         batterySafeForNetworking: @escaping () -> Bool = { Instana.battery.safeForNetworking },
+         load: @escaping Loader = InstanaNetworking().load(request:restricted:completion:)) {
+        self.eventsToRequest = eventsToRequest
+        self.transmissionDelay = transmissionDelay
+        self.transmissionLowBatteryDelay = transmissionLowBatteryDelay
+        self.batterySafeForNetworking = batterySafeForNetworking
         self.load = load
         super.init()
     }
@@ -48,7 +59,7 @@ private extension InstanaEvents {
         self.timer?.invalidate()
         self.timer = nil
         
-        if Instana.battery.safeForNetworking == false, [.lowBattery, .lowBatteryAndCellularConnection].contains(suspendReporting) {
+        if batterySafeForNetworking() == false, [.lowBattery, .lowBatteryAndCellularConnection].contains(suspendReporting) {
             startSendEventsTimer(delay: transmissionLowBatteryDelay)
             return
         }
@@ -60,12 +71,14 @@ private extension InstanaEvents {
     
     func startSendEventsTimer(delay: TimeInterval) {
         guard timer == nil || timer?.isValid == false else { return }
-        let t = Timer(timeInterval: delay, target: self, selector: #selector(onSendEventsTimer), userInfo: nil, repeats: false)
+        let t = InstanaTimerProxy.timer(proxied: self, timeInterval: delay)
         RunLoop.main.add(t, forMode: .common)
         timer = t
     }
-    
-    @objc func onSendEventsTimer() {
+}
+
+extension InstanaEvents: InstanaTimerProxiedTarget {
+    func onTimer(timer: Timer) {
         queue.async { self.sendBufferEvents() }
     }
 }
@@ -74,7 +87,7 @@ private extension InstanaEvents {
     func send(events: [InstanaEvent]) {
         let request: URLRequest
         do {
-            request = try events.toBatchRequest()
+            request = try eventsToRequest(events)
         }
         catch {
             complete(events, with: .failure(error: error))
