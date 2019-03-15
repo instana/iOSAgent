@@ -48,6 +48,12 @@
 		6C9E6ADC22328205002497ED /* InstanaURLSessionConfigurationExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C9E6ADB22328205002497ED /* InstanaURLSessionConfigurationExtensions.swift */; };
 		6C9E6ADE22328259002497ED /* InstanaURLSessionConfigurationExtensionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C9E6ADD22328259002497ED /* InstanaURLSessionConfigurationExtensionsTests.swift */; };
 		6C9E6AE02236A82D002497ED /* InstanaTimerProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C9E6ADF2236A82D002497ED /* InstanaTimerProxy.swift */; };
+		6C9E6AE4223A4ECF002497ED /* InstanaEventTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C9E6AE3223A4ECF002497ED /* InstanaEventTests.swift */; };
+		6C9E6AE7223A514C002497ED /* InstanaCrashEventTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C9E6AE6223A514C002497ED /* InstanaCrashEventTests.swift */; };
+		6C9E6AE9223A560D002497ED /* InstanaRemoteCallEventTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C9E6AE8223A560D002497ED /* InstanaRemoteCallEventTests.swift */; };
+		6C9E6AEB223A5818002497ED /* InstanaCustomEventTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C9E6AEA223A5818002497ED /* InstanaCustomEventTests.swift */; };
+		6C9E6AED223A9D35002497ED /* InstanaSessionProfileEventTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C9E6AEC223A9D35002497ED /* InstanaSessionProfileEventTests.swift */; };
+		6C9E6AEF223AA473002497ED /* InstanaAlertEventTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C9E6AEE223AA473002497ED /* InstanaAlertEventTests.swift */; };
 		6CBDBF2A2229388A004C019C /* InstanaAlertsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CBDBF292229388A004C019C /* InstanaAlertsTests.swift */; };
 		6CBDBF2C22294DB2004C019C /* MirrorExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CBDBF2B22294DB2004C019C /* MirrorExtensions.swift */; };
 		6CBDBF3222297215004C019C /* InstanaConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CBDBF3122297215004C019C /* InstanaConfigurationTests.swift */; };
@@ -115,6 +121,12 @@
 		6C9E6ADB22328205002497ED /* InstanaURLSessionConfigurationExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanaURLSessionConfigurationExtensions.swift; sourceTree = "<group>"; };
 		6C9E6ADD22328259002497ED /* InstanaURLSessionConfigurationExtensionsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanaURLSessionConfigurationExtensionsTests.swift; sourceTree = "<group>"; };
 		6C9E6ADF2236A82D002497ED /* InstanaTimerProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanaTimerProxy.swift; sourceTree = "<group>"; };
+		6C9E6AE3223A4ECF002497ED /* InstanaEventTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanaEventTests.swift; sourceTree = "<group>"; };
+		6C9E6AE6223A514C002497ED /* InstanaCrashEventTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanaCrashEventTests.swift; sourceTree = "<group>"; };
+		6C9E6AE8223A560D002497ED /* InstanaRemoteCallEventTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanaRemoteCallEventTests.swift; sourceTree = "<group>"; };
+		6C9E6AEA223A5818002497ED /* InstanaCustomEventTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanaCustomEventTests.swift; sourceTree = "<group>"; };
+		6C9E6AEC223A9D35002497ED /* InstanaSessionProfileEventTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanaSessionProfileEventTests.swift; sourceTree = "<group>"; };
+		6C9E6AEE223AA473002497ED /* InstanaAlertEventTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanaAlertEventTests.swift; sourceTree = "<group>"; };
 		6CBDBF292229388A004C019C /* InstanaAlertsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanaAlertsTests.swift; sourceTree = "<group>"; };
 		6CBDBF2B22294DB2004C019C /* MirrorExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MirrorExtensions.swift; sourceTree = "<group>"; };
 		6CBDBF3122297215004C019C /* InstanaConfigurationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanaConfigurationTests.swift; sourceTree = "<group>"; };
@@ -221,6 +233,7 @@
 				6C37CE7C21D3CBDC007D90E9 /* Alerts */,
 				6C417FCA21EE27D900504B4F /* Configuration */,
 				6C37CDC721BEA08C007D90E9 /* Crash Reporting */,
+				6C9E6AE1223A4E8F002497ED /* Data Structures */,
 				6C10880A21F9BED500C9EF70 /* Error */,
 				6C37CE7521D3C79C007D90E9 /* Events */,
 				6C4DE3892204482D00EDD018 /* Extensions */,
@@ -257,8 +270,6 @@
 			isa = PBXGroup;
 			children = (
 				6C37CE7321D3C797007D90E9 /* InstanaEvents.swift */,
-				6C37CE7F21DA1C1F007D90E9 /* InstanaRingBuffer.swift */,
-				6C4DE37F2200A39B00EDD018 /* InstanaEventCollectionExtensions.swift */,
 				6C417FD221F0B76C00504B4F /* Event types */,
 			);
 			path = Events;
@@ -323,6 +334,7 @@
 		6C4DE3892204482D00EDD018 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				6C4DE37F2200A39B00EDD018 /* InstanaEventCollectionExtensions.swift */,
 				6C4DE3872204482900EDD018 /* InstanaCollectionExtensions.swift */,
 				6CBDBF3A222D7099004C019C /* InstanaStringExtensions.swift */,
 				6C9E6ADB22328205002497ED /* InstanaURLSessionConfigurationExtensions.swift */,
@@ -355,6 +367,7 @@
 				6C3238F8222825A200915D7D /* Alerts */,
 				6CBDBF3022296E1E004C019C /* Configuration */,
 				6CBDBF37222D2C26004C019C /* Crash Reporting */,
+				6C9E6AE2223A4E9B002497ED /* Data Structures */,
 				6C9E6AD0222EBE3F002497ED /* Events */,
 				6CBDBF3E222D7114004C019C /* Extensions */,
 				6C9E6ADA22315FBB002497ED /* Networking */,
@@ -378,8 +391,7 @@
 			isa = PBXGroup;
 			children = (
 				6C9E6AD32231585D002497ED /* InstanaEventsTests.swift */,
-				6C9E6ACE222EBE3B002497ED /* InstanaRingBufferTests.swift */,
-				6C9E6ADD22328259002497ED /* InstanaURLSessionConfigurationExtensionsTests.swift */,
+				6C9E6AE5223A4ED3002497ED /* Event types */,
 			);
 			path = Events;
 			sourceTree = "<group>";
@@ -398,6 +410,35 @@
 				6C9E6AD822315FB7002497ED /* InstanaNetworkingTests.swift */,
 			);
 			path = Networking;
+			sourceTree = "<group>";
+		};
+		6C9E6AE1223A4E8F002497ED /* Data Structures */ = {
+			isa = PBXGroup;
+			children = (
+				6C37CE7F21DA1C1F007D90E9 /* InstanaRingBuffer.swift */,
+			);
+			path = "Data Structures";
+			sourceTree = "<group>";
+		};
+		6C9E6AE2223A4E9B002497ED /* Data Structures */ = {
+			isa = PBXGroup;
+			children = (
+				6C9E6ACE222EBE3B002497ED /* InstanaRingBufferTests.swift */,
+			);
+			path = "Data Structures";
+			sourceTree = "<group>";
+		};
+		6C9E6AE5223A4ED3002497ED /* Event types */ = {
+			isa = PBXGroup;
+			children = (
+				6C9E6AE3223A4ECF002497ED /* InstanaEventTests.swift */,
+				6C9E6AE6223A514C002497ED /* InstanaCrashEventTests.swift */,
+				6C9E6AE8223A560D002497ED /* InstanaRemoteCallEventTests.swift */,
+				6C9E6AEA223A5818002497ED /* InstanaCustomEventTests.swift */,
+				6C9E6AEC223A9D35002497ED /* InstanaSessionProfileEventTests.swift */,
+				6C9E6AEE223AA473002497ED /* InstanaAlertEventTests.swift */,
+			);
+			path = "Event types";
 			sourceTree = "<group>";
 		};
 		6CBDBF2D22294DB6004C019C /* Test helpers */ = {
@@ -430,6 +471,7 @@
 			children = (
 				6C9E6AD1222ED05B002497ED /* InstanaEventCollectionExtensionsTests.swift */,
 				6CBDBF3C222D7110004C019C /* InstanaStringExtensionsTests.swift */,
+				6C9E6ADD22328259002497ED /* InstanaURLSessionConfigurationExtensionsTests.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -654,15 +696,21 @@
 			buildActionMask = 2147483647;
 			files = (
 				6C3238F52228258900915D7D /* InstanaLowMemoryMonitorTests.swift in Sources */,
+				6C9E6AE4223A4ECF002497ED /* InstanaEventTests.swift in Sources */,
+				6C9E6AEF223AA473002497ED /* InstanaAlertEventTests.swift in Sources */,
 				6C9E6AD42231585D002497ED /* InstanaEventsTests.swift in Sources */,
+				6C9E6AED223A9D35002497ED /* InstanaSessionProfileEventTests.swift in Sources */,
 				6C3238FA22282BEB00915D7D /* InstanaApplicationNotRespondingMonitorTests.swift in Sources */,
 				6C9E6ACF222EBE3B002497ED /* InstanaRingBufferTests.swift in Sources */,
+				6C9E6AE9223A560D002497ED /* InstanaRemoteCallEventTests.swift in Sources */,
 				6C9E6ADE22328259002497ED /* InstanaURLSessionConfigurationExtensionsTests.swift in Sources */,
 				6C9E6AD2222ED05B002497ED /* InstanaEventCollectionExtensionsTests.swift in Sources */,
 				6C3238FC22283BBD00915D7D /* InstanaFramerateDipMonitorTests.swift in Sources */,
 				6CBDBF2C22294DB2004C019C /* MirrorExtensions.swift in Sources */,
+				6C9E6AEB223A5818002497ED /* InstanaCustomEventTests.swift in Sources */,
 				6CBDBF2A2229388A004C019C /* InstanaAlertsTests.swift in Sources */,
 				6CBDBF3D222D7110004C019C /* InstanaStringExtensionsTests.swift in Sources */,
+				6C9E6AE7223A514C002497ED /* InstanaCrashEventTests.swift in Sources */,
 				6CBDBF39222D2CC6004C019C /* InstanaCrashReportSinkTests.swift in Sources */,
 				6CBDBF342229782E004C019C /* XCTestCaseExtensions.swift in Sources */,
 				6C9E6AD922315FB7002497ED /* InstanaNetworkingTests.swift in Sources */,
