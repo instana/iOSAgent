@@ -41,7 +41,7 @@ class InstanaRemoteCallEvent: InstanaEvent {
                 "url": url,
                 "result": result,
                 "responseCode": responseCode,
-                "requestSizeBytes:": requestSize,
+                "requestSizeBytes": requestSize,
                 "responseSizeBytes": responseSize
             ]
         ]

@@ -7,14 +7,17 @@ class InstanaSessionProfileEvent: InstanaEvent, InstanaEventResultNotifiable {
     var completion: CompletionBlock {
         get { return handleCompletion }
     }
-    private let maxRetryInterval = 30_000
-    private var retryInterval = 50 {
+    private let maxRetryInterval: Instana.Types.Milliseconds = 30_000
+    private var retryInterval: Instana.Types.Milliseconds {
         didSet {
             if retryInterval > maxRetryInterval { retryInterval = maxRetryInterval }
         }
     }
+    private let submitEvent: InstanaEvents.Submitter
     
-    init() {
+    init(retryInterval: Instana.Types.Milliseconds = 50, submitEvent: @escaping InstanaEvents.Submitter = Instana.events.submit(event:)) {
+        self.retryInterval = retryInterval
+        self.submitEvent = submitEvent
         super.init(eventId: nil, timestamp: 0)
     }
     
@@ -43,8 +46,8 @@ private extension InstanaSessionProfileEvent {
             Instana.log.add("Session profile sent")
         case .failure(_):
             Instana.log.add("Failed to send session profile. Retrying in \(retryInterval) ms.")
-            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(retryInterval)) {
-                Instana.events.submit(event: self)
+            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(Int(retryInterval))) {
+                self.submitEvent(self)
             }
             retryInterval *= 2
         }

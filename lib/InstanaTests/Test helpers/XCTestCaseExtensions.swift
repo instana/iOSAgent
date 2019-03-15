@@ -20,3 +20,59 @@ extension XCTestCase {
         return url
     }
 }
+
+extension XCTestCase {
+    enum ComparisonType {
+        case shouldBeNil
+        case nonEmptyString
+        case greaterThanZero
+    }
+    
+    func compareDictionaries(original: [String: Any], expected: [String: Any], file: StaticString = #file, line: UInt = #line) {
+        expected.forEach { key, value in
+            switch value {
+            case ComparisonType.shouldBeNil:
+                XCTAssertNil(original[key], file: file, line: line)
+            case ComparisonType.nonEmptyString:
+                XCTAssert((original[key] as? String)?.isEmpty == false, file: file, line: line)
+            case ComparisonType.greaterThanZero:
+                switch original[key] {
+                    case let n as Double:
+                        XCTAssert(n > 0, file: file, line: line)
+                    case let n as Float:
+                        XCTAssert(n > 0, file: file, line: line)
+                    case let n as Int:
+                        XCTAssert(n > 0, file: file, line: line)
+                    default:
+                        XCTFail("'\(String(describing: original[key]))' is not greater than 0", file: file, line: line)
+                }
+            case let expectedSubDict as [String: Any]:
+                if let originalSubDict = original[key] as? [String: Any] {
+                    compareDictionaries(original: originalSubDict, expected: expectedSubDict, file: file, line: line)
+                }
+                else {
+                    XCTFail("Value for key '\(key)' is not a dictionary", file: file, line: line)
+                }
+            case let expectedSubArray as NSArray:
+                if let originalSubArray = original[key] as? NSArray {
+                    XCTAssertEqual(originalSubArray, expectedSubArray)
+                }
+                else {
+                    XCTFail("Value for key '\(key)' is not an array", file: file, line: line)
+                }
+            case let string as String:
+                XCTAssertEqual(original[key] as? String, string, file: file, line: line)
+            case let n as Double:
+                XCTAssertEqual(original[key] as? Double, n, file: file, line: line)
+            case let n as Float:
+                XCTAssertEqual(original[key] as? Float, n, file: file, line: line)
+            case let n as Int:
+                XCTAssertEqual(original[key] as? Int, n, file: file, line: line)
+            case let n as Int64:
+                XCTAssertEqual(original[key] as? Int64, n, file: file, line: line)
+            default:
+                XCTFail("Unhandled comparison \(type(of: value))", file: file, line: line)
+            }
+        }
+    }
+}
