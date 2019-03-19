@@ -17,6 +17,17 @@ import Foundation
             }
         }
     }
+    private let installer: (AnyClass) -> Bool
+    private let uninstaller: (AnyClass) -> Void
+    private let submit: InstanaEvents.Submitter
+    
+    init(installer: @escaping (AnyClass) -> Bool = URLProtocol.registerClass,
+         uninstaller: @escaping (AnyClass) -> Void = URLProtocol.unregisterClass,
+         submitter: @escaping InstanaEvents.Submitter = Instana.events.submit(event:)) {
+        self.installer = installer
+        self.uninstaller = uninstaller
+        self.submit = submitter
+    }
     
     @objc public func install(in configuration: URLSessionConfiguration) {
         configuration.protocolClasses?.insert(InstanaURLProtocol.self, at: 0)
@@ -29,11 +40,11 @@ import Foundation
 
 extension InstanaRemoteCallInstrumentation {
     func install() {
-        URLProtocol.registerClass(InstanaURLProtocol.self)
+        _ = installer(InstanaURLProtocol.self)
     }
     
     func uninstall() {
-        URLProtocol.unregisterClass(InstanaURLProtocol.self)
+        uninstaller(InstanaURLProtocol.self)
     }
     
     func markCall(for request: URLRequest) -> InstanaRemoteCallMarker {
@@ -55,18 +66,8 @@ extension InstanaRemoteCallInstrumentation {
 }
 
 extension InstanaRemoteCallInstrumentation: InstanaRemoteCallMarkerDelegate {
-    func marker(_ marker: InstanaRemoteCallMarker, enededWith responseCode: Int) {
+    func finalized(marker: InstanaRemoteCallMarker) {
         guard shouldReport(marker: marker) else { return }
-        Instana.events.submit(event: marker.event())
-    }
-    
-    func marker(_ marker: InstanaRemoteCallMarker, enededWith error: Error) {
-        guard shouldReport(marker: marker) else { return }
-        Instana.events.submit(event: marker.event())
-    }
-    
-    func markerCanceled(_ marker: InstanaRemoteCallMarker) {
-        guard shouldReport(marker: marker) else { return }
-        Instana.events.submit(event: marker.event())
+        submit(marker.event())
     }
 }
