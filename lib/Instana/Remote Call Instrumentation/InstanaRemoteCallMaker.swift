@@ -4,9 +4,7 @@
 import Foundation
 
 protocol InstanaRemoteCallMarkerDelegate: class {
-    func marker(_ marker: InstanaRemoteCallMarker, enededWith responseCode: Int)
-    func marker(_ marker: InstanaRemoteCallMarker, enededWith error: Error)
-    func markerCanceled(_ marker: InstanaRemoteCallMarker)
+    func finalized(marker: InstanaRemoteCallMarker)
 }
 
 @objc public class InstanaRemoteCallMarker: NSObject {
@@ -58,7 +56,7 @@ extension InstanaRemoteCallMarker {
         state = .finished(responseCode: responseCode)
         self.responseSize = responseSize
         endTime = Date().timeIntervalSince1970
-        delegate?.marker(self, enededWith: responseCode)
+        delegate?.finalized(marker: self)
     }
     
     @objc public func endedWith(error: Error, responseSize: Instana.Types.Bytes = 0) {
@@ -66,14 +64,14 @@ extension InstanaRemoteCallMarker {
         state = .failed(error: error)
         self.responseSize = responseSize
         endTime = Date().timeIntervalSince1970
-        delegate?.marker(self, enededWith: error)
+        delegate?.finalized(marker: self)
     }
     
     @objc public func canceled() {
         guard case .started = state else { return }
         state = .canceled
         endTime = Date().timeIntervalSince1970
-        delegate?.markerCanceled(self)
+        delegate?.finalized(marker: self)
     }
     
     @objc public func duration() -> Instana.Types.Milliseconds {
