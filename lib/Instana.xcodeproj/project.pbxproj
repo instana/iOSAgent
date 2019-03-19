@@ -39,6 +39,7 @@
 		6C4DE3922208426600EDD018 /* InstanaFramerateDipMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C4DE3912208426600EDD018 /* InstanaFramerateDipMonitor.swift */; };
 		6C4FB98A2227E7010037C703 /* Instana.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6C37CDB821BE9CB2007D90E9 /* Instana.framework */; };
 		6C5C40D9223F9F940064FB8D /* InstanaRemoteCallInstrumentationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C5C40D8223F9F940064FB8D /* InstanaRemoteCallInstrumentationTests.swift */; };
+		6C5C40DC22412ED60064FB8D /* RemoteCallMarkerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C5C40DB22412ED60064FB8D /* RemoteCallMarkerTests.swift */; };
 		6C8D6EF221FB4D910029CAD7 /* InstanaSystemUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C8D6EF121FB4D910029CAD7 /* InstanaSystemUtils.swift */; };
 		6C8D6EF521FF4BF40029CAD7 /* InstanaBatteryUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C8D6EF421FF4BF40029CAD7 /* InstanaBatteryUtils.swift */; };
 		6C9E6ACF222EBE3B002497ED /* InstanaRingBufferTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C9E6ACE222EBE3B002497ED /* InstanaRingBufferTests.swift */; };
@@ -113,6 +114,7 @@
 		6C4FB9852227E7010037C703 /* InstanaTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = InstanaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		6C4FB9892227E7010037C703 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		6C5C40D8223F9F940064FB8D /* InstanaRemoteCallInstrumentationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanaRemoteCallInstrumentationTests.swift; sourceTree = "<group>"; };
+		6C5C40DB22412ED60064FB8D /* RemoteCallMarkerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteCallMarkerTests.swift; sourceTree = "<group>"; };
 		6C8D6EF121FB4D910029CAD7 /* InstanaSystemUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanaSystemUtils.swift; sourceTree = "<group>"; };
 		6C8D6EF421FF4BF40029CAD7 /* InstanaBatteryUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanaBatteryUtils.swift; sourceTree = "<group>"; };
 		6C9E6ACE222EBE3B002497ED /* InstanaRingBufferTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanaRingBufferTests.swift; sourceTree = "<group>"; };
@@ -384,6 +386,7 @@
 			isa = PBXGroup;
 			children = (
 				6C5C40D8223F9F940064FB8D /* InstanaRemoteCallInstrumentationTests.swift */,
+				6C5C40DB22412ED60064FB8D /* RemoteCallMarkerTests.swift */,
 			);
 			path = "Remote Call Instrumentation";
 			sourceTree = "<group>";
@@ -719,6 +722,7 @@
 				6C3238FC22283BBD00915D7D /* InstanaFramerateDipMonitorTests.swift in Sources */,
 				6CBDBF2C22294DB2004C019C /* MirrorExtensions.swift in Sources */,
 				6C9E6AEB223A5818002497ED /* InstanaCustomEventTests.swift in Sources */,
+				6C5C40DC22412ED60064FB8D /* RemoteCallMarkerTests.swift in Sources */,
 				6CBDBF2A2229388A004C019C /* InstanaAlertsTests.swift in Sources */,
 				6CBDBF3D222D7110004C019C /* InstanaStringExtensionsTests.swift in Sources */,
 				6C9E6AE7223A514C002497ED /* InstanaCrashEventTests.swift in Sources */,
