@@ -19,8 +19,8 @@ protocol InstanaRemoteCallMarkerDelegate: class {
     let eventId = UUID().uuidString
     let trigger: Trigger
     let requestSize: Instana.Types.Bytes
+    let startTime: Instana.Types.UTCTimestamp
     private(set) var responseSize: Instana.Types.Bytes = 0
-    public let startTime: Instana.Types.UTCTimestamp
     private var endTime: Instana.Types.UTCTimestamp?
     private(set) var state: State = .started
     private weak var delegate: InstanaRemoteCallMarkerDelegate?
