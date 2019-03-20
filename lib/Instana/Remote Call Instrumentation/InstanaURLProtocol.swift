@@ -7,7 +7,7 @@ internal class InstanaURLProtocol: URLProtocol {
     private lazy var session: URLSession = {
         URLSession(configuration: sessionConfiguration, delegate: self, delegateQueue: nil)
     }()
-    private lazy var sessionConfiguration: URLSessionConfiguration = { .default }()
+    private(set) lazy var sessionConfiguration: URLSessionConfiguration = { .default }()
     private var marker: InstanaRemoteCallMarker?
     
     convenience init(task: URLSessionTask, cachedResponse: CachedURLResponse?, client: URLProtocolClient?) {
