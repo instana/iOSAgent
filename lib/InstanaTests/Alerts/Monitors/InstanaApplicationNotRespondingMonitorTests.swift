@@ -13,7 +13,7 @@ class InstanaApplicationNotRespondingMonitorTests: XCTestCase {
     }
     
     func test_internalTimer_shouldNotRetainMonitor() {
-        monitor = InstanaApplicationNotRespondingMonitor(treshold: 5) { _ in }
+        monitor = InstanaApplicationNotRespondingMonitor(threshold: 5) { _ in }
         weak var weakMonitor = monitor
         
         monitor = nil
@@ -24,7 +24,7 @@ class InstanaApplicationNotRespondingMonitorTests: XCTestCase {
     func test_performanceOverload_triggersANREvent() {
         var event: InstanaEvent?
         let exp = expectation(description: "ANR event trigger")
-        monitor = InstanaApplicationNotRespondingMonitor(treshold: 0.01, samplingInterval: 0.1) {
+        monitor = InstanaApplicationNotRespondingMonitor(threshold: 0.01, samplingInterval: 0.1) {
             event = $0
             exp.fulfill()
         }
@@ -46,7 +46,7 @@ class InstanaApplicationNotRespondingMonitorTests: XCTestCase {
     
     func test_backgroundedApplication_shouldNotTriggerANREvent() {
         let exp = expectation(description: "ANR event trigger")
-        monitor = InstanaApplicationNotRespondingMonitor(treshold: 0.01, samplingInterval: 0.1) { _ in
+        monitor = InstanaApplicationNotRespondingMonitor(threshold: 0.01, samplingInterval: 0.1) { _ in
             XCTFail("ANR event triggered in background")
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(120)) {
@@ -63,7 +63,7 @@ class InstanaApplicationNotRespondingMonitorTests: XCTestCase {
         var event: InstanaEvent?
         var count = 0
         let exp = expectation(description: "ANR event trigger")
-        monitor = InstanaApplicationNotRespondingMonitor(treshold: 0.01, samplingInterval: 0.1) {
+        monitor = InstanaApplicationNotRespondingMonitor(threshold: 0.01, samplingInterval: 0.1) {
             event = $0
             count += 1
         }

@@ -51,9 +51,9 @@ class InstanaConfigurationTests: XCTestCase {
             "suspendReporting": 1,
             "eventsBufferSize": 1000,
             "sendDeviceLocationIfAvailable": true,
-            "alertApplicationNotRespondingTreshold": 2,
+            "alertApplicationNotRespondingThreshold": 2,
             "alertLowMemory": true,
-            "alertFramerateDipTreshold": 1
+            "alertFramerateDipThreshold": 1
         ]
         configDict.write(to: url, atomically: true)
         
@@ -66,9 +66,9 @@ class InstanaConfigurationTests: XCTestCase {
         XCTAssertEqual(config?.suspendReporting, InstanaEvents.SuspendReporting(rawValue: 1))
         XCTAssertEqual(config?.eventsBufferSize, 1000)
         XCTAssertEqual(config?.sendDeviceLocationIfAvailable, true)
-        XCTAssertEqual(config?.alertApplicationNotRespondingTreshold, 2)
+        XCTAssertEqual(config?.alertApplicationNotRespondingThreshold, 2)
         XCTAssertEqual(config?.alertLowMemory, true)
-        XCTAssertEqual(config?.alertFramerateDipTreshold, 1)
+        XCTAssertEqual(config?.alertFramerateDipThreshold, 1)
     }
     
     func test_invalidlyTypedPlistValues_shouldFallbackToDefaults() {
@@ -81,9 +81,9 @@ class InstanaConfigurationTests: XCTestCase {
             "suspendReporting": "a",
             "eventsBufferSize": "a",
             "sendDeviceLocationIfAvailable": "a",
-            "alertApplicationNotRespondingTreshold": "a",
+            "alertApplicationNotRespondingThreshold": "a",
             "alertLowMemory": "a",
-            "alertFramerateDipTreshold": "a"
+            "alertFramerateDipThreshold": "a"
         ]
         configDict.write(to: url, atomically: true)
         
@@ -102,8 +102,8 @@ extension InstanaConfigurationTests {
         XCTAssertEqual(config?.suspendReporting, d.suspendReporting, file: file, line: line)
         XCTAssertEqual(config?.eventsBufferSize, d.eventsBufferSize, file: file, line: line)
         XCTAssertEqual(config?.sendDeviceLocationIfAvailable, d.sendDeviceLocationIfAvailable, file: file, line: line)
-        XCTAssertEqual(config?.alertApplicationNotRespondingTreshold, d.alertApplicationNotRespondingTreshold, file: file, line: line)
+        XCTAssertEqual(config?.alertApplicationNotRespondingThreshold, d.alertApplicationNotRespondingThreshold, file: file, line: line)
         XCTAssertEqual(config?.alertLowMemory, d.alertLowMemory, file: file, line: line)
-        XCTAssertEqual(config?.alertFramerateDipTreshold, d.alertFramerateDipTreshold, file: file, line: line)
+        XCTAssertEqual(config?.alertFramerateDipThreshold, d.alertFramerateDipThreshold, file: file, line: line)
     }
 }

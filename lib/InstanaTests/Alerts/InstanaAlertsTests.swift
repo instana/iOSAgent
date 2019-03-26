@@ -14,15 +14,15 @@ class InstanaAlertsTests: XCTestCase {
         XCTAssertNil(mirror.typedChild(at: "framerateDipMonitor", type: InstanaFramerateDipMonitor.self))
     }
     
-    func test_settingFramerateTreshold_initializesMonitor() {
+    func test_settingFramerateThreshold_initializesMonitor() {
         let alerts = InstanaAlerts()
         let mirror = Mirror(reflecting: alerts)
         let typedChild: () -> Any? = { mirror.typedChild(at: "framerateDipMonitor", type: InstanaFramerateDipMonitor.self) }
         
         XCTAssertNil(typedChild())
-        alerts.framerateDipTreshold = 10
+        alerts.framerateDipThreshold = 10
         XCTAssertNotNil(typedChild())
-        alerts.framerateDipTreshold = nil
+        alerts.framerateDipThreshold = nil
         XCTAssertNil(typedChild())
     }
     
@@ -38,21 +38,21 @@ class InstanaAlertsTests: XCTestCase {
         XCTAssertNil(typedChild())
     }
     
-    func test_settingANRTreshold_initializesMonitor() {
+    func test_settingANRThreshold_initializesMonitor() {
         let alerts = InstanaAlerts()
         let mirror = Mirror(reflecting: alerts)
         let typedChild: () -> InstanaApplicationNotRespondingMonitor? = { mirror.typedChild(at: "applicationNotRespondingMonitor", type: InstanaApplicationNotRespondingMonitor.self) }
         
         XCTAssertNil(typedChild())
         
-        alerts.applicationNotRespondingTreshold = 0.1
+        alerts.applicationNotRespondinThreshold = 0.1
         let firstMonitor = typedChild()
         XCTAssertNotNil(firstMonitor)
-        XCTAssertEqual(firstMonitor?.treshold, 0.1)
-        alerts.applicationNotRespondingTreshold = 0.2
-        XCTAssertEqual(firstMonitor?.treshold, 0.2)
+        XCTAssertEqual(firstMonitor?.threshold, 0.1)
+        alerts.applicationNotRespondinThreshold = 0.2
+        XCTAssertEqual(firstMonitor?.threshold, 0.2)
         
-        alerts.applicationNotRespondingTreshold = nil
+        alerts.applicationNotRespondinThreshold = nil
         XCTAssertNil(typedChild())
     }
 }
