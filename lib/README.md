@@ -126,6 +126,6 @@ If the application frame-rate dips below the configured threshold, a frame-rate 
 
 	Instana.alerts.framerateDipThreshold = 20
 
-will trigger an alert if the frame-rate drops below 20 frames per second
+will trigger an alert if the frame-rate drops below 20 frames per second.
 
 To disable frame-rate dip alerts set the threshold to `nil`.
