@@ -113,7 +113,7 @@ Low memory alerts will get reported on the standard low memory system event whic
 ### Application Not Responding (ANR)
 ANR events will get reported after the main thread is blocked for more than the duration specified in the configuration. It can also be adjusted at runtime, for example:
 
-	Instana.alerts.applicationNotRespondingTreshold = 1
+	Instana.alerts.applicationNotRespondingThreshold = 1
 	
 will trigger an ANR alert after the main thread has been blocked for more than one second.
 
@@ -124,7 +124,7 @@ Depending on the threshold settings, an ANR alert might overlap with a frame rat
 ### Frame-rate Dip
 If the application frame-rate dips below the configured threshold, a frame-rate dip alert will be triggered. For example:
 
-	Instana.alerts.framerateDipTreshold = 20
+	Instana.alerts.framerateDipThreshold = 20
 
 will trigger an alert if the frame-rate drops below 20 frames per second
 

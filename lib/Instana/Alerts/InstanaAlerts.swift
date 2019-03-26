@@ -4,13 +4,13 @@
 import Foundation
 
 @objc public class InstanaAlerts: NSObject {
-    var applicationNotRespondingTreshold: Instana.Types.Seconds? {
+    var applicationNotRespondinThreshold: Instana.Types.Seconds? {
         didSet {
-            switch (applicationNotRespondingTreshold, applicationNotRespondingMonitor) {
-            case (let anrTreshold?, let anrMonitor?):
-                anrMonitor.treshold = anrTreshold
-            case (let anrTreshold?, .none):
-                applicationNotRespondingMonitor = InstanaApplicationNotRespondingMonitor(treshold: anrTreshold)
+            switch (applicationNotRespondinThreshold, applicationNotRespondingMonitor) {
+            case (let anrThreshold?, let anrMonitor?):
+                anrMonitor.threshold = anrThreshold
+            case (let anrThreshold?, .none):
+                applicationNotRespondingMonitor = InstanaApplicationNotRespondingMonitor(threshold: anrThreshold)
             default:
                 applicationNotRespondingMonitor = nil
             }
@@ -21,11 +21,11 @@ import Foundation
             lowMemoryMonitor = lowMemory ? InstanaLowMemoryMonitor() : nil
         }
     }
-    var framerateDipTreshold: UInt? {
+    var framerateDipThreshold: UInt? {
         didSet {
-            switch framerateDipTreshold {
-            case let treshold?:
-                framerateDipMonitor = InstanaFramerateDipMonitor(treshold: treshold)
+            switch framerateDipThreshold {
+            case let threshold?:
+                framerateDipMonitor = InstanaFramerateDipMonitor(threshold: threshold)
             default:
                 framerateDipMonitor = nil
             }

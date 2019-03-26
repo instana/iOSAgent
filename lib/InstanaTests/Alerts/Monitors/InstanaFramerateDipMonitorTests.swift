@@ -13,7 +13,7 @@ class InstanaFramerateDipMonitorTests: XCTestCase {
     }
     
     func test_internalDisplayLink_shouldNotRetainMonitor() {
-        monitor = InstanaFramerateDipMonitor(treshold: 5) { _ in }
+        monitor = InstanaFramerateDipMonitor(threshold: 5) { _ in }
         weak var weakMonitor = monitor
         
         monitor = nil
@@ -24,7 +24,7 @@ class InstanaFramerateDipMonitorTests: XCTestCase {
     func test_framerateDip_triggersEvent() {
         var event: InstanaEvent?
         let exp = expectation(description: "Framerate dip event trigger")
-        monitor = InstanaFramerateDipMonitor(treshold: 50, samplingInterval: 0.1) {
+        monitor = InstanaFramerateDipMonitor(threshold: 50, samplingInterval: 0.1) {
             event = $0
             exp.fulfill()
         }
@@ -47,7 +47,7 @@ class InstanaFramerateDipMonitorTests: XCTestCase {
     
     func test_backgroundedApplication_shouldNotTriggerEvent() {
         let exp = expectation(description: "Framerate dip event trigger")
-        monitor = InstanaFramerateDipMonitor(treshold: 50, samplingInterval: 0.01) { _ in
+        monitor = InstanaFramerateDipMonitor(threshold: 50, samplingInterval: 0.01) { _ in
             XCTFail("Framerate dip event triggered in background")
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(200)) {
@@ -63,7 +63,7 @@ class InstanaFramerateDipMonitorTests: XCTestCase {
     func test_foregrounding_shouldResumeMonitoring() {
         var event: InstanaEvent?
         let exp = expectation(description: "Framerate dip event trigger")
-        monitor = InstanaFramerateDipMonitor(treshold: 50, samplingInterval: 0.01) {
+        monitor = InstanaFramerateDipMonitor(threshold: 50, samplingInterval: 0.01) {
             event = $0
             exp.fulfill()
         }

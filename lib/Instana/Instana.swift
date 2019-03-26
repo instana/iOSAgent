@@ -72,8 +72,8 @@ private extension Instana {
     }
     
     static func setupAlerts(with config: InstanaConfiguration) {
-        alerts.applicationNotRespondingTreshold = config.alertApplicationNotRespondingTreshold
-        alerts.framerateDipTreshold = config.alertFramerateDipTreshold
+        alerts.applicationNotRespondinThreshold = config.alertApplicationNotRespondingThreshold
+        alerts.framerateDipThreshold = config.alertFramerateDipThreshold
         alerts.lowMemory = config.alertLowMemory
     }
 }

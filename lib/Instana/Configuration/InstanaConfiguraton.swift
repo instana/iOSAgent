@@ -11,9 +11,9 @@ struct InstanaConfiguration {
         static let eventsBufferSize = 200
         static let suspendReporting = InstanaEvents.SuspendReporting.never
         static let sendDeviceLocationIfAvailable = false
-        static let alertApplicationNotRespondingTreshold: Instana.Types.Seconds? = nil
+        static let alertApplicationNotRespondingThreshold: Instana.Types.Seconds? = nil
         static let alertLowMemory = false
-        static let alertFramerateDipTreshold: UInt? = nil
+        static let alertFramerateDipThreshold: UInt? = nil
     }
     
     let reportingUrl: String
@@ -23,9 +23,9 @@ struct InstanaConfiguration {
     let suspendReporting: InstanaEvents.SuspendReporting
     let eventsBufferSize: Int
     let sendDeviceLocationIfAvailable: Bool // TODO: implement
-    let alertApplicationNotRespondingTreshold: Instana.Types.Seconds?
+    let alertApplicationNotRespondingThreshold: Instana.Types.Seconds?
     let alertLowMemory: Bool
-    let alertFramerateDipTreshold: UInt?
+    let alertFramerateDipThreshold: UInt?
     
     static func read(from path: String?) -> InstanaConfiguration? {
         guard let path = path, let config = NSDictionary(contentsOfFile: path) else {
@@ -48,9 +48,9 @@ struct InstanaConfiguration {
                          suspendReporting: dictionary.fromRawValue(forKey: "suspendReporting") ?? Defaults.suspendReporting,
                          eventsBufferSize: dictionary.value(forKey: "eventsBufferSize") as? Int ?? Defaults.eventsBufferSize,
                          sendDeviceLocationIfAvailable: dictionary.bool(forKey: "sendDeviceLocationIfAvailable", fallback: Defaults.sendDeviceLocationIfAvailable),
-                         alertApplicationNotRespondingTreshold: dictionary.value(forKey: "alertApplicationNotRespondingTreshold") as? Instana.Types.Seconds ?? Defaults.alertApplicationNotRespondingTreshold,
+                         alertApplicationNotRespondingThreshold: dictionary.value(forKey: "alertApplicationNotRespondingThreshold") as? Instana.Types.Seconds ?? Defaults.alertApplicationNotRespondingThreshold,
                          alertLowMemory: dictionary.bool(forKey: "alertLowMemory", fallback: Defaults.alertLowMemory),
-                         alertFramerateDipTreshold: dictionary.value(forKey: "alertFramerateDipTreshold") as? UInt ?? Defaults.alertFramerateDipTreshold)
+                         alertFramerateDipThreshold: dictionary.value(forKey: "alertFramerateDipThreshold") as? UInt ?? Defaults.alertFramerateDipThreshold)
     }
     
     static func `default`(key: String, reportingUrl: String?) -> InstanaConfiguration {
@@ -61,9 +61,9 @@ struct InstanaConfiguration {
                          suspendReporting: Defaults.suspendReporting,
                          eventsBufferSize: Defaults.eventsBufferSize,
                          sendDeviceLocationIfAvailable: Defaults.sendDeviceLocationIfAvailable,
-                         alertApplicationNotRespondingTreshold: Defaults.alertApplicationNotRespondingTreshold,
+                         alertApplicationNotRespondingThreshold: Defaults.alertApplicationNotRespondingThreshold,
                          alertLowMemory: Defaults.alertLowMemory,
-                         alertFramerateDipTreshold: Defaults.alertFramerateDipTreshold)
+                         alertFramerateDipThreshold: Defaults.alertFramerateDipThreshold)
     }
 }
 

@@ -13,7 +13,7 @@ class InstanaFramerateDipMonitor {
     }
     
     private let submitEvent: InstanaEvents.Submitter
-    private let treshold: UInt
+    private let threshold: UInt
     private let displayLink: CADisplayLink
     private let samplingInterval: Instana.Types.Seconds
     private var samplingStart: CFTimeInterval = 0
@@ -24,10 +24,10 @@ class InstanaFramerateDipMonitor {
     
     private init() { fatalError() }
     
-    init(treshold: UInt, samplingInterval: Instana.Types.Seconds = 1, submitEvent: @escaping InstanaEvents.Submitter = Instana.events.submit(event:)) {
+    init(threshold: UInt, samplingInterval: Instana.Types.Seconds = 1, submitEvent: @escaping InstanaEvents.Submitter = Instana.events.submit(event:)) {
         self.submitEvent = submitEvent
         self.samplingInterval = samplingInterval
-        self.treshold = treshold
+        self.threshold = threshold
         let proxy = DisplayLinkProxy()
         displayLink = CADisplayLink(target: proxy, selector: #selector(proxy.onDisplayLinkUpdate))
         proxy.proxied = self
@@ -73,7 +73,7 @@ private extension InstanaFramerateDipMonitor {
     }
     
     func handle(fps: UInt) {
-        switch (fps < treshold, dipStart) {
+        switch (fps < threshold, dipStart) {
         case (true, nil):
             dipStart = samplingStart
             runningAverage = Float(fps)

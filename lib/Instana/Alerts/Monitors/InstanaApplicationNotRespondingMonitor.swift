@@ -4,16 +4,16 @@
 import Foundation
 
 class InstanaApplicationNotRespondingMonitor {
-    var treshold: Instana.Types.Seconds
+    var threshold: Instana.Types.Seconds
     private let submitEvent: InstanaEvents.Submitter
     private var timer: Timer?
     private let samplingInterval: Double
     
     private init() { fatalError() }
     
-    init(treshold: Instana.Types.Seconds, samplingInterval: Double = 1.0, submitEvent: @escaping InstanaEvents.Submitter = Instana.events.submit(event:)) {
+    init(threshold: Instana.Types.Seconds, samplingInterval: Double = 1.0, submitEvent: @escaping InstanaEvents.Submitter = Instana.events.submit(event:)) {
         self.submitEvent = submitEvent
-        self.treshold = treshold
+        self.threshold = threshold
         self.samplingInterval = samplingInterval
         NotificationCenter.default.addObserver(self, selector: #selector(onApplicationEnteredForeground), name: UIApplication.didBecomeActiveNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(onApplicationEnteredBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
@@ -51,7 +51,7 @@ extension InstanaApplicationNotRespondingMonitor: InstanaTimerProxiedTarget {
         }
         
         let delay = CFAbsoluteTimeGetCurrent() - start - samplingInterval
-        if delay > treshold {
+        if delay > threshold {
             let event = InstanaAlertEvent(alertType: .anr(duration: delay), screen: InstanaSystemUtils.viewControllersHierarchy())
             submitEvent(event)
         }
