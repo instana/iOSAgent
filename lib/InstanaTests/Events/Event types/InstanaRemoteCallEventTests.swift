@@ -7,7 +7,7 @@ import XCTest
 class InstanaRemoteCallEventTests: XCTestCase {
 
     func test_remoteCallEventValues_shouldBeSerializedToJSON() {
-        let event = InstanaRemoteCallEvent(eventId: "a", timestamp: 123, duration: 45, method: "METHOD", url: "URL", responseCode: 321, requestSize: 11, responseSize: 22, result: "res")
+        let event = InstanaRemoteCallEvent(eventId: "a", timestamp: 123, duration: 45, method: "METHOD", url: "URL", connectionType: .wifi, responseCode: 321, requestSize: 11, responseSize: 22, result: "res")
         compareDictionaries(original: event.toJSON(), expected: [
             "sessionId": ComparisonType.nonEmptyString,
             "id": "a",
@@ -17,6 +17,7 @@ class InstanaRemoteCallEventTests: XCTestCase {
                 "remoteCall": [
                     "method": "METHOD",
                     "url": "URL",
+                    "connectionType": "wifi",
                     "result": "res",
                     "responseCode": 321,
                     "requestSizeBytes": 11 as Instana.Types.Bytes,
@@ -27,7 +28,7 @@ class InstanaRemoteCallEventTests: XCTestCase {
     }
     
     func test_remoteCallDefaultValues() {
-        let event = InstanaRemoteCallEvent(eventId: "b", duration: 0, method: "GET", url: "c", result: "r")        
+        let event = InstanaRemoteCallEvent(eventId: "b", duration: 0, method: "GET", url: "c", connectionType: nil, result: "r")
         compareDictionaries(original: event.toJSON(), expected: [
             "sessionId": ComparisonType.nonEmptyString,
             "id": "b",
@@ -37,6 +38,7 @@ class InstanaRemoteCallEventTests: XCTestCase {
                 "remoteCall": [
                     "method": "GET",
                     "url": "c",
+                    "connectionType": ComparisonType.shouldBeNil,
                     "result": "r",
                     "responseCode": -1,
                     "requestSizeBytes": 0 as Instana.Types.Bytes,

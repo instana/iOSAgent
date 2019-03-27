@@ -20,13 +20,16 @@ import Foundation
     private let installer: (AnyClass) -> Bool
     private let uninstaller: (AnyClass) -> Void
     private let submit: InstanaEvents.Submitter
+    private let networkConnectionType: () -> InstanaNetworkMonitor.ConnectionType?
     
     init(installer: @escaping (AnyClass) -> Bool = URLProtocol.registerClass,
          uninstaller: @escaping (AnyClass) -> Void = URLProtocol.unregisterClass,
-         submitter: @escaping InstanaEvents.Submitter = Instana.events.submit(event:)) {
+         submitter: @escaping InstanaEvents.Submitter = Instana.events.submit(event:),
+         networkConnectionType: @escaping () -> InstanaNetworkMonitor.ConnectionType? = { InstanaNetworkMonitor.shared.connectionType } ) {
         self.installer = installer
         self.uninstaller = uninstaller
         self.submit = submitter
+        self.networkConnectionType = networkConnectionType
     }
     
     @objc public func install(in configuration: URLSessionConfiguration) {
@@ -34,7 +37,7 @@ import Foundation
     }
     
     @objc public func markCall(to url: String, method: String) -> InstanaRemoteCallMarker {
-        return InstanaRemoteCallMarker(url: url, method: method, trigger: .manual, delegate: self)
+        return InstanaRemoteCallMarker(url: url, method: method, trigger: .manual, connectionType: networkConnectionType(), delegate: self)
     }
 }
 
@@ -52,6 +55,7 @@ extension InstanaRemoteCallInstrumentation {
                                        method: request.httpMethod ?? "",
                                        trigger: .automatic,
                                        requestSize: Instana.Types.Bytes(request.httpBody?.count ?? 0),
+                                       connectionType: networkConnectionType(),
                                        delegate: self)
     }
     

@@ -57,15 +57,16 @@ class InstanaRemoteCallInstrumentationTests: XCTestCase {
     }
     
     func test_markingCall_shouldReturnPreparedMarker() {
-        let rci = InstanaRemoteCallInstrumentation()
+        let rci = InstanaRemoteCallInstrumentation(networkConnectionType: { .wifi })
         let marker = rci.markCall(to: "www.test.url", method: "method")
         XCTAssertEqual(marker.url, "www.test.url")
         XCTAssertEqual(marker.method, "method")
         XCTAssertEqual(marker.trigger, .manual)
+        XCTAssertEqual(marker.connectionType, .wifi)
     }
     
     func test_markingRequest_shouldReturnSetUpMarker() {
-        let rci = InstanaRemoteCallInstrumentation()
+        let rci = InstanaRemoteCallInstrumentation(networkConnectionType: { .cellular })
         var request = URLRequest(url: URL(string: "www.a.com")!)
         request.httpMethod = "m"
         request.httpBody = "11".data(using: .utf8)
@@ -74,10 +75,11 @@ class InstanaRemoteCallInstrumentationTests: XCTestCase {
         XCTAssertEqual(marker.method, "m")
         XCTAssertEqual(marker.requestSize, 2)
         XCTAssertEqual(marker.trigger, .automatic)
+        XCTAssertEqual(marker.connectionType, .cellular)
     }
     
     func test_markingRequestWithDefaultValues_shouldReturnPreparedMarker() {
-        let rci = InstanaRemoteCallInstrumentation()
+        let rci = InstanaRemoteCallInstrumentation(networkConnectionType: { nil })
         var request = URLRequest(url: URL(string: "a")!)
         request.url = nil
         request.httpMethod = nil
@@ -86,6 +88,7 @@ class InstanaRemoteCallInstrumentationTests: XCTestCase {
         XCTAssertEqual(marker.method, "GET")
         XCTAssertEqual(marker.requestSize, 0)
         XCTAssertEqual(marker.trigger, .automatic)
+        XCTAssertNil(marker.connectionType)
     }
     
     func test_automaticTriggerMarker_shouldBeReportedOnlyForAutomatedReporting() {
