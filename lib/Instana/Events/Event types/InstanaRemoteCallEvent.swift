@@ -7,6 +7,7 @@ class InstanaRemoteCallEvent: InstanaEvent {
     let duration: Instana.Types.Milliseconds
     let method: String
     let url: String
+    let connectionType: InstanaNetworkMonitor.ConnectionType?
     let responseCode: Int
     let result: String
     let requestSize: Instana.Types.Bytes
@@ -17,6 +18,7 @@ class InstanaRemoteCallEvent: InstanaEvent {
          duration: Instana.Types.Milliseconds,
          method: String,
          url: String,
+         connectionType: InstanaNetworkMonitor.ConnectionType?,
          responseCode: Int = -1,
          requestSize: Instana.Types.Bytes = 0,
          responseSize: Instana.Types.Bytes = 0,
@@ -24,6 +26,7 @@ class InstanaRemoteCallEvent: InstanaEvent {
         self.duration = duration
         self.method = method
         self.url = url
+        self.connectionType = connectionType
         self.responseCode = responseCode
         self.requestSize = requestSize
         self.responseSize = responseSize
@@ -33,17 +36,21 @@ class InstanaRemoteCallEvent: InstanaEvent {
     
     override func toJSON() -> [String : Any] {
         var json = super.toJSON()
+        var remoteCall: [String: Any] = [
+            "method": method,
+            "url": url,
+            "result": result,
+            "responseCode": responseCode,
+            "requestSizeBytes": requestSize,
+            "responseSizeBytes": responseSize
+        ]
+        if let connectionType = connectionType {
+            remoteCall["connectionType"] = String(describing: connectionType)
+        }
         json["event"] = [
             "timestamp": timestamp,
             "durationMs": duration,
-            "remoteCall": [
-                "method": method,
-                "url": url,
-                "result": result,
-                "responseCode": responseCode,
-                "requestSizeBytes": requestSize,
-                "responseSizeBytes": responseSize
-            ]
+            "remoteCall": remoteCall
         ]
         return json
     }

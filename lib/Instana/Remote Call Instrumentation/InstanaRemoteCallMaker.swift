@@ -20,18 +20,20 @@ protocol InstanaRemoteCallMarkerDelegate: class {
     let trigger: Trigger
     let requestSize: Instana.Types.Bytes
     let startTime: Instana.Types.UTCTimestamp
+    let connectionType: InstanaNetworkMonitor.ConnectionType?
     private(set) var responseSize: Instana.Types.Bytes = 0
     private var endTime: Instana.Types.UTCTimestamp?
     private(set) var state: State = .started
     private weak var delegate: InstanaRemoteCallMarkerDelegate?
     
-    init(url: String, method: String, trigger: Trigger = .automatic, requestSize: Instana.Types.Bytes = 0, delegate: InstanaRemoteCallMarkerDelegate) {
+    init(url: String, method: String, trigger: Trigger = .automatic, requestSize: Instana.Types.Bytes = 0, connectionType: InstanaNetworkMonitor.ConnectionType? = nil, delegate: InstanaRemoteCallMarkerDelegate) {
         startTime = Date().timeIntervalSince1970
         self.url = url
         self.method = method
         self.delegate = delegate
         self.trigger = trigger
         self.requestSize = requestSize
+        self.connectionType = connectionType
     }
     
     @objc public func addTrackingHeaders(to request: NSMutableURLRequest?) {
@@ -102,6 +104,7 @@ extension InstanaRemoteCallMarker {
                                       duration: duration(),
                                       method: method,
                                       url: url,
+                                      connectionType: connectionType,
                                       responseCode: responseCode ?? -1,
                                       requestSize: requestSize,
                                       responseSize: responseSize,
