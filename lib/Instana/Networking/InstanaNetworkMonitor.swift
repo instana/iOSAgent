@@ -16,19 +16,21 @@ class InstanaNetworkMonitor {
     private var monitor: NWPathMonitor {
         let monitor = NWPathMonitor()
         monitor.pathUpdateHandler = { [weak self] path in
-            guard let self = self else { return }
-            guard path.status == .satisfied else {
-                self.connectionType = nil
-                return
-            }
-            if path.usesInterfaceType(.cellular) {
-                self.connectionType = .cellular
-            }
-            else if path.usesInterfaceType(.wifi) {
-                self.connectionType = .wifi
-            }
-            else {
-                self.connectionType = nil
+            DispatchQueue.main.async {
+                guard let self = self else { return }
+                guard path.status == .satisfied else {
+                    self.connectionType = nil
+                    return
+                }
+                if path.usesInterfaceType(.cellular) {
+                    self.connectionType = .cellular
+                }
+                else if path.usesInterfaceType(.wifi) {
+                    self.connectionType = .wifi
+                }
+                else {
+                    self.connectionType = nil
+                }
             }
         }
         return monitor
