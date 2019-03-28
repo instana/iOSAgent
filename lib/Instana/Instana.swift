@@ -3,11 +3,27 @@
 
 import Foundation
 
+/// Root object of the Instana SDK.
+///
+/// Besides setup, this class is used as a namespace for all of Instanas features. For example:
+///
+///     Instana.events.submit(event: myEvent)
+///
+/// - Important: Before using any of Instana's features, it is necessary to invoke one of its setup methods.
 @objc public class Instana: NSObject {
+    
+    /// Object acting as a namespace for configuring alerts.
     @objc public static let alerts = InstanaAlerts()
+    
+    /// Object acting as a namespace for configuring and using events.
     @objc public static let events = InstanaEvents()
+    
+    /// Object acting as a namespace for configuring crash reporting.
     @objc public static let crashReporting = InstanaCrashReporting()
+    
+    /// Object acting as a namespace for configuring and using remote call instrumentation.
     @objc public static let remoteCallInstrumentation = InstanaRemoteCallInstrumentation()
+    
     static let log = InstanaLogger()
     static let battery = InstanaBatteryUtils()
 
@@ -17,17 +33,32 @@ import Foundation
     
     private override init() {}
     
+    /// Configures and sets up the Instana SDK.
+    ///
+    /// Looks for `InstanaConfiguration.plist` in the main bundle.
+    /// - Note: Should be called only once, as soon as posible. Preferablly in `application(_:, didFinishLaunchingWithOptions:)`
     @objc public static func setup() {
         let defaultPath = Bundle.main.path(forResource: "InstanaConfiguration", ofType: ".plist")
         guard let config = InstanaConfiguration.read(from: defaultPath) else { return }
         setup(with: config)
     }
     
+    
+    /// Configures and sets up the Instana SDK with a configuration file at a custom path.
+    ///
+    /// - Note: Should be called only once, as soon as posible. Preferablly in `application(_:, didFinishLaunchingWithOptions:)`
+    /// - Parameter configPath: absolute path to the configuration file.
     @objc public static func setup(with configPath: String) {
         guard let config = InstanaConfiguration.read(from: configPath) else { return }
         setup(with: config)
     }
     
+    /// Configures and sets up the Instana SDK with the default configuration.
+    ///
+    /// - Note: Should be called only once, as soon as posible. Preferablly in `application(_:, didFinishLaunchingWithOptions:)`
+    /// - Parameters:
+    ///   - key: Instana key identifying your application.
+    ///   - reportingUrl: Optional reporting url used for on-premises Instana backend installations.
     @objc public static func setup(withKey key: String, reportingUrl: String? = nil) {
         let config = InstanaConfiguration.default(key: key, reportingUrl:  reportingUrl)
         setup(with: config)

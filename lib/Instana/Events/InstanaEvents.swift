@@ -3,15 +3,25 @@
 
 import Foundation
 
+/// Object acting as a namespace for configuring and using events.
 @objc public class InstanaEvents: NSObject {
     
     typealias Submitter = (InstanaEvent) -> Void
     typealias Loader = (URLRequest, Bool, @escaping (InstanaNetworking.Result) -> Void) -> Void
     typealias EventsToRequest = ([InstanaEvent]) throws -> URLRequest
-        
+    
+    /// An enum insted of option list because of Obj-C support.
     @objc public enum SuspendReporting: Int {
-        case never, lowBattery, cellularConnection, lowBatteryAndCellularConnection
+        /// Reporting is never suspended.
+        case never
+        /// Reporting is suspended while the device battery is low.
+        case lowBattery
+        /// Reporting is suspended while the device is using a cellular connection.
+        case cellularConnection
+        /// Reporting is suspended while the device battery is low or the device is using a cellular connection.
+        case lowBatteryOrCellularConnection
     }
+    /// Determine in which cases to suspend sending of events to the Instana backend.
     @objc public var suspendReporting: SuspendReporting = .never
     private var timer: Timer?
     private let transmissionDelay: Instana.Types.Seconds
@@ -43,6 +53,12 @@ import Foundation
         super.init()
     }
     
+    /// Submit an event to the Instana backend.
+    ///
+    /// Events are stored in a ring buffer and can be overwritten if too many are submited before a buffer flush.
+    /// To avoid this, `bufferSize` can be increased in the configuration.
+    ///
+    /// - Parameter event: For SDK users this should be `InstanaCustomEvent`.
     @objc(submitEvent:)
     public func submit(event: InstanaEvent) {
         queue.async {
@@ -59,7 +75,7 @@ private extension InstanaEvents {
         self.timer?.invalidate()
         self.timer = nil
         
-        if batterySafeForNetworking() == false, [.lowBattery, .lowBatteryAndCellularConnection].contains(suspendReporting) {
+        if batterySafeForNetworking() == false, [.lowBattery, .lowBatteryOrCellularConnection].contains(suspendReporting) {
             startSendEventsTimer(delay: transmissionLowBatteryDelay)
             return
         }
@@ -93,7 +109,7 @@ private extension InstanaEvents {
             complete(events, with: .failure(error: error))
             return
         }
-        let restrictLoad = [.cellularConnection, .lowBatteryAndCellularConnection].contains(suspendReporting)
+        let restrictLoad = [.cellularConnection, .lowBatteryOrCellularConnection].contains(suspendReporting)
         load(request, restrictLoad) { result in
             // TODO: failed requests handling, after prototype
             switch result {

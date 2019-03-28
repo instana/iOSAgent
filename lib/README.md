@@ -104,6 +104,14 @@ The easiest way to upload dSYM files to Instana for crash report symbolication, 
 
 Alternatively you can manually upload dSYM files to the Instana backend. // TODO
 
+### Breadcrumbs
+To assist you in determining the casue of a crash you can leave breadcrumbs in your app.
+
+	Instana.crashReporting.leave(breadcrumb: "User logged in")
+	
+The total number of breadcrumbs is limited to 100, after that newer breadcrumbs will overwrite older ones.
+> Breadcrumbs will be truncated to 140 characters.
+
 ## Performance Alerts
 Performance alerts can be individually disabled/enabled and configured.
 
