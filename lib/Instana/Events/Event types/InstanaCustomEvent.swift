@@ -3,6 +3,7 @@
 
 import Foundation
 
+/// Use this class when submitting user events to the Instana backend.
 @objc public class InstanaCustomEvent: InstanaEvent {
     public let name: String
     public let duration: Instana.Types.Milliseconds

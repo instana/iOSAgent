@@ -3,10 +3,22 @@
 
 import Foundation
 
+/// Object acting as a namespace for configuring and using remote call instrumentation.
 @objc public class InstanaRemoteCallInstrumentation: NSObject {
+    
+    /// An enum insted of option list because of Obj-C support.
     @objc public enum ReportingType: Int {
-        case automaticAndManual, automatic, manual, none
+        /// Both automatic and manual calls will be reported
+        case automaticAndManual
+        /// Only automatic calls will be reported
+        case automatic
+        /// Only manual calls will be reported
+        case manual
+        /// Ignore all calls
+        case none
     }
+    
+    /// Determines what types of calls will be reported to the Instana backend.
     @objc public var reporting: ReportingType = .none {
         didSet {
             switch reporting {
@@ -17,6 +29,7 @@ import Foundation
             }
         }
     }
+    
     private let installer: (AnyClass) -> Bool
     private let uninstaller: (AnyClass) -> Void
     private let submit: InstanaEvents.Submitter
@@ -32,10 +45,32 @@ import Foundation
         self.networkConnectionType = networkConnectionType
     }
     
+    /// Adds a tracking URL protocol to the configuration.
+    ///
+    /// Calls made with a session created with this configuration are considered "automatic".
+    /// - Important: URLSession configuration can't be modified after initialization, so make sure to invoke this before creating the session.
+    /// - Parameter configuration: URL session configuration to add the tracking protocol to.
     @objc public func install(in configuration: URLSessionConfiguration) {
         configuration.protocolClasses?.insert(InstanaURLProtocol.self, at: 0)
     }
     
+    /// Use this method to manually instrument remote calls that can't be instrument automatically.
+    /// For example, if you are not URLSession, or want to customize the response.
+    ///
+    ///     let marker = Instana.remoteCallInstrumentation.markCall(to: url.absoluteString, method: "GET")
+    ///     URLSession.shared.dataTask(with: url) { data, response, error in
+    ///         if let error = error {
+    ///             marker.endedWith(error: error)
+    ///         }
+    ///         else {
+    ///             marker.endedWith(responseCode: (response as? HTTPURLResponse)?.statusCode ?? 200)
+    ///         }
+    ///     }
+    ///
+    /// - Parameters:
+    ///   - url: URL of the call.
+    ///   - method: Method of the call.
+    /// - Returns: A remote call marker which is used to notify the SDK of call results by invoking one of its completion methods.
     @objc public func markCall(to url: String, method: String) -> InstanaRemoteCallMarker {
         return InstanaRemoteCallMarker(url: url, method: method, trigger: .manual, connectionType: networkConnectionType(), delegate: self)
     }

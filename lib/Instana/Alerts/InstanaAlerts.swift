@@ -3,6 +3,7 @@
 
 import Foundation
 
+/// Object acting as a namespace for configuring alerts.
 @objc public class InstanaAlerts: NSObject {
     var applicationNotRespondinThreshold: Instana.Types.Seconds? {
         didSet {

@@ -3,6 +3,7 @@
 
 import Foundation
 
+/// Base class for events. 
 @objc public class InstanaEvent: NSObject {
     let sessionId: String
     let eventId: String?

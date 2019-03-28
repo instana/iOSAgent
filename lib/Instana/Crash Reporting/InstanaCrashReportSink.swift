@@ -4,6 +4,7 @@
 import Foundation
 import KSCrash
 
+/// This class is for internal use, it's public only becasuse of Obj-C compatibility.
 public class InstanaCrashReportSink: NSObject, KSCrashReportFilter {
     
     private struct ReportKeys {
