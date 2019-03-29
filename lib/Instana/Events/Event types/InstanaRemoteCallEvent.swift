@@ -47,6 +47,8 @@ class InstanaRemoteCallEvent: InstanaEvent {
         if let connectionType = connectionType {
             remoteCall["connectionType"] = String(describing: connectionType)
         }
+        remoteCall.set(ifNotNil: InstanaSystemUtils.carrierName, forKey: "carrier")
+        remoteCall.set(ifNotNil: InstanaSystemUtils.cellularConnectionType, forKey: "cellularConnectionType")
         json["event"] = [
             "timestamp": timestamp,
             "durationMs": duration,
