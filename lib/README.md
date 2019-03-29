@@ -100,7 +100,7 @@ Once the request finishes or fails, use one of the markers completion methods:
 Crash reporting is enabled by default. In case you are using a different crash reporting solution, or don't want crash reporting, it can only be disabled via a configuration file.
 
 ### Crash report symbolication
-The easiest way to upload dSYM files to Instana for crash report symbolication, is by using [Fastlane](https://fastlane.tools/) and the [Instana plugin](). // TODO
+The easiest way to upload dSYM files to Instana for crash report symbolication, is by using [Fastlane](https://fastlane.tools/) and the [Instana plugin](https://github.com/instana/instana-fastlane-plugin).
 
 Alternatively you can manually upload dSYM files to the Instana backend. // TODO
 
