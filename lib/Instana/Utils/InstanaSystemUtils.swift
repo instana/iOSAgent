@@ -2,6 +2,7 @@
 //  Copyright © 2019 Nikola Lajic. All rights reserved.
 
 import Foundation
+import CoreTelephony
 
 class InstanaSystemUtils {
     /// Returns device model (for ex. "iPhone10,1")
@@ -29,6 +30,27 @@ class InstanaSystemUtils {
     /// Returns application build number (for ex. "123")
     static var applicationBuildNumber: String {
         return Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "unkown-build-number"
+    }
+    
+    /// Returns carrier name
+    static var carrierName: String? {
+        let networkInfo = CTTelephonyNetworkInfo()
+        let carrier = networkInfo.subscriberCellularProvider
+        return carrier?.carrierName
+    }
+    
+    /// Returns current cellular connection type
+    static var cellularConnectionType: String? {
+        switch CTTelephonyNetworkInfo().currentRadioAccessTechnology {
+        case CTRadioAccessTechnologyGPRS?, CTRadioAccessTechnologyEdge?, CTRadioAccessTechnologyCDMA1x?:
+            return "2G"
+        case CTRadioAccessTechnologyWCDMA?, CTRadioAccessTechnologyHSDPA?, CTRadioAccessTechnologyHSUPA?, CTRadioAccessTechnologyCDMAEVDORev0?, CTRadioAccessTechnologyCDMAEVDORevA?, CTRadioAccessTechnologyCDMAEVDORevB?, CTRadioAccessTechnologyeHRPD?:
+            return "3G"
+        case CTRadioAccessTechnologyLTE?:
+            return "4G"
+        default:
+            return nil
+        }
     }
     
     /// Returns a ' > ' sepparated string of view controller class names in the app hierarchy.
