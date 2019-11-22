@@ -52,8 +52,8 @@ class InstanaEventCollectionExtensionsTests: XCTestCase {
         let request = try? [TestCustomJSONEvent(json: ["a": "a"])].toBatchRequest(key: "a")
         
         XCTAssertEqual(request?.allHTTPHeaderFields?["Content-Encoding"], "gzip")
-        XCTAssertEqual(request?.allHTTPHeaderFields?["Content-Length"], "29")
-        XCTAssertEqual(request?.httpBody?.count, 29)
+        XCTAssertEqual(request?.allHTTPHeaderFields?["Content-Length"], "11")
+        XCTAssertEqual(request?.httpBody?.count, 11)
     }
     
     func test_batchRequest_incompresableContent_shouldNotBeCompressed() {
@@ -72,7 +72,7 @@ class InstanaEventCollectionExtensionsTests: XCTestCase {
             XCTFail("No content")
             return
         }
-        guard let decodedContent = try? JSONSerialization.jsonObject(with: data, options: []) as? [[String: String]] else {
+        guard let decodedContent = ((try? JSONSerialization.jsonObject(with: data, options: []) as? [[String: String]]) as [[String : String]]??) else {
             XCTFail("Failed to deserialize content")
             return
         }

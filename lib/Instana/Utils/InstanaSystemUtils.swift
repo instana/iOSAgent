@@ -3,6 +3,7 @@
 
 import Foundation
 import CoreTelephony
+import UIKit
 
 class InstanaSystemUtils {
     /// Returns device model (for ex. "iPhone10,1")

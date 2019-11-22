@@ -7,16 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		5E56E18F33BDC0A1FE27E333 /* Pods_InstanaTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94F31909FFC3C06F22194DF8 /* Pods_InstanaTests.framework */; };
 		6C10880921F9BEC400C9EF70 /* InstanaError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C10880821F9BEC400C9EF70 /* InstanaError.swift */; };
 		6C10880E21FB1F5B00C9EF70 /* InstanaSessionProfileEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C10880D21FB1F5B00C9EF70 /* InstanaSessionProfileEvent.swift */; };
 		6C3238F52228258900915D7D /* InstanaLowMemoryMonitorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C3238F42228258900915D7D /* InstanaLowMemoryMonitorTests.swift */; };
 		6C3238FA22282BEB00915D7D /* InstanaApplicationNotRespondingMonitorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C3238F922282BEB00915D7D /* InstanaApplicationNotRespondingMonitorTests.swift */; };
 		6C3238FC22283BBD00915D7D /* InstanaFramerateDipMonitorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C3238FB22283BBD00915D7D /* InstanaFramerateDipMonitorTests.swift */; };
-		6C37CDBD21BE9CB2007D90E9 /* Instana.h in Headers */ = {isa = PBXBuildFile; fileRef = 6C37CDBB21BE9CB2007D90E9 /* Instana.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		6C37CDC421BE9DC9007D90E9 /* InstanaCrashReporting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C37CDC321BE9DC9007D90E9 /* InstanaCrashReporting.swift */; };
 		6C37CDC621BE9E5F007D90E9 /* InstanaLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C37CDC521BE9E5F007D90E9 /* InstanaLogger.swift */; };
-		6C37CDCB21BEA107007D90E9 /* InstanaCrashReportSink.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C37CDCA21BEA107007D90E9 /* InstanaCrashReportSink.swift */; };
 		6C37CDCD21BEA386007D90E9 /* Instana.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C37CDCC21BEA386007D90E9 /* Instana.swift */; };
 		6C37CE6121C0FF41007D90E9 /* InstanaRemoteCallInstrumentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C37CE6021C0FF41007D90E9 /* InstanaRemoteCallInstrumentation.swift */; };
 		6C37CE6F21D2793E007D90E9 /* InstanaURLProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C37CE6E21D2793E007D90E9 /* InstanaURLProtocol.swift */; };
@@ -26,9 +22,6 @@
 		6C37CE7B21D3CBD8007D90E9 /* InstanaAlerts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C37CE7A21D3CBD8007D90E9 /* InstanaAlerts.swift */; };
 		6C37CE7E21D3CF22007D90E9 /* InstanaConfiguraton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C37CE7D21D3CF22007D90E9 /* InstanaConfiguraton.swift */; };
 		6C37CE8021DA1C1F007D90E9 /* InstanaRingBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C37CE7F21DA1C1F007D90E9 /* InstanaRingBuffer.swift */; };
-		6C417FEB21F5DA7900504B4F /* InstanaCrashInstallation.h in Headers */ = {isa = PBXBuildFile; fileRef = 6C417FE921F5DA7900504B4F /* InstanaCrashInstallation.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		6C417FEC21F5DA7900504B4F /* InstanaCrashInstallation.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C417FEA21F5DA7900504B4F /* InstanaCrashInstallation.m */; };
-		6C417FEF21F86EC100504B4F /* InstanaCrashEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C417FEE21F86EC100504B4F /* InstanaCrashEvent.swift */; };
 		6C417FF121F86F2100504B4F /* InstanaRemoteCallEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C417FF021F86F2100504B4F /* InstanaRemoteCallEvent.swift */; };
 		6C417FF321F877EB00504B4F /* InstanaCustomEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C417FF221F877EB00504B4F /* InstanaCustomEvent.swift */; };
 		6C4DE3802200A39B00EDD018 /* InstanaEventCollectionExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C4DE37F2200A39B00EDD018 /* InstanaEventCollectionExtensions.swift */; };
@@ -53,7 +46,6 @@
 		6C9E6ADE22328259002497ED /* InstanaURLSessionConfigurationExtensionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C9E6ADD22328259002497ED /* InstanaURLSessionConfigurationExtensionsTests.swift */; };
 		6C9E6AE02236A82D002497ED /* InstanaTimerProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C9E6ADF2236A82D002497ED /* InstanaTimerProxy.swift */; };
 		6C9E6AE4223A4ECF002497ED /* InstanaEventTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C9E6AE3223A4ECF002497ED /* InstanaEventTests.swift */; };
-		6C9E6AE7223A514C002497ED /* InstanaCrashEventTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C9E6AE6223A514C002497ED /* InstanaCrashEventTests.swift */; };
 		6C9E6AE9223A560D002497ED /* InstanaRemoteCallEventTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C9E6AE8223A560D002497ED /* InstanaRemoteCallEventTests.swift */; };
 		6C9E6AEB223A5818002497ED /* InstanaCustomEventTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C9E6AEA223A5818002497ED /* InstanaCustomEventTests.swift */; };
 		6C9E6AED223A9D35002497ED /* InstanaSessionProfileEventTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C9E6AEC223A9D35002497ED /* InstanaSessionProfileEventTests.swift */; };
@@ -62,10 +54,8 @@
 		6CBDBF2C22294DB2004C019C /* MirrorExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CBDBF2B22294DB2004C019C /* MirrorExtensions.swift */; };
 		6CBDBF3222297215004C019C /* InstanaConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CBDBF3122297215004C019C /* InstanaConfigurationTests.swift */; };
 		6CBDBF342229782E004C019C /* XCTestCaseExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CBDBF332229782E004C019C /* XCTestCaseExtensions.swift */; };
-		6CBDBF39222D2CC6004C019C /* InstanaCrashReportSinkTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CBDBF38222D2CC6004C019C /* InstanaCrashReportSinkTests.swift */; };
 		6CBDBF3B222D7099004C019C /* InstanaStringExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CBDBF3A222D7099004C019C /* InstanaStringExtensions.swift */; };
 		6CBDBF3D222D7110004C019C /* InstanaStringExtensionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CBDBF3C222D7110004C019C /* InstanaStringExtensionsTests.swift */; };
-		CFDEB8378607AB027FF8EC11 /* Pods_Instana.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2158CDB0CB1E158B3DFAB46B /* Pods_Instana.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -79,20 +69,14 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		15E0B29B2A0D24574CE53BDC /* Pods-InstanaTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-InstanaTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-InstanaTests/Pods-InstanaTests.release.xcconfig"; sourceTree = "<group>"; };
-		2158CDB0CB1E158B3DFAB46B /* Pods_Instana.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Instana.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		631C111F6A054D5239C38D6B /* Pods-Instana.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Instana.release.xcconfig"; path = "Pods/Target Support Files/Pods-Instana/Pods-Instana.release.xcconfig"; sourceTree = "<group>"; };
 		6C10880821F9BEC400C9EF70 /* InstanaError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanaError.swift; sourceTree = "<group>"; };
 		6C10880D21FB1F5B00C9EF70 /* InstanaSessionProfileEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanaSessionProfileEvent.swift; sourceTree = "<group>"; };
 		6C3238F42228258900915D7D /* InstanaLowMemoryMonitorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanaLowMemoryMonitorTests.swift; sourceTree = "<group>"; };
 		6C3238F922282BEB00915D7D /* InstanaApplicationNotRespondingMonitorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanaApplicationNotRespondingMonitorTests.swift; sourceTree = "<group>"; };
 		6C3238FB22283BBD00915D7D /* InstanaFramerateDipMonitorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanaFramerateDipMonitorTests.swift; sourceTree = "<group>"; };
 		6C37CDB821BE9CB2007D90E9 /* Instana.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Instana.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		6C37CDBB21BE9CB2007D90E9 /* Instana.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Instana.h; sourceTree = "<group>"; };
 		6C37CDBC21BE9CB2007D90E9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		6C37CDC321BE9DC9007D90E9 /* InstanaCrashReporting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanaCrashReporting.swift; sourceTree = "<group>"; };
 		6C37CDC521BE9E5F007D90E9 /* InstanaLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanaLogger.swift; sourceTree = "<group>"; };
-		6C37CDCA21BEA107007D90E9 /* InstanaCrashReportSink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanaCrashReportSink.swift; sourceTree = "<group>"; };
 		6C37CDCC21BEA386007D90E9 /* Instana.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Instana.swift; sourceTree = "<group>"; };
 		6C37CE6021C0FF41007D90E9 /* InstanaRemoteCallInstrumentation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InstanaRemoteCallInstrumentation.swift; sourceTree = "<group>"; };
 		6C37CE6E21D2793E007D90E9 /* InstanaURLProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanaURLProtocol.swift; sourceTree = "<group>"; };
@@ -102,9 +86,6 @@
 		6C37CE7A21D3CBD8007D90E9 /* InstanaAlerts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanaAlerts.swift; sourceTree = "<group>"; };
 		6C37CE7D21D3CF22007D90E9 /* InstanaConfiguraton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanaConfiguraton.swift; sourceTree = "<group>"; };
 		6C37CE7F21DA1C1F007D90E9 /* InstanaRingBuffer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanaRingBuffer.swift; sourceTree = "<group>"; };
-		6C417FE921F5DA7900504B4F /* InstanaCrashInstallation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = InstanaCrashInstallation.h; sourceTree = "<group>"; };
-		6C417FEA21F5DA7900504B4F /* InstanaCrashInstallation.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = InstanaCrashInstallation.m; sourceTree = "<group>"; };
-		6C417FEE21F86EC100504B4F /* InstanaCrashEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanaCrashEvent.swift; sourceTree = "<group>"; };
 		6C417FF021F86F2100504B4F /* InstanaRemoteCallEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanaRemoteCallEvent.swift; sourceTree = "<group>"; };
 		6C417FF221F877EB00504B4F /* InstanaCustomEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanaCustomEvent.swift; sourceTree = "<group>"; };
 		6C4DE37F2200A39B00EDD018 /* InstanaEventCollectionExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanaEventCollectionExtensions.swift; sourceTree = "<group>"; };
@@ -130,7 +111,6 @@
 		6C9E6ADD22328259002497ED /* InstanaURLSessionConfigurationExtensionsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanaURLSessionConfigurationExtensionsTests.swift; sourceTree = "<group>"; };
 		6C9E6ADF2236A82D002497ED /* InstanaTimerProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanaTimerProxy.swift; sourceTree = "<group>"; };
 		6C9E6AE3223A4ECF002497ED /* InstanaEventTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanaEventTests.swift; sourceTree = "<group>"; };
-		6C9E6AE6223A514C002497ED /* InstanaCrashEventTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanaCrashEventTests.swift; sourceTree = "<group>"; };
 		6C9E6AE8223A560D002497ED /* InstanaRemoteCallEventTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanaRemoteCallEventTests.swift; sourceTree = "<group>"; };
 		6C9E6AEA223A5818002497ED /* InstanaCustomEventTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanaCustomEventTests.swift; sourceTree = "<group>"; };
 		6C9E6AEC223A9D35002497ED /* InstanaSessionProfileEventTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanaSessionProfileEventTests.swift; sourceTree = "<group>"; };
@@ -139,12 +119,8 @@
 		6CBDBF2B22294DB2004C019C /* MirrorExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MirrorExtensions.swift; sourceTree = "<group>"; };
 		6CBDBF3122297215004C019C /* InstanaConfigurationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanaConfigurationTests.swift; sourceTree = "<group>"; };
 		6CBDBF332229782E004C019C /* XCTestCaseExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XCTestCaseExtensions.swift; sourceTree = "<group>"; };
-		6CBDBF38222D2CC6004C019C /* InstanaCrashReportSinkTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanaCrashReportSinkTests.swift; sourceTree = "<group>"; };
 		6CBDBF3A222D7099004C019C /* InstanaStringExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanaStringExtensions.swift; sourceTree = "<group>"; };
 		6CBDBF3C222D7110004C019C /* InstanaStringExtensionsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanaStringExtensionsTests.swift; sourceTree = "<group>"; };
-		94F31909FFC3C06F22194DF8 /* Pods_InstanaTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_InstanaTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		D31A2725BAC3AB48AC301799 /* Pods-Instana.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Instana.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Instana/Pods-Instana.debug.xcconfig"; sourceTree = "<group>"; };
-		E1913FA2999BB04489952273 /* Pods-InstanaTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-InstanaTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-InstanaTests/Pods-InstanaTests.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -152,7 +128,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CFDEB8378607AB027FF8EC11 /* Pods_Instana.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -161,24 +136,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				6C4FB98A2227E7010037C703 /* Instana.framework in Frameworks */,
-				5E56E18F33BDC0A1FE27E333 /* Pods_InstanaTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		600EEB68884B454B5384CE66 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				D31A2725BAC3AB48AC301799 /* Pods-Instana.debug.xcconfig */,
-				631C111F6A054D5239C38D6B /* Pods-Instana.release.xcconfig */,
-				E1913FA2999BB04489952273 /* Pods-InstanaTests.debug.xcconfig */,
-				15E0B29B2A0D24574CE53BDC /* Pods-InstanaTests.release.xcconfig */,
-			);
-			name = Pods;
-			sourceTree = "<group>";
-		};
 		6C10880A21F9BED500C9EF70 /* Error */ = {
 			isa = PBXGroup;
 			children = (
@@ -220,8 +183,6 @@
 				6C37CDBA21BE9CB2007D90E9 /* Instana */,
 				6C4FB9862227E7010037C703 /* InstanaTests */,
 				6C37CDB921BE9CB2007D90E9 /* Products */,
-				6C4FB979222586560037C703 /* Frameworks */,
-				600EEB68884B454B5384CE66 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -240,7 +201,6 @@
 				6C37CDCC21BEA386007D90E9 /* Instana.swift */,
 				6C37CE7C21D3CBDC007D90E9 /* Alerts */,
 				6C417FCA21EE27D900504B4F /* Configuration */,
-				6C37CDC721BEA08C007D90E9 /* Crash Reporting */,
 				6C9E6AE1223A4E8F002497ED /* Data Structures */,
 				6C10880A21F9BED500C9EF70 /* Error */,
 				6C37CE7521D3C79C007D90E9 /* Events */,
@@ -252,16 +212,6 @@
 				6C8D6EF321FB4DA80029CAD7 /* Utils */,
 			);
 			path = Instana;
-			sourceTree = "<group>";
-		};
-		6C37CDC721BEA08C007D90E9 /* Crash Reporting */ = {
-			isa = PBXGroup;
-			children = (
-				6C37CDC321BE9DC9007D90E9 /* InstanaCrashReporting.swift */,
-				6C37CDCA21BEA107007D90E9 /* InstanaCrashReportSink.swift */,
-				6C417FED21F720FA00504B4F /* Crash Installation */,
-			);
-			path = "Crash Reporting";
 			sourceTree = "<group>";
 		};
 		6C37CE6221C0FF4B007D90E9 /* Remote Call Instrumentation */ = {
@@ -286,7 +236,6 @@
 		6C37CE7621D3C7B4007D90E9 /* Supporting files */ = {
 			isa = PBXGroup;
 			children = (
-				6C37CDBB21BE9CB2007D90E9 /* Instana.h */,
 				6C37CDBC21BE9CB2007D90E9 /* Info.plist */,
 			);
 			path = "Supporting files";
@@ -321,22 +270,12 @@
 			isa = PBXGroup;
 			children = (
 				6C37CE7821D3C8B0007D90E9 /* InstanaEvent.swift */,
-				6C417FEE21F86EC100504B4F /* InstanaCrashEvent.swift */,
 				6C417FF021F86F2100504B4F /* InstanaRemoteCallEvent.swift */,
 				6C417FF221F877EB00504B4F /* InstanaCustomEvent.swift */,
 				6C10880D21FB1F5B00C9EF70 /* InstanaSessionProfileEvent.swift */,
 				6C4DE3852203492300EDD018 /* InstanaAlertEvent.swift */,
 			);
 			path = "Event types";
-			sourceTree = "<group>";
-		};
-		6C417FED21F720FA00504B4F /* Crash Installation */ = {
-			isa = PBXGroup;
-			children = (
-				6C417FE921F5DA7900504B4F /* InstanaCrashInstallation.h */,
-				6C417FEA21F5DA7900504B4F /* InstanaCrashInstallation.m */,
-			);
-			path = "Crash Installation";
 			sourceTree = "<group>";
 		};
 		6C4DE3892204482D00EDD018 /* Extensions */ = {
@@ -360,21 +299,11 @@
 			path = Monitors;
 			sourceTree = "<group>";
 		};
-		6C4FB979222586560037C703 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				2158CDB0CB1E158B3DFAB46B /* Pods_Instana.framework */,
-				94F31909FFC3C06F22194DF8 /* Pods_InstanaTests.framework */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
 		6C4FB9862227E7010037C703 /* InstanaTests */ = {
 			isa = PBXGroup;
 			children = (
 				6C3238F8222825A200915D7D /* Alerts */,
 				6CBDBF3022296E1E004C019C /* Configuration */,
-				6CBDBF37222D2C26004C019C /* Crash Reporting */,
 				6C9E6AE2223A4E9B002497ED /* Data Structures */,
 				6C9E6AD0222EBE3F002497ED /* Events */,
 				6CBDBF3E222D7114004C019C /* Extensions */,
@@ -452,7 +381,6 @@
 			isa = PBXGroup;
 			children = (
 				6C9E6AE3223A4ECF002497ED /* InstanaEventTests.swift */,
-				6C9E6AE6223A514C002497ED /* InstanaCrashEventTests.swift */,
 				6C9E6AE8223A560D002497ED /* InstanaRemoteCallEventTests.swift */,
 				6C9E6AEA223A5818002497ED /* InstanaCustomEventTests.swift */,
 				6C9E6AEC223A9D35002497ED /* InstanaSessionProfileEventTests.swift */,
@@ -478,14 +406,6 @@
 			path = Configuration;
 			sourceTree = "<group>";
 		};
-		6CBDBF37222D2C26004C019C /* Crash Reporting */ = {
-			isa = PBXGroup;
-			children = (
-				6CBDBF38222D2CC6004C019C /* InstanaCrashReportSinkTests.swift */,
-			);
-			path = "Crash Reporting";
-			sourceTree = "<group>";
-		};
 		6CBDBF3E222D7114004C019C /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
@@ -503,8 +423,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6C417FEB21F5DA7900504B4F /* InstanaCrashInstallation.h in Headers */,
-				6C37CDBD21BE9CB2007D90E9 /* Instana.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -515,7 +433,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 6C37CDC021BE9CB2007D90E9 /* Build configuration list for PBXNativeTarget "Instana" */;
 			buildPhases = (
-				BE3B8789FF0D6D0CED56E809 /* [CP] Check Pods Manifest.lock */,
 				6C37CDB321BE9CB2007D90E9 /* Headers */,
 				6C37CDB421BE9CB2007D90E9 /* Sources */,
 				6C37CDB521BE9CB2007D90E9 /* Frameworks */,
@@ -534,11 +451,9 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 6C4FB98F2227E7010037C703 /* Build configuration list for PBXNativeTarget "InstanaTests" */;
 			buildPhases = (
-				B1CBE40D683FA9A999B7F420 /* [CP] Check Pods Manifest.lock */,
 				6C4FB9812227E7010037C703 /* Sources */,
 				6C4FB9822227E7010037C703 /* Frameworks */,
 				6C4FB9832227E7010037C703 /* Resources */,
-				D3F2310BDAE72AE74F3238FB /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -562,10 +477,11 @@
 				TargetAttributes = {
 					6C37CDB721BE9CB2007D90E9 = {
 						CreatedOnToolsVersion = 10.1;
-						LastSwiftMigration = 1010;
+						LastSwiftMigration = 1120;
 					};
 					6C4FB9842227E7010037C703 = {
 						CreatedOnToolsVersion = 10.1;
+						LastSwiftMigration = 1120;
 					};
 				};
 			};
@@ -575,6 +491,7 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				Base,
 			);
 			mainGroup = 6C37CDAE21BE9CB1007D90E9;
 			productRefGroup = 6C37CDB921BE9CB2007D90E9 /* Products */;
@@ -604,75 +521,6 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
-/* Begin PBXShellScriptBuildPhase section */
-		B1CBE40D683FA9A999B7F420 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-InstanaTests-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		BE3B8789FF0D6D0CED56E809 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-Instana-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		D3F2310BDAE72AE74F3238FB /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-InstanaTests/Pods-InstanaTests-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/KSCrash/KSCrash.framework",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/KSCrash.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-InstanaTests/Pods-InstanaTests-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-/* End PBXShellScriptBuildPhase section */
-
 /* Begin PBXSourcesBuildPhase section */
 		6C37CDB421BE9CB2007D90E9 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -684,8 +532,6 @@
 				6C37CE7B21D3CBD8007D90E9 /* InstanaAlerts.swift in Sources */,
 				6C4DE39022048BD800EDD018 /* InstanaLowMemoryMonitor.swift in Sources */,
 				6C37CDCD21BEA386007D90E9 /* Instana.swift in Sources */,
-				6C417FEF21F86EC100504B4F /* InstanaCrashEvent.swift in Sources */,
-				6C417FEC21F5DA7900504B4F /* InstanaCrashInstallation.m in Sources */,
 				6CBDBF3B222D7099004C019C /* InstanaStringExtensions.swift in Sources */,
 				6C37CE7921D3C8B0007D90E9 /* InstanaEvent.swift in Sources */,
 				6C4DE3802200A39B00EDD018 /* InstanaEventCollectionExtensions.swift in Sources */,
@@ -694,7 +540,6 @@
 				6C37CDC621BE9E5F007D90E9 /* InstanaLogger.swift in Sources */,
 				6C37CE6121C0FF41007D90E9 /* InstanaRemoteCallInstrumentation.swift in Sources */,
 				6C37CE7421D3C797007D90E9 /* InstanaEvents.swift in Sources */,
-				6C37CDC421BE9DC9007D90E9 /* InstanaCrashReporting.swift in Sources */,
 				6C9E6AE02236A82D002497ED /* InstanaTimerProxy.swift in Sources */,
 				6C9E6ADC22328205002497ED /* InstanaURLSessionConfigurationExtensions.swift in Sources */,
 				6C37CE7121D27A0A007D90E9 /* InstanaRemoteCallMaker.swift in Sources */,
@@ -704,7 +549,6 @@
 				6C9E6AD622315F47002497ED /* InstanaNetworking.swift in Sources */,
 				6C8D6EF521FF4BF40029CAD7 /* InstanaBatteryUtils.swift in Sources */,
 				6C4DE3862203492300EDD018 /* InstanaAlertEvent.swift in Sources */,
-				6C37CDCB21BEA107007D90E9 /* InstanaCrashReportSink.swift in Sources */,
 				6C37CE6F21D2793E007D90E9 /* InstanaURLProtocol.swift in Sources */,
 				6C10880E21FB1F5B00C9EF70 /* InstanaSessionProfileEvent.swift in Sources */,
 				6C4DE3822202F92600EDD018 /* InstanaApplicationNotRespondingMonitor.swift in Sources */,
@@ -732,8 +576,6 @@
 				6C5C40DC22412ED60064FB8D /* RemoteCallMarkerTests.swift in Sources */,
 				6CBDBF2A2229388A004C019C /* InstanaAlertsTests.swift in Sources */,
 				6CBDBF3D222D7110004C019C /* InstanaStringExtensionsTests.swift in Sources */,
-				6C9E6AE7223A514C002497ED /* InstanaCrashEventTests.swift in Sources */,
-				6CBDBF39222D2CC6004C019C /* InstanaCrashReportSinkTests.swift in Sources */,
 				6CBDBF342229782E004C019C /* XCTestCaseExtensions.swift in Sources */,
 				6C5C40DE22427BA10064FB8D /* InstanaURLProtocolTests.swift in Sources */,
 				6C9E6AD922315FB7002497ED /* InstanaNetworkingTests.swift in Sources */,
@@ -879,7 +721,6 @@
 		};
 		6C37CDC121BE9CB2007D90E9 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D31A2725BAC3AB48AC301799 /* Pods-Instana.debug.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "";
@@ -901,14 +742,13 @@
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
 		6C37CDC221BE9CB2007D90E9 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 631C111F6A054D5239C38D6B /* Pods-Instana.release.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "";
@@ -929,14 +769,13 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.instana.mobile;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
 		6C4FB98D2227E7010037C703 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = E1913FA2999BB04489952273 /* Pods-InstanaTests.debug.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = WF5L7UK565;
@@ -949,14 +788,13 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.instana.mobile.InstanaTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
 		6C4FB98E2227E7010037C703 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 15E0B29B2A0D24574CE53BDC /* Pods-InstanaTests.release.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = WF5L7UK565;
@@ -969,7 +807,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.instana.mobile.InstanaTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;

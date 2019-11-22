@@ -47,7 +47,6 @@ class InstanaConfigurationTests: XCTestCase {
             "key": "a",
             "reportingUrl": "b",
             "remoteCallInstrumentationType": 1,
-            "enableCrashReporting": false,
             "suspendReporting": 1,
             "eventsBufferSize": 1000,
             "sendDeviceLocationIfAvailable": true,
@@ -62,7 +61,6 @@ class InstanaConfigurationTests: XCTestCase {
         XCTAssertEqual(config?.key, "a")
         XCTAssertEqual(config?.reportingUrl, "b")
         XCTAssertEqual(config?.remoteCallInstrumentationType, InstanaRemoteCallInstrumentation.ReportingType(rawValue: 1))
-        XCTAssertEqual(config?.enableCrashReporting, false)
         XCTAssertEqual(config?.suspendReporting, InstanaEvents.SuspendReporting(rawValue: 1))
         XCTAssertEqual(config?.eventsBufferSize, 1000)
         XCTAssertEqual(config?.sendDeviceLocationIfAvailable, true)
@@ -77,7 +75,6 @@ class InstanaConfigurationTests: XCTestCase {
             "key": "a",
             "reportingUrl": 1,
             "remoteCallInstrumentationType": "a",
-            "enableCrashReporting": "a",
             "suspendReporting": "a",
             "eventsBufferSize": "a",
             "sendDeviceLocationIfAvailable": "a",
@@ -98,7 +95,6 @@ extension InstanaConfigurationTests {
         XCTAssertNotNil(config, file: file, line: line)
         XCTAssertEqual(config?.reportingUrl, d.reportingUrl, file: file, line: line)
         XCTAssertEqual(config?.remoteCallInstrumentationType, d.remoteCallInstrumentationType, file: file, line: line)
-        XCTAssertEqual(config?.enableCrashReporting, d.enableCrashReporting, file: file, line: line)
         XCTAssertEqual(config?.suspendReporting, d.suspendReporting, file: file, line: line)
         XCTAssertEqual(config?.eventsBufferSize, d.eventsBufferSize, file: file, line: line)
         XCTAssertEqual(config?.sendDeviceLocationIfAvailable, d.sendDeviceLocationIfAvailable, file: file, line: line)

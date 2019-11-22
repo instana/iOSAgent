@@ -17,10 +17,7 @@ import Foundation
     
     /// Object acting as a namespace for configuring and using events.
     @objc public static let events = InstanaEvents()
-    
-    /// Object acting as a namespace for configuring crash reporting.
-    @objc public static let crashReporting = InstanaCrashReporting()
-    
+
     /// Object acting as a namespace for configuring and using remote call instrumentation.
     @objc public static let remoteCallInstrumentation = InstanaRemoteCallInstrumentation()
     
@@ -66,7 +63,7 @@ import Foundation
 }
 
 public extension Instana {
-    @objc public class Types: NSObject {
+    @objc class Types: NSObject {
         private override init() {}
         public typealias Milliseconds = Double
         public typealias Seconds = Double
@@ -82,7 +79,6 @@ private extension Instana {
         
         setupEvents(with: config)
         setupRemoteCallInstrumentation(with: config)
-        setupCrashReporting(with: config)
         setupAlerts(with: config)
     }
     
@@ -94,12 +90,6 @@ private extension Instana {
     
     static func setupRemoteCallInstrumentation(with config: InstanaConfiguration) {
         remoteCallInstrumentation.reporting = config.remoteCallInstrumentationType
-    }
-    
-    static func setupCrashReporting(with config: InstanaConfiguration) {
-        if config.enableCrashReporting == true {
-            crashReporting.setup()
-        }
     }
     
     static func setupAlerts(with config: InstanaConfiguration) {
