@@ -42,8 +42,10 @@ extension Collection where Element: InstanaEvent {
     }
     
     private static func compress(data: Data) throws -> Data {
+        return data
         // -1 default compression level
-        return try (data as NSData).gzipped(withCompressionLevel: -1)
+        // TODO re-enable later!
+        //return try (data as NSData).gzipped(withCompressionLevel: -1)
     }
 }
 

@@ -2,6 +2,7 @@
 //  Copyright © 2019 Nikola Lajic. All rights reserved.
 
 import Foundation
+import UIKit
 
 class InstanaLowMemoryMonitor {
     

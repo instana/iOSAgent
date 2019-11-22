@@ -2,6 +2,7 @@
 //  Copyright © 2019 Nikola Lajic. All rights reserved.
 
 import Foundation
+import UIKit
 
 class InstanaBatteryUtils {
     
@@ -36,6 +37,8 @@ class InstanaBatteryUtils {
                 UIDevice.current.isBatteryMonitoringEnabled = true
                 updateSafeForNetworking(retry + 1)
             }
+        @unknown default:
+            break
         }
     }
 }

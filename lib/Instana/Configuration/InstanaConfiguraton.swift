@@ -7,7 +7,6 @@ struct InstanaConfiguration {
     enum Defaults {
         static let reportingUrl = "http://localhost:3000"
         static let remoteCallInstrumentationType = InstanaRemoteCallInstrumentation.ReportingType.automaticAndManual
-        static let enableCrashReporting = true
         static let eventsBufferSize = 200
         static let suspendReporting = InstanaEvents.SuspendReporting.never
         static let sendDeviceLocationIfAvailable = false
@@ -19,7 +18,6 @@ struct InstanaConfiguration {
     let reportingUrl: String
     let key: String
     let remoteCallInstrumentationType: InstanaRemoteCallInstrumentation.ReportingType
-    let enableCrashReporting: Bool
     let suspendReporting: InstanaEvents.SuspendReporting
     let eventsBufferSize: Int
     let sendDeviceLocationIfAvailable: Bool // TODO: implement
@@ -44,7 +42,6 @@ struct InstanaConfiguration {
         return self.init(reportingUrl: dictionary.value(forKey: "reportingUrl") as? String ?? Defaults.reportingUrl,
                          key: key,
                          remoteCallInstrumentationType: dictionary.fromRawValue(forKey: "remoteCallInstrumentationType") ?? Defaults.remoteCallInstrumentationType,
-                         enableCrashReporting: dictionary.bool(forKey: "enableCrashReporting", fallback: Defaults.enableCrashReporting),
                          suspendReporting: dictionary.fromRawValue(forKey: "suspendReporting") ?? Defaults.suspendReporting,
                          eventsBufferSize: dictionary.value(forKey: "eventsBufferSize") as? Int ?? Defaults.eventsBufferSize,
                          sendDeviceLocationIfAvailable: dictionary.bool(forKey: "sendDeviceLocationIfAvailable", fallback: Defaults.sendDeviceLocationIfAvailable),
@@ -57,7 +54,6 @@ struct InstanaConfiguration {
         return self.init(reportingUrl: reportingUrl ?? Defaults.reportingUrl,
                          key: key,
                          remoteCallInstrumentationType: Defaults.remoteCallInstrumentationType,
-                         enableCrashReporting: Defaults.enableCrashReporting,
                          suspendReporting: Defaults.suspendReporting,
                          eventsBufferSize: Defaults.eventsBufferSize,
                          sendDeviceLocationIfAvailable: Defaults.sendDeviceLocationIfAvailable,
