@@ -19,10 +19,7 @@ The SDK supports iOS 10.3 and above, and is usable from Swift and Objective-C.
 To add Instana as a dependency edit your `Podfile` to include the following:
 
     pod 'Instana', :git => 'https://github.com/instana/ios-sensor'
-    pod 'KSCrash/Core', :git => 'https://github.com/MrNickBarker/KSCrash'
     
-> Instana uses a custom fork of KSCrash that expands the interface to better support Swift, and adds local crash identifiers to support individual report deletion.
-
 Don't forget to run `pod install` to download the dependencies.
 
 ### Initialization
