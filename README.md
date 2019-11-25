@@ -10,8 +10,12 @@ The SDK supports iOS 10.3 and above, and is usable from Swift and Objective-C.
 ## Setup
 
 ### Installation
-The recommended way of installation is by using [CocoaPods](https://cocoapods.org/).
+#### Swift Package Manager
+1. Just go into Xcode.
+2 .Choose File -> Swift Packages -> Add Package Dependency -> Select your Xcode project
+3. Enter this repository URL 
 
+##### CocoaPods
 To add Instana as a dependency edit your `Podfile` to include the following:
 
     pod 'Instana', :git => 'https://github.com/instana/ios-sensor'
