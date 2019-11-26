@@ -58,7 +58,7 @@ import Foundation
     /// Events are stored in a ring buffer and can be overwritten if too many are submited before a buffer flush.
     /// To avoid this, `bufferSize` can be increased in the configuration.
     ///
-    /// - Parameter event: For SDK users this should be `CustomEventEvent`.
+    /// - Parameter event: For SDK users this should be `CustomEvent`.
     @objc(submitEvent:)
     public func submit(_ event: Event) {
         queue.async {

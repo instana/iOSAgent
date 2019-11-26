@@ -5,7 +5,7 @@ import Foundation
 import Network
 
 class InstanaNetworkMonitor {
-    enum ConnectionType {
+    enum ConnectionType: String {
         case wifi, cellular
     }
     

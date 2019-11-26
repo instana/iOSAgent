@@ -67,6 +67,10 @@ class InstanaSystemUtils {
             return nil
         }
     }
+
+    static var connectionTypeDescription: String {
+        return (InstanaNetworkMonitor.shared.connectionType?.rawValue ?? "") + " - " + (cellularConnectionType ?? "")
+    }
     
     /// Returns a ' > ' sepparated string of view controller class names in the app hierarchy.
     /// This is only a superficial check, and doesn't go deeper than one level.
