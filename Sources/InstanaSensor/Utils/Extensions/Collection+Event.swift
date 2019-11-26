@@ -3,6 +3,7 @@
 
 import Foundation
 
+// TODO: Clean up and remove extensions
 extension Collection where Element: Event {
     
     func toBatchRequest(key: String? = Instana.key, reportingUrl: String = Instana.reportingUrl, compress: (Data) throws -> Data = compress(data:)) throws -> URLRequest {
@@ -55,5 +56,12 @@ extension Collection where Element: Event {
                 notifiableEvent.completion(result);
             }
         }
+    }
+}
+
+extension Dictionary {
+    mutating func set(ifNotNil value: Value?, forKey key: Key) {
+        guard let value = value else { return }
+        self[key] = value
     }
 }
