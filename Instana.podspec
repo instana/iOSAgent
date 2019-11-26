@@ -28,7 +28,7 @@ Pod::Spec.new do |s|
 Integrate Instana Application Performance Management into your iOS app.
                    DESC
 
-  s.homepage     = "https://github.com/instana/ios-sensor.git"
+  s.homepage     = "https://github.com/instana/iOSSensor.git"
 
 
   # ―――  Spec License  ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
@@ -78,7 +78,7 @@ Integrate Instana Application Performance Management into your iOS app.
   #  Supports git, hg, bzr, svn and HTTP.
   #
 
-  s.source       = { :git => "https://github.com/instana/ios-sensor.git", :tag => "#{s.version}" }
+  s.source       = { :git => "https://github.com/instana/iOSSensor.git", :tag => "#{s.version}" }
 
 
   # ――― Source Code ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
