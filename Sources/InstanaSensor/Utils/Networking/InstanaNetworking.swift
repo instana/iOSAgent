@@ -37,3 +37,11 @@ class InstanaNetworking {
         }.resume()
     }
 }
+
+extension URLSessionConfiguration {
+    class var wifi: URLSessionConfiguration {
+        let configuration = URLSessionConfiguration.default
+        configuration.allowsCellularAccess = false
+        return configuration
+    }
+}
