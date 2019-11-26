@@ -11,7 +11,7 @@ import Foundation
             case (let anrThreshold?, let anrMonitor?):
                 anrMonitor.threshold = anrThreshold
             case (let anrThreshold?, .none):
-                applicationNotRespondingMonitor = InstanaApplicationNotRespondingMonitor(threshold: anrThreshold)
+                applicationNotRespondingMonitor = ApplicationNotRespondingMonitor(threshold: anrThreshold)
             default:
                 applicationNotRespondingMonitor = nil
             }
@@ -19,21 +19,21 @@ import Foundation
     }
     var lowMemory: Bool = InstanaConfiguration.Defaults.alertLowMemory {
         didSet {
-            lowMemoryMonitor = lowMemory ? InstanaLowMemoryMonitor() : nil
+            lowMemoryMonitor = lowMemory ? LowMemoryMonitor() : nil
         }
     }
-    var framerateDipThreshold: UInt? {
+    var framerateDropThreshold: UInt? {
         didSet {
-            switch framerateDipThreshold {
+            switch framerateDropThreshold {
             case let threshold?:
-                framerateDipMonitor = InstanaFramerateDipMonitor(threshold: threshold)
+                framerateDropMonitor = FramerateDropMonitor(threshold: threshold)
             default:
-                framerateDipMonitor = nil
+                framerateDropMonitor = nil
             }
         }
     }
     
-    private var applicationNotRespondingMonitor: InstanaApplicationNotRespondingMonitor?
-    private var lowMemoryMonitor: InstanaLowMemoryMonitor?
-    private var framerateDipMonitor: InstanaFramerateDipMonitor?
+    private var applicationNotRespondingMonitor: ApplicationNotRespondingMonitor?
+    private var lowMemoryMonitor: LowMemoryMonitor?
+    private var framerateDropMonitor: FramerateDropMonitor?
 }

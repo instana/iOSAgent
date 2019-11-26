@@ -3,12 +3,12 @@
 
 import Foundation
 
-/// Object acting as a namespace for configuring and using events.
-@objc public class InstanaEvents: NSObject {
+/// Reporter to manager and send out the events
+@objc public class EventReporter: NSObject {
     
-    typealias Submitter = (InstanaEvent) -> Void
+    typealias Submitter = (Event) -> Void
     typealias Loader = (URLRequest, Bool, @escaping (InstanaNetworking.Result) -> Void) -> Void
-    typealias EventsToRequest = ([InstanaEvent]) throws -> URLRequest
+    typealias EventsToRequest = ([Event]) throws -> URLRequest
     
     /// An enum insted of option list because of Obj-C support.
     @objc public enum SuspendReporting: Int {
@@ -30,11 +30,11 @@ import Foundation
     private let eventsToRequest: EventsToRequest
     private let load: Loader
     private let batterySafeForNetworking: () -> Bool
-    private lazy var buffer = { InstanaRingBuffer<InstanaEvent>(size: bufferSize) }()
+    private lazy var buffer = { InstanaRingBuffer<Event>(size: bufferSize) }()
     @objc var bufferSize = InstanaConfiguration.Defaults.eventsBufferSize {
         didSet {
             queue.sync {
-                sendBufferEvents()
+                sendBuffer()
                 buffer = InstanaRingBuffer(size: bufferSize)
             }
         }
@@ -53,30 +53,30 @@ import Foundation
         super.init()
     }
     
-    /// Submit an event to the Instana backend.
+    /// Submit a event to the Instana backend.
     ///
     /// Events are stored in a ring buffer and can be overwritten if too many are submited before a buffer flush.
     /// To avoid this, `bufferSize` can be increased in the configuration.
     ///
-    /// - Parameter event: For SDK users this should be `InstanaCustomEvent`.
+    /// - Parameter event: For SDK users this should be `CustomEventEvent`.
     @objc(submitEvent:)
-    public func submit(event: InstanaEvent) {
+    public func submit(_ event: Event) {
         queue.async {
-            if let overwritten = self.buffer.write(event), let notifiableEvent = overwritten as? InstanaEventResultNotifiable {
+            if let overwritten = self.buffer.write(event), let notifiableEvent = overwritten as? EventResultNotifiable {
                 notifiableEvent.completion(.failure(error: InstanaError(code: .bufferOverwrite, description: "Event overwrite casued by buffer size limit.")))
             }
-            self.startSendEventsTimer(delay: self.transmissionDelay)
+            self.startSendTimer(delay: self.transmissionDelay)
         }
     }
 }
 
-private extension InstanaEvents {
-    func sendBufferEvents() {
+private extension EventReporter {
+    func sendBuffer() {
         self.timer?.invalidate()
         self.timer = nil
         
         if batterySafeForNetworking() == false, [.lowBattery, .lowBatteryOrCellularConnection].contains(suspendReporting) {
-            startSendEventsTimer(delay: transmissionLowBatteryDelay)
+            startSendTimer(delay: transmissionLowBatteryDelay)
             return
         }
         
@@ -85,7 +85,7 @@ private extension InstanaEvents {
         send(events: events)
     }
     
-    func startSendEventsTimer(delay: TimeInterval) {
+    func startSendTimer(delay: TimeInterval) {
         guard timer == nil || timer?.isValid == false else { return }
         let t = InstanaTimerProxy.timer(proxied: self, timeInterval: delay)
         RunLoop.main.add(t, forMode: .common)
@@ -93,20 +93,20 @@ private extension InstanaEvents {
     }
 }
 
-extension InstanaEvents: InstanaTimerProxiedTarget {
+extension EventReporter: InstanaTimerProxiedTarget {
     func onTimer(timer: Timer) {
-        queue.async { self.sendBufferEvents() }
+        queue.async { self.sendBuffer() }
     }
 }
 
-private extension InstanaEvents {
-    func send(events: [InstanaEvent]) {
+private extension EventReporter {
+    func send(events: [Event]) {
         let request: URLRequest
         do {
             request = try eventsToRequest(events)
         }
         catch {
-            complete(events, with: .failure(error: error))
+            complete(events, .failure(error: error))
             return
         }
         let restrictLoad = [.cellularConnection, .lowBatteryOrCellularConnection].contains(suspendReporting)
@@ -114,20 +114,20 @@ private extension InstanaEvents {
             // TODO: failed requests handling, after prototype
             switch result {
             case .failure(let error):
-                self.complete(events, with: .failure(error: error))
+                self.complete(events, .failure(error: error))
             case .success(200...299):
-                self.complete(events, with: .success)
+                self.complete(events, .success)
             case .success(let statusCode):
-                self.complete(events, with: .failure(error: InstanaError(code: .invalidResponse, description: "Invalid repsonse status code: \(statusCode)")))
+                self.complete(events, .failure(error: InstanaError(code: .invalidResponse, description: "Invalid repsonse status code: \(statusCode)")))
             }
         }
     }
     
-    func complete(_ events: [InstanaEvent], with result: InstanaEventResult) {
-        events.invokeCallbackIfNeeded(with: result)
+    func complete(_ events: [Event], _ result: EventResult) {
+        events.invokeCallbackIfNeeded(result)
         switch result {
         case .success: Instana.log.add("Event batch sent.")
-        case .failure(let error): Instana.log.add("Failed to send event batch: \(error)", level: .warning)
+        case .failure(let error): Instana.log.add("Failed to send Event batch: \(error)", level: .warning)
         }
     }
 }

@@ -2,12 +2,12 @@
 //  Copyright © 2019 Nikola Lajic. All rights reserved.
 
 import XCTest
-@testable import iOSSensor
+@testable import InstanaSensor
 
-class InstanaEventTests: XCTestCase {
+class EventTests: XCTestCase {
 
     func test_eventData_shouldBeSerializedToJSON() {
-        let event = InstanaEvent(sessionId: "a", eventId: "b", timestamp: 0)
+        let event = Event(sessionId: "a", eventId: "b", timestamp: 0)
         compareDictionaries(original: event.toJSON(), expected: [
             "sessionId": "a",
             "id": "b"
@@ -15,7 +15,7 @@ class InstanaEventTests: XCTestCase {
     }
     
     func test_nilEventID_shouldNotFallBackToDefault() {
-        let event = InstanaEvent(eventId: nil, timestamp: 0)
+        let event = Event(eventId: nil, timestamp: 0)
         compareDictionaries(original: event.toJSON(), expected: [
             "sessionId": ComparisonType.nonEmptyString,
             "id": ComparisonType.shouldBeNil
@@ -23,7 +23,7 @@ class InstanaEventTests: XCTestCase {
     }
     
     func test_eventDefaultParameters() {
-        let event = InstanaEvent(timestamp: 0)
+        let event = Event(timestamp: 0)
         compareDictionaries(original: event.toJSON(), expected: [
             "sessionId": ComparisonType.nonEmptyString,
             "id": ComparisonType.nonEmptyString

@@ -2,24 +2,24 @@
 //  Copyright © 2019 Nikola Lajic. All rights reserved.
 
 import XCTest
-@testable import iOSSensor
+@testable import InstanaSensor
 
-class InstanaEventCollectionExtensionsTests: XCTestCase {
+class CollectionEvent_Tests: XCTestCase {
     
     func test_invokingCallbackOnEventCollection_shouldInvokeIndividualEventCallbacks() {
         var eventCount = 0
-        let e1 = TestNotifiableEvent { _ in eventCount += 1 }
+        let e1 = TestNotifiableEvent{ _ in eventCount += 1 }
         let e2 = TestNotifiableEvent { _ in eventCount += 1 }
-        let e3 = InstanaEvent(timestamp: Date().timeIntervalSinceReferenceDate)
+        let e3 = Event(timestamp: Date().timeIntervalSinceReferenceDate)
         
-        [e1, e2, e3].invokeCallbackIfNeeded(with: .success)
+        [e1, e2, e3].invokeCallbackIfNeeded(.success)
         
         XCTAssertEqual(eventCount, 2)
     }
 
     func test_batchRequestDefaultParameters() {
         Instana.setup(withKey: "a", reportingUrl: "http://b.com/")
-        let request = try? [InstanaEvent(timestamp: Date().timeIntervalSinceReferenceDate)].toBatchRequest()
+        let request = try? [Event(timestamp: Date().timeIntervalSinceReferenceDate)].toBatchRequest()
         
         XCTAssertNotNil(request)
         XCTAssertEqual(request?.url?.absoluteString, "http://b.com/v1/api/a/batch")
@@ -28,14 +28,14 @@ class InstanaEventCollectionExtensionsTests: XCTestCase {
     }
     
     func test_batchRequest_shouldThrow_forInvalidRequestURL() {
-        let requests = [InstanaEvent(timestamp: Date().timeIntervalSinceReferenceDate)]
+        let requests = [Event(timestamp: Date().timeIntervalSinceReferenceDate)]
         XCTAssertThrowsError(try requests.toBatchRequest(key: "a", reportingUrl: "")) {
             XCTAssertEqual(($0 as? InstanaError)?.code, InstanaError.Code.invalidRequest.rawValue)
         }
     }
     
     func test_batchRequest_shouldThrow_forMissingKey() {
-        let requests = [InstanaEvent(timestamp: Date().timeIntervalSinceReferenceDate)]
+        let requests = [Event(timestamp: Date().timeIntervalSinceReferenceDate)]
         XCTAssertThrowsError(try requests.toBatchRequest(key: nil)) {
             XCTAssertEqual(($0 as? InstanaError)?.code, InstanaError.Code.notAuthenticated.rawValue)
         }
@@ -80,17 +80,17 @@ class InstanaEventCollectionExtensionsTests: XCTestCase {
     }
 }
 
-extension InstanaEventCollectionExtensionsTests {
-    private class TestNotifiableEvent: InstanaEvent, InstanaEventResultNotifiable {
-        let completion: InstanaEventResultNotifiable.CompletionBlock
+extension CollectionEvent_Tests {
+    private class TestNotifiableEvent: Event, EventResultNotifiable {
+        let completion: EventResultNotifiable.CompletionBlock
         
-        init(completion: @escaping InstanaEventResultNotifiable.CompletionBlock) {
+        init(completion: @escaping EventResultNotifiable.CompletionBlock) {
             self.completion = completion
             super.init(timestamp: Date().timeIntervalSinceReferenceDate)
         }
     }
     
-    private class TestCustomJSONEvent: InstanaEvent {
+    private class TestCustomJSONEvent: Event {
         var json: [String: Any]
         
         init(json: [String: Any]) {

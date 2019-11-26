@@ -37,24 +37,24 @@ The recommended way to initialize the SDK is to create and download a configurat
 	
 > To capture the most data, the initialization method should be called as early as possible, preferably in `application(_:, didFinishLaunchingWithOptions:)`.
 
-If you would like to have different configurations (for example, debug and production) or use a different configuration name, you can use `Instana.setup(with:)` to provide a custom absolute path.
+If you would like to have different configurations (for example, debug and production) or use a different configuration name, you can use `Instana.setup()` to provide a custom absolute path.
 
 	#if DEBUG
-		Instana.setup(with: // path to debug configuration)
+		Instana.setup(// path to debug configuration)
 	#else
 		Instana.setup()
 	#endif
 
 If you don't want to use a configuration file you can use `Instana.setup(withKey:reportingUrl:)` and programmatically configure the SDK. 
 
-    Instana.setup(withKey: "your-key")
+    Instana.setup("your-key")
     
 >`reportingUrl` is optional and should only be used for on-premisses Instana installations.
 
 ## Events
 All communication to the Instana backend is done trough events. 
 
-> Other than custom events, there is no way for the end user to send events, even so some configuration options are exposed.
+> Other than custom event events, there is no way for the end user to send events, even so some configuration options are exposed.
 
 `bufferSize` represents the size of the ring buffer in which events are stored. Events can be overwritten if too many are triggered before a buffer flush. If you expect a large volume of events you can increase the buffer size.
 
@@ -63,8 +63,8 @@ All communication to the Instana backend is done trough events.
 ### Custom Events
 If you wish to mark a specific event in your application, you can use a custom event to send it to Instana.
 
-	let event = InstanaCustomEvent(name: "my-event", timestamp: Date().timeIntervalSince1970, duration: 2.5)
-    Instana.events.submit(event: event)
+	let event = CustomEventEvent(name: "my-custom-event", timestamp: Date().timeIntervalSince1970, duration: 2.5)
+    Instana.eventReporter.submit(event)
     
 > `timestamp` and `duration` are optional for custom events.
 
@@ -133,7 +133,7 @@ Depending on the threshold settings, an ANR alert might overlap with a frame rat
 ### Frame-rate Dip
 If the application frame-rate dips below the configured threshold, a frame-rate dip alert will be triggered. For example:
 
-	Instana.alerts.framerateDipThreshold = 20
+	Instana.alerts.framerateDropThreshold = 20
 
 will trigger an alert if the frame-rate drops below 20 frames per second.
 

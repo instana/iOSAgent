@@ -2,12 +2,12 @@
 //  Copyright © 2019 Nikola Lajic. All rights reserved.
 
 import XCTest
-@testable import iOSSensor
+@testable import InstanaSensor
 
-class InstanaAlertEventTests: XCTestCase {
+class AlertEventTests: XCTestCase {
 
     func test_alertANREventValues_shouldBeSerializedToJSON() {
-        let event = InstanaAlertEvent(alertType: .anr(duration: 1.5), screen: "a")
+        let event = AlertEvent(alertType: .anr(duration: 1.5), screen: "a")
         compareDictionaries(original: event.toJSON(), expected: [
             "sessionId": ComparisonType.nonEmptyString,
             "id": ComparisonType.nonEmptyString,
@@ -22,7 +22,7 @@ class InstanaAlertEventTests: XCTestCase {
     }
     
     func test_alertLowMemoryEventValues_shouldBeSerializedToJSON() {
-        let event = InstanaAlertEvent(alertType: .lowMemory, screen: "b")
+        let event = AlertEvent(alertType: .lowMemory, screen: "b")
         compareDictionaries(original: event.toJSON(), expected: [
             "sessionId": ComparisonType.nonEmptyString,
             "id": ComparisonType.nonEmptyString,
@@ -35,14 +35,14 @@ class InstanaAlertEventTests: XCTestCase {
         ])
     }
     
-    func test_alertFramerateDipValues_shouldBeSerializedToJSON() {
-        let event = InstanaAlertEvent(alertType: .framerateDip(duration: 2, averageFramerate: 10), screen: "c")
+    func test_alertFramerateDropValues_shouldBeSerializedToJSON() {
+        let event = AlertEvent(alertType: .framerateDrop(duration: 2, averageFramerate: 10), screen: "c")
         compareDictionaries(original: event.toJSON(), expected: [
             "sessionId": ComparisonType.nonEmptyString,
             "id": ComparisonType.nonEmptyString,
             "alert": [
                 "timestamp": ComparisonType.greaterThanZero,
-                "framerateDip": [
+                "framerateDrop": [
                     "screen": "c",
                     "durationMs": 2000.0,
                     "averageFramerate": 10 as Float

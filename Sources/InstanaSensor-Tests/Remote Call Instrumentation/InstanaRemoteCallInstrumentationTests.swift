@@ -2,13 +2,13 @@
 //  Copyright © 2019 Nikola Lajic. All rights reserved.
 
 import XCTest
-@testable import iOSSensor
+@testable import InstanaSensor
 
-class InstanaRemoteCallInstrumentationTests: XCTestCase {
+class HTTPMonitorTests: XCTestCase {
 
     func test_installing_shouldAddCustomProtocol() {
         var installed = false
-        let rci = InstanaRemoteCallInstrumentation(installer: {
+        let rci = HTTPMonitor(installer: {
             XCTAssert($0 == InstanaURLProtocol.self)
             installed = true
             return true
@@ -19,7 +19,7 @@ class InstanaRemoteCallInstrumentationTests: XCTestCase {
     
     func test_uninstalling_shouldRemoveCustomProtocol() {
         var uninstalled = false
-        let rci = InstanaRemoteCallInstrumentation(uninstaller: {
+        let rci = HTTPMonitor(uninstaller: {
             XCTAssert($0 == InstanaURLProtocol.self)
             uninstalled = true
         })
@@ -28,10 +28,10 @@ class InstanaRemoteCallInstrumentationTests: XCTestCase {
     }
     
     func test_changingReportingType_shouldInstallAndUnistallCustomProtocoll() {
-        var installed: [InstanaRemoteCallInstrumentation.ReportingType?] = []
-        var uninstalled: [InstanaRemoteCallInstrumentation.ReportingType?] = []
-        var rci: InstanaRemoteCallInstrumentation?
-        rci = InstanaRemoteCallInstrumentation(installer: { _ in
+        var installed: [HTTPMonitor.ReportingType?] = []
+        var uninstalled: [HTTPMonitor.ReportingType?] = []
+        var rci: HTTPMonitor?
+        rci = HTTPMonitor(installer: { _ in
             installed.append(rci?.reporting); return true
         }, uninstaller: { _ in
             uninstalled.append(rci?.reporting)
@@ -42,14 +42,14 @@ class InstanaRemoteCallInstrumentationTests: XCTestCase {
         rci?.reporting = .manual
         rci?.reporting = .none
         
-        let expectedInstalled: [InstanaRemoteCallInstrumentation.ReportingType?] = [.automaticAndManual, .automatic]
+        let expectedInstalled: [HTTPMonitor.ReportingType?] = [.automaticAndManual, .automatic]
         XCTAssertEqual(installed,  expectedInstalled)
-        let expectedUninstalled: [InstanaRemoteCallInstrumentation.ReportingType?] = [.manual, InstanaRemoteCallInstrumentation.ReportingType.none]
+        let expectedUninstalled: [HTTPMonitor.ReportingType?] = [.manual, HTTPMonitor.ReportingType.none]
         XCTAssertEqual(uninstalled, expectedUninstalled)
     }
     
     func test_installingInConfiguration_shouldAddCustomProtocol() {
-        let rci = InstanaRemoteCallInstrumentation()
+        let rci = HTTPMonitor()
         let config = URLSessionConfiguration.default
         XCTAssertFalse(config.protocolClasses?.contains { $0 == InstanaURLProtocol.self } ?? true)
         rci.install(in: config)
@@ -57,7 +57,7 @@ class InstanaRemoteCallInstrumentationTests: XCTestCase {
     }
     
     func test_markingCall_shouldReturnPreparedMarker() {
-        let rci = InstanaRemoteCallInstrumentation(networkConnectionType: { .wifi })
+        let rci = HTTPMonitor(networkConnectionType: { .wifi })
         let marker = rci.markCall(to: "www.test.url", method: "method")
         XCTAssertEqual(marker.url, "www.test.url")
         XCTAssertEqual(marker.method, "method")
@@ -66,7 +66,7 @@ class InstanaRemoteCallInstrumentationTests: XCTestCase {
     }
     
     func test_markingRequest_shouldReturnSetUpMarker() {
-        let rci = InstanaRemoteCallInstrumentation(networkConnectionType: { .cellular })
+        let rci = HTTPMonitor(networkConnectionType: { .cellular })
         var request = URLRequest(url: URL(string: "www.a.com")!)
         request.httpMethod = "m"
         request.httpBody = "11".data(using: .utf8)
@@ -79,7 +79,7 @@ class InstanaRemoteCallInstrumentationTests: XCTestCase {
     }
     
     func test_markingRequestWithDefaultValues_shouldReturnPreparedMarker() {
-        let rci = InstanaRemoteCallInstrumentation(networkConnectionType: { nil })
+        let rci = HTTPMonitor(networkConnectionType: { nil })
         var request = URLRequest(url: URL(string: "a")!)
         request.url = nil
         request.httpMethod = nil
@@ -93,10 +93,10 @@ class InstanaRemoteCallInstrumentationTests: XCTestCase {
     
     func test_automaticTriggerMarker_shouldBeReportedOnlyForAutomatedReporting() {
         var count = 0
-        let rci = InstanaRemoteCallInstrumentation(submitter: { _ in
+        let rci = HTTPMonitor(submitter: { _ in
             count += 1
         })
-        let marker = InstanaRemoteCallMarker(url: "", method: "", trigger: .automatic, delegate: rci)
+        let marker = HTTPMarker(url: "", method: "", trigger: .automatic, delegate: rci)
         
         rci.reporting = .automatic
         rci.finalized(marker: marker)
@@ -117,10 +117,10 @@ class InstanaRemoteCallInstrumentationTests: XCTestCase {
     
     func test_manualTriggerMarker_shouldBeReportedOnlyForManualReporting() {
         var count = 0
-        let rci = InstanaRemoteCallInstrumentation(submitter: { _ in
+        let rci = HTTPMonitor(submitter: { _ in
             count += 1
         })
-        let marker = InstanaRemoteCallMarker(url: "", method: "", trigger: .manual, delegate: rci)
+        let marker = HTTPMarker(url: "", method: "", trigger: .manual, delegate: rci)
         
         rci.reporting = .automatic
         rci.finalized(marker: marker)

@@ -2,13 +2,13 @@
 //  Copyright © 2019 Nikola Lajic. All rights reserved.
 
 import XCTest
-@testable import iOSSensor
+@testable import InstanaSensor
 
 class RemoteCallMarkerTests: XCTestCase {
 
     func test_marker_defaultValues() {
         let start = Date().timeIntervalSince1970
-        let marker = InstanaRemoteCallMarker(url: "a", method: "b", delegate: Delegate())
+        let marker = HTTPMarker(url: "a", method: "b", delegate: Delegate())
         XCTAssertEqual(marker.url, "a")
         XCTAssertEqual(marker.method, "b")
         XCTAssertEqual(marker.requestSize, 0)
@@ -21,14 +21,14 @@ class RemoteCallMarkerTests: XCTestCase {
     func test_marker_shouldNotRetainDelegate() {
         var delegate: Delegate = Delegate()
         weak var weakDelegate = delegate
-        let marker = InstanaRemoteCallMarker(url: "c", method: "b", delegate: delegate)
+        let marker = HTTPMarker(url: "c", method: "b", delegate: delegate)
         delegate = Delegate()
         XCTAssertNil(weakDelegate)
         XCTAssertEqual(marker.url, "c") // random test, so maker is not deallocated and no warning is shown
     }
     
     func test_marker_shouldAddTrackingHeaders_toNSMutableURLRequest() {
-        let marker = InstanaRemoteCallMarker(url: "a", method: "b", delegate: Delegate())
+        let marker = HTTPMarker(url: "a", method: "b", delegate: Delegate())
         let request = NSMutableURLRequest(url: URL(string: "a")!)
         marker.addTrackingHeaders(to: request)
         XCTAssertEqual(request.value(forHTTPHeaderField: "X-INSTANA-T"), marker.eventId)
@@ -36,20 +36,20 @@ class RemoteCallMarkerTests: XCTestCase {
     }
     
     func test_marker_shouldAddTrackingHeaders_toURLRequest() {
-        let marker = InstanaRemoteCallMarker(url: "a", method: "b", delegate: Delegate())
+        let marker = HTTPMarker(url: "a", method: "b", delegate: Delegate())
         var request = URLRequest(url: URL(string: "a")!)
         marker.addTrackingHeaders(to: &request)
         XCTAssertEqual(request.value(forHTTPHeaderField: "X-INSTANA-T"), marker.eventId)
     }
     
     func test_unfinaliedMarkerDuration_shouldBeZero() {
-        let marker = InstanaRemoteCallMarker(url: "a", method: "b", delegate: Delegate())
+        let marker = HTTPMarker(url: "a", method: "b", delegate: Delegate())
         XCTAssertEqual(marker.duration(), 0)
     }
     
     func test_finalizingMarker_withSuccess_shouldRetainOriginalValues() {
         let delegate = Delegate()
-        let marker = InstanaRemoteCallMarker(url: "a", method: "b", requestSize: 4, delegate: delegate)
+        let marker = HTTPMarker(url: "a", method: "b", requestSize: 4, delegate: delegate)
         
         marker.endedWith(responseCode: 200, responseSize: 123)
         marker.endedWith(responseCode: 300, responseSize: 321)
@@ -69,7 +69,7 @@ class RemoteCallMarkerTests: XCTestCase {
     
     func test_finalizingMarker_withError_shouldRetainOriginalValues() {
         let delegate = Delegate()
-        let marker = InstanaRemoteCallMarker(url: "a", method: "b", delegate: delegate)
+        let marker = HTTPMarker(url: "a", method: "b", delegate: delegate)
         let error = CocoaError(CocoaError.coderValueNotFound)
         
         marker.endedWith(error: error, responseSize: 10)
@@ -89,7 +89,7 @@ class RemoteCallMarkerTests: XCTestCase {
     
     func test_finalizingMarker_withCancel_shouldRetainOriginalValues() {
         let delegate = Delegate()
-        let marker = InstanaRemoteCallMarker(url: "a", method: "b", delegate: delegate)
+        let marker = HTTPMarker(url: "a", method: "b", delegate: delegate)
         
         marker.canceled()
         marker.canceled()
@@ -104,10 +104,10 @@ class RemoteCallMarkerTests: XCTestCase {
     }
     
     func test_finishedMarker_toEventConversion() {
-        let marker = InstanaRemoteCallMarker(url: "u", method: "m", requestSize: 111, connectionType: .wifi, delegate: Delegate())
+        let marker = HTTPMarker(url: "u", method: "m", requestSize: 111, connectionType: .wifi, delegate: Delegate())
         marker.endedWith(responseCode: 204, responseSize: 10)
         
-        guard let event = marker.event() as? InstanaRemoteCallEvent else {
+        guard let event = marker.createEvent() as? HTTPEvent else {
             XCTFail("Event type missmatch"); return
         }
         XCTAssertEqual(event.eventId, marker.eventId)
@@ -123,11 +123,11 @@ class RemoteCallMarkerTests: XCTestCase {
     }
     
     func test_failedMarker_toEventConversion() {
-        let marker = InstanaRemoteCallMarker(url: "z", method: "t", requestSize: 123, connectionType: .cellular, delegate: Delegate())
+        let marker = HTTPMarker(url: "z", method: "t", requestSize: 123, connectionType: .cellular, delegate: Delegate())
         let error = CocoaError(CocoaError.coderValueNotFound)
         marker.endedWith(error: error)
         
-        guard let event = marker.event() as? InstanaRemoteCallEvent else {
+        guard let event = marker.createEvent() as? HTTPEvent else {
             XCTFail("Event type missmatch"); return
         }
         XCTAssertEqual(event.eventId, marker.eventId)
@@ -143,10 +143,10 @@ class RemoteCallMarkerTests: XCTestCase {
     }
     
     func test_canceledMarker_toEventConversion() {
-        let marker = InstanaRemoteCallMarker(url: "f", method: "c", requestSize: 1, delegate: Delegate())
+        let marker = HTTPMarker(url: "f", method: "c", requestSize: 1, delegate: Delegate())
         marker.canceled()
         
-        guard let event = marker.event() as? InstanaRemoteCallEvent else {
+        guard let event = marker.createEvent() as? HTTPEvent else {
             XCTFail("Event type missmatch"); return
         }
         XCTAssertEqual(event.eventId, marker.eventId)
@@ -161,9 +161,9 @@ class RemoteCallMarkerTests: XCTestCase {
     }
     
     func test_starteddMarker_toEventConversion() {
-        let marker = InstanaRemoteCallMarker(url: "f", method: "c", requestSize: 1, delegate: Delegate())
+        let marker = HTTPMarker(url: "f", method: "c", requestSize: 1, delegate: Delegate())
         
-        guard let event = marker.event() as? InstanaRemoteCallEvent else {
+        guard let event = marker.createEvent() as? HTTPEvent else {
             XCTFail("Event type missmatch"); return
         }
         XCTAssertEqual(event.eventId, marker.eventId)
@@ -179,9 +179,9 @@ class RemoteCallMarkerTests: XCTestCase {
 }
 
 extension RemoteCallMarkerTests {
-    class Delegate: InstanaRemoteCallMarkerDelegate {
+    class Delegate: HTTPMarkerDelegate {
         var finaliedCount: Int = 0
-        func finalized(marker: InstanaRemoteCallMarker) {
+        func finalized(marker: HTTPMarker) {
             finaliedCount += 1
         }
     }

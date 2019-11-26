@@ -4,16 +4,16 @@
 import Foundation
 import UIKit
 
-class InstanaApplicationNotRespondingMonitor {
+class ApplicationNotRespondingMonitor {
     var threshold: Instana.Types.Seconds
-    private let submitEvent: InstanaEvents.Submitter
+    private let submitter: EventReporter.Submitter
     private var timer: Timer?
     private let samplingInterval: Double
     
     private init() { fatalError() }
     
-    init(threshold: Instana.Types.Seconds, samplingInterval: Double = 1.0, submitEvent: @escaping InstanaEvents.Submitter = Instana.events.submit(event:)) {
-        self.submitEvent = submitEvent
+    init(threshold: Instana.Types.Seconds, samplingInterval: Double = 1.0, submitter: @escaping EventReporter.Submitter = Instana.eventReporter.submit(_:)) {
+        self.submitter = submitter
         self.threshold = threshold
         self.samplingInterval = samplingInterval
         NotificationCenter.default.addObserver(self, selector: #selector(onApplicationEnteredForeground), name: UIApplication.didBecomeActiveNotification, object: nil)
@@ -26,7 +26,7 @@ class InstanaApplicationNotRespondingMonitor {
     }
 }
 
-private extension InstanaApplicationNotRespondingMonitor {
+private extension ApplicationNotRespondingMonitor {
     func scheduleTimer() {
         timer?.invalidate()
         let t = InstanaTimerProxy.timer(proxied: self, timeInterval: samplingInterval, userInfo: CFAbsoluteTimeGetCurrent(), repeats: false)
@@ -44,7 +44,7 @@ private extension InstanaApplicationNotRespondingMonitor {
     
 }
 
-extension InstanaApplicationNotRespondingMonitor: InstanaTimerProxiedTarget {
+extension ApplicationNotRespondingMonitor: InstanaTimerProxiedTarget {
     func onTimer(timer: Timer) {
         guard let start = timer.userInfo as? CFAbsoluteTime else {
             scheduleTimer()
@@ -53,8 +53,7 @@ extension InstanaApplicationNotRespondingMonitor: InstanaTimerProxiedTarget {
         
         let delay = CFAbsoluteTimeGetCurrent() - start - samplingInterval
         if delay > threshold {
-            let event = InstanaAlertEvent(alertType: .anr(duration: delay), screen: InstanaSystemUtils.viewControllersHierarchy())
-            submitEvent(event)
+            submitter(AlertEvent(alertType: .anr(duration: delay), screen: InstanaSystemUtils.viewControllersHierarchy()))
         }
         scheduleTimer()
     }

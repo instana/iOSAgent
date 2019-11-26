@@ -3,7 +3,7 @@
 
 import Foundation
 
-extension Collection where Element: InstanaEvent {
+extension Collection where Element: Event {
     
     func toBatchRequest(key: String? = Instana.key, reportingUrl: String = Instana.reportingUrl, compress: (Data) throws -> Data = compress(data:)) throws -> URLRequest {
         guard var url = URL(string: reportingUrl) else {
@@ -24,8 +24,7 @@ extension Collection where Element: InstanaEvent {
             urlRequest.httpBody = gzippedData
             urlRequest.setValue("gzip", forHTTPHeaderField: "Content-Encoding")
             urlRequest.setValue("\(gzippedData.count)", forHTTPHeaderField: "Content-Length")
-        }
-        else {
+        } else {
             urlRequest.httpBody = jsonData
         }
         
@@ -49,10 +48,10 @@ extension Collection where Element: InstanaEvent {
     }
 }
 
-extension Collection where Element: InstanaEvent {
-    func invokeCallbackIfNeeded(with result: InstanaEventResult) {
+extension Collection where Element: Event {
+    func invokeCallbackIfNeeded(_ result: EventResult) {
         forEach { event in
-            if let notifiableEvent = event as? InstanaEventResultNotifiable {
+            if let notifiableEvent = event as? EventResultNotifiable {
                 notifiableEvent.completion(result);
             }
         }
