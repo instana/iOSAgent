@@ -2,34 +2,34 @@
 //  Copyright © 2019 Nikola Lajic. All rights reserved.
 
 import XCTest
-@testable import iOSSensor
+@testable import InstanaSensor
 
 class InstanaAlertsTests: XCTestCase {
 
     func test_defaultMonitors_shouldBeNil() {
         let alerts = InstanaAlerts()
         let mirror = Mirror(reflecting: alerts)
-        XCTAssertNil(mirror.typedChild(at: "applicationNotRespondingMonitor", type: InstanaApplicationNotRespondingMonitor.self))
-        XCTAssertNil(mirror.typedChild(at: "lowMemoryMonitor", type: InstanaLowMemoryMonitor.self))
-        XCTAssertNil(mirror.typedChild(at: "framerateDipMonitor", type: InstanaFramerateDipMonitor.self))
+        XCTAssertNil(mirror.typedChild(at: "applicationNotRespondingMonitor", type: ApplicationNotRespondingMonitor.self))
+        XCTAssertNil(mirror.typedChild(at: "lowMemoryMonitor", type: LowMemoryMonitor.self))
+        XCTAssertNil(mirror.typedChild(at: "framerateDropMonitor", type: FramerateDropMonitor.self))
     }
     
     func test_settingFramerateThreshold_initializesMonitor() {
         let alerts = InstanaAlerts()
         let mirror = Mirror(reflecting: alerts)
-        let typedChild: () -> Any? = { mirror.typedChild(at: "framerateDipMonitor", type: InstanaFramerateDipMonitor.self) }
+        let typedChild: () -> Any? = { mirror.typedChild(at: "framerateDropMonitor", type: FramerateDropMonitor.self) }
         
         XCTAssertNil(typedChild())
-        alerts.framerateDipThreshold = 10
+        alerts.framerateDropThreshold = 10
         XCTAssertNotNil(typedChild())
-        alerts.framerateDipThreshold = nil
+        alerts.framerateDropThreshold = nil
         XCTAssertNil(typedChild())
     }
     
     func test_settingLowMemory_initializesMonitor() {
         let alerts = InstanaAlerts()
         let mirror = Mirror(reflecting: alerts)
-        let typedChild: () -> Any? = { mirror.typedChild(at: "lowMemoryMonitor", type: InstanaLowMemoryMonitor.self) }
+        let typedChild: () -> Any? = { mirror.typedChild(at: "lowMemoryMonitor", type: LowMemoryMonitor.self) }
         
         XCTAssertNil(typedChild())
         alerts.lowMemory = true
@@ -41,7 +41,7 @@ class InstanaAlertsTests: XCTestCase {
     func test_settingANRThreshold_initializesMonitor() {
         let alerts = InstanaAlerts()
         let mirror = Mirror(reflecting: alerts)
-        let typedChild: () -> InstanaApplicationNotRespondingMonitor? = { mirror.typedChild(at: "applicationNotRespondingMonitor", type: InstanaApplicationNotRespondingMonitor.self) }
+        let typedChild: () -> ApplicationNotRespondingMonitor? = { mirror.typedChild(at: "applicationNotRespondingMonitor", type: ApplicationNotRespondingMonitor.self) }
         
         XCTAssertNil(typedChild())
         

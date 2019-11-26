@@ -4,7 +4,7 @@
 import Foundation
 
 /// Object acting as a namespace for configuring and using remote call instrumentation.
-@objc public class InstanaRemoteCallInstrumentation: NSObject {
+@objc public class HTTPMonitor: NSObject {
     
     /// An enum insted of option list because of Obj-C support.
     @objc public enum ReportingType: Int {
@@ -32,16 +32,16 @@ import Foundation
     
     private let installer: (AnyClass) -> Bool
     private let uninstaller: (AnyClass) -> Void
-    private let submit: InstanaEvents.Submitter
+    private let submitter: EventReporter.Submitter
     private let networkConnectionType: () -> InstanaNetworkMonitor.ConnectionType?
     
     init(installer: @escaping (AnyClass) -> Bool = URLProtocol.registerClass,
          uninstaller: @escaping (AnyClass) -> Void = URLProtocol.unregisterClass,
-         submitter: @escaping InstanaEvents.Submitter = Instana.events.submit(event:),
+         submitter: @escaping EventReporter.Submitter = Instana.eventReporter.submit(_:),
          networkConnectionType: @escaping () -> InstanaNetworkMonitor.ConnectionType? = { InstanaNetworkMonitor.shared.connectionType } ) {
         self.installer = installer
         self.uninstaller = uninstaller
-        self.submit = submitter
+        self.submitter = submitter
         self.networkConnectionType = networkConnectionType
     }
     
@@ -71,12 +71,12 @@ import Foundation
     ///   - url: URL of the call.
     ///   - method: Method of the call.
     /// - Returns: A remote call marker which is used to notify the SDK of call results by invoking one of its completion methods.
-    @objc public func markCall(to url: String, method: String) -> InstanaRemoteCallMarker {
-        return InstanaRemoteCallMarker(url: url, method: method, trigger: .manual, connectionType: networkConnectionType(), delegate: self)
+    @objc public func markCall(to url: String, method: String) -> HTTPMarker {
+        return HTTPMarker(url: url, method: method, trigger: .manual, connectionType: networkConnectionType(), delegate: self)
     }
 }
 
-extension InstanaRemoteCallInstrumentation {
+extension HTTPMonitor {
     func install() {
         _ = installer(InstanaURLProtocol.self)
     }
@@ -85,8 +85,8 @@ extension InstanaRemoteCallInstrumentation {
         uninstaller(InstanaURLProtocol.self)
     }
     
-    func markCall(for request: URLRequest) -> InstanaRemoteCallMarker {
-        return InstanaRemoteCallMarker(url: request.url?.absoluteString ?? "",
+    func markCall(for request: URLRequest) -> HTTPMarker {
+        return HTTPMarker(url: request.url?.absoluteString ?? "",
                                        method: request.httpMethod ?? "",
                                        trigger: .automatic,
                                        requestSize: Instana.Types.Bytes(request.httpBody?.count ?? 0),
@@ -94,7 +94,7 @@ extension InstanaRemoteCallInstrumentation {
                                        delegate: self)
     }
     
-    private func shouldReport(marker: InstanaRemoteCallMarker) -> Bool {
+    private func shouldReport(marker: HTTPMarker) -> Bool {
         switch reporting {
         case .automaticAndManual: return true
         case .automatic: return marker.trigger == .automatic
@@ -104,9 +104,9 @@ extension InstanaRemoteCallInstrumentation {
     }
 }
 
-extension InstanaRemoteCallInstrumentation: InstanaRemoteCallMarkerDelegate {
-    func finalized(marker: InstanaRemoteCallMarker) {
+extension HTTPMonitor: HTTPMarkerDelegate {
+    func finalized(marker: HTTPMarker) {
         guard shouldReport(marker: marker) else { return }
-        submit(marker.event())
+        submitter(marker.createEvent())
     }
 }

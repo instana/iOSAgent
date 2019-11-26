@@ -4,7 +4,7 @@
 import Foundation
 
 /// Base class for events. 
-@objc public class InstanaEvent: NSObject {
+@objc public class Event: NSObject {
     let sessionId: String
     let eventId: String?
     let timestamp: Instana.Types.UTCTimestamp
@@ -25,12 +25,12 @@ import Foundation
     }
 }
 
-enum InstanaEventResult {
+enum EventResult {
     case success
     case failure(error: Error)
 }
 
-protocol InstanaEventResultNotifiable {
-    typealias CompletionBlock = (_ result: InstanaEventResult) -> Void
+protocol EventResultNotifiable {
+    typealias CompletionBlock = (_ result: EventResult) -> Void
     var completion: CompletionBlock { get }
 }

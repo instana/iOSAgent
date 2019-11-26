@@ -3,11 +3,11 @@
 
 import Foundation
 
-class InstanaAlertEvent: InstanaEvent {
+class AlertEvent: Event {
     enum AlertType {
         case anr(duration: Instana.Types.Seconds)
         case lowMemory
-        case framerateDip(duration: Instana.Types.Seconds, averageFramerate: Float)
+        case framerateDrop(duration: Instana.Types.Seconds, averageFramerate: Float)
     }
     let alertType: AlertType
     private let screen: String?
@@ -25,10 +25,10 @@ class InstanaAlertEvent: InstanaEvent {
         body.set(ifNotNil: screen, forKey: "screen")
         
         switch alertType {
-        case .framerateDip(let duration, let average):
+        case .framerateDrop(let duration, let average):
             body["durationMs"] = duration * 1000
             body["averageFramerate"] = average
-            alert["framerateDip"] = body
+            alert["framerateDrop"] = body
         case .lowMemory:
             alert["lowMemory"] = body
         case .anr(let duration):

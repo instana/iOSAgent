@@ -2,12 +2,12 @@
 //  Copyright © 2019 Nikola Lajic. All rights reserved.
 
 import XCTest
-@testable import iOSSensor
+@testable import InstanaSensor
 
-class InstanaCustomEventTests: XCTestCase {
+class CustomEventEventTests: XCTestCase {
 
     func test_customEventValues_shouldBeSerializedToJSON() {
-        let event = InstanaCustomEvent(name: "my-event", timestamp: 123, duration: 321)
+        let event = CustomEventEvent(name: "my-event", timestamp: 123, duration: 321)
         compareDictionaries(original: event.toJSON(), expected: [
             "sessionId": ComparisonType.nonEmptyString,
             "id": ComparisonType.nonEmptyString,

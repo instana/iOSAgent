@@ -2,11 +2,11 @@
 //  Copyright © 2019 Nikola Lajic. All rights reserved.
 
 import XCTest
-@testable import iOSSensor
+@testable import InstanaSensor
 
-class InstanaLowMemoryMonitorTests: XCTestCase {
+class LowMemoryMonitorTests: XCTestCase {
     
-    var monitor: InstanaLowMemoryMonitor?
+    var monitor: LowMemoryMonitor?
     
     override func tearDown() {
         super.tearDown()
@@ -14,12 +14,12 @@ class InstanaLowMemoryMonitorTests: XCTestCase {
     }
     
     func test_deviceLowMemory_triggersLowMemoryEvent() {
-        var event: InstanaEvent?
-        monitor = InstanaLowMemoryMonitor { event = $0 }
+        var event: Event?
+        monitor = LowMemoryMonitor { event = $0 }
         
         NotificationCenter.default.post(name: UIApplication.didReceiveMemoryWarningNotification, object: nil)
         
-        guard let alertEvent = event as? InstanaAlertEvent else {
+        guard let alertEvent = event as? AlertEvent else {
             XCTFail("Event not submitted or wrong type")
             return
         }

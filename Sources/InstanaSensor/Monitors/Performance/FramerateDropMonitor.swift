@@ -4,16 +4,16 @@
 import Foundation
 import UIKit
 
-class InstanaFramerateDipMonitor {
+class FramerateDropMonitor {
     // needed since CADisplayLink retains the target
     private class DisplayLinkProxy {
-        weak var proxied: InstanaFramerateDipMonitor?
+        weak var proxied: FramerateDropMonitor?
         @objc func onDisplayLinkUpdate() {
             proxied?.onDisplayLinkUpdate()
         }
     }
     
-    private let submitEvent: InstanaEvents.Submitter
+    private let submitter: EventReporter.Submitter
     private let threshold: UInt
     private let displayLink: CADisplayLink
     private let samplingInterval: Instana.Types.Seconds
@@ -25,8 +25,8 @@ class InstanaFramerateDipMonitor {
     
     private init() { fatalError() }
     
-    init(threshold: UInt, samplingInterval: Instana.Types.Seconds = 1, submitEvent: @escaping InstanaEvents.Submitter = Instana.events.submit(event:)) {
-        self.submitEvent = submitEvent
+    init(threshold: UInt, samplingInterval: Instana.Types.Seconds = 1, submitter: @escaping EventReporter.Submitter = Instana.eventReporter.submit(_:)) {
+        self.submitter = submitter
         self.samplingInterval = samplingInterval
         self.threshold = threshold
         let proxy = DisplayLinkProxy()
@@ -42,7 +42,7 @@ class InstanaFramerateDipMonitor {
     }
 }
 
-private extension InstanaFramerateDipMonitor {
+private extension FramerateDropMonitor {
 
     @objc func onApplicationEnteredForeground() {
         displayLink.isPaused = false
@@ -56,7 +56,7 @@ private extension InstanaFramerateDipMonitor {
     }
 }
 
-private extension InstanaFramerateDipMonitor {
+private extension FramerateDropMonitor {
     func onDisplayLinkUpdate() {
         guard samplingStart > 0 else {
             samplingStart = displayLink.timestamp
@@ -85,8 +85,7 @@ private extension InstanaFramerateDipMonitor {
             runningAverage += Float(fps) / Float(consecutiveFrameDip)
         case (false, let start?):
             let duration = displayLink.timestamp - start
-            let event = InstanaAlertEvent(alertType: .framerateDip(duration: duration, averageFramerate: runningAverage), screen: InstanaSystemUtils.viewControllersHierarchy())
-            submitEvent(event)
+            submitter(AlertEvent(alertType: .framerateDrop(duration: duration, averageFramerate: runningAverage), screen: InstanaSystemUtils.viewControllersHierarchy()))
             dipStart = nil
             runningAverage = 0
             consecutiveFrameDip = 0

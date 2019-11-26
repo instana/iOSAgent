@@ -2,12 +2,12 @@
 //  Copyright © 2019 Nikola Lajic. All rights reserved.
 
 import XCTest
-@testable import iOSSensor
+@testable import InstanaSensor
 
-class InstanaRemoteCallEventTests: XCTestCase {
+class HTTPEventTests: XCTestCase {
 
     func test_remoteCallEventValues_shouldBeSerializedToJSON() {
-        let event = InstanaRemoteCallEvent(eventId: "a", timestamp: 123, duration: 45, method: "METHOD", url: "URL", connectionType: .wifi, responseCode: 321, requestSize: 11, responseSize: 22, result: "res")
+        let event = HTTPEvent(eventId: "a", timestamp: 123, duration: 45, method: "METHOD", url: "URL", connectionType: .wifi, responseCode: 321, requestSize: 11, responseSize: 22, result: "res")
         compareDictionaries(original: event.toJSON(), expected: [
             "sessionId": ComparisonType.nonEmptyString,
             "id": "a",
@@ -28,7 +28,7 @@ class InstanaRemoteCallEventTests: XCTestCase {
     }
     
     func test_remoteCallDefaultValues() {
-        let event = InstanaRemoteCallEvent(eventId: "b", duration: 0, method: "GET", url: "c", connectionType: nil, result: "r")
+        let event = HTTPEvent(eventId: "b", duration: 0, method: "GET", url: "c", connectionType: nil, result: "r")
         compareDictionaries(original: event.toJSON(), expected: [
             "sessionId": ComparisonType.nonEmptyString,
             "id": "b",

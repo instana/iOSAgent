@@ -2,12 +2,12 @@
 //  Copyright © 2019 Nikola Lajic. All rights reserved.
 
 import XCTest
-@testable import iOSSensor
+@testable import InstanaSensor
 
-class InstanaSessionProfileEventTests: XCTestCase {
+class SessionProfileEventTests: XCTestCase {
 
     func test_sessionProfileEventValues_shouldBeSerializedToJSON() {
-        let event = InstanaSessionProfileEvent()
+        let event = SessionProfileEvent()
         compareDictionaries(original: event.toJSON(), expected: [
             "sessionId": ComparisonType.nonEmptyString,
             "id": ComparisonType.shouldBeNil,
@@ -25,9 +25,9 @@ class InstanaSessionProfileEventTests: XCTestCase {
     func test_submissionFailure_shouldRetrySubmission() {
         var count = 0
         let exp = expectation(description: "Waiting for submission")
-        let submitter: (InstanaEvent) -> Void = {
+        let submitter: (Event) -> Void = {
             count += 1
-            guard let notifiable = $0 as? InstanaEventResultNotifiable else { XCTFail("Event not notifiable"); return }
+            guard let notifiable = $0 as? EventResultNotifiable else { XCTFail("Event not notifiable"); return }
             switch count {
             case 1:
                 notifiable.completion(.failure(error: CocoaError(CocoaError.coderReadCorrupt)))
@@ -40,7 +40,7 @@ class InstanaSessionProfileEventTests: XCTestCase {
                 XCTFail("Retried too many times: \(count)")
             }
         }
-        let event = InstanaSessionProfileEvent(retryInterval: 1, submitEvent: submitter)
+        let event = SessionProfileEvent(retryInterval: 1, submitter: submitter)
         submitter(event)
         waitForExpectations(timeout: 0.05, handler: nil)
     }

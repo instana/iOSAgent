@@ -2,7 +2,7 @@
 //  Copyright © 2019 Nikola Lajic. All rights reserved.
 
 import XCTest
-@testable import iOSSensor
+@testable import InstanaSensor
 
 class InstanaURLProtocolTests: XCTestCase {
     let makeRequest: (String) -> URLRequest = { URLRequest(url: URL(string: $0)!) }
@@ -31,7 +31,7 @@ class InstanaURLProtocolTests: XCTestCase {
     
     func test_urlProtocol_shouldRemoveSelfFromCopiedInternalTaskSessionConfiguration() {
         let configuration = URLSessionConfiguration.default
-        InstanaRemoteCallInstrumentation().install(in: configuration)
+        HTTPMonitor().install(in: configuration)
         let task = URLSession(configuration: configuration).dataTask(with: makeRequest("http://www.a.c"))
         let urlProtocol = InstanaURLProtocol(task: task, cachedResponse: nil, client: nil)
         XCTAssertFalse(urlProtocol.sessionConfiguration.protocolClasses?.contains { $0 == InstanaURLProtocol.self } ?? true)

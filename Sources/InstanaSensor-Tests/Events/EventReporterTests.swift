@@ -2,41 +2,54 @@
 //  Copyright © 2019 Nikola Lajic. All rights reserved.
 
 import XCTest
-@testable import iOSSensor
+@testable import InstanaSensor
 
-class InstanaEventsTests: XCTestCase {
+class EventReporterTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        Instana.setup(withKey: "KEY") // needed for mocking submission
+    }
+
+    override func tearDown() {
+        Instana.setup(withKey: "")
+        super.tearDown()
+    }
 
     func test_internalTimer_shouldNotCauseRetainCycle() {
-        var events: InstanaEvents? = InstanaEvents(transmissionDelay: 0.01) { _, _, _ in}
-        weak var weakEvents = events
+        var reporter: EventReporter? = EventReporter(transmissionDelay: 0.01) { _, _, _ in}
+        weak var weakReporter = reporter
         let exp = expectation(description: "Delay")
         
-        events?.submit(event: InstanaEvent(timestamp: 0))
-        events = nil
+        reporter?.submit(Event(timestamp: 0))
+        reporter = nil
         DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(10)) {
             exp.fulfill()
         }
         
         waitForExpectations(timeout: 0.2, handler: nil)
-        XCTAssertNil(weakEvents)
+        XCTAssertNil(weakReporter)
     }
     
     func test_changingBuffer_sendsQueuedEvents() {
+        let exp = expectation(description: "test_changingBuffer_sendsQueuedEvents")
         var requestMade = false
-        let events: InstanaEvents = InstanaEvents(transmissionDelay: 10) { _, _, _ in
+        let reporter = EventReporter(transmissionDelay: 10) { _, _, _ in
             requestMade = true
+            exp.fulfill()
         }
         
-        events.submit(event: InstanaEvent(timestamp: 0))
-        events.bufferSize = 10
-        
+        reporter.submit(Event(timestamp: 0))
+        reporter.bufferSize = 10
+
+        waitForExpectations(timeout: 0.2, handler: nil)
         XCTAssertTrue(requestMade)
     }
     
     func test_delayEventSubmission_onLowBattery() {
         let exp = expectation(description: "Delayed sending")
         var count = 0
-        let events = InstanaEvents(transmissionDelay: 0.05,
+        let reporter = EventReporter(transmissionDelay: 0.05,
                                    transmissionLowBatteryDelay: 0.01,
                                    eventsToRequest: { _ in URLRequest(url: URL(string: "www.a.a")!) },
                                    batterySafeForNetworking: { count += 1; return count >= 3 },
@@ -44,16 +57,16 @@ class InstanaEventsTests: XCTestCase {
                                     XCTAssertEqual(count, 3)
                                     exp.fulfill()
         })
-        events.suspendReporting = .lowBattery
+        reporter.suspendReporting = .lowBattery
         
-        events.submit(event: InstanaAlertEvent(alertType: .lowMemory, screen: nil))
+        reporter.submit(AlertEvent(alertType: .lowMemory, screen: nil))
         
         waitForExpectations(timeout: 0.2, handler: nil)
     }
     
     func test_loadError_shouldBeParsedToError() {
         let error = CocoaError(.coderInvalidValue)
-        mockEventSubmission(with: .failure(error: error)) { result in
+        mockEventSubmission(.failure(error: error)) { result in
             guard case let .failure(e) = result else { XCTFail("Invalid result"); return }
             guard let resultError = e as? CocoaError else { XCTFail("Error type missmatch"); return }
             XCTAssertEqual(resultError, error)
@@ -61,40 +74,37 @@ class InstanaEventsTests: XCTestCase {
     }
     
     func test_loadSuccess_withStatusCodeIn200Range_shouldReportSuccess() {
-        mockEventSubmission(with: .success(statusCode: 200)) {
+        mockEventSubmission(.success(statusCode: 200)) {
             guard case .success = $0 else { XCTFail("Result missmatch"); return }
         }
-        mockEventSubmission(with: .success(statusCode: 204)) {
+        mockEventSubmission(.success(statusCode: 204)) {
             guard case .success = $0 else { XCTFail("Result missmatch"); return }
         }
-        mockEventSubmission(with: .success(statusCode: 299)) {
+        mockEventSubmission(.success(statusCode: 299)) {
             guard case .success = $0 else { XCTFail("Result missmatch"); return }
         }
     }
     
     func test_loadSuccess_withStatusCodeOutside200Range_shouldReportFailure() {
-        let verifyResult: (InstanaEventResult) -> Void = {
+        let verifyResult: (EventResult) -> Void = {
             guard case let .failure(e) = $0 else { XCTFail("Invalid result: \($0)"); return }
             guard let resultError = e as? InstanaError else { XCTFail("Error type missmatch"); return }
             XCTAssertEqual(resultError.code, InstanaError.Code.invalidResponse.rawValue)
         }
         
-        mockEventSubmission(with: .success(statusCode: 100), resultCallback: verifyResult)
-        mockEventSubmission(with: .success(statusCode: 300), resultCallback: verifyResult)
-        mockEventSubmission(with: .success(statusCode: 400), resultCallback: verifyResult)
-        mockEventSubmission(with: .success(statusCode: 500), resultCallback: verifyResult)
+        mockEventSubmission(.success(statusCode: 100), resultCallback: verifyResult)
+        mockEventSubmission(.success(statusCode: 300), resultCallback: verifyResult)
+        mockEventSubmission(.success(statusCode: 400), resultCallback: verifyResult)
+        mockEventSubmission(.success(statusCode: 500), resultCallback: verifyResult)
     }
 }
 
-extension InstanaEventsTests {
-    func mockEventSubmission(with loadResult: InstanaNetworking.Result, resultCallback: @escaping (InstanaEventResult) -> Void) {
-        //let exp = expectation(description: "Delayed sending")
-        let events = InstanaEvents(transmissionDelay: 0.05,
+extension EventReporterTests {
+    func mockEventSubmission(_ loadResult: InstanaNetworking.Result, resultCallback: @escaping (EventResult) -> Void) {
+        let reporter = EventReporter(transmissionDelay: 0.05,
                                    eventsToRequest: { _ in URLRequest(url: URL(string: "www.a.a")!) },
                                    load: { _, _, callback in callback(loadResult) })
         
-        events.submit(event: InstanaEvent(sessionId: "SessionID", eventId: "EventID", timestamp: 1000000))
-        
-       // waitForExpectations(timeout: 0.1, handler: nil)
+        reporter.submit(Event(sessionId: "SessionID", eventId: "EventID", timestamp: 1000000))
     }
 }

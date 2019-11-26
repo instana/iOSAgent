@@ -2,7 +2,7 @@
 //  Copyright © 2019 Nikola Lajic. All rights reserved.
 
 import XCTest
-@testable import iOSSensor
+@testable import InstanaSensor
 
 class InstanaURLSessionConfigurationExtensionsTests: XCTestCase {
 

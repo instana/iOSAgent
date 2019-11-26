@@ -3,7 +3,7 @@
 
 import Foundation
 
-class InstanaRemoteCallEvent: InstanaEvent {
+class HTTPEvent: Event {
     let duration: Instana.Types.Milliseconds
     let method: String
     let url: String

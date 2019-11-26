@@ -3,7 +3,7 @@
 
 import Foundation
 
-class InstanaSessionProfileEvent: InstanaEvent, InstanaEventResultNotifiable {
+class SessionProfileEvent: Event, EventResultNotifiable {
     var completion: CompletionBlock {
         get { return handleCompletion }
     }
@@ -13,11 +13,11 @@ class InstanaSessionProfileEvent: InstanaEvent, InstanaEventResultNotifiable {
             if retryInterval > maxRetryInterval { retryInterval = maxRetryInterval }
         }
     }
-    private let submitEvent: InstanaEvents.Submitter
+    private let submitter: EventReporter.Submitter
     
-    init(retryInterval: Instana.Types.Milliseconds = 50, submitEvent: @escaping InstanaEvents.Submitter = Instana.events.submit(event:)) {
+    init(retryInterval: Instana.Types.Milliseconds = 50, submitter: @escaping EventReporter.Submitter = Instana.eventReporter.submit(_:)) {
         self.retryInterval = retryInterval
-        self.submitEvent = submitEvent
+        self.submitter = submitter
         super.init(eventId: nil, timestamp: 0)
     }
     
@@ -39,15 +39,15 @@ class InstanaSessionProfileEvent: InstanaEvent, InstanaEventResultNotifiable {
     }
 }
 
-private extension InstanaSessionProfileEvent {
-    func handleCompletion(result: InstanaEventResult) -> Void {
+private extension SessionProfileEvent {
+    func handleCompletion(result: EventResult) -> Void {
         switch result {
         case .success:
             Instana.log.add("Session profile sent")
         case .failure(_):
             Instana.log.add("Failed to send session profile. Retrying in \(retryInterval) ms.")
             DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(Int(retryInterval))) {
-                self.submitEvent(self)
+                self.submitter(self)
             }
             retryInterval *= 2
         }
