@@ -7,7 +7,7 @@ import UIKit
 
 class InstanaSystemUtils {
     /// Returns device model (for ex. "iPhone10,1")
-    static var deviceModel: String {
+    static var deviceModel: String = {
         var systemInfo = utsname()
         uname(&systemInfo)
         let machineMirror = Mirror(reflecting: systemInfo.machine)
@@ -16,22 +16,36 @@ class InstanaSystemUtils {
             return identifier + String(UnicodeScalar(UInt8(value)))
         }
         return identifier
-    }
+    }()
     
     /// Returns iOS version (for ex. "12.1")
-    static var systemVersion: String {
+    static var systemVersion: String = {
         return UIDevice.current.systemVersion
-    }
+    }()
+
+    static var systemName: String = {
+        return UIDevice.current.systemName
+    }()
     
     /// Returns application version (for ex. "1.1")
-    static var applicationVersion: String {
+    static var applicationVersion: String = {
         return Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "unknown-version"
-    }
+    }()
     
     /// Returns application build number (for ex. "123")
-    static var applicationBuildNumber: String {
+    static var applicationBuildNumber: String = {
         return Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "unkown-build-number"
-    }
+    }()
+
+    /// Returns bundle identifer (for ex. "com.instana.ios.app")
+    static var applicationBundleIdentifier: String = {
+        return Bundle.main.infoDictionary?["CFBundleIdentifier"] as? String ?? "unkown-bundle-id"
+    }()
+
+    /// Returns the screen size in Pixel
+    static var screenSize: CGSize = {
+        return UIScreen.main.nativeBounds.size
+    }()
     
     /// Returns carrier name
     static var carrierName: String? {
