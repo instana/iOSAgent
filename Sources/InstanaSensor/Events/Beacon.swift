@@ -9,11 +9,46 @@ import Foundation
 
 extension Beacon {
 
-    static func create(from event: HTTPEvent) -> Beacon {
-        var beacon = Beacon.Defaults.create()
-        beacon.httpurls = event.url
-        beacon.httpscode = event.responseCode
+    static func create(from event: Event) -> Beacon {
+        switch event {
+        case let e as HTTPEvent:
+            return http(e)
+        case let e as AlertEvent:
+            return alert(e)
+        case let e as CustomEvent:
+            return custom(e)
+        case let e as SessionProfileEvent:
+            return sessionProfile(e)
+        default:
+            assertionFailure("Event <-> Beacon mapping for event \(event) not defined")
+            return Beacon.create(event)
+        }
+    }
 
+    static func create(_ event: Event) -> Beacon {
+        Beacon(maid: "Some", ti: event.timestamp, sid: event.sessionId, bid: event.eventId ?? UUID().uuidString, buid: InstanaSystemUtils.applicationBundleIdentifier, lg: Locale.current.languageCode ?? "na", ab: InstanaSystemUtils.applicationBuildNumber, av: InstanaSystemUtils.applicationVersion, osn: InstanaSystemUtils.systemName, osv: InstanaSystemUtils.systemVersion, dmo: InstanaSystemUtils.deviceModel, vw: Int(InstanaSystemUtils.screenSize.width), vh: Int(InstanaSystemUtils.screenSize.height), cn: InstanaSystemUtils.carrierName, ct: InstanaSystemUtils.connectionTypeDescription)
+    }
+
+    static func http(_ event: HTTPEvent) -> Beacon {
+        var beacon = create(event)
+        beacon.httpurl = event.url
+        beacon.httpscode = event.responseCode
+        beacon.httpm = event.method
+        return beacon
+    }
+
+    static func alert(_ event: AlertEvent) -> Beacon {
+        let beacon = create(event)
+        return beacon
+    }
+
+    static func custom(_ event: CustomEvent) -> Beacon {
+        let beacon = create(event)
+        return beacon
+    }
+
+    static func sessionProfile(_ event: SessionProfileEvent) -> Beacon {
+        let beacon = create(event)
         return beacon
     }
 }
@@ -21,28 +56,6 @@ extension Beacon {
 /// The final object that is used for the submission to the Instana backend
 /// It uses short field name to reduce the transfer size
 struct Beacon {
-    struct Defaults {
-        static func create() -> Beacon {
-            var beacon = Beacon()
-            beacon.buid = InstanaSystemUtils.applicationBundleIdentifier.bundleID
-            beacon.av = Default.appVersion
-            beacon.ti = Date().millisecondsSince1970
-            beacon.bid = UUID().uuidString
-            beacon.osv = InstanaSystemUtils.systemVersion
-            beacon.osn = InstanaSystemUtils.systemName
-            beacon.ab = InstanaSystemUtils.applicationBuildNumber
-            beacon.av = InstanaSystemUtils.applicationVersion
-            beacon.lg = Locale.current.languageCode ?? "na"
-            beacon.dmf = "Apple"
-            beacon.dmo = InstanaSystemUtils.deviceModel
-            beacon.cn = InstanaSystemUtils.carrierName
-            beacon.ct = InstanaSystemUtils.cellularConnectionType ?? "na"
-            beacon.vw = Int(InstanaSystemUtils.screenSize.screenSize.width)
-            beacon.vh = Int(InstanaSystemUtils.screenSize.screenSize.height)
-            beacon.maid = "Something"
-            return beacon
-        }
-    }
 
     /**
      * This is the ID under which data can be reported to Instana. This ID will be created when creating a mobile app via the UI.
@@ -53,7 +66,7 @@ struct Beacon {
     /**
      * The timestamp in ms when the beacon has been created
      */
-    var ti: Int
+    var ti: TimeInterval
 
     /**
      *
@@ -132,28 +145,28 @@ struct Beacon {
      *
      * For example: Apple
      */
-    let dmf: String
+    var dmf: String = "Apple"
 
     /**
      * The device model
      *
      * For example: iPhone12,5  (iPhone 11 Pro Max)
      */
-    let dmo: String
+    var dmo: String
 
     /**
      * Device screen width in pixels
      *
      * For example: 2436
      */
-    let vw: Int
+    var vw: Int
 
     /**
      * Device screen height in pixels
      *
      * For example: 1125
      */
-    let vh: Int
+    var vh: Int
 
     /**
      * The cellular carrier name
@@ -167,21 +180,21 @@ struct Beacon {
      *
      * For example: Wifi, 4G, 3G or Edge
      */
-    let ct: String?
+    var ct: String?
 
     /**
      * The full URL for HTTP calls of all kinds.
      *
      * For example: https://stackoverflow.com/questions/4604486/how-do-i-move-an-existing-git-submodule-within-a-git-repository
      */
-    let httpurl: String?
+    var httpurl: String?
 
     /**
      * The request's http method.
      *
      * For example: POST
      */
-    let httpm: String?
+    var httpm: String?
 
     /**
      * HTTP status code
@@ -189,7 +202,7 @@ struct Beacon {
      *
      * For example: 404
      */
-    let httpscode: Int?
+    var httpscode: Int?
 
     /**
      * errorMessage
@@ -198,7 +211,7 @@ struct Beacon {
      *
      * For example: "Error: Could not start a payment request."
      */
-    let em: String?
+    var em: String?
 
     /**
      * errorType
@@ -208,6 +221,6 @@ struct Beacon {
      *
      * For example: "NetworkError.timeout"
      */
-    let et: String?
+    var et: String?
 }
 
