@@ -10,46 +10,43 @@ import Foundation
 extension Beacon {
 
     static func create(from event: Event) -> Beacon {
+        var beacon = Beacon.create(event)
         switch event {
         case let e as HTTPEvent:
-            return http(e)
+            beacon.append(e)
         case let e as AlertEvent:
-            return alert(e)
+            beacon.append(e)
         case let e as CustomEvent:
-            return custom(e)
+            beacon.append(e)
         case let e as SessionProfileEvent:
-            return sessionProfile(e)
+            beacon.append(e)
         default:
             assertionFailure("Event <-> Beacon mapping for event \(event) not defined")
-            return Beacon.create(event)
+            break
         }
+        return beacon
     }
 
     static func create(_ event: Event) -> Beacon {
-        Beacon(maid: "Some", ti: event.timestamp, sid: event.sessionId, bid: event.eventId ?? UUID().uuidString, buid: InstanaSystemUtils.applicationBundleIdentifier, lg: Locale.current.languageCode ?? "na", ab: InstanaSystemUtils.applicationBuildNumber, av: InstanaSystemUtils.applicationVersion, osn: InstanaSystemUtils.systemName, osv: InstanaSystemUtils.systemVersion, dmo: InstanaSystemUtils.deviceModel, vw: Int(InstanaSystemUtils.screenSize.width), vh: Int(InstanaSystemUtils.screenSize.height), cn: InstanaSystemUtils.carrierName, ct: InstanaSystemUtils.connectionTypeDescription)
+        Beacon(maid: "Some", ti: event.timestamp, sid: event.sessionId, bid: event.eventId ?? UUID().uuidString, buid: InstanaSystemUtils.applicationBundleIdentifier, lg: Locale.current.languageCode ?? "na", ab: InstanaSystemUtils.applicationBuildNumber, av: InstanaSystemUtils.applicationVersion, osn: InstanaSystemUtils.systemName, osv: InstanaSystemUtils.systemVersion, dmo: InstanaSystemUtils.deviceModel, ro: InstanaSystemUtils.isDeviceJailbroken, vw: Int(InstanaSystemUtils.screenSize.width), vh: Int(InstanaSystemUtils.screenSize.height), cn: InstanaSystemUtils.carrierName, ct: InstanaSystemUtils.connectionTypeDescription)
     }
 
-    static func http(_ event: HTTPEvent) -> Beacon {
-        var beacon = create(event)
-        beacon.httpurl = event.url
-        beacon.httpscode = event.responseCode
-        beacon.httpm = event.method
-        return beacon
+    mutating func append(_ event: HTTPEvent) {
+        hu = event.url
+        hp = event.path
+        hs = event.responseCode
+        hm = event.method
+        trs = event.responseSize
+        d = event.duration
     }
 
-    static func alert(_ event: AlertEvent) -> Beacon {
-        let beacon = create(event)
-        return beacon
+    mutating func append(_ event: AlertEvent) {
     }
 
-    static func custom(_ event: CustomEvent) -> Beacon {
-        let beacon = create(event)
-        return beacon
+    mutating func append(_ event: CustomEvent) {
     }
 
-    static func sessionProfile(_ event: SessionProfileEvent) -> Beacon {
-        let beacon = create(event)
-        return beacon
+    mutating func append(_ event: SessionProfileEvent) {
     }
 }
 
@@ -155,6 +152,12 @@ struct Beacon {
     var dmo: String
 
     /**
+     * Whether the mobile device is rooted / jailbroken. True indicates that the device is definitely rooted / jailbroken.
+     * False indicates that it isn't or that we could not identify the correct it.
+     */
+    var ro: Bool?
+
+    /**
      * Device screen width in pixels
      *
      * For example: 2436
@@ -187,14 +190,23 @@ struct Beacon {
      *
      * For example: https://stackoverflow.com/questions/4604486/how-do-i-move-an-existing-git-submodule-within-a-git-repository
      */
-    var httpurl: String?
+    var hu: String?
+
+    /**
+     * The path of the full URL
+     *
+     * For example: /questions/4604486/how-do-i-move-an-existing-git-submodule-within-a-git-repository
+     *
+     * Short serialization key: hp
+     */
+    var hp: String?
 
     /**
      * The request's http method.
      *
      * For example: POST
      */
-    var httpm: String?
+    var hm: String?
 
     /**
      * HTTP status code
@@ -202,7 +214,39 @@ struct Beacon {
      *
      * For example: 404
      */
-    var httpscode: Int?
+    var hs: Int?
+
+    /**
+     * The size of the encoded
+     * (e.g. zipped) HTTP response body. Does not include the size of headers. Can be equal to decodedBodySize
+     * when the response is not compressed.
+     */
+    var ebs: Int64?
+
+    /**
+     * The size of the decoded
+     * (e.g. unzipped) HTTP response body. Does not include the size of headers. Can be equal to {@link #encodedBodySize}
+     * when the response is not compressed.
+     */
+    var dbs: Int64?
+
+    /**
+     * The total size of the HTTP response
+     * including response headers and the encoded response body.
+     */
+    var trs: Int64?
+
+    /**
+     * Duration in milliseconds
+     * In case of instantaneous events, use 0.
+     *
+     */
+    var d: TimeInterval?
+
+    /**
+     * Error count
+     */
+    var ec: Int?
 
     /**
      * errorMessage
