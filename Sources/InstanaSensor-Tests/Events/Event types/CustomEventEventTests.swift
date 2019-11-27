@@ -7,7 +7,7 @@ import XCTest
 class CustomEventEventTests: XCTestCase {
 
     func test_customEventValues_shouldBeSerializedToJSON() {
-        let event = CustomEventEvent(name: "my-event", timestamp: 123, duration: 321)
+        let event = CustomEvent(name: "my-event", timestamp: 123, duration: 321)
         compareDictionaries(original: event.toJSON(), expected: [
             "sessionId": ComparisonType.nonEmptyString,
             "id": ComparisonType.nonEmptyString,
