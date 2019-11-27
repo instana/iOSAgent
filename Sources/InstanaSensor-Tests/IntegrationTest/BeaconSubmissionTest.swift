@@ -27,7 +27,7 @@ class ASyncTestCase: XCTestCase {
         mockserver = EchoWebServer()
         mockserver.start()
         expectation = expectation(description: UUID().uuidString)
-        let config = URLSessionConfiguration()
+        let config = URLSessionConfiguration.default
         session = URLSession(configuration: config)
     }
 
@@ -55,9 +55,9 @@ class ASyncTestCase: XCTestCase {
 class BeaconSubmissionTest: ASyncTestCase {
 
     func test_Network() {
-        let url = URL(string: "http://localhost:8081")!
+        let url = URL(string: "http://localhost:8080")!
         load(url: url) {result in
-            print(result)
+            XCTAssertNotNil(try? result.map {$0}.get())
         }
     }
 }
