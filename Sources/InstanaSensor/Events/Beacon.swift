@@ -280,7 +280,8 @@ extension Beacon {
 
     func cleaning<T: Any>(_ entry: T) -> T? {
         if let stringValue = entry as? String {
-            let trimmed = stringValue.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+            var trimmed = stringValue.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+            trimmed = trimmed.replacingOccurrences(of: "\t", with: "")
             return trimmed.isEmpty ? nil : trimmed as? T
         }
         return entry
