@@ -15,8 +15,8 @@ class HTTPEvent: Event {
     let responseSize: Instana.Types.Bytes
     
     init(eventId: String,
-         timestamp: Instana.Types.UTCTimestamp = Date().timeIntervalSince1970,
-         duration: Instana.Types.Milliseconds,
+         timestamp: Instana.Types.Milliseconds = Date().millisecondsSince1970,
+         duration: Instana.Types.Milliseconds = Date().millisecondsSince1970,
          method: String,
          url: String,
          connectionType: InstanaNetworkMonitor.ConnectionType?,

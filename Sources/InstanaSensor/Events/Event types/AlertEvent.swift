@@ -15,7 +15,7 @@ class AlertEvent: Event {
     init(alertType: AlertType, screen: String?) {
         self.alertType = alertType
         self.screen = screen
-        super.init(timestamp: Date().timeIntervalSince1970)
+        super.init(timestamp: Date().millisecondsSince1970)
     }
     
     override func toJSON() -> [String : Any] {

@@ -9,16 +9,19 @@ import Foundation
     public let duration: Instana.Types.Milliseconds
     
     @objc public convenience init(name: String) {
-        self.init(name: name, timestamp: Date().timeIntervalSince1970)
+        self.init(name: name, timestamp: Date().millisecondsSince1970)
     }
     
-    @objc public init(name: String, timestamp: Instana.Types.UTCTimestamp) {
+    @objc public init(name: String,
+                      timestamp: Instana.Types.Milliseconds = Date().millisecondsSince1970) {
         self.name = name
         self.duration = 0
         super.init(timestamp: timestamp)
     }
     
-    @objc public init(name: String, timestamp: Instana.Types.UTCTimestamp, duration: Instana.Types.Milliseconds) {
+    @objc public init(name: String,
+                      timestamp: Instana.Types.Milliseconds = Date().millisecondsSince1970,
+                      duration: Instana.Types.Milliseconds = Date().millisecondsSince1970) {
         self.name = name
         self.duration = duration
         super.init(timestamp: timestamp)
