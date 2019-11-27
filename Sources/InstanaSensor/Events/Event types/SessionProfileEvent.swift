@@ -18,10 +18,10 @@ class SessionProfileEvent: Event, EventResultNotifiable {
     init(retryInterval: Instana.Types.Milliseconds = 50, submitter: @escaping EventReporter.Submitter = Instana.eventReporter.submit(_:)) {
         self.retryInterval = retryInterval
         self.submitter = submitter
-        super.init(eventId: nil, timestamp: 0)
+        super.init(eventId: nil, timestamp: Date().millisecondsSince1970)
     }
     
-    private override init(sessionId: String, eventId: String?, timestamp: Instana.Types.UTCTimestamp) {
+    private override init(sessionId: String, eventId: String?, timestamp: Instana.Types.Milliseconds) {
         fatalError()
     }
     

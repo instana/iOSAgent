@@ -7,9 +7,11 @@ import Foundation
 @objc public class Event: NSObject {
     let sessionId: String
     let eventId: String?
-    let timestamp: Instana.Types.UTCTimestamp
+    let timestamp: Instana.Types.Milliseconds
     
-    init(sessionId: String = Instana.sessionId, eventId: String? = UUID().uuidString, timestamp: Instana.Types.UTCTimestamp) {
+    init(sessionId: String = Instana.sessionId,
+         eventId: String? = UUID().uuidString,
+         timestamp: Instana.Types.Milliseconds = Date().millisecondsSince1970) {
         self.sessionId = sessionId
         self.eventId = eventId
         self.timestamp = timestamp

@@ -62,9 +62,8 @@ import Foundation
 public extension Instana {
     @objc class Types: NSObject {
         private override init() {}
-        public typealias Milliseconds = Double
+        public typealias Milliseconds = Int64
         public typealias Seconds = Double
-        public typealias UTCTimestamp = TimeInterval
         public typealias Bytes = Int64
     }
 }

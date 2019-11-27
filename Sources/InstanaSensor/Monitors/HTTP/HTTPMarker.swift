@@ -22,15 +22,15 @@ protocol HTTPMarkerDelegate: class {
     let eventId = UUID().uuidString
     let trigger: Trigger
     let requestSize: Instana.Types.Bytes
-    let startTime: Instana.Types.UTCTimestamp
+    let startTime: Instana.Types.Milliseconds
     let connectionType: InstanaNetworkMonitor.ConnectionType?
     private(set) var responseSize: Instana.Types.Bytes = 0
-    private var endTime: Instana.Types.UTCTimestamp?
+    private var endTime: Instana.Types.Milliseconds?
     private(set) var state: State = .started
     private weak var delegate: HTTPMarkerDelegate?
     
     init(url: String, method: String, trigger: Trigger = .automatic, requestSize: Instana.Types.Bytes = 0, connectionType: InstanaNetworkMonitor.ConnectionType? = nil, delegate: HTTPMarkerDelegate) {
-        startTime = Date().timeIntervalSince1970
+        startTime = Date().millisecondsSince1970
         self.url = url
         self.method = method
         self.delegate = delegate
@@ -76,7 +76,7 @@ extension HTTPMarker {
         guard case .started = state else { return }
         state = .finished(responseCode: responseCode)
         self.responseSize = responseSize
-        endTime = Date().timeIntervalSince1970
+        endTime = Date().millisecondsSince1970
         delegate?.finalized(marker: self)
     }
     
@@ -89,7 +89,7 @@ extension HTTPMarker {
         guard case .started = state else { return }
         state = .failed(error: error)
         self.responseSize = responseSize
-        endTime = Date().timeIntervalSince1970
+        endTime = Date().millisecondsSince1970
         delegate?.finalized(marker: self)
     }
     
@@ -97,7 +97,7 @@ extension HTTPMarker {
     @objc public func canceled() {
         guard case .started = state else { return }
         state = .canceled
-        endTime = Date().timeIntervalSince1970
+        endTime = Date().millisecondsSince1970
         delegate?.finalized(marker: self)
     }
     
