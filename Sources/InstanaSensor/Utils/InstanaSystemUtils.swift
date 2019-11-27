@@ -68,6 +68,18 @@ class InstanaSystemUtils {
         }
     }
 
+    static var isDeviceJailbroken: Bool = {
+        var isBroken = false
+        do {
+            try "Jailbreak Test".write(toFile:"/private/.JailbreakTest.txt", atomically: true, encoding:String.Encoding.utf8)
+            isBroken = true
+        } catch {}
+        if FileManager.default.fileExists(atPath: "/private/var/lib/apt") {
+            isBroken = true
+        }
+        return isBroken
+    }()
+
     static var connectionTypeDescription: String {
         return (InstanaNetworkMonitor.shared.connectionType?.rawValue ?? "") + " - " + (cellularConnectionType ?? "")
     }
