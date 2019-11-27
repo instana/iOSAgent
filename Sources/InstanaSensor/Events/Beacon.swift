@@ -8,27 +8,8 @@
 import Foundation
 
 extension Beacon {
-
-    static func create(from event: Event) -> Beacon {
-        var beacon = Beacon.create(event)
-        switch event {
-        case let e as HTTPEvent:
-            beacon.append(e)
-        case let e as AlertEvent:
-            beacon.append(e)
-        case let e as CustomEvent:
-            beacon.append(e)
-        case let e as SessionProfileEvent:
-            beacon.append(e)
-        default:
-            assertionFailure("Event <-> Beacon mapping for event \(event) not defined")
-            break
-        }
-        return beacon
-    }
-
-    static func create(_ event: Event) -> Beacon {
-        Beacon(maid: "Some", ti: event.timestamp, sid: event.sessionId, bid: event.eventId ?? UUID().uuidString, buid: InstanaSystemUtils.applicationBundleIdentifier, lg: Locale.current.languageCode ?? "na", ab: InstanaSystemUtils.applicationBuildNumber, av: InstanaSystemUtils.applicationVersion, osn: InstanaSystemUtils.systemName, osv: InstanaSystemUtils.systemVersion, dmo: InstanaSystemUtils.deviceModel, ro: InstanaSystemUtils.isDeviceJailbroken, vw: Int(InstanaSystemUtils.screenSize.width), vh: Int(InstanaSystemUtils.screenSize.height), cn: InstanaSystemUtils.carrierName, ct: InstanaSystemUtils.connectionTypeDescription)
+    static func createDefault(_ event: Event, key: String) -> Beacon {
+        Beacon(k: key, ti: event.timestamp, sid: event.sessionId, bid: event.eventId ?? UUID().uuidString, buid: InstanaSystemUtils.applicationBundleIdentifier, lg: Locale.current.languageCode ?? "na", ab: InstanaSystemUtils.applicationBuildNumber, av: InstanaSystemUtils.applicationVersion, osn: InstanaSystemUtils.systemName, osv: InstanaSystemUtils.systemVersion, dmo: InstanaSystemUtils.deviceModel, ro: InstanaSystemUtils.isDeviceJailbroken, vw: Int(InstanaSystemUtils.screenSize.width), vh: Int(InstanaSystemUtils.screenSize.height), cn: InstanaSystemUtils.carrierName, ct: InstanaSystemUtils.connectionTypeDescription)
     }
 
     mutating func append(_ event: HTTPEvent) {
@@ -55,15 +36,16 @@ extension Beacon {
 struct Beacon {
 
     /**
-     * This is the ID under which data can be reported to Instana. This ID will be created when creating a mobile app via the UI.
+     * App Key
+     * This key is the ID under which data can be reported to Instana. This ID will be created when creating a mobile app via the UI.
      * Provided by the mobile app configuration endpoint from Groundskeeper similar to how it is done for websites.
      */
-    var maid: String
+    var k: String
 
     /**
      * The timestamp in ms when the beacon has been created
      */
-    var ti: TimeInterval
+    var ti: Int64
 
     /**
      *
@@ -241,7 +223,7 @@ struct Beacon {
      * In case of instantaneous events, use 0.
      *
      */
-    var d: TimeInterval?
+    var d: Int64?
 
     /**
      * Error count
@@ -268,3 +250,39 @@ struct Beacon {
     var et: String?
 }
 
+extension Beacon {
+
+    var keyValuePairs: String {
+        let mirror = Mirror(reflecting: self)
+        let pairs = mirror.children.compactMap { kvPair($0) }
+        return pairs.joined(separator: "\n")
+    }
+
+    // TODO: Test this
+    func kvPair(_ node: Mirror.Child) -> String? {
+        guard let key = node.label else { return nil }
+        let mirror = Mirror(reflecting: node.value)
+        if mirror.displayStyle == .optional {
+            if let unwrapped = mirror.children.first?.value {
+                return formattedKVPair(key: key, value: unwrapped)
+            } else {
+                return nil
+            }
+        } else {
+            return formattedKVPair(key: key, value: node.value)
+        }
+    }
+
+    func formattedKVPair(key: String, value: Any) -> String? {
+        guard let value = cleaning(value) else { return nil }
+        return "\(key)\t\(value)"
+    }
+
+    func cleaning<T: Any>(_ entry: T) -> T? {
+        if let stringValue = entry as? String {
+            let trimmed = stringValue.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+            return trimmed.isEmpty ? nil : trimmed as? T
+        }
+        return entry
+    }
+}
