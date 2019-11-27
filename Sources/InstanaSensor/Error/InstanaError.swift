@@ -12,6 +12,7 @@ import Foundation
         case invalidResponse
         case notAuthenticated
         case bufferOverwrite
+        case unknownType
     }
     
     init(code: Code, description: String) {
