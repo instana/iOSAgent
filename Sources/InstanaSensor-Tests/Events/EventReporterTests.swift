@@ -51,7 +51,6 @@ class EventReporterTests: XCTestCase {
         var count = 0
         let reporter = EventReporter(transmissionDelay: 0.05,
                                    transmissionLowBatteryDelay: 0.01,
-                                   eventsToRequest: { _ in URLRequest(url: URL(string: "www.a.a")!) },
                                    batterySafeForNetworking: { count += 1; return count >= 3 },
                                    load: { _, _, _ in
                                     XCTAssertEqual(count, 3)
@@ -102,7 +101,6 @@ class EventReporterTests: XCTestCase {
 extension EventReporterTests {
     func mockEventSubmission(_ loadResult: InstanaNetworking.Result, resultCallback: @escaping (EventResult) -> Void) {
         let reporter = EventReporter(transmissionDelay: 0.05,
-                                   eventsToRequest: { _ in URLRequest(url: URL(string: "www.a.a")!) },
                                    load: { _, _, callback in callback(loadResult) })
         
         reporter.submit(Event(sessionId: "SessionID", eventId: "EventID", timestamp: 1000000))

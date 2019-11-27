@@ -24,19 +24,6 @@ class SessionProfileEvent: Event, EventResultNotifiable {
     private override init(sessionId: String, eventId: String?, timestamp: Instana.Types.Milliseconds) {
         fatalError()
     }
-    
-    override func toJSON() -> [String : Any] {
-        var json = super.toJSON()
-        json["profile"] = [
-            "platform": "iOS",
-            "osLevel": InstanaSystemUtils.systemVersion,
-            "deviceType": InstanaSystemUtils.deviceModel,
-            "appVersion": InstanaSystemUtils.applicationVersion,
-            "appBuild": InstanaSystemUtils.applicationBuildNumber,
-            "clientId": InstanaSystemUtils.clientId
-        ]
-        return json
-    }
 }
 
 private extension SessionProfileEvent {

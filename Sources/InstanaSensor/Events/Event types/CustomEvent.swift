@@ -27,15 +27,15 @@ import Foundation
         super.init(timestamp: timestamp)
     }
     
-    override func toJSON() -> [String : Any] {
-        var json = super.toJSON()
-        json["event"] = [
-            "timestamp": timestamp,
-            "durationMs": duration,
-            "customEvent": [
-                "name": name
-            ]
-        ]
-        return json
-    }
+//    override func toJSON() -> [String : Any] {
+//        var json = super.toJSON()
+//        json["event"] = [
+//            "timestamp": timestamp,
+//            "durationMs": duration,
+//            "customEvent": [
+//                "name": name
+//            ]
+//        ]
+//        return json
+//    }
 }

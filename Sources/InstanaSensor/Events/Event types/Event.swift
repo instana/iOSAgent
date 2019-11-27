@@ -19,12 +19,6 @@ import Foundation
     }
     
     private override init() { fatalError() }
-    
-    func toJSON() -> [String : Any] {
-        var json = ["sessionId": sessionId]
-        json.set(ifNotNil: eventId, forKey: "id")
-        return json
-    }
 }
 
 enum EventResult {

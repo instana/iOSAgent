@@ -35,27 +35,4 @@ class HTTPEvent: Event {
         self.result = result
         super.init(eventId: eventId, timestamp: timestamp)
     }
-    
-    override func toJSON() -> [String : Any] {
-        var json = super.toJSON()
-        var remoteCall: [String: Any] = [
-            "method": method,
-            "url": url,
-            "result": result,
-            "responseCode": responseCode,
-            "requestSizeBytes": requestSize,
-            "responseSizeBytes": responseSize
-        ]
-        if let connectionType = connectionType {
-            remoteCall["connectionType"] = String(describing: connectionType)
-        }
-        remoteCall.set(ifNotNil: InstanaSystemUtils.carrierName, forKey: "carrier")
-        remoteCall.set(ifNotNil: InstanaSystemUtils.cellularConnectionType, forKey: "cellularConnectionType")
-        json["event"] = [
-            "timestamp": timestamp,
-            "durationMs": duration,
-            "remoteCall": remoteCall
-        ]
-        return json
-    }
 }
