@@ -22,7 +22,7 @@ class SessionProfileEvent: Event, EventResultNotifiable {
     }
     
     private override init(sessionId: String, eventId: String?, timestamp: Instana.Types.Milliseconds) {
-        fatalError()
+        fatalError("Wrong initializer")
     }
 }
 
