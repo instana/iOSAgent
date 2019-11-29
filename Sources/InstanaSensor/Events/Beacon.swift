@@ -9,10 +9,11 @@ import Foundation
 
 extension Beacon {
     static func createDefault(_ event: Event, key: String) -> Beacon {
-        Beacon(k: key, ti: event.timestamp, sid: event.sessionId, bid: event.eventId ?? UUID().uuidString, buid: InstanaSystemUtils.applicationBundleIdentifier, lg: Locale.current.languageCode ?? "na", ab: InstanaSystemUtils.applicationBuildNumber, av: InstanaSystemUtils.applicationVersion, osn: InstanaSystemUtils.systemName, osv: InstanaSystemUtils.systemVersion, dmo: InstanaSystemUtils.deviceModel, ro: InstanaSystemUtils.isDeviceJailbroken, vw: Int(InstanaSystemUtils.screenSize.width), vh: Int(InstanaSystemUtils.screenSize.height), cn: InstanaSystemUtils.carrierName, ct: InstanaSystemUtils.connectionTypeDescription)
+        Beacon(t: .custom, k: key, ti: event.timestamp, sid: event.sessionId, bid: event.eventId ?? UUID().uuidString, buid: InstanaSystemUtils.applicationBundleIdentifier, lg: Locale.current.languageCode ?? "na", ab: InstanaSystemUtils.applicationBuildNumber, av: InstanaSystemUtils.applicationVersion, osn: InstanaSystemUtils.systemName, osv: InstanaSystemUtils.systemVersion, dmo: InstanaSystemUtils.deviceModel, ro: InstanaSystemUtils.isDeviceJailbroken, vw: Int(InstanaSystemUtils.screenSize.width), vh: Int(InstanaSystemUtils.screenSize.height), cn: InstanaSystemUtils.carrierName, ct: InstanaSystemUtils.connectionTypeDescription)
     }
 
     mutating func append(_ event: HTTPEvent) {
+        t = .httpRequest
         hu = event.url
         hp = event.path
         hs = event.responseCode
@@ -22,18 +23,47 @@ extension Beacon {
     }
 
     mutating func append(_ event: AlertEvent) {
+        t = .custom // not yet defined
     }
 
     mutating func append(_ event: CustomEvent) {
+        t = .custom
     }
 
     mutating func append(_ event: SessionProfileEvent) {
+        if event.state == .start {
+            t = .sessionStart  // there is no such end yet
+        }
     }
 }
 
 /// The final object that is used for the submission to the Instana backend
 /// It uses short field name to reduce the transfer size
 struct Beacon {
+
+    enum `Type`: String {
+        case sessionStart
+        case httpRequest
+        case crash
+        case custom
+    }
+
+    /**
+     * The type of the beacon.
+     * Valid
+     * For example: `sessionStart`
+     */
+    var t: Type
+
+    /**
+     * The backend exposes trace IDs via the Server-Timing HTTP response header.
+     * The app needs to pick up the trace ID from this header and put it into this field.
+     * For example: Server-Timing: intid;desc=bd777df70e5e5356
+     * In this case the field should hold the value bd777df70e5e5356.
+     * This allows us to build a connection between end-user (mobile monitoring) and backend activity (tracing).
+     */
+    var bt: String?
+
 
     /**
      * App Key
