@@ -6,22 +6,6 @@ import XCTest
 
 class SessionProfileEventTests: XCTestCase {
 
-    func test_sessionProfileEventValues_shouldBeSerializedToJSON() {
-        let event = SessionProfileEvent()
-        compareDictionaries(original: event.toJSON(), expected: [
-            "sessionId": ComparisonType.nonEmptyString,
-            "id": ComparisonType.shouldBeNil,
-            "profile": [
-                "platform": "iOS",
-                "osLevel": InstanaSystemUtils.systemVersion,
-                "deviceType": InstanaSystemUtils.deviceModel,
-                "appVersion": InstanaSystemUtils.applicationVersion,
-                "appBuild": InstanaSystemUtils.applicationBuildNumber,
-                "clientId": InstanaSystemUtils.clientId
-            ]
-        ])
-    }
-    
     func test_submissionFailure_shouldRetrySubmission() {
         var count = 0
         let exp = expectation(description: "Waiting for submission")
@@ -40,7 +24,7 @@ class SessionProfileEventTests: XCTestCase {
                 XCTFail("Retried too many times: \(count)")
             }
         }
-        let event = SessionProfileEvent(retryInterval: 1, submitter: submitter)
+        let event = SessionProfileEvent(state: .start, retryInterval: 1, submitter: submitter)
         submitter(event)
         waitForExpectations(timeout: 0.05, handler: nil)
     }
