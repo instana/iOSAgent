@@ -14,8 +14,7 @@ class HTTPEvent: Event {
     let requestSize: Instana.Types.Bytes
     let responseSize: Instana.Types.Bytes
     
-    init(eventId: String,
-         timestamp: Instana.Types.Milliseconds = Date().millisecondsSince1970,
+    init(timestamp: Instana.Types.Milliseconds,
          duration: Instana.Types.Milliseconds = Date().millisecondsSince1970,
          method: String,
          url: String,
@@ -33,6 +32,6 @@ class HTTPEvent: Event {
         self.requestSize = requestSize
         self.responseSize = responseSize
         self.result = result
-        super.init(eventId: eventId, timestamp: timestamp)
+        super.init(timestamp: timestamp)
     }
 }

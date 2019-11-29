@@ -28,10 +28,10 @@ class SessionProfileEvent: Event, EventResultNotifiable {
         self.state = state
         self.retryInterval = retryInterval
         self.submitter = submitter
-        super.init(eventId: nil)
+        super.init()
     }
     
-    private override init(sessionId: String, eventId: String?, timestamp: Instana.Types.Milliseconds) {
+    private override init(timestamp: Instana.Types.Milliseconds, sessionId: String) {
         fatalError("Wrong initializer")
     }
 }
