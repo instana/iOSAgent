@@ -9,7 +9,22 @@ import Foundation
 
 extension Beacon {
     static func createDefault(_ event: Event, key: String) -> Beacon {
-        Beacon(t: .custom, k: key, ti: event.timestamp, sid: event.sessionId, bid: event.eventId ?? UUID().uuidString, buid: InstanaSystemUtils.applicationBundleIdentifier, lg: Locale.current.languageCode ?? "na", ab: InstanaSystemUtils.applicationBuildNumber, av: InstanaSystemUtils.applicationVersion, osn: InstanaSystemUtils.systemName, osv: InstanaSystemUtils.systemVersion, dmo: InstanaSystemUtils.deviceModel, ro: InstanaSystemUtils.isDeviceJailbroken, vw: Int(InstanaSystemUtils.screenSize.width), vh: Int(InstanaSystemUtils.screenSize.height), cn: InstanaSystemUtils.carrierName, ct: InstanaSystemUtils.connectionTypeDescription)
+        Beacon(t: .custom, k: key,
+               ti: event.timestamp,
+               sid: event.sessionId,
+               bid: event.eventId ?? UUID().uuidString,
+               buid: InstanaSystemUtils.applicationBundleIdentifier,
+               lg: Locale.current.languageCode ?? "na",
+               ab: InstanaSystemUtils.applicationBuildNumber,
+               av: InstanaSystemUtils.applicationVersion,
+               osn: InstanaSystemUtils.systemName,
+               osv: InstanaSystemUtils.systemVersion,
+               dmo: InstanaSystemUtils.deviceModel,
+               ro: InstanaSystemUtils.isDeviceJailbroken,
+               vw: Int(InstanaSystemUtils.screenSize.width),
+               vh: Int(InstanaSystemUtils.screenSize.height),
+               cn: InstanaSystemUtils.carrierName,
+               ct: InstanaSystemUtils.connectionTypeDescription)
     }
 
     mutating func append(_ event: HTTPEvent) {
