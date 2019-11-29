@@ -55,4 +55,22 @@ class BeaconTests: XCTestCase {
         // Then
         XCTAssertEqual(values.count, 17)
     }
+
+
+    func test_all_keys() {
+        // Given
+        let sut = Beacon.createDefault(key: "KEY123")
+        // TODO: Add all keys of Beacon
+        let expectedKeys = ["t", "bt", "k"]
+    
+        // When
+        let keys = Mirror(reflecting: sut).children.compactMap {$0.label}
+
+        // Then
+        let matchingKeys = expectedKeys.filter {key in
+            keys.contains(key)
+        }
+
+        XCTAssertEqual(expectedKeys.count, matchingKeys.count)
+    }
 }
