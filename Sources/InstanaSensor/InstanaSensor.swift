@@ -81,7 +81,7 @@ private extension Instana {
     static func setupBeaconReporter(_ config: InstanaConfiguration) {
         reporter.suspendReporting = config.suspendReporting
         reporter.bufferSize = config.eventsBufferSize
-        reporter.submit(SessionProfileEvent())
+        reporter.submit(SessionProfileEvent(state: .start))
     }
     
     static func setupRemoteCallInstrumentation(_ config: InstanaConfiguration) {

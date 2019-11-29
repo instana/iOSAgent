@@ -4,6 +4,12 @@
 import Foundation
 
 class SessionProfileEvent: Event, EventResultNotifiable {
+
+    enum State {
+        case start
+        case end
+    }
+
     var completion: CompletionBlock {
         get { return handleCompletion }
     }
@@ -14,11 +20,15 @@ class SessionProfileEvent: Event, EventResultNotifiable {
         }
     }
     private let submitter: BeaconReporter.Submitter
-    
-    init(retryInterval: Instana.Types.Milliseconds = 50, submitter: @escaping BeaconReporter.Submitter = Instana.reporter.submit(_:)) {
+    let state: State
+
+    init(state: State,
+         retryInterval: Instana.Types.Milliseconds = 50,
+         submitter: @escaping BeaconReporter.Submitter = Instana.reporter.submit(_:)) {
+        self.state = state
         self.retryInterval = retryInterval
         self.submitter = submitter
-        super.init(eventId: nil, timestamp: Date().millisecondsSince1970)
+        super.init(eventId: nil)
     }
     
     private override init(sessionId: String, eventId: String?, timestamp: Instana.Types.Milliseconds) {
