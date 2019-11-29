@@ -61,7 +61,7 @@ class InstanaConfigurationTests: XCTestCase {
         XCTAssertEqual(config?.key, "a")
         XCTAssertEqual(config?.reportingUrl, "b")
         XCTAssertEqual(config?.remoteCallInstrumentationType, HTTPMonitor.ReportingType(rawValue: 1))
-        XCTAssertEqual(config?.suspendReporting, Reporter.SuspendReporting(rawValue: 1))
+        XCTAssertEqual(config?.suspendReporting, BeaconReporter.SuspendReporting(rawValue: 1))
         XCTAssertEqual(config?.eventsBufferSize, 1000)
         XCTAssertEqual(config?.sendDeviceLocationIfAvailable, true)
         XCTAssertEqual(config?.alertApplicationNotRespondingThreshold, 2)

@@ -4,10 +4,10 @@
 import XCTest
 @testable import InstanaSensor
 
-class RemoteCallMarkerTests: XCTestCase {
+class HTTPMarkerTests: XCTestCase {
 
     func test_marker_defaultValues() {
-        let start = Date().timeIntervalSince1970
+        let start = Date().millisecondsSince1970
         let marker = HTTPMarker(url: "a", method: "b", delegate: Delegate())
         XCTAssertEqual(marker.url, "a")
         XCTAssertEqual(marker.method, "b")
@@ -50,11 +50,11 @@ class RemoteCallMarkerTests: XCTestCase {
     func test_finalizingMarker_withSuccess_shouldRetainOriginalValues() {
         let delegate = Delegate()
         let marker = HTTPMarker(url: "a", method: "b", requestSize: 4, delegate: delegate)
-        
+        wait(0.1)
         marker.endedWith(responseCode: 200, responseSize: 123)
         marker.endedWith(responseCode: 300, responseSize: 321)
         marker.canceled()
-        
+
         XCTAssertEqual(delegate.finaliedCount, 1)
         XCTAssertEqual(marker.requestSize, 4)
         XCTAssertEqual(marker.responseSize, 123)
@@ -71,7 +71,7 @@ class RemoteCallMarkerTests: XCTestCase {
         let delegate = Delegate()
         let marker = HTTPMarker(url: "a", method: "b", delegate: delegate)
         let error = CocoaError(CocoaError.coderValueNotFound)
-        
+        wait(0.1)
         marker.endedWith(error: error, responseSize: 10)
         marker.endedWith(error: CocoaError(CocoaError.coderInvalidValue), responseSize: 20)
         marker.endedWith(responseCode: 300, responseSize: 321)
@@ -90,7 +90,7 @@ class RemoteCallMarkerTests: XCTestCase {
     func test_finalizingMarker_withCancel_shouldRetainOriginalValues() {
         let delegate = Delegate()
         let marker = HTTPMarker(url: "a", method: "b", delegate: delegate)
-        
+        wait(0.1)
         marker.canceled()
         marker.canceled()
         marker.endedWith(responseCode: 300, responseSize: 321)
@@ -178,7 +178,7 @@ class RemoteCallMarkerTests: XCTestCase {
     }
 }
 
-extension RemoteCallMarkerTests {
+extension HTTPMarkerTests {
     class Delegate: HTTPMarkerDelegate {
         var finaliedCount: Int = 0
         func finalized(marker: HTTPMarker) {

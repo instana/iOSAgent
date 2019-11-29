@@ -19,6 +19,14 @@ extension XCTestCase {
         }
         return url
     }
+
+    func wait(_ duration: TimeInterval, timeout: TimeInterval = 60.0) {
+        let waiting = expectation(description: "waitfor")
+        DispatchQueue.main.asyncAfter(deadline: .now() + duration) {
+            waiting.fulfill()
+        }
+        wait(for: [waiting], timeout: timeout)
+    }
 }
 
 extension XCTestCase {

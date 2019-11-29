@@ -17,7 +17,7 @@ class ReporterTests: XCTestCase {
     }
 
     func test_internalTimer_shouldNotCauseRetainCycle() {
-        var reporter: Reporter? = Reporter(transmissionDelay: 0.01) { _, _, _ in}
+        var reporter: BeaconReporter? = BeaconReporter(transmissionDelay: 0.01) { _, _, _ in}
         weak var weakReporter = reporter
         let exp = expectation(description: "Delay")
         
@@ -34,12 +34,12 @@ class ReporterTests: XCTestCase {
     func test_changingBuffer_sendsQueuedEvents() {
         let exp = expectation(description: "test_changingBuffer_sendsQueuedEvents")
         var requestMade = false
-        let reporter = Reporter(transmissionDelay: 10) { _, _, _ in
+        let reporter = BeaconReporter(transmissionDelay: 10) { _, _, _ in
             requestMade = true
             exp.fulfill()
         }
         
-        reporter.submit(Event(timestamp: 0))
+        reporter.submit(CustomEvent(name: "Custom"))
         reporter.bufferSize = 10
 
         waitForExpectations(timeout: 0.2, handler: nil)
@@ -49,12 +49,12 @@ class ReporterTests: XCTestCase {
     func test_delayEventSubmission_onLowBattery() {
         let exp = expectation(description: "Delayed sending")
         var count = 0
-        let reporter = Reporter(transmissionDelay: 0.05,
-                                   transmissionLowBatteryDelay: 0.01,
-                                   batterySafeForNetworking: { count += 1; return count >= 3 },
-                                   load: { _, _, _ in
-                                    XCTAssertEqual(count, 3)
-                                    exp.fulfill()
+        let reporter = BeaconReporter(transmissionDelay: 0.05,
+                                      transmissionLowBatteryDelay: 0.01,
+                                      batterySafeForNetworking: { count += 1; return count >= 3 },
+                                      load: { _, _, _ in
+                                        XCTAssertEqual(count, 3)
+                                        exp.fulfill()
         })
         reporter.suspendReporting = .lowBattery
         
@@ -100,8 +100,8 @@ class ReporterTests: XCTestCase {
 
 extension ReporterTests {
     func mockEventSubmission(_ loadResult: InstanaNetworking.Result, resultCallback: @escaping (EventResult) -> Void) {
-        let reporter = Reporter(transmissionDelay: 0.05,
-                                   load: { _, _, callback in callback(loadResult) })
+        let reporter = BeaconReporter(transmissionDelay: 0.05,
+                                      load: { _, _, callback in callback(loadResult) })
         
         reporter.submit(Event(sessionId: "SessionID", eventId: "EventID", timestamp: 1000000))
     }

@@ -23,7 +23,7 @@ let package = Package(
             name: "InstanaSensor",
             dependencies: ["Gzip"]),
         .testTarget(
-            name: "InstanaSensor-Tests",
+            name: "InstanaSensorTests",
             dependencies: ["InstanaSensor"]),
     ]
 )

@@ -30,7 +30,7 @@ protocol HTTPMarkerDelegate: class {
     private weak var delegate: HTTPMarkerDelegate?
     
     init(url: String, method: String, trigger: Trigger = .automatic, requestSize: Instana.Types.Bytes = 0, connectionType: InstanaNetworkMonitor.ConnectionType? = nil, delegate: HTTPMarkerDelegate) {
-        startTime = Date().millisecondsSince1970
+        self.startTime = Date().millisecondsSince1970
         self.url = url
         self.method = method
         self.delegate = delegate
@@ -105,7 +105,7 @@ extension HTTPMarker {
     ///
     /// Duration of the request. Available after one of the completion method has been invoked.
     @objc public func duration() -> Instana.Types.Milliseconds {
-        guard let endTime = endTime else { return 0 }
+        guard let endTime = self.endTime else { return 0 }
         return Instana.Types.Milliseconds(endTime - startTime)
     }
 }
