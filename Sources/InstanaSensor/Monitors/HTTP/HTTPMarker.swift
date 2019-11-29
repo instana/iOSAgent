@@ -128,14 +128,14 @@ extension HTTPMarker {
         }
 
         return HTTPEvent(eventId: eventId,
-                                      timestamp: startTime,
-                                      duration: duration(),
-                                      method: method,
-                                      url: url,
-                                      connectionType: connectionType,
-                                      responseCode: responseCode ?? -1,
-                                      requestSize: requestSize,
-                                      responseSize: responseSize,
-                                      result: result)
+                         timestamp: startTime,
+                         duration: duration(),
+                         method: method,
+                         url: url,
+                         connectionType: connectionType,
+                         responseCode: responseCode ?? -1,
+                         requestSize: requestSize,
+                         responseSize: responseSize,
+                         result: result)
     }
 }

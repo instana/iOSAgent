@@ -7,35 +7,10 @@ import Foundation
 @objc public class CustomEvent: Event {
     public let name: String
     public let duration: Instana.Types.Milliseconds
-    
-    @objc public convenience init(name: String) {
-        self.init(name: name, timestamp: Date().millisecondsSince1970)
-    }
-    
-    @objc public init(name: String,
-                      timestamp: Instana.Types.Milliseconds = Date().millisecondsSince1970) {
-        self.name = name
-        self.duration = 0
-        super.init(timestamp: timestamp)
-    }
-    
-    @objc public init(name: String,
-                      timestamp: Instana.Types.Milliseconds = Date().millisecondsSince1970,
-                      duration: Instana.Types.Milliseconds = Date().millisecondsSince1970) {
+
+    @objc public init(name: String, duration: Instana.Types.Milliseconds = Date().millisecondsSince1970) {
         self.name = name
         self.duration = duration
-        super.init(timestamp: timestamp)
+        super.init()
     }
-    
-//    override func toJSON() -> [String : Any] {
-//        var json = super.toJSON()
-//        json["event"] = [
-//            "timestamp": timestamp,
-//            "durationMs": duration,
-//            "customEvent": [
-//                "name": name
-//            ]
-//        ]
-//        return json
-//    }
 }
