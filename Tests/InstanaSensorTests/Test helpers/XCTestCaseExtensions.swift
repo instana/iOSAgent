@@ -29,6 +29,18 @@ extension XCTestCase {
     }
 }
 
+func AssertEqualAndNotNil<T: Equatable>(_ expression1: @autoclosure () throws -> T, _ expression2: @autoclosure () throws -> T, _ message: @autoclosure () -> String = "", file: StaticString = #file, line: UInt = #line) {
+    XCTAssertEqual(try expression1(), try expression2(), message(), file: file, line: line)
+    XCTAssertNotNil(try expression1())
+    XCTAssertNotNil(try expression2())
+}
+
+func AssertEqualAndNotZero<T: Numeric & Comparable>(_ expression1: @autoclosure () throws -> T, _ expression2: @autoclosure () throws -> T, _ message: @autoclosure () -> String = "", file: StaticString = #file, line: UInt = #line) {
+    XCTAssertTrue(try expression1() > 0)
+    XCTAssertTrue(try expression2() > 0)
+    XCTAssertEqual(try expression1(), try expression2(), message(), file: file, line: line)
+}
+
 extension XCTestCase {
     enum ComparisonType {
         case shouldBeNil

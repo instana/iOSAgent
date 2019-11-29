@@ -5,15 +5,15 @@ import Foundation
 
 /// Base class for events. 
 @objc public class Event: NSObject {
-    let sessionId: String
-    let eventId: String?
+
     let timestamp: Instana.Types.Milliseconds
-    
-    init(sessionId: String = Instana.sessionId,
-         eventId: String? = UUID().uuidString,
-         timestamp: Instana.Types.Milliseconds = Date().millisecondsSince1970) {
+    let sessionId: String
+    let eventId: String
+
+    init(timestamp: Instana.Types.Milliseconds = Date().millisecondsSince1970,
+         sessionId: String = Instana.sessionId) {
         self.sessionId = sessionId
-        self.eventId = eventId
+        self.eventId = UUID().uuidString
         self.timestamp = timestamp
         super.init()
     }

@@ -4,7 +4,7 @@
 import XCTest
 @testable import InstanaSensor
 
-class ReporterTests: XCTestCase {
+class BeaconReporterTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
@@ -98,11 +98,11 @@ class ReporterTests: XCTestCase {
     }
 }
 
-extension ReporterTests {
+extension BeaconReporterTests {
     func mockEventSubmission(_ loadResult: InstanaNetworking.Result, resultCallback: @escaping (EventResult) -> Void) {
         let reporter = BeaconReporter(transmissionDelay: 0.05,
                                       load: { _, _, callback in callback(loadResult) })
         
-        reporter.submit(Event(sessionId: "SessionID", eventId: "EventID", timestamp: 1000000))
+        reporter.submit(Event(timestamp: 1000000, sessionId: "SessionID"))
     }
 }

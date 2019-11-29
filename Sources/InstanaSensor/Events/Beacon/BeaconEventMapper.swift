@@ -14,8 +14,12 @@ class BeaconEventMapper {
         self.key = key
     }
 
+    func map(_ events: [Event]) throws -> [Beacon] {
+        return try events.map { try map($0)}
+    }
+
     func map(_ event: Event) throws -> Beacon {
-        var beacon = createBeacon(event, key: key)
+        var beacon = Beacon.createDefault(key: key, timestamp: event.timestamp, sessionId: event.sessionId, eventId: event.eventId)
         switch event {
         case let e as HTTPEvent:
             beacon.append(e)
@@ -27,34 +31,10 @@ class BeaconEventMapper {
             beacon.append(e)
         default:
             let message = "Event <-> Beacon mapping for event \(event) not defined"
-            assertionFailure(message)
+            debugAssertFailure(message)
             throw InstanaError(code: .unknownType, description: message)
         }
         return beacon
-    }
-
-    func map(_ events: [Event]) throws -> [Beacon] {
-        return try events.map { try map($0)}
-    }
-
-    private func createBeacon(_ event: Event, key: String) -> Beacon {
-        Beacon(t: .custom,
-               k: key,
-               ti: event.timestamp,
-               sid: event.sessionId,
-               bid: event.eventId ?? UUID().uuidString,
-               buid: InstanaSystemUtils.applicationBundleIdentifier,
-               lg: Locale.current.languageCode ?? "na",
-               ab: InstanaSystemUtils.applicationBuildNumber,
-               av: InstanaSystemUtils.applicationVersion,
-               osn: InstanaSystemUtils.systemName,
-               osv: InstanaSystemUtils.systemVersion,
-               dmo: InstanaSystemUtils.deviceModel,
-               ro: InstanaSystemUtils.isDeviceJailbroken,
-               vw: Int(InstanaSystemUtils.screenSize.width),
-               vh: Int(InstanaSystemUtils.screenSize.height),
-               cn: InstanaSystemUtils.carrierName,
-               ct: InstanaSystemUtils.connectionTypeDescription)
     }
 }
 
@@ -86,26 +66,35 @@ extension Beacon {
 }
 
 extension Beacon {
+    static func createDefault(key: String,
+                              timestamp: Instana.Types.Milliseconds = Date().millisecondsSince1970,
+                              sessionId: String = UUID().uuidString,
+                              eventId: String = UUID().uuidString) -> Beacon {
+        Beacon(k: key,
+        ti: timestamp,
+        sid: sessionId,
+        bid: eventId,
+        buid: InstanaSystemUtils.applicationBundleIdentifier,
+        lg: Locale.current.languageCode ?? "na",
+        ab: InstanaSystemUtils.applicationBuildNumber,
+        av: InstanaSystemUtils.applicationVersion,
+        osn: InstanaSystemUtils.systemName,
+        osv: InstanaSystemUtils.systemVersion,
+        dmo: InstanaSystemUtils.deviceModel,
+        ro: InstanaSystemUtils.isDeviceJailbroken,
+        vw: Int(InstanaSystemUtils.screenSize.width),
+        vh: Int(InstanaSystemUtils.screenSize.height),
+        cn: InstanaSystemUtils.carrierName,
+        ct: InstanaSystemUtils.connectionTypeDescription)
+    }
+}
+
+extension Beacon {
 
     var keyValuePairs: String {
         let mirror = Mirror(reflecting: self)
-        let pairs = mirror.children.compactMap { kvPair($0) }
+        let pairs = mirror.nonNilChildren.compactMap { formattedKVPair(key: $0.label, value: $0.value)}
         return pairs.joined(separator: "\n")
-    }
-
-    // TODO: Test this
-    func kvPair(_ node: Mirror.Child) -> String? {
-        guard let key = node.label else { return nil }
-        let mirror = Mirror(reflecting: node.value)
-        if mirror.displayStyle == .optional {
-            if let unwrapped = mirror.children.first?.value {
-                return formattedKVPair(key: key, value: unwrapped)
-            } else {
-                return nil
-            }
-        } else {
-            return formattedKVPair(key: key, value: node.value)
-        }
     }
 
     func formattedKVPair(key: String, value: Any) -> String? {

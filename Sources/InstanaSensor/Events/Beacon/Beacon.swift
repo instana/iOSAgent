@@ -12,6 +12,7 @@ import Foundation
 struct Beacon {
 
     enum `Type`: String {
+        case undefined
         case sessionStart
         case httpRequest
         case crash
@@ -20,12 +21,16 @@ struct Beacon {
 
     /**
      * The type of the beacon.
-     * Valid
+     *
      * For example: `sessionStart`
+     *
+     * Default: undefined
      */
-    var t: Type
+    var t: Type = .undefined
 
     /**
+     * Backend Tracing ID
+     *
      * The backend exposes trace IDs via the Server-Timing HTTP response header.
      * The app needs to pick up the trace ID from this header and put it into this field.
      * For example: Server-Timing: intid;desc=bd777df70e5e5356
@@ -37,60 +42,80 @@ struct Beacon {
 
     /**
      * App Key
+     *
      * This key is the ID under which data can be reported to Instana. This ID will be created when creating a mobile app via the UI.
      * Provided by the mobile app configuration endpoint from Groundskeeper similar to how it is done for websites.
      */
     var k: String
 
     /**
+     * Timestamp
+     *
      * The timestamp in ms when the beacon has been created
      */
     var ti: Int64
 
     /**
+     * Session ID
      *
-     * Session ID (UUID) will be created after each app after each app launch.
+     * The Session ID (UUID) will be created after each app after each app launch.
      * Each Session ID has a timeout of XY seconds.
      * The Session ID must not be empty.
      */
     var sid: String
 
     /**
-     * Beacon ID: An unique UUID for each beaon.
+     * Beacon ID
+     *
+     * An unique UUID for each beaon.
      * The app needs to set the Beacon ID when creating a beacon.
      */
     var bid: String
 
     /**
-     * Bundle ID: The unique bundle identifier for the app.
+     * Bundle ID
+     *
+     * The unique bundle identifier for the app.
      * For example: com.instana.ios.app
      */
     var buid: String
 
     /**
+     * User ID
+     *
      * An identifier for the user.
+     *
+     * optional
      */
     var userId: String?
 
     /**
-     * The user name. (optional)
+     * User name.
+     *
+     * optional
      */
     var userName: String?
 
     /**
-     * The user’s email address.
+     * User’s email address.
+     *
+     * optional
      */
     var ue: String?
 
     /**
-     * The current selected language for the app
+     * Current selected language for the app
      * The language is described using BCP 47 language tags.
      *
      * For example: en-US"
+     *
+     * optional
      */
     var lg: String
 
     /**
+     * Build version
+     *
      * Build version specifies build number of the bundle, which identifies an iteration (released or unreleased) of the bundle
      * The build version is unique for each app version and should be incremented on each deployed build.
      *
@@ -99,6 +124,8 @@ struct Beacon {
     var ab: String
 
     /**
+     * App version
+     *
      * AppVersion specifies the version for each store release. The AppVersion should conform to the semantic versioning.
      *
      * For example: 1.3.1
@@ -106,7 +133,7 @@ struct Beacon {
     var av: String
 
     /**
-     * The name of the OS platform
+     * Name of the OS platform
      *
      * For example: iOS or tvOS
      */
@@ -120,14 +147,14 @@ struct Beacon {
     var osv: String
 
     /**
-     * The device manufacturer
+     * Device manufacturer
      *
      * For example: Apple
      */
     var dmf: String = "Apple"
 
     /**
-     * The device model
+     * Device model
      *
      * For example: iPhone12,5  (iPhone 11 Pro Max)
      */
@@ -154,21 +181,21 @@ struct Beacon {
     var vh: Int
 
     /**
-     * The cellular carrier name
+     * Cellular carrier name
      *
      * For example: Deutsche Telekom, Sprint, Verizon
      */
     var cn: String?
 
     /**
-     * The connection type
+     * Connection type
      *
      * For example: Wifi, 4G, 3G or Edge
      */
     var ct: String?
 
     /**
-     * The full URL for HTTP calls of all kinds.
+     * Full URL for HTTP calls of all kinds.
      *
      * For example: https://stackoverflow.com/questions/4604486/how-do-i-move-an-existing-git-submodule-within-a-git-repository
      */
@@ -184,7 +211,7 @@ struct Beacon {
     var hp: String?
 
     /**
-     * The request's http method.
+     * Http method.
      *
      * For example: POST
      */
@@ -192,6 +219,7 @@ struct Beacon {
 
     /**
      * HTTP status code
+     *
      * Zero means that the value wasn't recorded.
      *
      * For example: 404
@@ -199,27 +227,31 @@ struct Beacon {
     var hs: Int?
 
     /**
-     * The size of the encoded
+     * Size of the encoded
+     *
      * (e.g. zipped) HTTP response body. Does not include the size of headers. Can be equal to decodedBodySize
      * when the response is not compressed.
      */
     var ebs: Int64?
 
     /**
-     * The size of the decoded
+     * Size of the decoded
+     *
      * (e.g. unzipped) HTTP response body. Does not include the size of headers. Can be equal to {@link #encodedBodySize}
      * when the response is not compressed.
      */
     var dbs: Int64?
 
     /**
-     * The total size of the HTTP response
+     * Total size of the HTTP response
+     *
      * including response headers and the encoded response body.
      */
     var trs: Int64?
 
     /**
      * Duration in milliseconds
+     *
      * In case of instantaneous events, use 0.
      *
      */
@@ -231,7 +263,7 @@ struct Beacon {
     var ec: Int?
 
     /**
-     * errorMessage
+     * ErrorMessage
      *
      * An arbitrary error message sent by the app.
      *
@@ -240,7 +272,7 @@ struct Beacon {
     var em: String?
 
     /**
-     * errorType
+     * ErrorType
      *
      * Type of the error
      * For iOS: You could use the ErrorDomain or the Swift Error enum case

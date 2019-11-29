@@ -19,7 +19,6 @@ protocol HTTPMarkerDelegate: class {
     }
     let url: String
     let method: String
-    let eventId = UUID().uuidString
     let trigger: Trigger
     let requestSize: Instana.Types.Bytes
     let startTime: Instana.Types.Milliseconds
@@ -41,31 +40,32 @@ protocol HTTPMarkerDelegate: class {
 }
 
 extension HTTPMarker {
-    
-    /// Adds tracking headers to a mutable url request.
-    ///
-    /// This should be used when manually instrumenting calls to a backend that has Instana tracing.
-    /// - Parameter request: Request that will be modified to include tracking headers.
-    @objc public func addTrackingHeaders(to request: NSMutableURLRequest?) {
-        guard let request = request else { return }
-        headers.forEach { (key, value) in request.addValue(value, forHTTPHeaderField: key) }
-    }
-    
-    /// Adds tracking headers to a url request.
-    ///
-    /// This should be used when manually instrumenting calls to a backend that has Instana tracing.
-    /// - Parameter request: Request that will be modified to include tracking headers.
-    public func addTrackingHeaders(to request: inout URLRequest) {
-        headers.forEach { (key, value) in request.addValue(value, forHTTPHeaderField: key) }
-    }
-    
-    /// If you are not using `URLRequest` or `NSMutableURLRequest` you can add these values to your request headers
-    /// when making calls to a backend that has Instana.
-    @objc public var headers: [String: String] {
-        get {
-            return ["X-INSTANA-T": eventId]
-        }
-    }
+
+//    TODO: what is the following for?? can be removed?
+//    /// Adds tracking headers to a mutable url request.
+//    ///
+//    /// This should be used when manually instrumenting calls to a backend that has Instana tracing.
+//    /// - Parameter request: Request that will be modified to include tracking headers.
+//    @objc public func addTrackingHeaders(to request: NSMutableURLRequest?) {
+//        guard let request = request else { return }
+//        headers.forEach { (key, value) in request.addValue(value, forHTTPHeaderField: key) }
+//    }
+//
+//    /// Adds tracking headers to a url request.
+//    ///
+//    /// This should be used when manually instrumenting calls to a backend that has Instana tracing.
+//    /// - Parameter request: Request that will be modified to include tracking headers.
+//    public func addTrackingHeaders(to request: inout URLRequest) {
+//        headers.forEach { (key, value) in request.addValue(value, forHTTPHeaderField: key) }
+//    }
+//
+//    /// If you are not using `URLRequest` or `NSMutableURLRequest` you can add these values to your request headers
+//    /// when making calls to a backend that has Instana.
+//    @objc public var headers: [String: String] {
+//        get {
+//            return ["X-INSTANA-T": eventId]
+//        }
+//    }
     
     /// Invoke this method after the request has successfuly finished.
     ///
@@ -127,8 +127,7 @@ extension HTTPMarker {
             result = String(describing: error)
         }
 
-        return HTTPEvent(eventId: eventId,
-                         timestamp: startTime,
+        return HTTPEvent(timestamp: startTime,
                          duration: duration(),
                          method: method,
                          url: url,
