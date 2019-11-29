@@ -144,9 +144,9 @@ private extension BeaconReporter {
         urlRequest.httpMethod = "POST"
         urlRequest.addValue("text/plain", forHTTPHeaderField: "Content-Type")
 
-        let beacons = try BeaconMapper(key: key).multiple(from: events)
-        let keyValuePairs = beacons.map({$0.keyValuePairs}).joined(separator: "\n\n")
-        let data = keyValuePairs.data(using: .utf8)
+        let beacons = try BeaconEventMapper(key: key).map(events)
+        let pairs = beacons.plainKeyValuePairs.joined(separator: "\n\n")
+        let data = pairs.data(using: .utf8)
 
         if let gzippedData = try? data?.gzipped(level: .bestCompression){
             urlRequest.httpBody = gzippedData
