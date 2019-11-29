@@ -2,6 +2,7 @@
 //  Copyright © 2018 Nikola Lajic. All rights reserved.
 
 import Foundation
+import Gzip
 
 /// Reporter to manager and send out the events
 @objc public class EventReporter: NSObject {
@@ -147,15 +148,13 @@ private extension EventReporter {
         let keyValuePairs = beacons.map({$0.keyValuePairs}).joined(separator: "\n\n")
         let data = keyValuePairs.data(using: .utf8)
 
-        // TODO: Zipping comes later
-        //        if let gzippedData = try? compress(data) {
-        //            urlRequest.httpBody = gzippedData
-        //            urlRequest.setValue("gzip", forHTTPHeaderField: "Content-Encoding")
-        //            urlRequest.setValue("\(gzippedData.count)", forHTTPHeaderField: "Content-Length")
-        //        } else {
-        //            urlRequest.httpBody = data
-        //        }
-        urlRequest.httpBody = data
+        if let gzippedData = try? data?.gzipped(level: .bestCompression){
+            urlRequest.httpBody = gzippedData
+            urlRequest.setValue("gzip", forHTTPHeaderField: "Content-Encoding")
+            urlRequest.setValue("\(gzippedData.count)", forHTTPHeaderField: "Content-Length")
+        } else {
+            urlRequest.httpBody = data
+        }
 
         return urlRequest
     }
