@@ -4,7 +4,7 @@
 import XCTest
 @testable import InstanaSensor
 
-class EventReporterTests: XCTestCase {
+class ReporterTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
@@ -17,7 +17,7 @@ class EventReporterTests: XCTestCase {
     }
 
     func test_internalTimer_shouldNotCauseRetainCycle() {
-        var reporter: EventReporter? = EventReporter(transmissionDelay: 0.01) { _, _, _ in}
+        var reporter: Reporter? = Reporter(transmissionDelay: 0.01) { _, _, _ in}
         weak var weakReporter = reporter
         let exp = expectation(description: "Delay")
         
@@ -34,7 +34,7 @@ class EventReporterTests: XCTestCase {
     func test_changingBuffer_sendsQueuedEvents() {
         let exp = expectation(description: "test_changingBuffer_sendsQueuedEvents")
         var requestMade = false
-        let reporter = EventReporter(transmissionDelay: 10) { _, _, _ in
+        let reporter = Reporter(transmissionDelay: 10) { _, _, _ in
             requestMade = true
             exp.fulfill()
         }
@@ -49,7 +49,7 @@ class EventReporterTests: XCTestCase {
     func test_delayEventSubmission_onLowBattery() {
         let exp = expectation(description: "Delayed sending")
         var count = 0
-        let reporter = EventReporter(transmissionDelay: 0.05,
+        let reporter = Reporter(transmissionDelay: 0.05,
                                    transmissionLowBatteryDelay: 0.01,
                                    batterySafeForNetworking: { count += 1; return count >= 3 },
                                    load: { _, _, _ in
@@ -98,9 +98,9 @@ class EventReporterTests: XCTestCase {
     }
 }
 
-extension EventReporterTests {
+extension ReporterTests {
     func mockEventSubmission(_ loadResult: InstanaNetworking.Result, resultCallback: @escaping (EventResult) -> Void) {
-        let reporter = EventReporter(transmissionDelay: 0.05,
+        let reporter = Reporter(transmissionDelay: 0.05,
                                    load: { _, _, callback in callback(loadResult) })
         
         reporter.submit(Event(sessionId: "SessionID", eventId: "EventID", timestamp: 1000000))

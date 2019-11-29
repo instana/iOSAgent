@@ -13,7 +13,7 @@ class FramerateDropMonitor {
         }
     }
     
-    private let submitter: EventReporter.Submitter
+    private let submitter: BeaconReporter.Submitter
     private let threshold: UInt
     private let displayLink: CADisplayLink
     private let samplingInterval: Instana.Types.Seconds
@@ -25,7 +25,7 @@ class FramerateDropMonitor {
     
     private init() { fatalError() }
     
-    init(threshold: UInt, samplingInterval: Instana.Types.Seconds = 1, submitter: @escaping EventReporter.Submitter = Instana.eventReporter.submit(_:)) {
+    init(threshold: UInt, samplingInterval: Instana.Types.Seconds = 1, submitter: @escaping BeaconReporter.Submitter = Instana.reporter.submit(_:)) {
         self.submitter = submitter
         self.samplingInterval = samplingInterval
         self.threshold = threshold

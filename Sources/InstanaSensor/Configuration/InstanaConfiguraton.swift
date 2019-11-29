@@ -8,7 +8,7 @@ struct InstanaConfiguration {
         static let reportingUrl = "http://localhost:3000"
         static let remoteCallInstrumentationType = HTTPMonitor.ReportingType.automaticAndManual
         static let eventsBufferSize = 200
-        static let suspendReporting = EventReporter.SuspendReporting.never
+        static let suspendReporting = BeaconReporter.SuspendReporting.never
         static let sendDeviceLocationIfAvailable = false
         static let alertApplicationNotRespondingThreshold: Instana.Types.Seconds? = nil
         static let alertLowMemory = false
@@ -18,7 +18,7 @@ struct InstanaConfiguration {
     let reportingUrl: String
     let key: String
     let remoteCallInstrumentationType: HTTPMonitor.ReportingType
-    let suspendReporting: EventReporter.SuspendReporting
+    let suspendReporting: BeaconReporter.SuspendReporting
     let eventsBufferSize: Int
     let sendDeviceLocationIfAvailable: Bool // TODO: implement
     let alertApplicationNotRespondingThreshold: Instana.Types.Seconds?

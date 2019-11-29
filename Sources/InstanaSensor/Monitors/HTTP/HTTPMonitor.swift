@@ -32,12 +32,12 @@ import Foundation
     
     private let installer: (AnyClass) -> Bool
     private let uninstaller: (AnyClass) -> Void
-    private let submitter: EventReporter.Submitter
+    private let submitter: BeaconReporter.Submitter
     private let networkConnectionType: () -> InstanaNetworkMonitor.ConnectionType?
     
     init(installer: @escaping (AnyClass) -> Bool = URLProtocol.registerClass,
          uninstaller: @escaping (AnyClass) -> Void = URLProtocol.unregisterClass,
-         submitter: @escaping EventReporter.Submitter = Instana.eventReporter.submit(_:),
+         submitter: @escaping BeaconReporter.Submitter = Instana.reporter.submit(_:),
          networkConnectionType: @escaping () -> InstanaNetworkMonitor.ConnectionType? = { InstanaNetworkMonitor.shared.connectionType } ) {
         self.installer = installer
         self.uninstaller = uninstaller
