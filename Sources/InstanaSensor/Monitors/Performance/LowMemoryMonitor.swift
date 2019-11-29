@@ -6,9 +6,9 @@ import UIKit
 
 class LowMemoryMonitor {
     
-    let submitter: EventReporter.Submitter
+    let submitter: BeaconReporter.Submitter
     
-    init(submitter: @escaping EventReporter.Submitter = Instana.eventReporter.submit(_:)) {
+    init(submitter: @escaping BeaconReporter.Submitter = Instana.reporter.submit(_:)) {
         self.submitter = submitter
         NotificationCenter.default.addObserver(self, selector: #selector(onLowMemoryWarning(notification:)), name: UIApplication.didReceiveMemoryWarningNotification, object: nil)
     }

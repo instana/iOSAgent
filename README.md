@@ -64,7 +64,7 @@ All communication to the Instana backend is done trough events.
 If you wish to mark a specific event in your application, you can use a custom event to send it to Instana.
 
 	let event = CustomEventEvent(name: "my-custom-event", timestamp: Date().timeIntervalSince1970, duration: 2.5)
-    Instana.eventReporter.submit(event)
+    Instana.reporter.submit(event)
     
 > `timestamp` and `duration` are optional for custom events.
 

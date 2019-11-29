@@ -13,9 +13,9 @@ class SessionProfileEvent: Event, EventResultNotifiable {
             if retryInterval > maxRetryInterval { retryInterval = maxRetryInterval }
         }
     }
-    private let submitter: EventReporter.Submitter
+    private let submitter: BeaconReporter.Submitter
     
-    init(retryInterval: Instana.Types.Milliseconds = 50, submitter: @escaping EventReporter.Submitter = Instana.eventReporter.submit(_:)) {
+    init(retryInterval: Instana.Types.Milliseconds = 50, submitter: @escaping BeaconReporter.Submitter = Instana.reporter.submit(_:)) {
         self.retryInterval = retryInterval
         self.submitter = submitter
         super.init(eventId: nil, timestamp: Date().millisecondsSince1970)

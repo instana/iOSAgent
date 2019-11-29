@@ -13,7 +13,7 @@ import Foundation
     @objc public static let alerts = InstanaAlerts()
     
     /// Object to manage and report events.
-    @objc public static let eventReporter = EventReporter()
+    @objc public static let reporter = BeaconReporter()
 
     /// Object acting as a namespace for configuring and using remote call instrumentation.
     @objc public static let remoteCallInstrumentation = HTTPMonitor()
@@ -73,15 +73,15 @@ private extension Instana {
         key = config.key
         reportingUrl = config.reportingUrl
         
-        setupEventReporter(config)
+        setupBeaconReporter(config)
         setupRemoteCallInstrumentation(config)
         setupAlerts(config)
     }
     
-    static func setupEventReporter(_ config: InstanaConfiguration) {
-        eventReporter.suspendReporting = config.suspendReporting
-        eventReporter.bufferSize = config.eventsBufferSize
-        eventReporter.submit(SessionProfileEvent())
+    static func setupBeaconReporter(_ config: InstanaConfiguration) {
+        reporter.suspendReporting = config.suspendReporting
+        reporter.bufferSize = config.eventsBufferSize
+        reporter.submit(SessionProfileEvent())
     }
     
     static func setupRemoteCallInstrumentation(_ config: InstanaConfiguration) {

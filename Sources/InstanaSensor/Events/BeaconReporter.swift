@@ -4,8 +4,8 @@
 import Foundation
 import Gzip
 
-/// Reporter to manager and send out the events
-@objc public class EventReporter: NSObject {
+/// BeaconReporter to manager and send out the events
+@objc public class BeaconReporter: NSObject {
     
     typealias Submitter = (Event) -> Void
     typealias Loader = (URLRequest, Bool, @escaping (InstanaNetworking.Result) -> Void) -> Void
@@ -67,7 +67,7 @@ import Gzip
     }
 }
 
-private extension EventReporter {
+private extension BeaconReporter {
     func sendBuffer() {
         self.timer?.invalidate()
         self.timer = nil
@@ -90,13 +90,13 @@ private extension EventReporter {
     }
 }
 
-extension EventReporter: InstanaTimerProxiedTarget {
+extension BeaconReporter: InstanaTimerProxiedTarget {
     func onTimer(timer: Timer) {
         queue.async { self.sendBuffer() }
     }
 }
 
-private extension EventReporter {
+private extension BeaconReporter {
     func send(events: [Event]) {
         let request: URLRequest
         do {
@@ -129,7 +129,7 @@ private extension EventReporter {
     }
 }
 
-private extension EventReporter {
+private extension BeaconReporter {
 
     // TODO: Test this
     func createBatchRequest(from events: [Event], key: String? = Instana.key, reportingUrl: String = Instana.reportingUrl) throws -> URLRequest {
@@ -142,7 +142,7 @@ private extension EventReporter {
 
         var urlRequest = URLRequest(url: url)
         urlRequest.httpMethod = "POST"
-        urlRequest.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        urlRequest.addValue("text/plain", forHTTPHeaderField: "Content-Type")
 
         let beacons = try BeaconMapper(key: key).multiple(from: events)
         let keyValuePairs = beacons.map({$0.keyValuePairs}).joined(separator: "\n\n")
