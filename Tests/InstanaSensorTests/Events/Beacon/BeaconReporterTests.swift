@@ -103,7 +103,7 @@ extension BeaconReporterTests {
 
     func test_createBatchRequest() {
         // Given
-        let reporter = BeaconReporter(key: "123", transmissionDelay: 0.0) { _, _, _ in}
+        let reporter = BeaconReporter(key: "123", transmissionDelay: 0.0) { _, _, _ in }
         let events = [HTTPEvent.createMock(), HTTPEvent.createMock()]
         let beacons = try? BeaconEventMapper(key: "123").map(events)
         let data = beacons?.plainKeyValuePairs.joined(separator: "\n\n").data(using: .utf8)
@@ -119,6 +119,22 @@ extension BeaconReporterTests {
         AssertEqualAndNotNil(sut?.allHTTPHeaderFields?["Content-Length"], "\(gzippedData?.count ?? 0)")
         AssertEqualAndNotNil(sut?.url, reporter.reportingURL)
         AssertEqualAndNotNil(sut?.httpBody, gzippedData)
+    }
+
+    func test_Send() {
+        // Given
+        var expectedResult: URLRequest?
+        let reporter = BeaconReporter(key: "123", transmissionDelay: 0.0) { request, _, _ in
+            expectedResult = request
+        }
+        let events = [HTTPEvent.createMock(), HTTPEvent.createMock()]
+
+        // When
+        let sut = try? reporter.createBatchRequest(from: events)
+        reporter.send(events: events)
+
+        // Then
+        AssertEqualAndNotNil(sut, expectedResult)
     }
 
     func test_createBatchRequest_invalid_key() {
