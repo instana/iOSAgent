@@ -9,7 +9,7 @@ import Foundation
 
 /// The final object that is used for the submission to the Instana backend
 /// It uses short field name to reduce the transfer size
-struct Beacon {
+struct Beacon: Equatable {
 
     enum `Type`: String {
         case undefined
