@@ -23,6 +23,8 @@ import Gzip
     }
     /// Determine in which cases to suspend sending of events to the Instana backend.
     @objc public var suspendReporting: SuspendReporting = .never
+    let reportingURL: URL
+    let key: String
     private var timer: Timer?
     private let transmissionDelay: Instana.Types.Seconds
     private let transmissionLowBatteryDelay: Instana.Types.Seconds
@@ -39,10 +41,14 @@ import Gzip
         }
     }
     
-    init(transmissionDelay: Instana.Types.Seconds = 1,
+    init(reportingURL: URL = Instana.reportingURL,
+         key: String = Instana.key,
+         transmissionDelay: Instana.Types.Seconds = 1,
          transmissionLowBatteryDelay: Instana.Types.Seconds = 10,
          batterySafeForNetworking: @escaping () -> Bool = { Instana.battery.safeForNetworking },
          load: @escaping Loader = InstanaNetworking().load(request:restricted:completion:)) {
+        self.reportingURL = reportingURL
+        self.key = key
         self.transmissionDelay = transmissionDelay
         self.transmissionLowBatteryDelay = transmissionLowBatteryDelay
         self.batterySafeForNetworking = batterySafeForNetworking
@@ -129,18 +135,15 @@ private extension BeaconReporter {
     }
 }
 
-private extension BeaconReporter {
+extension BeaconReporter {
 
     // TODO: Test this
-    func createBatchRequest(from events: [Event], key: String? = Instana.key, reportingUrl: String = Instana.reportingUrl) throws -> URLRequest {
-        guard let url = URL(string: reportingUrl) else {
-            throw InstanaError(code: .invalidRequest, description: "Invalid reporting url. No data will be sent.")
-        }
-        guard let key = key else {
+    func createBatchRequest(from events: [Event]) throws -> URLRequest {
+        guard !key.isEmpty else {
             throw InstanaError(code: .notAuthenticated, description: "Missing application key. No data will be sent.")
         }
 
-        var urlRequest = URLRequest(url: url)
+        var urlRequest = URLRequest(url: reportingURL)
         urlRequest.httpMethod = "POST"
         urlRequest.addValue("text/plain", forHTTPHeaderField: "Content-Type")
 
@@ -148,12 +151,13 @@ private extension BeaconReporter {
         let pairs = beacons.plainKeyValuePairs.joined(separator: "\n\n")
         let data = pairs.data(using: .utf8)
 
-        if let gzippedData = try? data?.gzipped(level: .bestCompression){
+        if let gzippedData = try? data?.gzipped(level: .bestCompression) {
             urlRequest.httpBody = gzippedData
             urlRequest.setValue("gzip", forHTTPHeaderField: "Content-Encoding")
             urlRequest.setValue("\(gzippedData.count)", forHTTPHeaderField: "Content-Length")
         } else {
             urlRequest.httpBody = data
+            urlRequest.setValue("\(data?.count ?? 0)", forHTTPHeaderField: "Content-Length")
         }
 
         return urlRequest

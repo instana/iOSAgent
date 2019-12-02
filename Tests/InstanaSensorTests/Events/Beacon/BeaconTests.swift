@@ -73,4 +73,32 @@ class BeaconTests: XCTestCase {
 
         XCTAssertEqual(expectedKeys.count, matchingKeys.count)
     }
+
+    func test_formattedKVPair() {
+        // Given
+        let sut = Beacon.createDefault(key: "KEY123")
+
+        // When
+        let value = sut.ab
+
+        // When
+        XCTAssertEqual(sut.formattedKVPair(key: "ab", value: value), "ab\t\(value)")
+    }
+
+    func test_cleaning() {
+        // Given
+        var beacon = Beacon.createDefault(key: "KEY123")
+        beacon.bt = """
+
+                        Trace ab
+
+                    """
+
+        // When
+        let sut = beacon.cleaning(beacon.bt)
+
+        // Then
+        XCTAssertEqual(beacon.bt, "\n    Trace ab\n")
+        XCTAssertEqual(sut, "Trace ab")
+    }
 }

@@ -98,6 +98,42 @@ class BeaconReporterTests: XCTestCase {
     }
 }
 
+// MARK: Test createBatchRequest
+extension BeaconReporterTests {
+
+    func test_createBatchRequest() {
+        // Given
+        let reporter = BeaconReporter(key: "123", transmissionDelay: 0.0) { _, _, _ in}
+        let events = [HTTPEvent.createMock(), HTTPEvent.createMock()]
+        let beacons = try? BeaconEventMapper(key: "123").map(events)
+        let data = beacons?.plainKeyValuePairs.joined(separator: "\n\n").data(using: .utf8)
+        let gzippedData = try? data?.gzipped(level: .bestCompression)
+
+        // When
+        let sut = try? reporter.createBatchRequest(from: events)
+
+        // Then
+        AssertEqualAndNotNil(sut?.httpMethod, "POST")
+        AssertEqualAndNotNil(sut?.allHTTPHeaderFields?["Content-Type"], "text/plain")
+        AssertEqualAndNotNil(sut?.allHTTPHeaderFields?["Content-Encoding"], "gzip")
+        AssertEqualAndNotNil(sut?.allHTTPHeaderFields?["Content-Length"], "\(gzippedData?.count ?? 0)")
+        AssertEqualAndNotNil(sut?.url, reporter.reportingURL)
+        AssertEqualAndNotNil(sut?.httpBody, gzippedData)
+    }
+
+    func test_createBatchRequest_invalid_key() {
+        // Given
+        let reporter = BeaconReporter(key: "", transmissionDelay: 0.0) { _, _, _ in}
+        let events = [HTTPEvent.createMock(), HTTPEvent.createMock()]
+
+        // When
+        XCTAssertThrowsError(try reporter.createBatchRequest(from: events)) {error in
+            // Then
+            XCTAssertEqual((error as? InstanaError)?.code, InstanaError.Code.notAuthenticated.rawValue)
+        }
+    }
+}
+
 extension BeaconReporterTests {
     func mockEventSubmission(_ loadResult: InstanaNetworking.Result, resultCallback: @escaping (EventResult) -> Void) {
         let reporter = BeaconReporter(transmissionDelay: 0.05,
