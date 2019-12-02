@@ -31,6 +31,7 @@ import Gzip
     private let transmissionLowBatteryDelay: Instana.Types.Seconds
     private let queue = DispatchQueue(label: "com.instana.events")
     private let load: Loader
+    private let useGzip: Bool
     private let batterySafeForNetworking: () -> Bool
     private lazy var buffer = { InstanaRingBuffer<Event>(size: bufferSize) }()
     @objc var bufferSize = InstanaConfiguration.Defaults.eventsBufferSize {
@@ -46,6 +47,7 @@ import Gzip
          key: String = Instana.key,
          transmissionDelay: Instana.Types.Seconds = 1,
          transmissionLowBatteryDelay: Instana.Types.Seconds = 10,
+         useGzip: Bool = true,
          batterySafeForNetworking: @escaping () -> Bool = { Instana.battery.safeForNetworking },
          load: @escaping Loader = InstanaNetworking().load(request:restricted:completion:)) {
         self.reportingURL = reportingURL
@@ -54,6 +56,7 @@ import Gzip
         self.transmissionLowBatteryDelay = transmissionLowBatteryDelay
         self.batterySafeForNetworking = batterySafeForNetworking
         self.load = load
+        self.useGzip = useGzip
         super.init()
     }
     
@@ -153,7 +156,7 @@ extension BeaconReporter {
         let pairs = beacons.plainKeyValuePairs.joined(separator: "\n\n")
         let data = pairs.data(using: .utf8)
 
-        if let gzippedData = try? data?.gzipped(level: .bestCompression) {
+        if useGzip, let gzippedData = try? data?.gzipped(level: .bestCompression) {
             urlRequest.httpBody = gzippedData
             urlRequest.setValue("gzip", forHTTPHeaderField: "Content-Encoding")
             urlRequest.setValue("\(gzippedData.count)", forHTTPHeaderField: "Content-Length")
