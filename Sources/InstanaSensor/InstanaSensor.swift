@@ -3,12 +3,14 @@
 
 import Foundation
 
+    // TODO: Clean this up and make it a configurable singleton with a config struct
+
 /// Root object for the InstanaSensor.
 ///
 ///
 /// - Important: Before using any of Instana's features, it is necessary to invoke one of its setup methods.
 @objc public class Instana: NSObject {
-    
+
     /// Object acting as a namespace for configuring alerts.
     @objc public static let alerts = InstanaAlerts()
     
@@ -22,8 +24,8 @@ import Foundation
     static let battery = InstanaBatteryUtils()
 
     @objc public static let sessionId = UUID().uuidString
-    private(set) static var reportingUrl = InstanaConfiguration.Defaults.reportingUrl
-    private(set) static var key: String?
+    private(set) static var reportingURL = InstanaConfiguration.Defaults.reportingURL
+    private(set) static var key: String = ""
     
     private override init() {}
     
@@ -53,8 +55,8 @@ import Foundation
     /// - Parameters:
     ///   - key: Instana key identifying your application.
     ///   - reportingUrl: Optional reporting url used for on-premises Instana backend installations.
-    @objc public static func setup(withKey key: String, reportingUrl: String? = nil) {
-        let config = InstanaConfiguration.default(key: key, reportingUrl:  reportingUrl)
+    @objc public static func setup(withKey key: String, reportingURL: URL? = nil) {
+        let config = InstanaConfiguration.default(key: key, reportingURL:  reportingURL)
         setup(config)
     }
 }
@@ -71,7 +73,7 @@ public extension Instana {
 private extension Instana {    
     static func setup(_ config: InstanaConfiguration) {
         key = config.key
-        reportingUrl = config.reportingUrl
+        reportingURL = config.reportingURL
         
         setupBeaconReporter(config)
         setupRemoteCallInstrumentation(config)

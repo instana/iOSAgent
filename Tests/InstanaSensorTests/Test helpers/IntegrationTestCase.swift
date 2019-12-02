@@ -1,21 +1,18 @@
-//
-//  File.swift
-//  
-//
-//  Created by Christian Menschel on 27.11.19.
-//
-
 import Foundation
 import XCTest
 @testable import InstanaSensor
 
-enum ASyncTestCaseError: Error {
+enum IntegrationTestCaseError: Error {
     case empty
     case unknonw
 }
 
 @available(iOS 12.0, *)
-class ASyncTestCase: XCTestCase {
+class IntegrationTestCase: XCTestCase {
+
+    struct Defaults {
+        static let baseURL = URL(string: "http://localhost:8080")!
+    }
 
     var expectation: XCTestExpectation!
     var session: URLSession!
@@ -24,6 +21,7 @@ class ASyncTestCase: XCTestCase {
 
     override func setUp() {
         super.setUp()
+
         mockserver = EchoWebServer()
         mockserver.start()
         expectation = expectation(description: UUID().uuidString)
@@ -31,14 +29,14 @@ class ASyncTestCase: XCTestCase {
         session = URLSession(configuration: config)
     }
 
-    func load(url: URL, completion: @escaping (Result<Data, Error>) -> Void) {
+    func load(url: URL = Defaults.baseURL, completion: @escaping (Result<Data, Error>) -> Void) {
         task = session.dataTask(with: url) { (data, response, error) in
             if let error = error {
                 completion(Result.failure(error))
             } else if let data = data {
                 completion(Result.success(data))
             } else {
-                completion(Result.failure(ASyncTestCaseError.empty))
+                completion(Result.failure(IntegrationTestCaseError.empty))
             }
             self.fulfilled()
         }
@@ -48,16 +46,5 @@ class ASyncTestCase: XCTestCase {
 
     func fulfilled() {
         expectation.fulfill()
-    }
-}
-
-@available(iOS 12.0, *)
-class BeaconSubmissionTest: ASyncTestCase {
-
-    func test_Network() {
-        let url = URL(string: "http://localhost:8080")!
-        load(url: url) {result in
-            XCTAssertNotNil(try? result.map {$0}.get())
-        }
     }
 }

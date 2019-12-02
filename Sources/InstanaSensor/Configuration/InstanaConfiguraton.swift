@@ -5,7 +5,7 @@ import Foundation
 
 struct InstanaConfiguration {
     enum Defaults {
-        static let reportingUrl = "http://localhost:3000"
+        static let reportingURL: URL = URL(string: "http://localhost:3000")!
         static let remoteCallInstrumentationType = HTTPMonitor.ReportingType.automaticAndManual
         static let eventsBufferSize = 200
         static let suspendReporting = BeaconReporter.SuspendReporting.never
@@ -15,7 +15,7 @@ struct InstanaConfiguration {
         static let alertFramerateDropThreshold: UInt? = nil
     }
     
-    let reportingUrl: String
+    let reportingURL: URL
     let key: String
     let remoteCallInstrumentationType: HTTPMonitor.ReportingType
     let suspendReporting: BeaconReporter.SuspendReporting
@@ -25,33 +25,33 @@ struct InstanaConfiguration {
     let alertLowMemory: Bool
     let alertFramerateDropThreshold: UInt?
     
-    static func read(from path: String?) -> InstanaConfiguration? {
-        guard let path = path, let config = NSDictionary(contentsOfFile: path) else {
-            Instana.log.add("Couldn't locate configuration file")
-            return nil
-        }
-        return read(from: config)
-    }
+//    static func read(from path: String?) -> InstanaConfiguration? {
+//        guard let path = path, let config = NSDictionary(contentsOfFile: path) else {
+//            Instana.log.add("Couldn't locate configuration file")
+//            return nil
+//        }
+//        return read(from: config)
+//    }
     
-    private static func read(from dictionary: NSDictionary) -> InstanaConfiguration? {
-        guard let key = dictionary.value(forKey: "key") as? String else {
-            Instana.log.add("Value for \"key\" missing in configuration file")
-            return nil
-        }
-
-        return self.init(reportingUrl: dictionary.value(forKey: "reportingUrl") as? String ?? Defaults.reportingUrl,
-                         key: key,
-                         remoteCallInstrumentationType: dictionary.fromRawValue(forKey: "remoteCallInstrumentationType") ?? Defaults.remoteCallInstrumentationType,
-                         suspendReporting: dictionary.fromRawValue(forKey: "suspendReporting") ?? Defaults.suspendReporting,
-                         eventsBufferSize: dictionary.value(forKey: "eventsBufferSize") as? Int ?? Defaults.eventsBufferSize,
-                         sendDeviceLocationIfAvailable: dictionary.bool(forKey: "sendDeviceLocationIfAvailable", fallback: Defaults.sendDeviceLocationIfAvailable),
-                         alertApplicationNotRespondingThreshold: dictionary.value(forKey: "alertApplicationNotRespondingThreshold") as? Instana.Types.Seconds ?? Defaults.alertApplicationNotRespondingThreshold,
-                         alertLowMemory: dictionary.bool(forKey: "alertLowMemory", fallback: Defaults.alertLowMemory),
-                         alertFramerateDropThreshold: dictionary.value(forKey: "alertFramerateDropThreshold") as? UInt ?? Defaults.alertFramerateDropThreshold)
-    }
+//    private static func read(from dictionary: NSDictionary) -> InstanaConfiguration? {
+//        guard let key = dictionary.value(forKey: "key") as? String else {
+//            Instana.log.add("Value for \"key\" missing in configuration file")
+//            return nil
+//        }
+//
+//        return self.init(reportingURL: dictionary.value(forKey: "reportingURL") as? String ?? Defaults.reportingURL,
+//                         key: key,
+//                         remoteCallInstrumentationType: dictionary.fromRawValue(forKey: "remoteCallInstrumentationType") ?? Defaults.remoteCallInstrumentationType,
+//                         suspendReporting: dictionary.fromRawValue(forKey: "suspendReporting") ?? Defaults.suspendReporting,
+//                         eventsBufferSize: dictionary.value(forKey: "eventsBufferSize") as? Int ?? Defaults.eventsBufferSize,
+//                         sendDeviceLocationIfAvailable: dictionary.bool(forKey: "sendDeviceLocationIfAvailable", fallback: Defaults.sendDeviceLocationIfAvailable),
+//                         alertApplicationNotRespondingThreshold: dictionary.value(forKey: "alertApplicationNotRespondingThreshold") as? Instana.Types.Seconds ?? Defaults.alertApplicationNotRespondingThreshold,
+//                         alertLowMemory: dictionary.bool(forKey: "alertLowMemory", fallback: Defaults.alertLowMemory),
+//                         alertFramerateDropThreshold: dictionary.value(forKey: "alertFramerateDropThreshold") as? UInt ?? Defaults.alertFramerateDropThreshold)
+//    }
     
-    static func `default`(key: String, reportingUrl: String?) -> InstanaConfiguration {
-        return self.init(reportingUrl: reportingUrl ?? Defaults.reportingUrl,
+    static func `default`(key: String, reportingURL: URL?) -> InstanaConfiguration {
+        return self.init(reportingURL: reportingURL ?? Defaults.reportingURL,
                          key: key,
                          remoteCallInstrumentationType: Defaults.remoteCallInstrumentationType,
                          suspendReporting: Defaults.suspendReporting,
