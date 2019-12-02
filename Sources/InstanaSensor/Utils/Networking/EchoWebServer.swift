@@ -17,6 +17,8 @@ final class EchoWebServer {
     private let port: NWEndpoint.Port = 8080
     private let listener: NWListener
     private var connectionsByID: [Int: Connection] = [:]
+    var connections: [Connection] { connectionsByID.map {$0.value} }
+    var removeConnectionAtEnd = false
 
     init() {
        listener = try! NWListener(using: .tcp, on: port)
@@ -58,45 +60,50 @@ final class EchoWebServer {
     }
 
     private func connectionDidStop(_ connection: Connection) {
-        self.connectionsByID.removeValue(forKey: connection.id)
-        print("server did close connection \(connection.id)")
+        if removeConnectionAtEnd {
+            self.connectionsByID.removeValue(forKey: connection.id)
+            print("server did close connection \(connection.id)")
+        }
     }
 
     private func stop() {
-        self.listener.stateUpdateHandler = nil
-        self.listener.newConnectionHandler = nil
-        self.listener.cancel()
-        for connection in self.connectionsByID.values {
+        listener.stateUpdateHandler = nil
+        listener.newConnectionHandler = nil
+        listener.cancel()
+        for connection in connectionsByID.values {
             connection.didStopCallback = nil
             connection.stop()
         }
-        self.connectionsByID.removeAll()
+        if removeConnectionAtEnd {
+            connectionsByID.removeAll()
+        }
     }
 }
 
 
 @available(iOS 12.0, *)
 class Connection {
+    private static var nextID: Int = 0
+    let nwConnection: NWConnection
+    var didStopCallback: ((Error?) -> Void)? = nil
+    let id: Int
+    var receivedData: Data?
+
     init(nwConnection: NWConnection) {
         self.nwConnection = nwConnection
         self.id = Connection.nextID
         Connection.nextID += 1
     }
 
-    private static var nextID: Int = 0
-    let nwConnection: NWConnection
-    let id: Int
-    var didStopCallback: ((Error?) -> Void)? = nil
-
     func start() {
         print("connection \(self.id) will start")
-        self.nwConnection.stateUpdateHandler = self.stateDidChange(to:)
-        self.setupReceive()
-        self.nwConnection.start(queue: .main)
+        nwConnection.stateUpdateHandler = self.stateDidChange(to:)
+        setupReceive()
+        nwConnection.start(queue: .main)
     }
 
-    func send(data: Data) {
-        self.nwConnection.send(content: data, completion: .contentProcessed( { error in
+    func respond(data: Data) {
+        nwConnection.send(content: data, completion: .contentProcessed( { error in
             if let error = error {
                 self.connectionDidFail(error: error)
                 return
@@ -107,7 +114,7 @@ class Connection {
     }
 
     func stop() {
-        print("connection \(self.id) will stop")
+        print("connection \(id) will stop")
     }
 
     private func stateDidChange(to state: NWConnection.State) {
@@ -115,13 +122,13 @@ class Connection {
         case .setup:
             break
         case .waiting(let error):
-            self.connectionDidFail(error: error)
+            connectionDidFail(error: error)
         case .preparing:
             break
         case .ready:
-            print("connection \(self.id) ready")
+            print("connection \(id) ready")
         case .failed(let error):
-            self.connectionDidFail(error: error)
+            connectionDidFail(error: error)
         case .cancelled:
             break
         default:
@@ -130,58 +137,59 @@ class Connection {
     }
 
     private func connectionDidFail(error: Error) {
-        print("connection \(self.id) did fail, error: \(error)")
-        self.stop(error: error)
+        print("connection \(id) did fail, error: \(error)")
+        stop(error: error)
     }
 
     private func connectionDidEnd() {
-        print("connection \(self.id) did end")
-        self.stop(error: nil)
+        print("connection \(id) did end")
+        stop(error: nil)
     }
 
     private func stop(error: Error?) {
-        self.nwConnection.stateUpdateHandler = nil
-        self.nwConnection.cancel()
-        if let didStopCallback = self.didStopCallback {
-            self.didStopCallback = nil
-            didStopCallback(error)
+        nwConnection.stateUpdateHandler = nil
+        nwConnection.cancel()
+        if let callback = didStopCallback {
+            didStopCallback = nil
+            callback(error)
         }
     }
 
     private func setupReceive() {
-        self.nwConnection.receive(minimumIncompleteLength: 1, maximumLength: 65536) { (data, _, isComplete, error) in
+        nwConnection.receive(minimumIncompleteLength: 1, maximumLength: 65536) { (data, _, isComplete, error) in
             if let data = data, !data.isEmpty {
                 let string = String(data: data, encoding:.utf8)
-                print("connection \(self.id) did receive: \(string ?? "none")")
+                print("Echo Webserver did receive: \(string ?? "none")")
             }
-
-            if let data = data {
-                self.send(data: HTTPResponse.create(origin: data))
+            self.receivedData = data
+            if let data = data, let responseData = HTTPResponse.create(origin: data) {
+                self.respond(data: responseData)
             } else if let error = error {
                 self.connectionDidFail(error: error)
             } else {
                 self.setupReceive()
             }
+            self.setupReceive()
         }
     }
 }
 
 struct HTTPResponse {
-    static func create(origin: Data) -> Data {
+    static func create(origin: Data) -> Data? {
+        guard let body = String(data: origin, encoding:.utf8)?.components(separatedBy: "\n").last else {
+            return nil
+        }
         var response = ""
-        let components = String(data: origin, encoding:.utf8)?.components(separatedBy: "\n")
-        let json = components?.last ?? ""
         response.append("HTTP/1.1 200 OK\r\n")
 
-        if let jsonData = json.data(using: .utf8), jsonData.count >= 0 {
-            response.append("Content-Length: \(jsonData.count)\r\n")
-            response.append("Content-Type: application/json")
+        if let data = body.data(using: .utf8), data.count >= 0 {
+            response.append("Content-Length: \(data.count)\r\n")
+            response.append("Content-Type: text/plain")
         }
 
         response.append("\r\n")
         response.append("\r\n")
-        response.append(json)
-        print(response)
+        response.append(body)
         return response.data(using: .utf8) ?? Data()
     }
 }
