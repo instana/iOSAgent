@@ -25,6 +25,7 @@ import Gzip
     @objc public var suspendReporting: SuspendReporting = .never
     let reportingURL: URL
     let key: String
+    var completion: (EventResult) -> Void = {_ in}
     private var timer: Timer?
     private let transmissionDelay: Instana.Types.Seconds
     private let transmissionLowBatteryDelay: Instana.Types.Seconds
@@ -102,7 +103,7 @@ extension BeaconReporter: InstanaTimerProxiedTarget {
     }
 }
 
-private extension BeaconReporter {
+extension BeaconReporter {
     func send(events: [Event]) {
         let request: URLRequest
         do {
@@ -132,6 +133,7 @@ private extension BeaconReporter {
         case .success: Instana.log.add("Event batch sent.")
         case .failure(let error): Instana.log.add("Failed to send Event batch: \(error)", level: .warning)
         }
+        completion(result)
     }
 }
 
