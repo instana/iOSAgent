@@ -7,7 +7,7 @@ class HTTPEvent: Event {
     let duration: Instana.Types.Milliseconds
     let method: String
     let url: String
-    let path: String
+    let path: String?
     let connectionType: InstanaNetworkMonitor.ConnectionType?
     let responseCode: Int
     let result: String
@@ -23,10 +23,11 @@ class HTTPEvent: Event {
          requestSize: Instana.Types.Bytes = 0,
          responseSize: Instana.Types.Bytes = 0,
          result: String) {
+        let path = URL(string: url)?.path ?? ""
         self.duration = duration
         self.method = method
         self.url = url
-        self.path = URL(string: url)?.path ?? ""
+        self.path = !path.isEmpty ? path : nil
         self.connectionType = connectionType
         self.responseCode = responseCode
         self.requestSize = requestSize
