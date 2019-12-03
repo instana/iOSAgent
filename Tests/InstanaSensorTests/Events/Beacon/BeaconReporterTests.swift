@@ -103,10 +103,11 @@ extension BeaconReporterTests {
 
     func test_createBatchRequest() {
         // Given
-        let reporter = BeaconReporter(key: "123", transmissionDelay: 0.0) { _, _, _ in }
+        let key = "123"
+        let reporter = BeaconReporter(key: key, transmissionDelay: 0.0) { _, _, _ in }
         let events = [HTTPEvent.createMock(), HTTPEvent.createMock()]
-        let beacons = try? BeaconEventMapper(key: "123").map(events)
-        let data = beacons?.plainKeyValuePairs.joined(separator: "\n\n").data(using: .utf8)
+        let beacons = try! BeaconEventMapper(key: key).map(events)
+        let data = beacons.asString.data(using: .utf8)
         let gzippedData = try? data?.gzipped(level: .bestCompression)
 
         // When
