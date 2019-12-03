@@ -25,8 +25,3 @@ enum EventResult {
     case success
     case failure(error: Error)
 }
-
-protocol EventResultNotifiable {
-    typealias CompletionBlock = (_ result: EventResult) -> Void
-    var completion: CompletionBlock { get }
-}
