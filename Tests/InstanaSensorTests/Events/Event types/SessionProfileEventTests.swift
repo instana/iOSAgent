@@ -6,26 +6,5 @@ import XCTest
 
 class SessionProfileEventTests: XCTestCase {
 
-    func test_submissionFailure_shouldRetrySubmission() {
-        var count = 0
-        let exp = expectation(description: "Waiting for submission")
-        let submitter: (Event) -> Void = {
-            count += 1
-            guard let notifiable = $0 as? EventResultNotifiable else { XCTFail("Event not notifiable"); return }
-            switch count {
-            case 1:
-                notifiable.completion(.failure(error: CocoaError(CocoaError.coderReadCorrupt)))
-            case 2:
-                notifiable.completion(.success)
-                DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(10)) {
-                    exp.fulfill()
-                }
-            default:
-                XCTFail("Retried too many times: \(count)")
-            }
-        }
-        let event = SessionProfileEvent(state: .start, retryInterval: 1, submitter: submitter)
-        submitter(event)
-        waitForExpectations(timeout: 0.05, handler: nil)
-    }
+   
 }

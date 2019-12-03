@@ -69,9 +69,7 @@ import Gzip
     @objc(submitEvent:)
     public func submit(_ event: Event) {
         queue.async {
-            if let overwritten = self.buffer.write(event), let notifiableEvent = overwritten as? EventResultNotifiable {
-                notifiableEvent.completion(.failure(error: InstanaError(code: .bufferOverwrite, description: "Event overwrite casued by buffer size limit.")))
-            }
+            self.buffer.write(event)
             self.startSendTimer(delay: self.transmissionDelay)
         }
     }
@@ -109,12 +107,12 @@ extension BeaconReporter: InstanaTimerProxiedTarget {
 extension BeaconReporter {
     func send(events: [Event]) {
         let request: URLRequest
-        let beacons: [Beacon]
+        var beacons = [Beacon]()
         do {
             beacons = try BeaconEventMapper(key: key).map(events)
             request = try createBatchRequest(from: beacons)
         } catch {
-            complete(events, .failure(error: error))
+            complete(beacons, .failure(error: error))
             return
         }
         let restrictLoad = [.cellularConnection, .lowBatteryOrCellularConnection].contains(suspendReporting)
@@ -122,21 +120,19 @@ extension BeaconReporter {
             // TODO: failed requests handling, after prototype
             switch result {
             case .failure(let error):
-                self.complete(events, .failure(error: error))
+                self.complete(beacons, .failure(error: error))
             case .success(200...299):
-                Instana.log.add("Did send beacons \(beacons)")
-                self.complete(events, .success)
+                self.complete(beacons, .success)
             case .success(let statusCode):
-                self.complete(events, .failure(error: InstanaError(code: .invalidResponse, description: "Invalid repsonse status code: \(statusCode)")))
+                self.complete(beacons, .failure(error: InstanaError(code: .invalidResponse, description: "Invalid repsonse status code: \(statusCode)")))
             }
         }
     }
     
-    func complete(_ events: [Event], _ result: EventResult) {
-        events.compactMap {$0 as? EventResultNotifiable}.forEach { $0.completion(result) }
+    func complete(_ beacons: [Beacon], _ result: EventResult) {
         switch result {
-        case .success: Instana.log.add("Event batch sent.")
-        case .failure(let error): Instana.log.add("Failed to send Event batch: \(error)", level: .warning)
+        case .success: Instana.log.add("Did send beacons \(beacons)")
+        case .failure(let error): Instana.log.add("Failed to send Beacon batch: \(error)", level: .warning)
         }
         completion(result)
     }
