@@ -17,7 +17,7 @@ extension Beacon {
                sid: sessionId,
                bid: eventId,
                buid: InstanaSystemUtils.applicationBundleIdentifier,
-               lg: Locale.current.languageCode ?? "na",
+               ul: Locale.current.languageCode ?? "na",
                ab: InstanaSystemUtils.applicationBuildNumber,
                av: InstanaSystemUtils.applicationVersion,
                osn: InstanaSystemUtils.systemName,
