@@ -111,7 +111,7 @@ extension BeaconReporterTests {
         let gzippedData = try? data?.gzipped(level: .bestCompression)
 
         // When
-        let sut = try? reporter.createBatchRequest(from: events)
+        let sut = try? reporter.createBatchRequest(from: beacons)
 
         // Then
         AssertEqualAndNotNil(sut?.httpMethod, "POST")
@@ -125,13 +125,15 @@ extension BeaconReporterTests {
     func test_Send() {
         // Given
         var expectedResult: URLRequest?
-        let reporter = BeaconReporter(key: "123", transmissionDelay: 0.0) { request, _, _ in
+        let key = "123"
+        let reporter = BeaconReporter(key: key, transmissionDelay: 0.0) { request, _, _ in
             expectedResult = request
         }
         let events = [HTTPEvent.createMock(), HTTPEvent.createMock()]
+        let beacons = try! BeaconEventMapper(key: key).map(events)
 
         // When
-        let sut = try? reporter.createBatchRequest(from: events)
+        let sut = try? reporter.createBatchRequest(from: beacons)
         reporter.send(events: events)
 
         // Then
@@ -142,9 +144,10 @@ extension BeaconReporterTests {
         // Given
         let reporter = BeaconReporter(key: "", transmissionDelay: 0.0) { _, _, _ in}
         let events = [HTTPEvent.createMock(), HTTPEvent.createMock()]
+        let beacons = try! BeaconEventMapper(key: "").map(events)
 
         // When
-        XCTAssertThrowsError(try reporter.createBatchRequest(from: events)) {error in
+        XCTAssertThrowsError(try reporter.createBatchRequest(from: beacons)) {error in
             // Then
             XCTAssertEqual((error as? InstanaError)?.code, InstanaError.Code.notAuthenticated.rawValue)
         }
