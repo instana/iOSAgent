@@ -43,7 +43,7 @@ class BeaconTests: XCTestCase {
         let values = Mirror(reflecting: sut).children
 
         // Then
-        XCTAssertEqual(values.count, 33)
+        XCTAssertEqual(values.count, 34)
     }
 
     func testNumberOfFields_non_nil() {
