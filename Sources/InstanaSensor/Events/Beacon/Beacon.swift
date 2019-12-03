@@ -113,7 +113,7 @@ struct Beacon: Equatable, Codable {
      *
      * optional
      */
-    var lg: String
+    var ul: String
 
     /**
      * Build version
@@ -153,7 +153,7 @@ struct Beacon: Equatable, Codable {
      *
      * For example: Apple
      */
-    var dmf: String = "Apple"
+    var dma: String = "Apple"
 
     /**
      * Device model
