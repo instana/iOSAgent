@@ -102,10 +102,10 @@ class Connection {
     }
 
     func start() {
-        print("connection \(self.id) will start")
+        print("connection \(id) will start")
         nwConnection.stateUpdateHandler = self.stateDidChange(to:)
-        setupReceive()
         nwConnection.start(queue: .main)
+        setupReceive()
     }
 
     func respond(data: Data) {
@@ -162,20 +162,17 @@ class Connection {
     }
 
     private func setupReceive() {
-        nwConnection.receive(minimumIncompleteLength: 1, maximumLength: 65536) { (data, _, isComplete, error) in
+        nwConnection.receive(minimumIncompleteLength: 10, maximumLength: 65536) { (data, _, isComplete, error) in
             if let data = data, !data.isEmpty {
                 let string = String(data: data, encoding:.utf8)
-                print("Echo Webserver did receive: \(string ?? "none")")
+                print("Echo Webserver did receive:\n \(string ?? "none")")
             }
             self.receivedData = data
             if let data = data, let responseData = HTTPResponse.create(origin: data) {
                 self.respond(data: responseData)
             } else if let error = error {
                 self.connectionDidFail(error: error)
-            } else {
-                self.setupReceive()
             }
-            self.setupReceive()
         }
     }
 }
