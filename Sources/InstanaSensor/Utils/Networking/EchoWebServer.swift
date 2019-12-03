@@ -20,15 +20,21 @@ final class EchoWebServer {
     var connections: [Connection] { connectionsByID.map {$0.value} }
     var removeConnectionAtEnd = false
 
+    static var shared: EchoWebServer = {
+        let server = EchoWebServer()
+        server.start()
+        return server
+    }()
+
     init() {
        listener = try! NWListener(using: .tcp, on: port)
     }
 
-    func start() {
-        self.listener.stateUpdateHandler = self.stateDidChange(to:)
-        self.listener.newConnectionHandler = self.didAccept(nwConnection:)
+    private func start() {
+        self.listener.stateUpdateHandler = stateDidChange(to:)
+        self.listener.newConnectionHandler = didAccept(nwConnection:)
         self.listener.start(queue: .main)
-        print("Signaling server started listening on port \(self.port)")
+        print("Signaling server started listening on port \(port)")
     }
 
     func stateDidChange(to newState: NWListener.State) {

@@ -22,8 +22,7 @@ class IntegrationTestCase: XCTestCase {
     override func setUp() {
         super.setUp()
 
-        mockserver = EchoWebServer()
-        mockserver.start()
+        mockserver = EchoWebServer.shared
         expectation = expectation(description: UUID().uuidString)
         let config = URLSessionConfiguration.default
         session = URLSession(configuration: config)
