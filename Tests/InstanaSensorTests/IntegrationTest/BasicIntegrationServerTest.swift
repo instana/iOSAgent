@@ -14,13 +14,13 @@ class BasicIntegrationServerTest: IntegrationTestCase {
 
     var reporter: BeaconReporter!
 
-    func test_Network() {
+    func xtest_Network() {
         load() {result in
             XCTAssertNotNil(try? result.map {$0}.get())
         }
     }
 
-    func test_send_and_receive_beaocns() {
+    func xtest_send_and_receive_beaocns() {
         // Given
         let key = "KEY"
         let url = Defaults.baseURL
