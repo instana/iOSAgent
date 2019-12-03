@@ -31,6 +31,15 @@ struct Beacon: Equatable, Codable {
     var t: BeaconType = .undefined
 
     /**
+     * View
+     *
+     * The current visible ViewController
+     * For example: `UserTableViewController`
+     *
+     */
+    var v: String?
+
+    /**
      * Backend Tracing ID
      *
      * The backend exposes trace IDs via the Server-Timing HTTP response header.
