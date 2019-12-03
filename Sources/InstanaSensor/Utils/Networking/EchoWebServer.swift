@@ -182,20 +182,31 @@ class Connection {
 
 struct HTTPResponse {
     static func create(origin: Data) -> Data? {
-        guard let body = String(data: origin, encoding:.utf8)?.components(separatedBy: "\n").last else {
+        guard let http = String(data: origin, encoding:.utf8) else {
             return nil
         }
+        let lines = http.components(separatedBy: "\n")
+        let kvPairs = lines.reduce([String: Any](), {result, line -> [String: Any] in
+            let components = line.components(separatedBy: ":")
+            guard let key = components.first, let value = components.last else { return result }
+            var newResult = result
+            newResult[key] = value
+            return newResult
+        })
+
         var response = ""
         response.append("HTTP/1.1 200 OK\r\n")
 
-        if let data = body.data(using: .utf8), data.count >= 0 {
+        let contentType = kvPairs["Content-Type"] ?? "text/plain"
+        if let body = http.components(separatedBy: "\r\n").last, let data = body.data(using: .utf8), body.count > 0 {
             response.append("Content-Length: \(data.count)\r\n")
-            response.append("Content-Type: text/plain")
+            response.append("Content-Type: \(contentType)")
+
+            response.append("\r\n")
+            response.append("\r\n")
+            response.append(body)
         }
 
-        response.append("\r\n")
-        response.append("\r\n")
-        response.append(body)
         return response.data(using: .utf8) ?? Data()
     }
 }
