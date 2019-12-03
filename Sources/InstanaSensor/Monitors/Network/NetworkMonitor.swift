@@ -4,16 +4,16 @@
 import Foundation
 import Network
 
-class InstanaNetworkMonitor {
+@objc public class NetworkMonitor: NSObject {
     enum ConnectionType: String {
         case wifi, cellular
     }
     
-    static let shared = InstanaNetworkMonitor()
+    static let shared = NetworkMonitor()
     private(set) var connectionType: ConnectionType?
-    private let queue = DispatchQueue(label: "InstanaNetworkMonitor")
+    private let queue = DispatchQueue(label: "NetworkMonitor")
     @available(iOS 12.0, *)
-    private var monitor: NWPathMonitor {
+    private lazy var monitor: NWPathMonitor = {
         let monitor = NWPathMonitor()
         if ProcessInfo.processInfo.isRunningTests {
             self.connectionType = .wifi
@@ -28,19 +28,18 @@ class InstanaNetworkMonitor {
                 }
                 if path.usesInterfaceType(.cellular) {
                     self.connectionType = .cellular
-                }
-                else if path.usesInterfaceType(.wifi) {
+                } else if path.usesInterfaceType(.wifi) {
                     self.connectionType = .wifi
-                }
-                else {
+                } else {
                     self.connectionType = nil
                 }
             }
         }
         return monitor
-    }
+    }()
     
-    init() {
+    override init() {
+        super.init()
         if #available(iOS 12.0, *) {
             monitor.start(queue: queue)
         }
