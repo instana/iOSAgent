@@ -28,7 +28,7 @@ internal class InstanaURLProtocol: URLProtocol {
     }
     
     override func startLoading() {
-       // marker = Instana.remoteCallInstrumentation.markCall(for: request)
+        marker = Instana.httpMonitor.markCall(for: request)
        // var mutableRequest = request
         // TODO: What is this for?
        // marker?.addTrackingHeaders(to: &mutableRequest)
