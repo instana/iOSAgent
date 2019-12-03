@@ -93,6 +93,7 @@ class InstanaSystemUtils {
     /// Returns a ' > ' sepparated string of view controller class names in the app hierarchy.
     /// This is only a superficial check, and doesn't go deeper than one level.
     static func viewControllersHierarchy() -> String? {
+        // TODO Can only be accessed via the main thread. a bit tricky to handle this properly
         guard let root = UIApplication.shared.delegate?.window??.rootViewController else { return nil }
         var vcs: [UIViewController] = []
         let rootName = String(describing: type(of: root))

@@ -109,10 +109,11 @@ extension BeaconReporter: InstanaTimerProxiedTarget {
 extension BeaconReporter {
     func send(events: [Event]) {
         let request: URLRequest
+        let beacons: [Beacon]
         do {
-            request = try createBatchRequest(from: events)
-        }
-        catch {
+            beacons = try BeaconEventMapper(key: key).map(events)
+            request = try createBatchRequest(from: beacons)
+        } catch {
             complete(events, .failure(error: error))
             return
         }
@@ -123,6 +124,7 @@ extension BeaconReporter {
             case .failure(let error):
                 self.complete(events, .failure(error: error))
             case .success(200...299):
+                Instana.log.add("Did send beacons \(beacons)")
                 self.complete(events, .success)
             case .success(let statusCode):
                 self.complete(events, .failure(error: InstanaError(code: .invalidResponse, description: "Invalid repsonse status code: \(statusCode)")))
@@ -142,7 +144,7 @@ extension BeaconReporter {
 
 extension BeaconReporter {
 
-    func createBatchRequest(from events: [Event]) throws -> URLRequest {
+    func createBatchRequest(from beacons: [Beacon]) throws -> URLRequest {
         guard !key.isEmpty else {
             throw InstanaError(code: .notAuthenticated, description: "Missing application key. No data will be sent.")
         }
@@ -151,7 +153,6 @@ extension BeaconReporter {
         urlRequest.httpMethod = "POST"
         urlRequest.addValue("text/plain", forHTTPHeaderField: "Content-Type")
 
-        let beacons = try BeaconEventMapper(key: key).map(events)
         let data = beacons.asString.data(using: .utf8)
 
         if useGzip, let gzippedData = try? data?.gzipped(level: .bestCompression) {
