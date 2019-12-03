@@ -46,10 +46,10 @@ class BeaconEventMapperTests: XCTestCase {
         AssertEqualAndNotNil(sut.t, .httpRequest)
         AssertEqualAndNotNil(sut.hu, url)
         AssertEqualAndNotNil(sut.hp, "/some/path")
-        AssertEqualAndNotNil(sut.hs, event.responseCode)
+        AssertEqualAndNotNil(sut.hs, String(event.responseCode))
         AssertEqualAndNotNil(sut.hm, method)
-        AssertEqualAndNotNil(sut.trs, event.responseSize)
-        AssertEqualAndNotNil(sut.d, event.duration)
+        AssertEqualAndNotNil(sut.trs, String(event.responseSize))
+        AssertEqualAndNotNil(sut.d, String(event.duration))
 
         let values = Mirror(reflecting: sut).nonNilChildren
         XCTAssertEqual(values.count, 23)

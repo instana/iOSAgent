@@ -44,10 +44,10 @@ extension Beacon {
         t = .httpRequest
         hu = event.url
         hp = event.path
-        hs = event.responseCode
+        hs = String(event.responseCode)
         hm = event.method
-        trs = event.responseSize
-        d = event.duration
+        trs = String(event.responseSize)
+        d = String(event.duration)
     }
 
     mutating func append(_ event: AlertEvent) {

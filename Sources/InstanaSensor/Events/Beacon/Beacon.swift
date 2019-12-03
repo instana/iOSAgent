@@ -7,17 +7,19 @@
 
 import Foundation
 
-/// The final object that is used for the submission to the Instana backend
-/// It uses short field name to reduce the transfer size
-struct Beacon: Equatable {
+enum BeaconType: String, Equatable, Codable {
+    case undefined
+    case sessionStart
+    case httpRequest
+    case crash
+    case custom
+}
 
-    enum `Type`: String {
-        case undefined
-        case sessionStart
-        case httpRequest
-        case crash
-        case custom
-    }
+/// The final object that is used for the submission to the Instana backend
+/// This model uses a short field name to reduce the transfer size
+/// We transfer a simple String (no json) to the backend via the HTTP body.
+/// That means we also loose the type information, so we need treat all fields as String
+struct Beacon: Equatable, Codable {
 
     /**
      * The type of the beacon.
@@ -26,7 +28,7 @@ struct Beacon: Equatable {
      *
      * Default: undefined
      */
-    var t: Type = .undefined
+    var t: BeaconType = .undefined
 
     /**
      * Backend Tracing ID
@@ -53,7 +55,7 @@ struct Beacon: Equatable {
      *
      * The timestamp in ms when the beacon has been created
      */
-    var ti: Int64
+    var ti: String
 
     /**
      * Session ID
@@ -164,21 +166,21 @@ struct Beacon: Equatable {
      * Whether the mobile device is rooted / jailbroken. True indicates that the device is definitely rooted / jailbroken.
      * False indicates that it isn't or that we could not identify the correct it.
      */
-    var ro: Bool?
+    var ro: String?
 
     /**
      * Device screen width in pixels
      *
      * For example: 2436
      */
-    var vw: Int
+    var vw: String
 
     /**
      * Device screen height in pixels
      *
      * For example: 1125
      */
-    var vh: Int
+    var vh: String
 
     /**
      * Cellular carrier name
@@ -224,7 +226,7 @@ struct Beacon: Equatable {
      *
      * For example: 404
      */
-    var hs: Int?
+    var hs: String?
 
     /**
      * Size of the encoded
@@ -232,7 +234,7 @@ struct Beacon: Equatable {
      * (e.g. zipped) HTTP response body. Does not include the size of headers. Can be equal to decodedBodySize
      * when the response is not compressed.
      */
-    var ebs: Int64?
+    var ebs: String?
 
     /**
      * Size of the decoded
@@ -240,14 +242,14 @@ struct Beacon: Equatable {
      * (e.g. unzipped) HTTP response body. Does not include the size of headers. Can be equal to {@link #encodedBodySize}
      * when the response is not compressed.
      */
-    var dbs: Int64?
+    var dbs: String?
 
     /**
      * Total size of the HTTP response
      *
      * including response headers and the encoded response body.
      */
-    var trs: Int64?
+    var trs: String?
 
     /**
      * Duration in milliseconds
@@ -255,12 +257,12 @@ struct Beacon: Equatable {
      * In case of instantaneous events, use 0.
      *
      */
-    var d: Int64?
+    var d: String?
 
     /**
      * Error count
      */
-    var ec: Int?
+    var ec: String?
 
     /**
      * ErrorMessage

@@ -142,7 +142,6 @@ extension BeaconReporter {
 
 extension BeaconReporter {
 
-    // TODO: Test this
     func createBatchRequest(from events: [Event]) throws -> URLRequest {
         guard !key.isEmpty else {
             throw InstanaError(code: .notAuthenticated, description: "Missing application key. No data will be sent.")
