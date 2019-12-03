@@ -11,15 +11,20 @@ import Foundation
 /// - Important: Before using any of Instana's features, it is necessary to invoke one of its setup methods.
 @objc public class Instana: NSObject {
 
-    /// Object acting as a namespace for configuring alerts.
+    // TODO: Make less public and expose only what needed!
+
+    /// The alerting monitor
     @objc public static let alerts = InstanaAlerts()
-    
+
+    /// The HTTP Request / Response Monitor
+    @objc public static let httpMonitor = HTTPMonitor()
+
+    /// The Network (Wifi/Cellular) monitor
+    @objc public static let networkMonitor = NetworkMonitor.shared
+
     /// Object to manage and report events.
     @objc public static let reporter = BeaconReporter()
 
-    /// Object acting as a namespace for configuring and using remote call instrumentation.
-    @objc public static let remoteCallInstrumentation = HTTPMonitor()
-    
     static let log = InstanaLogger()
     static let battery = InstanaBatteryUtils()
 
@@ -87,7 +92,7 @@ private extension Instana {
     }
     
     static func setupRemoteCallInstrumentation(_ config: InstanaConfiguration) {
-        remoteCallInstrumentation.reporting = config.remoteCallInstrumentationType
+        httpMonitor.reporting = config.remoteCallInstrumentationType
     }
     
     static func setupAlerts(_ config: InstanaConfiguration) {

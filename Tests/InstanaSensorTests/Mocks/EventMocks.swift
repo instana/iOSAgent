@@ -12,7 +12,7 @@ extension HTTPEvent {
     static func createMock(timestamp: Int64 = Date().millisecondsSince1970,
               method: String = "POST",
               url: String = "https://www.example.com",
-        connectionType: InstanaNetworkMonitor.ConnectionType = .wifi) -> HTTPEvent {
+        connectionType: NetworkMonitor.ConnectionType = .wifi) -> HTTPEvent {
         return HTTPEvent(timestamp: timestamp,
                          method: method,
                          url: url,
