@@ -47,9 +47,9 @@ final class EchoWebServer {
             break
         case .failed(let error):
             print("server did fail, error: \(error)")
-            self.stop()
+            stop()
         case .cancelled:
-            break
+            stop()
         default:
             break
         }
@@ -57,7 +57,7 @@ final class EchoWebServer {
 
     private func didAccept(nwConnection: NWConnection) {
         let connection = Connection(nwConnection: nwConnection)
-        self.connectionsByID[connection.id] = connection
+        connectionsByID[connection.id] = connection
         connection.didStopCallback = { _ in
             self.connectionDidStop(connection)
         }
@@ -67,7 +67,7 @@ final class EchoWebServer {
 
     private func connectionDidStop(_ connection: Connection) {
         if removeConnectionAtEnd {
-            self.connectionsByID.removeValue(forKey: connection.id)
+            connectionsByID.removeValue(forKey: connection.id)
             print("server did close connection \(connection.id)")
         }
     }
@@ -77,8 +77,8 @@ final class EchoWebServer {
         listener.newConnectionHandler = nil
         listener.cancel()
         for connection in connectionsByID.values {
-            connection.didStopCallback = nil
             connection.stop()
+            connection.didStopCallback = nil
         }
         if removeConnectionAtEnd {
             connectionsByID.removeAll()
@@ -103,24 +103,30 @@ class Connection {
 
     func start() {
         print("connection \(id) will start")
-        nwConnection.stateUpdateHandler = self.stateDidChange(to:)
+        nwConnection.stateUpdateHandler = stateDidChange(to:)
         nwConnection.start(queue: .main)
         setupReceive()
     }
 
+    func stop(error: Error? = nil) {
+        nwConnection.stateUpdateHandler = nil
+        nwConnection.cancel()
+        if let callback = didStopCallback {
+            didStopCallback = nil
+            callback(error)
+        }
+    }
+
     func respond(data: Data) {
-        nwConnection.send(content: data, completion: .contentProcessed( { error in
+        nwConnection.send(content: data, completion: .contentProcessed( {[weak self] error in
+            guard let self = self else { return }
             if let error = error {
                 self.connectionDidFail(error: error)
                 return
             }
-            print("connection \(self.id) did send, data: \(data as NSData)")
             self.connectionDidEnd()
+            print("Connection \(self.id) did send, data: \(String(describing: String(data: data, encoding:.utf8)))")
         }))
-    }
-
-    func stop() {
-        print("connection \(id) will stop")
     }
 
     private func stateDidChange(to state: NWConnection.State) {
@@ -152,17 +158,9 @@ class Connection {
         stop(error: nil)
     }
 
-    private func stop(error: Error?) {
-        nwConnection.stateUpdateHandler = nil
-        nwConnection.cancel()
-        if let callback = didStopCallback {
-            didStopCallback = nil
-            callback(error)
-        }
-    }
-
     private func setupReceive() {
-        nwConnection.receive(minimumIncompleteLength: 10, maximumLength: 65536) { (data, _, isComplete, error) in
+        nwConnection.receive(minimumIncompleteLength: 1, maximumLength: 65536) {[weak self] (data, _, isComplete, error) in
+            guard let self = self else { return }
             if let data = data, !data.isEmpty {
                 let string = String(data: data, encoding:.utf8)
                 print("Echo Webserver did receive:\n \(string ?? "none")")
@@ -172,6 +170,10 @@ class Connection {
                 self.respond(data: responseData)
             } else if let error = error {
                 self.connectionDidFail(error: error)
+            } else if isComplete {
+                self.connectionDidEnd()
+            } else {
+                self.setupReceive()
             }
         }
     }

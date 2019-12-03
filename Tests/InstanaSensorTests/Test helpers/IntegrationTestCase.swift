@@ -29,7 +29,13 @@ class IntegrationTestCase: XCTestCase {
     }
 
     func load(url: URL = Defaults.baseURL, completion: @escaping (Result<Data, Error>) -> Void) {
-        task = session.dataTask(with: url) { (data, response, error) in
+        var request = URLRequest(url: url)
+        request.httpBody = "Key:Value".data(using: .utf8)
+        request.addValue("text/plain", forHTTPHeaderField: "Content-Type")
+        request.setValue("\(request.httpBody?.count ?? 0)", forHTTPHeaderField: "Content-Length")
+        request.httpMethod = "POST"
+        request.timeoutInterval = 60.0
+        task = session.dataTask(with: request) { (data, response, error) in
             if let error = error {
                 completion(Result.failure(error))
             } else if let data = data {
@@ -40,6 +46,7 @@ class IntegrationTestCase: XCTestCase {
             self.fulfilled()
         }
         task.resume()
+
         wait(for: [expectation], timeout: 10.0)
     }
 

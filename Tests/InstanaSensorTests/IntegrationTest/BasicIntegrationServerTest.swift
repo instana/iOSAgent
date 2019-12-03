@@ -12,24 +12,19 @@ import XCTest
 @available(iOS 12.0, *)
 class BasicIntegrationServerTest: IntegrationTestCase {
 
-//    func test_Network() {
-//        load() {result in
-//            XCTAssertNotNil(try? result.map {$0}.get())
-//        }
-//    }
-//
-//    func test_Network2() {
-//           load() {result in
-//               XCTAssertNotNil(try? result.map {$0}.get())
-//           }
-//       }
-//
+    var reporter: BeaconReporter!
+
+    func test_Network() {
+        load() {result in
+            XCTAssertNotNil(try? result.map {$0}.get())
+        }
+    }
 
     func test_send_and_receive_beaocns() {
         // Given
         let key = "KEY"
         let url = Defaults.baseURL
-        let reporter = BeaconReporter(reportingURL: url, key: key, transmissionDelay: 0.0, useGzip: false)
+        reporter = BeaconReporter(reportingURL: url, key: key, transmissionDelay: 0.0, useGzip: false)
         let event = HTTPEvent.createMock()
 
         // When
