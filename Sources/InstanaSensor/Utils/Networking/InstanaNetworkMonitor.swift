@@ -15,6 +15,10 @@ class InstanaNetworkMonitor {
     @available(iOS 12.0, *)
     private var monitor: NWPathMonitor {
         let monitor = NWPathMonitor()
+        if ProcessInfo.processInfo.isRunningTests {
+            self.connectionType = .wifi
+            return monitor
+        }
         monitor.pathUpdateHandler = { [weak self] path in
             DispatchQueue.main.async {
                 guard let self = self else { return }
