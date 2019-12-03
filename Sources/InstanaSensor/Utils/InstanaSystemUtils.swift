@@ -49,6 +49,9 @@ class InstanaSystemUtils {
     
     /// Returns carrier name
     static var carrierName: String? {
+        if ProcessInfo.processInfo.isRunningTests {
+            return "None"
+        }
         let networkInfo = CTTelephonyNetworkInfo()
         let carrier = networkInfo.subscriberCellularProvider
         return carrier?.carrierName
@@ -56,6 +59,9 @@ class InstanaSystemUtils {
     
     /// Returns current cellular connection type
     static var cellularConnectionType: String? {
+        if ProcessInfo.processInfo.isRunningTests {
+            return "None"
+        }
         switch CTTelephonyNetworkInfo().currentRadioAccessTechnology {
         case CTRadioAccessTechnologyGPRS?, CTRadioAccessTechnologyEdge?, CTRadioAccessTechnologyCDMA1x?:
             return "2G"

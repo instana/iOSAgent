@@ -52,6 +52,6 @@ class BeaconEventMapperTests: XCTestCase {
         AssertEqualAndNotNil(sut.d, String(event.duration))
 
         let values = Mirror(reflecting: sut).nonNilChildren
-        XCTAssertEqual(values.count, 23)
+        XCTAssertEqual(values.count, 24)
     }
 }
