@@ -46,16 +46,6 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "InstanaSensor-Tests"
-               BuildableName = "InstanaSensor-Tests"
-               BlueprintName = "InstanaSensor-Tests"
-               ReferencedContainer = "container:">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
                BlueprintIdentifier = "InstanaSensorTests"
                BuildableName = "InstanaSensorTests"
                BlueprintName = "InstanaSensorTests"
