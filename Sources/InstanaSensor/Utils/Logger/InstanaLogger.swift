@@ -22,6 +22,8 @@ class InstanaLogger {
     
     func add(_ entry: String, level: Level = .debug) {
         guard level.rawValue >= self.level.rawValue else { return }
-        NSLog("[Instana]\(level.logTag) \(entry)")
+#if DEBUG
+        print("[Instana]\(level.logTag) \(entry)")
+#endif
     }
 }
