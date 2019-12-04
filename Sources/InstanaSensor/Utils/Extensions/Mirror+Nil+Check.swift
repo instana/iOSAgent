@@ -23,4 +23,13 @@ extension Mirror {
             }
         })
     }
+
+    static func isNotNil<T: Any>(value: T) -> Bool {
+        let mirror = Mirror(reflecting: value)
+        if mirror.displayStyle == .optional {
+            return mirror.children.first != nil
+        } else {
+            return true
+        }
+    }
 }

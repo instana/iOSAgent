@@ -77,13 +77,26 @@ class BeaconTests: XCTestCase {
 
     func test_formattedKVPair() {
         // Given
-        let sut = Beacon.createDefault(key: "KEY123")
+        let beacon = Beacon.createDefault(key: "KEY123")
+        let value = beacon.ab
 
         // When
-        let value = sut.ab
+        let sut = beacon.formattedKVPair(key: "ab", value: value)
 
         // When
-        XCTAssertEqual(sut.formattedKVPair(key: "ab", value: value), "ab\t\(value)")
+        XCTAssertEqual(sut, "ab\t\(value)")
+    }
+
+    func test_formattedKVPair_nil_value() {
+        // Given
+        let beacon = Beacon.createDefault(key: "KEY123")
+        let value = Optional<Any>.none as Any
+
+        // When
+        let sut = beacon.formattedKVPair(key: "KEY", value: value)
+
+        // When
+        XCTAssertNil(sut)
     }
 
     func test_cleaning() {
@@ -105,14 +118,9 @@ class BeaconTests: XCTestCase {
 
     func test_truncate_at_max_length() {
         // Given
-        guard let url = Bundle(for: BeaconReporter.self).url(forResource: "BeaconReporter", withExtension: "swift"),
-            let data = try? Data(contentsOf: url),
-             let string = String(data: data, encoding: .utf8) else {
-            XCTFail("BeaconReporter.swift does not exist")
-            return
-        }
+        let longString = (0...Beacon.maxBytesPerField).map {"\($0)"}.joined()
         var beacon = Beacon.createDefault(key: "KEY123")
-        beacon.bt = string + string
+        beacon.bt = longString
 
         // When
         let sut = beacon.cleaning(beacon.bt) ?? ""

@@ -62,16 +62,17 @@ extension Beacon {
 extension Beacon {
 
     func formattedKVPair(key: String, value: Any) -> String? {
-        guard let value = cleaning(value) else { return nil }
+        let value = cleaning(value)
+        guard Mirror.isNotNil(value: value) else { return nil }
         return "\(key)\t\(value)"
     }
 
-    func cleaning<T: Any>(_ entry: T) -> T? {
+    func cleaning<T: Any>(_ entry: T) -> T {
         if let stringValue = entry as? String {
             var trimmed = stringValue.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
             trimmed = trimmed.truncated(at: Int(Beacon.maxBytesPerField))
             trimmed = trimmed.replacingOccurrences(of: "\t", with: "")
-            return trimmed.isEmpty ? nil : trimmed as? T
+            return trimmed as! T
         }
         return entry
     }
