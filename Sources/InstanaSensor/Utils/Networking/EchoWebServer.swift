@@ -14,7 +14,7 @@ import Network
 @available(iOS 12.0, *)
 final class EchoWebServer {
     private let queue = DispatchQueue.global()
-    private let port: NWEndpoint.Port = 8080
+    private let port: NWEndpoint.Port = 81
     private let listener: NWListener
     private var connectionsByID: [Int: Connection] = [:]
     var connections: [Connection] { connectionsByID.map {$0.value} }
@@ -27,10 +27,15 @@ final class EchoWebServer {
     }()
 
     init() {
-       listener = try! NWListener(using: .tcp, on: port)
+        let tcpprotocol = NWProtocolTCP.Options()
+        tcpprotocol.enableKeepalive = true
+//        tcpprotocol.connectionTimeout = 60
+//        tcpprotocol.keepaliveIdle = 5
+        tcpprotocol.enableFastOpen = true
+        listener = try! NWListener(using: NWParameters(tls: nil, tcp: tcpprotocol), on: port)
     }
 
-    private func start() {
+    func start() {
         self.listener.stateUpdateHandler = stateDidChange(to:)
         self.listener.newConnectionHandler = didAccept(nwConnection:)
         self.listener.start(queue: .main)
@@ -195,7 +200,7 @@ struct HTTPResponse {
 
         var response = ""
         response.append("HTTP/1.1 200 OK\r\n")
-
+        response.append("Connection: close")
         let contentType = kvPairs["Content-Type"] ?? "text/plain"
         if let body = http.components(separatedBy: "\r\n").last, let data = body.data(using: .utf8), body.count > 0 {
             response.append("Content-Length: \(data.count)\r\n")
