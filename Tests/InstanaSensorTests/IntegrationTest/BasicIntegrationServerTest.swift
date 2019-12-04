@@ -20,7 +20,7 @@ class BasicIntegrationServerTest: IntegrationTestCase {
         }
     }
 
-    func xtest_send_and_receive_beaocns() {
+    func test_send_and_receive_beaocns() {
         // Given
         let key = "KEY"
         let url = Defaults.baseURL

@@ -11,7 +11,7 @@ enum IntegrationTestCaseError: Error {
 class IntegrationTestCase: XCTestCase {
 
     struct Defaults {
-        static let baseURL = URL(string: "http://localhost:8080")!
+        static let baseURL = URL(string: "http://localhost:81")!
     }
 
     var expectation: XCTestExpectation!
