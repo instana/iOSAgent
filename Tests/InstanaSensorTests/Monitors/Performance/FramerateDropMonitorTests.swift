@@ -13,7 +13,7 @@ class FramerateDropMonitorTests: XCTestCase {
     }
     
     func test_internalDisplayLink_shouldNotRetainMonitor() {
-        monitor = FramerateDropMonitor(threshold: 5) { _ in }
+        monitor = FramerateDropMonitor(threshold: 5, reporter: MockReporter {_ in})
         weak var weakMonitor = monitor
         
         monitor = nil
@@ -23,11 +23,11 @@ class FramerateDropMonitorTests: XCTestCase {
     
     func test_framerateDrop_triggersEvent() {
         var event: Event?
-        let exp = expectation(description: "Framerate dip event trigger")
-        monitor = FramerateDropMonitor(threshold: 50, samplingInterval: 0.1) {
+        let exp = expectation(description: "Framerate drop event trigger")
+        monitor = FramerateDropMonitor(threshold: 50, samplingInterval: 0.1, reporter: MockReporter {
             event = $0
             exp.fulfill()
-        }
+        })
         
         Thread.sleep(forTimeInterval: 0.1)
         
@@ -46,10 +46,10 @@ class FramerateDropMonitorTests: XCTestCase {
     }
     
     func test_backgroundedApplication_shouldNotTriggerEvent() {
-        let exp = expectation(description: "Framerate dip event trigger")
-        monitor = FramerateDropMonitor(threshold: 50, samplingInterval: 0.01) { _ in
-            XCTFail("Framerate dip event triggered in background")
-        }
+        let exp = expectation(description: "Framerate drop event trigger")
+        monitor = FramerateDropMonitor(threshold: 50, samplingInterval: 0.01, reporter: MockReporter {_ in
+            XCTFail("Framerate drop event triggered in background")
+        })
         DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(200)) {
             exp.fulfill()
         }
@@ -62,11 +62,11 @@ class FramerateDropMonitorTests: XCTestCase {
     
     func test_foregrounding_shouldResumeMonitoring() {
         var event: Event?
-        let exp = expectation(description: "Framerate dip event trigger")
-        monitor = FramerateDropMonitor(threshold: 50, samplingInterval: 0.01) {
+        let exp = expectation(description: "Framerate drop event trigger")
+        monitor = FramerateDropMonitor(threshold: 50, samplingInterval: 0.01, reporter: MockReporter {
             event = $0
             exp.fulfill()
-        }
+        })
         
         NotificationCenter.default.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
         NotificationCenter.default.post(name: UIApplication.didBecomeActiveNotification, object: nil)

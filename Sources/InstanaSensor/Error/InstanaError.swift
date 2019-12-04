@@ -13,6 +13,8 @@ import Foundation
         case notAuthenticated
         case bufferOverwrite
         case unknownType
+        case noWifiAvailable
+        case lowBattery
     }
     
     init(code: Code, description: String) {

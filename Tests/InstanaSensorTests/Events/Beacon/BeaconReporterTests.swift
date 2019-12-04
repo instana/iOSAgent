@@ -6,70 +6,618 @@ import XCTest
 
 class BeaconReporterTests: XCTestCase {
 
+    var config: InstanaConfiguration!
+
     override func setUp() {
         super.setUp()
-        Instana.setup(withKey: "KEY") // needed for mocking submission
+        config = InstanaConfiguration.default(key: "KEY")
     }
 
-    override func tearDown() {
-        Instana.setup(withKey: "")
-        super.tearDown()
-    }
-
-    func test_internalTimer_shouldNotCauseRetainCycle() {
-        var reporter: BeaconReporter? = BeaconReporter(transmissionDelay: 0.01) { _, _, _ in}
-        weak var weakReporter = reporter
-        let exp = expectation(description: "Delay")
-        
-        reporter?.submit(Event(timestamp: 0))
-        reporter = nil
-        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(10)) {
-            exp.fulfill()
-        }
-        
-        waitForExpectations(timeout: 0.2, handler: nil)
-        XCTAssertNil(weakReporter)
-    }
-    
-    func test_changingBuffer_sendsQueuedEvents() {
-        let exp = expectation(description: "test_changingBuffer_sendsQueuedEvents")
-        var requestMade = false
-        let reporter = BeaconReporter(transmissionDelay: 10) { _, _, _ in
-            requestMade = true
-            exp.fulfill()
-        }
-        
-        reporter.submit(CustomEvent(name: "Custom"))
-        reporter.bufferSize = 10
-
-        waitForExpectations(timeout: 0.2, handler: nil)
-        XCTAssertTrue(requestMade)
-    }
-    
-    func test_delayEventSubmission_onLowBattery() {
+    /// Criteria:
+    ///  - Suspend Sending when: Never
+    ///   - TransmissionDelay: 0.4
+    ///  - Battery: Good
+    ///  - WIFI: NO
+    ///
+    /// Expected Result - Report should be sent after delay of 0.4
+    func test_send_delay() {
+        // Given
         let exp = expectation(description: "Delayed sending")
-        var count = 0
-        let reporter = BeaconReporter(transmissionDelay: 0.05,
-                                      transmissionLowBatteryDelay: 0.01,
-                                      batterySafeForNetworking: { count += 1; return count >= 3 },
-                                      load: { _, _, _ in
-                                        XCTAssertEqual(count, 3)
+
+        let delay = 0.4
+        var config = self.config!
+        config.suspendReporting = []
+        config.transmissionDelay = delay
+        config.transmissionLowBatteryDelay = 0.0
+
+        let start = Date()
+        var didSend: Date?
+        let reporter = BeaconReporter(config, batterySafeForNetworking: { true }, hasWifi: { false },
+                                      send: { _, _ in
+                                        didSend = Date()
                                         exp.fulfill()
         })
-        reporter.suspendReporting = .lowBattery
+
+        // When
+        reporter.submit(AlertEvent(alertType: .lowMemory))
+        waitForExpectations(timeout: delay * 2, handler: nil)
         
-        reporter.submit(AlertEvent(alertType: .lowMemory, screen: nil))
-        
-        waitForExpectations(timeout: 0.2, handler: nil)
+
+        // Then
+        AssertTrue(didSend != nil)
+        AssertTrue(didSend?.timeIntervalSince(start) ?? 0.0 >= delay)
     }
-    
-    func test_loadError_shouldBeParsedToError() {
-        let error = CocoaError(.coderInvalidValue)
-        mockEventSubmission(.failure(error: error)) { result in
+
+    /// Criteria:
+    ///  - Suspend Sending when: Never
+    ///  - Low Battery TransmissionDelay: 0.4
+    ///  - Battery: low
+    ///  - WIFI: NO
+    ///
+    /// Expected Result - Report should be sent after delay of 0.4
+    func test_send_delay_onLowBattery() {
+        // Given
+        let exp = expectation(description: "Delayed sending")
+        let delay = 0.4
+        var config = self.config!
+        config.suspendReporting = []
+        config.transmissionDelay = delay
+        config.transmissionLowBatteryDelay = delay
+
+        let start = Date()
+        var finished: Date?
+
+        let reporter = BeaconReporter(config, batterySafeForNetworking: { false }, hasWifi: { false },
+                                      send: { _, _ in
+                                        finished = Date()
+                                        exp.fulfill()
+        })
+
+        // When
+        reporter.submit(AlertEvent(alertType: .lowMemory))
+        waitForExpectations(timeout: delay * 2, handler: nil)
+
+
+        // Then
+        AssertTrue(finished != nil)
+        AssertTrue(finished?.timeIntervalSince(start) ?? 0.0 >= delay)
+    }
+
+    // MARK: Test suspending behavior on NO WIFI connection
+
+    /// Criteria:
+    ///  - Suspend Sending when: Connected to cellular
+    ///  - Battery: Good
+    ///  - WIFI: NO
+    ///
+    /// Expected Result - Report should NOT be sent
+    func test_suspend_cellularConnection_goodBattery_noWifi() {
+        // Given
+        let exp = expectation(description: "Delayed sending")
+        var expectedError: InstanaError?
+        var config = self.config!
+        config.suspendReporting = [.cellularConnection]
+        config.transmissionDelay = 0.0
+        config.transmissionLowBatteryDelay = 0.0
+        var sendNotCalled = true
+        let reporter = BeaconReporter(config, batterySafeForNetworking: { true }, hasWifi: { false },
+                                      send: { _, _ in
+                                        sendNotCalled = false
+        })
+
+        // When
+        reporter.completion = {result in
+            expectedError = result.error as? InstanaError
+            exp.fulfill()
+        }
+        reporter.submit(AlertEvent(alertType: .lowMemory))
+        waitForExpectations(timeout: 0.3, handler: nil)
+
+        // Then
+        AssertTrue(sendNotCalled)
+        AssertTrue(expectedError?.code == InstanaError.Code.noWifiAvailable.rawValue)
+    }
+
+    /// Criteria:
+    ///  - Suspend Sending when: Connected to cellular
+    ///  - Battery: Low
+    ///  - WIFI: YES
+    ///
+    /// Expected Result - Report should be sent
+    func test_sending_cellularConnection_lowBattery_wifi() {
+        // Given
+        let exp = expectation(description: "Delayed sending")
+        var config = self.config!
+        config.suspendReporting = [.cellularConnection]
+        config.transmissionDelay = 0.0
+        config.transmissionLowBatteryDelay = 0.0
+        var didSendReport = false
+        let reporter = BeaconReporter(config, batterySafeForNetworking: { false }, hasWifi: { true },
+                                      send: { _, _ in
+                                        didSendReport = true
+                                        exp.fulfill()
+        })
+
+        // When
+        reporter.submit(AlertEvent(alertType: .lowMemory))
+        waitForExpectations(timeout: 0.3, handler: nil)
+
+        // Then
+        AssertTrue(didSendReport)
+    }
+
+    /// Criteria:
+    ///  - Suspend Sending when: Connected to cellular
+    ///  - Battery: Good
+    ///  - WIFI: YES
+    ///
+    /// Expected Result - Report should be sent
+    func test_sending_cellularConnection_goodBattery_wifi() {
+        // Given
+        let exp = expectation(description: "Delayed sending")
+        var config = self.config!
+        config.suspendReporting = [.cellularConnection]
+        config.transmissionDelay = 0.0
+        config.transmissionLowBatteryDelay = 0.0
+        var didSendReport = false
+        let reporter = BeaconReporter(config, batterySafeForNetworking: { true }, hasWifi: { true },
+                                      send: { _, _ in
+                                        didSendReport = true
+                                        exp.fulfill()
+        })
+
+        // When
+        reporter.submit(AlertEvent(alertType: .lowMemory))
+        waitForExpectations(timeout: 0.3, handler: nil)
+
+        // Then
+        AssertTrue(didSendReport)
+    }
+
+    /// Criteria:
+    ///  - Suspend Sending when: Connected to cellular
+    ///  - Battery: Low
+    ///  - WIFI: NO
+    ///
+    /// Expected Result - Report should NOT be sent
+    func test_suspsend_cellularConnection_lowBattery_noWIFI() {
+        // Given
+        let exp = expectation(description: "Delayed sending")
+        var expectedError: InstanaError?
+        var config = self.config!
+        config.suspendReporting = [.cellularConnection]
+        config.transmissionDelay = 0.0
+        config.transmissionLowBatteryDelay = 0.0
+        var sendNotCalled = true
+        let reporter = BeaconReporter(config, batterySafeForNetworking: { false }, hasWifi: { false },
+                                      send: { _, _ in
+                                        sendNotCalled = false
+        })
+
+        // When
+        reporter.completion = {result in
+            expectedError = result.error as? InstanaError
+            exp.fulfill()
+        }
+        reporter.submit(AlertEvent(alertType: .lowMemory))
+        waitForExpectations(timeout: 0.3, handler: nil)
+
+        // Then
+        AssertTrue(sendNotCalled)
+        AssertTrue(expectedError?.code == InstanaError.Code.noWifiAvailable.rawValue)
+    }
+
+    // MARK: Test suspending behavior on LOW Battery
+    /// Criteria:
+    ///  - Suspend Sending when: Battery low
+    ///  - Battery: Low
+    ///  - WIFI: NO
+    ///
+    /// Expected Result - Report with beacons should NOT be sent
+    func test_suspendLowBattery_lowBattery_noWifi() {
+        // Given
+        let exp = expectation(description: "Delayed sending")
+        var expectedError: InstanaError?
+        var config = self.config!
+        config.suspendReporting = [.lowBattery]
+        config.transmissionDelay = 0.0
+        config.transmissionLowBatteryDelay = 0.0
+        var sendNotCalled = true
+        let reporter = BeaconReporter(config, batterySafeForNetworking: { false }, hasWifi: { false },
+                                      send: { _, _ in
+                                        sendNotCalled = false
+        })
+
+        // When
+        reporter.completion = {result in
+            expectedError = result.error as? InstanaError
+            exp.fulfill()
+        }
+        reporter.submit(AlertEvent(alertType: .lowMemory))
+        waitForExpectations(timeout: 0.3, handler: nil)
+
+        // Then
+        AssertTrue(sendNotCalled)
+        AssertTrue(expectedError?.code == InstanaError.Code.lowBattery.rawValue)
+    }
+
+    /// Criteria:
+    ///  - Suspend Sending when: Battery low
+    ///  - Battery: Good
+    ///  - WIFI: YES
+    ///
+    /// Expected Result - Report should be sent
+    func test_suspendLowBattery_goodBattery_Wifi() {
+        // Given
+        let exp = expectation(description: "Delayed sending")
+        var config = self.config!
+        config.suspendReporting = [.lowBattery]
+        config.transmissionDelay = 0.0
+        config.transmissionLowBatteryDelay = 0.0
+        var didSendReport = false
+        let reporter = BeaconReporter(config, batterySafeForNetworking: { true }, hasWifi: { true },
+                                      send: { _, _ in
+                                        didSendReport = true
+                                        exp.fulfill()
+        })
+
+        // When
+        reporter.submit(AlertEvent(alertType: .lowMemory))
+        waitForExpectations(timeout: 0.3, handler: nil)
+
+        // Then
+        AssertTrue(didSendReport)
+    }
+
+    /// Criteria:
+    ///  - Suspend Sending when: Battery low
+    ///  - Battery: Good
+    ///  - WIFI: NO
+    ///
+    /// Expected Result - Report should be sent
+    func test_suspendLowBattery_goodBattery_noWifi() {
+        // Given
+        let exp = expectation(description: "Delayed sending")
+        var config = self.config!
+        config.suspendReporting = [.lowBattery]
+        config.transmissionDelay = 0.0
+        config.transmissionLowBatteryDelay = 0.0
+        var didSendReport = false
+        let reporter = BeaconReporter(config, batterySafeForNetworking: { true }, hasWifi: { false },
+                                      send: { _, _ in
+                                        didSendReport = true
+                                        exp.fulfill()
+        })
+
+        // When
+        reporter.submit(AlertEvent(alertType: .lowMemory))
+        waitForExpectations(timeout: 0.3, handler: nil)
+
+        // Then
+        AssertTrue(didSendReport)
+    }
+
+    /// Criteria:
+    ///  - Suspend Sending when: Battery low
+    ///  - Battery: Low
+    ///  - WIFI: YES
+    ///
+    /// Expected Result - Report should NOT be sent
+    func test_suspendLowBattery_lowBattery_WIFI() {
+        // Given
+        let exp = expectation(description: "Delayed sending")
+        var expectedError: InstanaError?
+        var config = self.config!
+        config.suspendReporting = [.lowBattery]
+        config.transmissionDelay = 0.0
+        config.transmissionLowBatteryDelay = 0.0
+        var didNOTSendReport = true
+        let reporter = BeaconReporter(config, batterySafeForNetworking: { false }, hasWifi: { true },
+                                      send: { _, _ in
+                                        didNOTSendReport = false
+        })
+
+        // When
+        reporter.completion = {result in
+            expectedError = result.error as? InstanaError
+            exp.fulfill()
+        }
+        reporter.submit(AlertEvent(alertType: .lowMemory))
+        waitForExpectations(timeout: 0.3, handler: nil)
+
+        // Then
+        AssertTrue(didNOTSendReport)
+        AssertTrue(expectedError?.code == InstanaError.Code.lowBattery.rawValue)
+    }
+
+    // MARK: Test suspending behavior on all (NO WIFI and low Battery)
+
+    /// Criteria:
+    ///  - Suspend Sending when: Battery low AND NO WIFI
+    ///  - Battery: Low
+    ///  - WIFI: NO
+    ///
+    /// Expected Result - Report with beacons should NOT be sent
+    func test_suspend_all_lowBattery_noWIFI() {
+        let exp = expectation(description: "Delayed sending")
+        var expectedError: InstanaError?
+        var config = self.config!
+        config.suspendReporting = [.lowBattery, .cellularConnection]
+        config.transmissionDelay = 0.0
+        config.transmissionLowBatteryDelay = 0.0
+        var sendNotCalled = true
+        let reporter = BeaconReporter(config, batterySafeForNetworking: { false }, hasWifi: { false },
+                                      send: { _, _ in
+                                        sendNotCalled = false
+        })
+
+        // When
+        reporter.completion = {result in
+            expectedError = result.error as? InstanaError
+            exp.fulfill()
+        }
+        reporter.submit(AlertEvent(alertType: .lowMemory))
+        waitForExpectations(timeout: 0.3, handler: nil)
+
+        // Then
+        AssertTrue(sendNotCalled)
+        AssertTrue(expectedError?.code == InstanaError.Code.noWifiAvailable.rawValue)
+    }
+
+    /// Criteria:
+    ///  - Suspend Sending when: Battery low AND NO WIFI
+    ///  - Battery: Good
+    ///  - WIFI: NO
+    ///
+    /// Expected Result - Report with beacons should NOT be sent
+    func test_suspend_all_goodBattery_noWIFI() {
+        let exp = expectation(description: "Delayed sending")
+        var expectedError: InstanaError?
+        var config = self.config!
+        config.suspendReporting = [.lowBattery, .cellularConnection]
+        config.transmissionDelay = 0.0
+        config.transmissionLowBatteryDelay = 0.0
+        var sendNotCalled = true
+        let reporter = BeaconReporter(config, batterySafeForNetworking: { true }, hasWifi: { false },
+                                      send: { _, _ in
+                                        sendNotCalled = false
+                                        exp.fulfill()
+        })
+
+        // When
+        reporter.completion = {result in
+            expectedError = result.error as? InstanaError
+            exp.fulfill()
+        }
+        reporter.submit(AlertEvent(alertType: .lowMemory))
+        waitForExpectations(timeout: 0.3, handler: nil)
+
+        // Then
+        AssertTrue(sendNotCalled)
+        AssertTrue(expectedError?.code == InstanaError.Code.noWifiAvailable.rawValue)
+    }
+
+    /// Criteria:
+    ///  - Suspend Sending when: Battery low AND NO WIFI
+    ///  - Battery: Low
+    ///  - WIFI: YES
+    ///
+    /// Expected Result - Report with beacons should NOT be sent
+    func test_suspend_all_lowBattery_WIFI() {
+        var expectedError: InstanaError?
+        let exp = expectation(description: "Delayed sending")
+        var config = self.config!
+        config.suspendReporting = [.lowBattery, .cellularConnection]
+        config.transmissionDelay = 0.0
+        config.transmissionLowBatteryDelay = 0.0
+        var sendNotCalled = true
+        let reporter = BeaconReporter(config, batterySafeForNetworking: { false }, hasWifi: { true },
+                                      send: { _, _ in
+                                        sendNotCalled = false
+        })
+
+        // When
+        reporter.completion = {result in
+            expectedError = result.error as? InstanaError
+            exp.fulfill()
+        }
+        reporter.submit(AlertEvent(alertType: .lowMemory))
+        waitForExpectations(timeout: 0.3, handler: nil)
+
+        // Then
+        AssertTrue(sendNotCalled)
+        AssertTrue(expectedError?.code == InstanaError.Code.lowBattery.rawValue)
+    }
+
+    /// Criteria:
+    ///  - Suspend Sending when: Battery low AND NO WIFI
+    ///  - Battery: Good
+    ///  - WIFI: YES
+    ///
+    /// Expected Result - Report with beacons should be sent
+    func test_suspend_all_goodBattery_WIFI() {
+        let exp = expectation(description: "Delayed sending")
+        var config = self.config!
+        config.suspendReporting = [.lowBattery, .cellularConnection]
+        config.transmissionDelay = 0.0
+        config.transmissionLowBatteryDelay = 0.0
+        var didSendReport = false
+        let reporter = BeaconReporter(config, batterySafeForNetworking: { true }, hasWifi: { true },
+                                      send: { _, _ in
+                                        didSendReport = true
+                                        exp.fulfill()
+        })
+
+        // When
+        reporter.submit(AlertEvent(alertType: .lowMemory))
+        waitForExpectations(timeout: 0.3, handler: nil)
+
+        // Then
+        AssertTrue(didSendReport)
+    }
+
+
+    // MARK: Test behaviour without suspending confi
+
+    /// Criteria:
+    ///  - Suspend Sending when: never
+    ///  - Battery: Low
+    ///  - WIFI: NO
+    ///
+    /// Expected Result - Report with beacons should be sent
+    func test_sending_no_wifi_low_battery() {
+        // Given
+        let exp = expectation(description: "Delayed sending")
+        var config = self.config!
+        config.suspendReporting = []
+        config.transmissionDelay = 0.0
+        config.transmissionLowBatteryDelay = 0.0
+        var didSendReport = false
+        let reporter = BeaconReporter(config, batterySafeForNetworking: { false }, hasWifi: { false },
+                                      send: { _, _ in
+                                        didSendReport = true
+                                        exp.fulfill()
+        })
+
+        // When
+        reporter.submit(AlertEvent(alertType: .lowMemory))
+        waitForExpectations(timeout: 0.3, handler: nil)
+
+        // Then
+        AssertTrue(didSendReport)
+    }
+
+    /// Criteria:
+    ///  - Suspend Sending when: never
+    ///  - Battery: Good
+    ///  - WIFI: YES
+    ///
+    /// Expected Result - Report with beacons should be sent
+    func test_sending_wifi_good_battery() {
+        // Given
+        let exp = expectation(description: "Delayed sending")
+        var config = self.config!
+        config.suspendReporting = []
+        config.transmissionDelay = 0.0
+        config.transmissionLowBatteryDelay = 0.0
+        var didSendReport = false
+        let reporter = BeaconReporter(config, batterySafeForNetworking: { true }, hasWifi: { true },
+                                      send: { _, _ in
+                                        didSendReport = true
+                                        exp.fulfill()
+        })
+
+        // When
+        reporter.submit(AlertEvent(alertType: .lowMemory))
+        waitForExpectations(timeout: 0.3, handler: nil)
+
+        // Then
+        AssertTrue(didSendReport)
+    }
+
+    /// Criteria:
+    ///  - Suspend Sending when: never
+    ///  - Battery: Low
+    ///  - WIFI: YES
+    ///
+    /// Expected Result - Report with beacons should be sent
+    func test_sending_wifi_low_battery() {
+        // Given
+        let exp = expectation(description: "Delayed sending")
+        var config = self.config!
+        config.suspendReporting = []
+        config.transmissionDelay = 0.0
+        config.transmissionLowBatteryDelay = 0.0
+        var didSendReport = false
+        let reporter = BeaconReporter(config, batterySafeForNetworking: { false }, hasWifi: { true },
+                                      send: { _, _ in
+                                        didSendReport = true
+                                        exp.fulfill()
+        })
+
+        // When
+        reporter.submit(AlertEvent(alertType: .lowMemory))
+        waitForExpectations(timeout: 0.3, handler: nil)
+
+        // Then
+        AssertTrue(didSendReport)
+    }
+
+    /// Criteria:
+    ///  - Suspend Sending when: never
+    ///  - Battery: Good
+    ///  - WIFI: NO
+    ///
+    /// Expected Result - Report with beacons should be sent
+    func test_sending_no_wifi_good_battery() {
+        // Given
+        let exp = expectation(description: "Delayed sending")
+        var config = self.config!
+        config.suspendReporting = []
+        config.transmissionDelay = 0.0
+        config.transmissionLowBatteryDelay = 0.0
+        var didSendReport = false
+        let reporter = BeaconReporter(config, batterySafeForNetworking: { true }, hasWifi: { false },
+                                      send: { _, _ in
+                                        didSendReport = true
+                                        exp.fulfill()
+        })
+
+        // When
+        reporter.submit(AlertEvent(alertType: .lowMemory))
+        waitForExpectations(timeout: 0.3, handler: nil)
+
+        // Then
+        AssertTrue(didSendReport)
+    }
+
+    // MARK: Test Result Code and Errors
+    func test_loadError() {
+        // Given
+        let givenError = CocoaError(.coderInvalidValue)
+        var expectedError: CocoaError?
+        let exp = expectation(description: "Delayed sending")
+
+        // When
+        mockEventSubmission(.failure(givenError)) { result in
             guard case let .failure(e) = result else { XCTFail("Invalid result"); return }
             guard let resultError = e as? CocoaError else { XCTFail("Error type missmatch"); return }
-            XCTAssertEqual(resultError, error)
+            expectedError = resultError
+            exp.fulfill()
         }
+
+        waitForExpectations(timeout: 0.6, handler: nil)
+
+        // Then
+        AssertEqualAndNotNil(expectedError, givenError)
+    }
+
+    func test_send_invalid_beacon_should_fail() {
+        // Given
+        let exp = expectation(description: "Delayed sending")
+        var shouldNotSend = true
+        var expectedError: Error?
+        var config = self.config!
+        config.transmissionDelay = 0.0
+        let reporter = BeaconReporter(config, batterySafeForNetworking: { true }, hasWifi: { true },
+                                      send: { _, _ in
+                                        shouldNotSend = false
+        })
+
+        // When
+        reporter.completion = {result in
+            if case let .failure(error) = result {
+                expectedError = error
+                exp.fulfill()
+            }
+        }
+        reporter.submit(Event(timestamp: 1000000, sessionId: "ID"))
+        waitForExpectations(timeout: 0.2, handler: nil)
+
+
+        // Then
+        AssertTrue(shouldNotSend)
+        AssertTrue(expectedError != nil)
     }
     
     func test_loadSuccess_withStatusCodeIn200Range_shouldReportSuccess() {
@@ -96,17 +644,42 @@ class BeaconReporterTests: XCTestCase {
         mockEventSubmission(.success(statusCode: 400), resultCallback: verifyResult)
         mockEventSubmission(.success(statusCode: 500), resultCallback: verifyResult)
     }
+
+    // MARK: Test Timer
+    func test_internalTimer_shouldNotCauseRetainCycle() {
+        // Given
+        var config = self.config!
+        config.suspendReporting = []
+        config.transmissionDelay = 0.01
+        config.transmissionLowBatteryDelay = 0.0
+        var reporter: BeaconReporter? = BeaconReporter(config) { _, _ in}
+        weak var weakReporter = reporter
+        let exp = expectation(description: "Delay")
+
+        // When
+        reporter?.submit(Event(timestamp: 0))
+        reporter = nil
+        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(10)) {
+            exp.fulfill()
+        }
+        waitForExpectations(timeout: 0.2, handler: nil)
+
+        // Then
+        XCTAssertNil(weakReporter)
+    }
 }
 
-// MARK: Test createBatchRequest
+// MARK: Test CreateBatchRequest
 extension BeaconReporterTests {
 
     func test_createBatchRequest() {
         // Given
-        let key = "123"
-        let reporter = BeaconReporter(key: key, transmissionDelay: 0.0) { _, _, _ in }
+        var config = self.config!
+        config.transmissionDelay = 0.0
+        config.transmissionLowBatteryDelay = 0.0
+        let reporter = BeaconReporter(config) { _, _ in}
         let events = [HTTPEvent.createMock(), HTTPEvent.createMock()]
-        let beacons = try! BeaconEventMapper(key: key).map(events)
+        let beacons = try! BeaconEventMapper(config).map(events)
         let data = beacons.asString.data(using: .utf8)
         let gzippedData = try? data?.gzipped(level: .bestCompression)
 
@@ -118,33 +691,19 @@ extension BeaconReporterTests {
         AssertEqualAndNotNil(sut?.allHTTPHeaderFields?["Content-Type"], "text/plain")
         AssertEqualAndNotNil(sut?.allHTTPHeaderFields?["Content-Encoding"], "gzip")
         AssertEqualAndNotNil(sut?.allHTTPHeaderFields?["Content-Length"], "\(gzippedData?.count ?? 0)")
-        AssertEqualAndNotNil(sut?.url, reporter.reportingURL)
+        AssertEqualAndNotNil(sut?.url, config.reportingURL)
         AssertEqualAndNotNil(sut?.httpBody, gzippedData)
-    }
-
-    func test_Send() {
-        // Given
-        var expectedResult: URLRequest?
-        let key = "123"
-        let reporter = BeaconReporter(key: key, transmissionDelay: 0.0) { request, _, _ in
-            expectedResult = request
-        }
-        let events = [HTTPEvent.createMock(), HTTPEvent.createMock()]
-        let beacons = try! BeaconEventMapper(key: key).map(events)
-
-        // When
-        let sut = try? reporter.createBatchRequest(from: beacons)
-        reporter.send(events: events)
-
-        // Then
-        AssertEqualAndNotNil(sut, expectedResult)
     }
 
     func test_createBatchRequest_invalid_key() {
         // Given
-        let reporter = BeaconReporter(key: "", transmissionDelay: 0.0) { _, _, _ in}
+        var config = self.config!
+        config.key = ""
+        config.transmissionDelay = 0.0
+        config.transmissionLowBatteryDelay = 0.0
+        let reporter = BeaconReporter(config) { _, _ in}
         let events = [HTTPEvent.createMock(), HTTPEvent.createMock()]
-        let beacons = try! BeaconEventMapper(key: "").map(events)
+        let beacons = try! BeaconEventMapper(config).map(events)
 
         // When
         XCTAssertThrowsError(try reporter.createBatchRequest(from: beacons)) {error in
@@ -156,9 +715,13 @@ extension BeaconReporterTests {
 
 extension BeaconReporterTests {
     func mockEventSubmission(_ loadResult: InstanaNetworking.Result, resultCallback: @escaping (EventResult) -> Void) {
-        let reporter = BeaconReporter(transmissionDelay: 0.05,
-                                      load: { _, _, callback in callback(loadResult) })
-        
-        reporter.submit(Event(timestamp: 1000000, sessionId: "SessionID"))
+        config.transmissionDelay = 0.0
+        config.transmissionLowBatteryDelay = 0.0
+        let reporter = BeaconReporter(config,
+                                      batterySafeForNetworking: { true },
+                                      hasWifi: { true },
+                                      send: { _, callback in callback(loadResult) })
+        reporter.completion = resultCallback
+        reporter.submit(AlertEvent(alertType: .lowMemory))
     }
 }

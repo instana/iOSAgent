@@ -6,6 +6,9 @@ import CoreTelephony
 import UIKit
 
 class InstanaSystemUtils {
+
+    static let battery = InstanaBatteryUtils()
+
     /// Returns device model (for ex. "iPhone10,1")
     static var deviceModel: String = {
         var systemInfo = utsname()
@@ -87,37 +90,41 @@ class InstanaSystemUtils {
     }()
 
     static var connectionTypeDescription: String {
-        return (NetworkMonitor.shared.connectionType?.rawValue ?? "no connection type") + " - " + (cellularConnectionType ?? "no cellular")
+        return (Instana.current.monitors.network.connectionType?.rawValue ?? "no connection type") + " - " + (cellularConnectionType ?? "no cellular")
     }
     
     /// Returns a ' > ' sepparated string of view controller class names in the app hierarchy.
     /// This is only a superficial check, and doesn't go deeper than one level.
     static func viewControllersHierarchy() -> String? {
-        // TODO Can only be accessed via the main thread. a bit tricky to handle this properly
-        guard let root = UIApplication.shared.delegate?.window??.rootViewController else { return nil }
-        var vcs: [UIViewController] = []
-        let rootName = String(describing: type(of: root))
-        
-        switch root {
-        case let nvc as UINavigationController:
-            vcs.append(contentsOf: nvc.viewControllers)
-        case let tvc as UITabBarController:
-            if let selected = tvc.selectedViewController {
-                vcs.append(selected)
+        guard Thread.current.isMainThread else { return nil }
+        // This is tricky for multiple window support. which window should we use? TODO: Find a better solution
+        // For now we use all rootViewController)
+        let hierarchies = UIApplication.shared.windows.compactMap {window -> String? in
+            guard let root = window.rootViewController else { return nil }
+            var vcs = [UIViewController]()
+            let rootName = root.hiercharchyName
+
+            switch root {
+            case let nvc as UINavigationController:
+                vcs.append(contentsOf: nvc.viewControllers)
+            case let tvc as UITabBarController:
+                if let selected = tvc.selectedViewController {
+                    vcs.append(selected)
+                }
+            case let svc as UISplitViewController:
+                vcs.append(contentsOf: svc.viewControllers)
+            default: break
             }
-        case let svc as UISplitViewController:
-            vcs.append(contentsOf: svc.viewControllers)
-        default:
-            break
-        }
-        
-        if let modal = (vcs.last ?? root).presentedViewController {
-            vcs.append(modal)
-        }
-        
-        return vcs
-            .map { String(describing: type(of: $0)) }
+
+            if let modal = (vcs.last ?? root).presentedViewController {
+                vcs.append(modal)
+            }
+            return vcs
+            .map { $0.hiercharchyName }
             .reduce(rootName) { "\($0) > \($1)" }
+        }
+        let result = hierarchies.joined(separator: "\n")
+        return result.isEmpty ? nil : result
     }
     
     /// Persistent client id stored in user defaults.

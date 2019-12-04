@@ -4,12 +4,11 @@
 import Foundation
 import Network
 
-@objc public class NetworkMonitor: NSObject {
+class NetworkMonitor {
     enum ConnectionType: String {
         case wifi, cellular
     }
-    
-    static let shared = NetworkMonitor()
+
     private(set) var connectionType: ConnectionType?
     private let queue = DispatchQueue(label: "NetworkMonitor")
     @available(iOS 12.0, *)
@@ -38,8 +37,7 @@ import Network
         return monitor
     }()
     
-    override init() {
-        super.init()
+    init() {
         if #available(iOS 12.0, *) {
             monitor.start(queue: queue)
         }

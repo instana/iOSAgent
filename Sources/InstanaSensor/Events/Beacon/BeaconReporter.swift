@@ -5,153 +5,138 @@ import Foundation
 import Gzip
 
 /// BeaconReporter to manager and send out the events
-@objc public class BeaconReporter: NSObject {
+public class BeaconReporter: NSObject {
     
     typealias Submitter = (Event) -> Void
-    typealias Loader = (URLRequest, Bool, @escaping (InstanaNetworking.Result) -> Void) -> Void
-
-    /// An enum insted of option list because of Obj-C support.
-    @objc public enum SuspendReporting: Int {
-        /// Reporting is never suspended.
-        case never
-        /// Reporting is suspended while the device battery is low.
-        case lowBattery
-        /// Reporting is suspended while the device is using a cellular connection.
-        case cellularConnection
-        /// Reporting is suspended while the device battery is low or the device is using a cellular connection.
-        case lowBatteryOrCellularConnection
-    }
-    /// Determine in which cases to suspend sending of events to the Instana backend.
-    @objc public var suspendReporting: SuspendReporting = .never
-    let reportingURL: URL
-    let key: String
+    typealias NetworkLoader = (URLRequest, @escaping (InstanaNetworking.Result) -> Void) -> Void
     var completion: (EventResult) -> Void = {_ in}
+    private var backgroundQueue = DispatchQueue(label: "com.instana.ios.app.background", qos: .background, attributes: .concurrent)
     private var timer: Timer?
-    private let transmissionDelay: Instana.Types.Seconds
-    private let transmissionLowBatteryDelay: Instana.Types.Seconds
-    private let queue = DispatchQueue(label: "com.instana.events")
-    private let load: Loader
-    private let useGzip: Bool
+    private let send: NetworkLoader
     private let batterySafeForNetworking: () -> Bool
-    private lazy var buffer = { InstanaRingBuffer<Event>(size: bufferSize) }()
-    @objc var bufferSize = InstanaConfiguration.Defaults.eventsBufferSize {
-        didSet {
-            queue.sync {
-                sendBuffer()
-                buffer = InstanaRingBuffer(size: bufferSize)
-            }
-        }
-    }
-    
-    init(reportingURL: URL = Instana.reportingURL,
-         key: String = Instana.key,
-         transmissionDelay: Instana.Types.Seconds = 1,
-         transmissionLowBatteryDelay: Instana.Types.Seconds = 10,
+    private let hasWifi: () -> Bool
+    private var suspendReporting: Set<InstanaConfiguration.SuspendReporting> { configuration.suspendReporting }
+    private (set) var queue = [Event]()
+
+    private let configuration: InstanaConfiguration
+
+    // MARK: Init
+    init(_ configuration: InstanaConfiguration,
          useGzip: Bool = true,
-         batterySafeForNetworking: @escaping () -> Bool = { Instana.battery.safeForNetworking },
-         load: @escaping Loader = InstanaNetworking().load(request:restricted:completion:)) {
-        self.reportingURL = reportingURL
-        self.key = key
-        self.transmissionDelay = transmissionDelay
-        self.transmissionLowBatteryDelay = transmissionLowBatteryDelay
+         batterySafeForNetworking: @escaping () -> Bool = { InstanaSystemUtils.battery.safeForNetworking },
+         hasWifi: @escaping () -> Bool = { Instana.current.monitors.network.connectionType == .wifi },
+         send: @escaping NetworkLoader = InstanaNetworking().send(request:completion:)) {
+        self.configuration = configuration
         self.batterySafeForNetworking = batterySafeForNetworking
-        self.load = load
-        self.useGzip = useGzip
+        self.hasWifi = hasWifi
+        self.send = send
         super.init()
     }
-    
-    /// Submit a event to the Instana backend.
-    ///
-    /// Events are stored in a ring buffer and can be overwritten if too many are submited before a buffer flush.
-    /// To avoid this, `bufferSize` can be increased in the configuration.
-    ///
-    /// - Parameter event: For SDK users this should be `CustomEvent`.
-    @objc(submitEvent:)
-    public func submit(_ event: Event) {
-        queue.async {
-            self.buffer.write(event)
-            self.startSendTimer(delay: self.transmissionDelay)
-        }
-    }
-}
 
-private extension BeaconReporter {
-    func sendBuffer() {
-        self.timer?.invalidate()
-        self.timer = nil
-        
-        if batterySafeForNetworking() == false, [.lowBattery, .lowBatteryOrCellularConnection].contains(suspendReporting) {
-            startSendTimer(delay: transmissionLowBatteryDelay)
-            return
-        }
-        
-        let events = self.buffer.readAll()
-        guard events.count > 0 else { return }
-        send(events: events)
+    deinit {
+        timer?.invalidate()
     }
-    
-    func startSendTimer(delay: TimeInterval) {
-        guard timer == nil || timer?.isValid == false else { return }
-        let t = InstanaTimerProxy.timer(proxied: self, timeInterval: delay)
-        RunLoop.main.add(t, forMode: .common)
+
+    func submit(_ event: Event) {
+        // TODO: Build OperationQueue later - send all directly now
+        // TODO: Queue should also persist the events in case of a crash or network failure
+        queue.append(event)
+        scheduleFlush()
+    }
+
+    func scheduleFlush() {
+        timer?.invalidate()
+        let interval = batterySafeForNetworking() ? configuration.transmissionDelay : configuration.transmissionLowBatteryDelay
+        if interval == 0.0 {
+            flushQueue()
+            return // No timer needed - flush directly
+        }
+        let t = InstanaTimerProxy.timer(proxied: self, timeInterval: interval, userInfo: CFAbsoluteTimeGetCurrent(), repeats: false)
         timer = t
+        RunLoop.main.add(t, forMode: .common)
     }
 }
 
 extension BeaconReporter: InstanaTimerProxiedTarget {
     func onTimer(timer: Timer) {
-        queue.async { self.sendBuffer() }
+        flushQueue()
     }
 }
 
 extension BeaconReporter {
-    func send(events: [Event]) {
+    // TODO: Test Flush
+    // TODO: Consider flushing in a background thread
+    func flushQueue() {
+        backgroundQueue.async {
+            self._flushQueue()
+        }
+    }
+
+    private func _flushQueue() {
+        if suspendReporting.contains(.cellularConnection) && !hasWifi() {
+            complete([], .failure(InstanaError(code: .noWifiAvailable, description: "No WIFI Available")))
+            return
+        }
+        if suspendReporting.contains(.lowBattery) && !batterySafeForNetworking() {
+            complete([], .failure(InstanaError(code: .lowBattery, description: "Battery too low for flushing")))
+            return
+        }
+
+        let eventsToSend = queue
         let request: URLRequest
         var beacons = [Beacon]()
         do {
-            beacons = try BeaconEventMapper(key: key).map(events)
+            beacons = try BeaconEventMapper(configuration).map(eventsToSend)
             request = try createBatchRequest(from: beacons)
         } catch {
-            complete(beacons, .failure(error: error))
+            complete(beacons, .failure(error))
             return
         }
-        let restrictLoad = [.cellularConnection, .lowBatteryOrCellularConnection].contains(suspendReporting)
-        load(request, restrictLoad) { result in
-            // TODO: failed requests handling, after prototype
+        send(request) {[weak self] result in
+            guard let self = self else { return }
             switch result {
             case .failure(let error):
-                self.complete(beacons, .failure(error: error))
+                self.complete(beacons, .failure(error))
             case .success(200...299):
                 self.complete(beacons, .success)
             case .success(let statusCode):
-                self.complete(beacons, .failure(error: InstanaError(code: .invalidResponse, description: "Invalid repsonse status code: \(statusCode)")))
+                self.complete(beacons, .failure(InstanaError(code: .invalidResponse, description: "Invalid repsonse status code: \(statusCode)")))
             }
         }
     }
     
-    func complete(_ beacons: [Beacon], _ result: EventResult) {
+    func complete(_ beacons: [Beacon],_ result: EventResult) {
         switch result {
-        case .success: Instana.log.add("Did send beacons \(beacons)")
-        case .failure(let error): Instana.log.add("Failed to send Beacon batch: \(error)", level: .warning)
+        case .success:
+            Instana.current.logger.add("Did send beacons \(beacons)")
+            removeFromQueue(beacons)
+        case .failure(let error):
+            Instana.current.logger.add("Failed to send Beacon batch: \(error)", level: .warning)
         }
         completion(result)
+    }
+
+    func removeFromQueue(_ beacons: [Beacon]) {
+        beacons.forEach { beacon in
+            queue.removeAll(where: {$0.id == beacon.bid})
+        }
     }
 }
 
 extension BeaconReporter {
 
     func createBatchRequest(from beacons: [Beacon]) throws -> URLRequest {
-        guard !key.isEmpty else {
+        guard !configuration.key.isEmpty else {
             throw InstanaError(code: .notAuthenticated, description: "Missing application key. No data will be sent.")
         }
 
-        var urlRequest = URLRequest(url: reportingURL)
+        var urlRequest = URLRequest(url: configuration.reportingURL)
         urlRequest.httpMethod = "POST"
         urlRequest.addValue("text/plain", forHTTPHeaderField: "Content-Type")
 
         let data = beacons.asString.data(using: .utf8)
 
-        if useGzip, let gzippedData = try? data?.gzipped(level: .bestCompression) {
+        if configuration.gzipReport, let gzippedData = try? data?.gzipped(level: .bestCompression) {
             urlRequest.httpBody = gzippedData
             urlRequest.setValue("gzip", forHTTPHeaderField: "Content-Encoding")
             urlRequest.setValue("\(gzippedData.count)", forHTTPHeaderField: "Content-Length")

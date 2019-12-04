@@ -7,13 +7,21 @@ import XCTest
 class ApplicationNotRespondingMonitorTests: XCTestCase {
 
     var monitor: ApplicationNotRespondingMonitor?
-    
+    var instana: Instana!
+
+    override func setUp() {
+        super.setUp()
+        Instana.setup(key: "KEY")
+        self.instana = Instana.current
+    }
+
     override func tearDown() {
+        instana = nil
         monitor = nil
     }
     
     func test_internalTimer_shouldNotRetainMonitor() {
-        monitor = ApplicationNotRespondingMonitor(threshold: 5) { _ in }
+        monitor = ApplicationNotRespondingMonitor(threshold: 5, reporter: MockReporter {_ in })
         weak var weakMonitor = monitor
         
         monitor = nil
@@ -24,10 +32,10 @@ class ApplicationNotRespondingMonitorTests: XCTestCase {
     func test_performanceOverload_triggersANREvent() {
         var event: Event?
         let exp = expectation(description: "ANR event trigger")
-        monitor = ApplicationNotRespondingMonitor(threshold: 0.01, samplingInterval: 0.1) {
+        monitor = ApplicationNotRespondingMonitor(threshold: 0.01, samplingInterval: 0.1, reporter: MockReporter {
             event = $0
             exp.fulfill()
-        }
+        })
         
         Thread.sleep(forTimeInterval: 0.12)
         
@@ -46,9 +54,9 @@ class ApplicationNotRespondingMonitorTests: XCTestCase {
     
     func test_backgroundedApplication_shouldNotTriggerANREvent() {
         let exp = expectation(description: "ANR event trigger")
-        monitor = ApplicationNotRespondingMonitor(threshold: 0.01, samplingInterval: 0.1) { _ in
+        monitor = ApplicationNotRespondingMonitor(threshold: 0.01, samplingInterval: 0.1, reporter: MockReporter {_ in
             XCTFail("ANR event triggered in background")
-        }
+        })
         DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(120)) {
             exp.fulfill()
         }
@@ -63,10 +71,10 @@ class ApplicationNotRespondingMonitorTests: XCTestCase {
         var event: Event?
         var count = 0
         let exp = expectation(description: "ANR event trigger")
-        monitor = ApplicationNotRespondingMonitor(threshold: 0.01, samplingInterval: 0.1) {
+        monitor = ApplicationNotRespondingMonitor(threshold: 0.01, samplingInterval: 0.1, reporter: MockReporter {
             event = $0
             count += 1
-        }
+        })
         // fulfill expectation after a timer to catch mutliple events
         DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(120)) {
             exp.fulfill()

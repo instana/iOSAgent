@@ -6,42 +6,29 @@ import Foundation
 class InstanaNetworking {
     enum Result {
         case success(statusCode: Int)
-        case failure(error: Error)
+        case failure(Error)
     }
     
     typealias DataTaskResult = (Data?, URLResponse?, Error?) -> Void
     typealias LoadResult = (Result) -> Void
-    typealias Loader = (URLRequest, @escaping DataTaskResult) -> URLSessionDataTask
-    
-    private let load: Loader
-    private let restrictedLoad: Loader
-    
-    init(load: @escaping Loader = URLSession(configuration: .default).dataTask(with:completionHandler:),
-         restrictedLoad: @escaping Loader = URLSession(configuration: .wifi).dataTask(with:completionHandler:)) {
-        self.load = load
-        self.restrictedLoad = restrictedLoad
+    typealias NetworkLoader = (URLRequest, @escaping DataTaskResult) -> URLSessionDataTask
+    private let send: NetworkLoader
+
+    init(send: @escaping NetworkLoader = URLSession(configuration: .default).dataTask(with:completionHandler:)) {
+        self.send = send
     }
     
-    func load(request: URLRequest, restricted: Bool = false, completion: @escaping LoadResult) {
-        let loadRequest = restricted ? restrictedLoad : load
-        loadRequest(request) { data, response, error in
+    func send(request: URLRequest, completion: @escaping LoadResult) {
+        send(request) { data, response, error in
             if let error = error {
-                completion(.failure(error: error))
+                completion(.failure(error))
             }
             else if let httpResponse = response as? HTTPURLResponse {
                 completion(.success(statusCode: httpResponse.statusCode))
             }
             else {
-                completion(.failure(error: InstanaError(code: .invalidResponse, description: "Unexpected response type")))
+                completion(.failure(InstanaError(code: .invalidResponse, description: "Unexpected response type")))
             }
         }.resume()
-    }
-}
-
-extension URLSessionConfiguration {
-    class var wifi: URLSessionConfiguration {
-        let configuration = URLSessionConfiguration.default
-        configuration.allowsCellularAccess = false
-        return configuration
     }
 }

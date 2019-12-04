@@ -8,32 +8,13 @@ class InstanaNetworkingTests: XCTestCase {
     
     let testURL = URL(string: "www.a.a")!
 
-    func test_networking_defaultsToUnrestricted() {
-        let networking = InstanaNetworking(load: { _, resultCallback -> URLSessionDataTask in
-            return TestSessionDataTask(response: self.validResponse(statusCode: 204), callback: resultCallback)
-        }, restrictedLoad: { _, _ -> URLSessionDataTask in
-            XCTFail("Should not call restricted load")
-            return URLSessionDataTask()
-        })
-        var loaded = false
-        
-        networking.load(request: URLRequest(url: testURL)) { _ in
-            loaded = true
-        }
-        
-        XCTAssertTrue(loaded, "Load never invoked callback")
-    }
-    
-    func test_networkingRestricted_usesCorrectLoader() {
-        let networking = InstanaNetworking(load: { _, _ -> URLSessionDataTask in
-            XCTFail("Should not call default load")
-            return URLSessionDataTask()
-        }, restrictedLoad: { _, resultCallback -> URLSessionDataTask in
+    func test_networking_load() {
+        let networking = InstanaNetworking(send: { _, resultCallback -> URLSessionDataTask in
             return TestSessionDataTask(response: self.validResponse(statusCode: 204), callback: resultCallback)
         })
         var loaded = false
         
-        networking.load(request: URLRequest(url: testURL), restricted: true) { _ in
+        networking.send(request: URLRequest(url: testURL)) { _ in
             loaded = true
         }
         
@@ -42,16 +23,16 @@ class InstanaNetworkingTests: XCTestCase {
 
     func test_networking_parsesResponseSatusCode() {
         var invocations = 0
-        var networking = InstanaNetworking(load: { TestSessionDataTask(response: self.validResponse(statusCode: 200), callback: $1) })
+        var networking = InstanaNetworking(send: { TestSessionDataTask(response: self.validResponse(statusCode: 200), callback: $1) })
         
-        networking.load(request: URLRequest(url: testURL)) {
+        networking.send(request: URLRequest(url: testURL)) {
             invocations += 1
             guard case .success(200) = $0 else { XCTFail("Invalid result"); return }
         }
         
-        networking = InstanaNetworking(load: { TestSessionDataTask(response: self.validResponse(statusCode: 204), callback: $1) })
+        networking = InstanaNetworking(send: { TestSessionDataTask(response: self.validResponse(statusCode: 204), callback: $1) })
         
-        networking.load(request: URLRequest(url: testURL)) {
+        networking.send(request: URLRequest(url: testURL)) {
             invocations += 1
             guard case .success(204) = $0 else { XCTFail("Invalid result"); return }
         }
@@ -61,10 +42,10 @@ class InstanaNetworkingTests: XCTestCase {
     
     func test_networkingReturnsError_ifNotAbleToExtractStatusCode() {
         let nonHTTPResponse = URLResponse(url: testURL, mimeType: nil, expectedContentLength: 0, textEncodingName: nil)
-        let networking = InstanaNetworking(load: { TestSessionDataTask(response: nonHTTPResponse, callback: $1) })
+        let networking = InstanaNetworking(send: { TestSessionDataTask(response: nonHTTPResponse, callback: $1) })
         var result: InstanaNetworking.Result?
         
-        networking.load(request: URLRequest(url: testURL)) { result = $0 }
+        networking.send(request: URLRequest(url: testURL)) { result = $0 }
         
         XCTAssertNotNil(result)
         guard case let .failure(e)? = result else { XCTFail("Result is not error"); return }
@@ -74,10 +55,10 @@ class InstanaNetworkingTests: XCTestCase {
     
     func test_networking_forwardsResponseError() {
         let responseError = CocoaError(CocoaError.Code.featureUnsupported)
-        let networking = InstanaNetworking(load: { TestSessionDataTask(error: responseError, callback: $1) })
+        let networking = InstanaNetworking(send: { TestSessionDataTask(error: responseError, callback: $1) })
         var result: InstanaNetworking.Result?
         
-        networking.load(request: URLRequest(url: testURL)) { result = $0 }
+        networking.send(request: URLRequest(url: testURL)) { result = $0 }
         
         XCTAssertNotNil(result)
         guard case let .failure(e)? = result else { XCTFail("Result is not error"); return }

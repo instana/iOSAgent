@@ -15,11 +15,11 @@ class InstanaBatteryUtils {
         updateSafeForNetworking(0)
     }
     
-    @objc private func onBatteryLevelDidChange() {
+    @objc func onBatteryLevelDidChange() {
         updateSafeForNetworking(0)
     }
     
-    @objc private func onBatteryStateDidChange() {
+    @objc func onBatteryStateDidChange() {
         updateSafeForNetworking(0)
     }
     

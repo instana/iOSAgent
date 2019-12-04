@@ -8,10 +8,10 @@
 import Foundation
 
 class BeaconEventMapper {
-    let key: String
+    private let configuration: InstanaConfiguration
 
-    init(key: String) {
-        self.key = key
+    init(_ configuration: InstanaConfiguration) {
+        self.configuration = configuration
     }
 
     func map(_ events: [Event]) throws -> [Beacon] {
@@ -19,7 +19,7 @@ class BeaconEventMapper {
     }
 
     func map(_ event: Event) throws -> Beacon {
-        var beacon = Beacon.createDefault(key: key, timestamp: event.timestamp, sessionId: event.sessionId, eventId: event.eventId)
+        var beacon = Beacon.createDefault(key: configuration.key, timestamp: event.timestamp, sessionId: event.sessionId, id: event.id)
         switch event {
         case let e as HTTPEvent:
             beacon.append(e)
@@ -42,7 +42,7 @@ extension Beacon {
 
     mutating func append(_ event: HTTPEvent) {
         t = .httpRequest
-        hu = event.url
+        hu = event.url.absoluteString
         hp = event.path
         hs = String(event.responseCode)
         hm = event.method
@@ -60,7 +60,7 @@ extension Beacon {
 
     mutating func append(_ event: SessionProfileEvent) {
         if event.state == .start {
-            t = .sessionStart  // there is no such end yet
+            t = .sessionStart  // there is no sessionEnd yet
         }
     }
 }

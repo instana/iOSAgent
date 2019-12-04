@@ -11,7 +11,7 @@ import Foundation
 extension HTTPEvent {
     static func createMock(timestamp: Int64 = Date().millisecondsSince1970,
               method: String = "POST",
-              url: String = "https://www.example.com",
+              url: URL = URL(string: "https://www.example.com")!,
         connectionType: NetworkMonitor.ConnectionType = .wifi) -> HTTPEvent {
         return HTTPEvent(timestamp: timestamp,
                          method: method,

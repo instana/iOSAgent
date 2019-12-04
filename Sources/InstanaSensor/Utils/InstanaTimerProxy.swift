@@ -11,7 +11,7 @@ protocol InstanaTimerProxiedTarget: class {
 class InstanaTimerProxy {
     private weak var target: InstanaTimerProxiedTarget?
     
-    @objc private func onTimer(timer: Timer) {
+    @objc func onTimer(timer: Timer) {
         if let target = target {
             target.onTimer(timer: timer)
         }

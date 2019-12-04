@@ -6,136 +6,196 @@ import XCTest
 
 class HTTPMonitorTests: XCTestCase {
 
+    var config: InstanaConfiguration!
+    var instana: Instana!
+
+    override func setUp() {
+        super.setUp()
+        Instana.setup(key: "KEY123")
+        instana = Instana.current
+        config = instana.configuration
+    }
+
+    override func tearDown() {
+        super.tearDown()
+        self.instana = nil
+    }
+
     func test_installing_shouldAddCustomProtocol() {
         var installed = false
-        let rci = HTTPMonitor(installer: {
+        let monitor = HTTPMonitor(config, installer: {
             XCTAssert($0 == InstanaURLProtocol.self)
             installed = true
             return true
-        })
-        rci.install()
+        }, reporter: instana.reporter)
+        monitor.install()
         XCTAssertTrue(installed)
     }
     
     func test_uninstalling_shouldRemoveCustomProtocol() {
         var uninstalled = false
-        let rci = HTTPMonitor(uninstaller: {
+        let monitor = HTTPMonitor(config, uninstaller: {
             XCTAssert($0 == InstanaURLProtocol.self)
             uninstalled = true
-        })
-        rci.uninstall()
+        }, reporter: instana.reporter)
+        monitor.uninstall()
         XCTAssertTrue(uninstalled)
     }
-    
-    func test_changingReportingType_shouldInstallAndUnistallCustomProtocoll() {
-        var installed: [HTTPMonitor.ReportingType?] = []
-        var uninstalled: [HTTPMonitor.ReportingType?] = []
-        var rci: HTTPMonitor?
-        rci = HTTPMonitor(installer: { _ in
-            installed.append(rci?.reporting); return true
-        }, uninstaller: { _ in
-            uninstalled.append(rci?.reporting)
-        })
-        
-        rci?.reporting = .automaticAndManual
-        rci?.reporting = .automatic
-        rci?.reporting = .manual
-        rci?.reporting = .none
-        
-        let expectedInstalled: [HTTPMonitor.ReportingType?] = [.automaticAndManual, .automatic]
-        XCTAssertEqual(installed,  expectedInstalled)
-        let expectedUninstalled: [HTTPMonitor.ReportingType?] = [.manual, HTTPMonitor.ReportingType.none]
-        XCTAssertEqual(uninstalled, expectedUninstalled)
-    }
-    
+
     func test_installingInConfiguration_shouldAddCustomProtocol() {
-        let rci = HTTPMonitor()
-        let config = URLSessionConfiguration.default
-        XCTAssertFalse(config.protocolClasses?.contains { $0 == InstanaURLProtocol.self } ?? true)
-        rci.install(in: config)
-        XCTAssertTrue(config.protocolClasses?.contains { $0 == InstanaURLProtocol.self } ?? false)
+        // Given
+        let monitor = HTTPMonitor(config, reporter: instana.reporter)
+        let sessionConfig = URLSessionConfiguration.default
+
+        // Then
+        XCTAssertFalse(sessionConfig.protocolClasses?.contains { $0 == InstanaURLProtocol.self } ?? true)
+        monitor.track(sessionConfig)
+        XCTAssertTrue(sessionConfig.protocolClasses?.contains { $0 == InstanaURLProtocol.self } ?? false)
     }
     
-    func test_markingCall_shouldReturnPreparedMarker() {
-        let rci = HTTPMonitor(networkConnectionType: { .wifi })
-        let marker = rci.markCall(to: "www.test.url", method: "method")
-        XCTAssertEqual(marker.url, "www.test.url")
+    func test_markingURL() {
+        // Given
+        let url: URL = .random
+        let monitor = HTTPMonitor(config, reporter: instana.reporter, networkConnectionType: { .wifi })
+
+        // When
+        let marker = try! monitor.mark(url, method: "method", size: 64)
+
+        // Then
+        XCTAssertEqual(marker.url, url)
         XCTAssertEqual(marker.method, "method")
-        XCTAssertEqual(marker.trigger, .manual)
+        XCTAssertEqual(marker.trigger, .automatic)
+        XCTAssertEqual(marker.requestSize, 64)
         XCTAssertEqual(marker.connectionType, .wifi)
     }
     
-    func test_markingRequest_shouldReturnSetUpMarker() {
-        let rci = HTTPMonitor(networkConnectionType: { .cellular })
-        var request = URLRequest(url: URL(string: "www.a.com")!)
+    func test_markingRequest() {
+        // Given
+        let url: URL = .random
+        let monitor = HTTPMonitor(config, reporter: instana.reporter, networkConnectionType: { .cellular })
+        var request = URLRequest(url: url)
         request.httpMethod = "m"
         request.httpBody = "11".data(using: .utf8)
-        let marker = rci.markCall(for: request)
-        XCTAssertEqual(marker.url, "www.a.com")
+
+        // When
+        let marker = try! monitor.mark(request)
+
+        // Then
+        XCTAssertEqual(marker.url, url)
         XCTAssertEqual(marker.method, "m")
         XCTAssertEqual(marker.requestSize, 2)
         XCTAssertEqual(marker.trigger, .automatic)
         XCTAssertEqual(marker.connectionType, .cellular)
     }
     
-    func test_markingRequestWithDefaultValues_shouldReturnPreparedMarker() {
-        let rci = HTTPMonitor(networkConnectionType: { nil })
-        var request = URLRequest(url: URL(string: "a")!)
+    func test_invalid_request() {
+        // Given
+        let url: URL = .random
+        let monitor = HTTPMonitor(config, reporter: instana.reporter, networkConnectionType: { nil })
+        var request = URLRequest(url: url)
         request.url = nil
         request.httpMethod = nil
-        let marker = rci.markCall(for: request)
-        XCTAssertEqual(marker.url, "")
-        XCTAssertEqual(marker.method, "GET")
-        XCTAssertEqual(marker.requestSize, 0)
-        XCTAssertEqual(marker.trigger, .automatic)
-        XCTAssertNil(marker.connectionType)
+
+        // When
+        XCTAssertThrowsError(try monitor.mark(request)) {error in
+            // Then
+            XCTAssertEqual((error as? InstanaError)?.code, InstanaError.Code.invalidRequest.rawValue)
+        }
     }
     
     func test_automaticTriggerMarker_shouldBeReportedOnlyForAutomatedReporting() {
+        // Given
+        var config = InstanaConfiguration.default(key: "KEY")
         var count = 0
-        let rci = HTTPMonitor(submitter: { _ in
+
+        // Automatic
+        // When
+        config.reportingType = .automatic
+        var monitor = HTTPMonitor(config, reporter: MockReporter { _ in
             count += 1
         })
-        let marker = HTTPMarker(url: "", method: "", trigger: .automatic, delegate: rci)
-        
-        rci.reporting = .automatic
-        rci.finalized(marker: marker)
+        monitor.finalized(marker: Random.marker(monitor, trigger: .automatic))
+        // Then
         XCTAssertEqual(count, 1)
-        
-        rci.reporting = .automaticAndManual
-        rci.finalized(marker: marker)
+
+        // Automatic And manual
+        // When
+        config.reportingType = .automaticAndManual
+        monitor = HTTPMonitor(config, reporter: MockReporter { _ in
+            count += 1
+        })
+        monitor.finalized(marker: Random.marker(monitor, trigger: .automatic))
+        // Then
         XCTAssertEqual(count, 2)
-        
-        rci.reporting = .manual
-        rci.finalized(marker: marker)
+
+        // Manual
+        // When
+        config.reportingType = .manual
+        monitor = HTTPMonitor(config, reporter: MockReporter { _ in
+            count += 1
+        })
+        monitor.finalized(marker: Random.marker(monitor, trigger: .automatic))
+        // Then
         XCTAssertEqual(count, 2)
-        
-        rci.reporting = .none
-        rci.finalized(marker: marker)
+
+        // None
+        // When
+        config.reportingType = .none
+        monitor = HTTPMonitor(config, reporter: MockReporter { _ in
+            count += 1
+        })
+        monitor.finalized(marker: Random.marker(monitor, trigger: .automatic))
+        // Then
         XCTAssertEqual(count, 2)
     }
     
     func test_manualTriggerMarker_shouldBeReportedOnlyForManualReporting() {
+        // Given
+        var config = InstanaConfiguration.default(key: "KEY")
         var count = 0
-        let rci = HTTPMonitor(submitter: { _ in
+
+        // Automatic
+        // When
+        config.reportingType = .automatic
+        var monitor = HTTPMonitor(config, reporter: MockReporter { _ in
             count += 1
         })
-        let marker = HTTPMarker(url: "", method: "", trigger: .manual, delegate: rci)
-        
-        rci.reporting = .automatic
-        rci.finalized(marker: marker)
+        monitor.finalized(marker: Random.marker(monitor, trigger: .manual))
+        // Then
         XCTAssertEqual(count, 0)
-        
-        rci.reporting = .automaticAndManual
-        rci.finalized(marker: marker)
+
+        // Automatic And manual
+        // When
+        config.reportingType = .automaticAndManual
+        monitor = HTTPMonitor(config, reporter: MockReporter { _ in
+            count += 1
+        })
+        monitor.finalized(marker: Random.marker(monitor, trigger: .manual))
+        // Then
         XCTAssertEqual(count, 1)
-        
-        rci.reporting = .manual
-        rci.finalized(marker: marker)
+
+        // Manual
+        // When
+        config.reportingType = .manual
+        monitor = HTTPMonitor(config, reporter: MockReporter { _ in
+            count += 1
+        })
+        monitor.finalized(marker: Random.marker(monitor, trigger: .manual))
+        // Then
         XCTAssertEqual(count, 2)
-        
-        rci.reporting = .none
-        rci.finalized(marker: marker)
+
+        // None
+        // When
+        config.reportingType = .none
+        monitor = HTTPMonitor(config, reporter: MockReporter { _ in
+            count += 1
+        })
+        monitor.finalized(marker: Random.marker(monitor, trigger: .manual))
+        // Then
         XCTAssertEqual(count, 2)
+    }
+
+    struct Random {
+        static func marker(_ monitor: HTTPMonitor, trigger: HTTPMarker.Trigger) -> HTTPMarker { HTTPMarker(url: URL.random, method: "GET", trigger: trigger, delegate: monitor) }
     }
 }

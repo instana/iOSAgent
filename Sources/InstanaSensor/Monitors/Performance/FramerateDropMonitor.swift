@@ -13,28 +13,30 @@ class FramerateDropMonitor {
         }
     }
     
-    private let submitter: BeaconReporter.Submitter
+    private let reporter: BeaconReporter
     private let threshold: UInt
     private let displayLink: CADisplayLink
     private let samplingInterval: Instana.Types.Seconds
     private var samplingStart: CFTimeInterval = 0
     private var elapsedFrames: UInt = 0
-    private var dipStart: CFAbsoluteTime?
+    private var dropStart: CFAbsoluteTime?
     private var runningAverage: Float = 0
-    private var consecutiveFrameDip: UInt = 0
+    private var consecutiveFrameDrop: UInt = 0
     
     private init() { fatalError() }
     
-    init(threshold: UInt, samplingInterval: Instana.Types.Seconds = 1, submitter: @escaping BeaconReporter.Submitter = Instana.reporter.submit(_:)) {
-        self.submitter = submitter
+    init(threshold: UInt, samplingInterval: Instana.Types.Seconds = 1, reporter: BeaconReporter) {
+        self.reporter = reporter
         self.samplingInterval = samplingInterval
         self.threshold = threshold
         let proxy = DisplayLinkProxy()
         displayLink = CADisplayLink(target: proxy, selector: #selector(proxy.onDisplayLinkUpdate))
         proxy.proxied = self
         displayLink.add(to: RunLoop.main, forMode: .common)
-        NotificationCenter.default.addObserver(self, selector: #selector(onApplicationEnteredForeground), name: UIApplication.didBecomeActiveNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(onApplicationEnteredBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(onApplicationEnteredForeground),
+                                               name: UIApplication.didBecomeActiveNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(onApplicationEnteredBackground),
+                                               name: UIApplication.didEnterBackgroundNotification, object: nil)
     }
     
     deinit {
@@ -50,14 +52,14 @@ private extension FramerateDropMonitor {
     
     @objc func onApplicationEnteredBackground() {
         displayLink.isPaused = true
-        dipStart = nil
+        dropStart = nil
         samplingStart = 0
         elapsedFrames = 0
     }
 }
 
 private extension FramerateDropMonitor {
-    func onDisplayLinkUpdate() {
+    @objc func onDisplayLinkUpdate() {
         guard samplingStart > 0 else {
             samplingStart = displayLink.timestamp
             return
@@ -74,21 +76,21 @@ private extension FramerateDropMonitor {
     }
     
     func handle(fps: UInt) {
-        switch (fps < threshold, dipStart) {
+        switch (fps < threshold, dropStart) {
         case (true, nil):
-            dipStart = samplingStart
+            dropStart = samplingStart
             runningAverage = Float(fps)
-            consecutiveFrameDip = 1
+            consecutiveFrameDrop = 1
         case (true, _?):
-            consecutiveFrameDip += 1
-            runningAverage -= runningAverage / Float(consecutiveFrameDip)
-            runningAverage += Float(fps) / Float(consecutiveFrameDip)
+            consecutiveFrameDrop += 1
+            runningAverage -= runningAverage / Float(consecutiveFrameDrop)
+            runningAverage += Float(fps) / Float(consecutiveFrameDrop)
         case (false, let start?):
             let duration = displayLink.timestamp - start
-            submitter(AlertEvent(alertType: .framerateDrop(duration: duration, averageFramerate: runningAverage), screen: InstanaSystemUtils.viewControllersHierarchy()))
-            dipStart = nil
+            reporter.submit(AlertEvent(alertType: .framerateDrop(duration: duration, averageFramerate: runningAverage)))
+            dropStart = nil
             runningAverage = 0
-            consecutiveFrameDip = 0
+            consecutiveFrameDrop = 0
         default:
             break
         }

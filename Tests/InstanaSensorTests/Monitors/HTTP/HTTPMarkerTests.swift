@@ -7,10 +7,14 @@ import XCTest
 class HTTPMarkerTests: XCTestCase {
 
     func test_marker_defaultValues() {
+        // Given
+        let url: URL = .random
         let start = Date().millisecondsSince1970
-        let marker = HTTPMarker(url: "a", method: "b", delegate: Delegate())
-        XCTAssertEqual(marker.url, "a")
-        XCTAssertEqual(marker.method, "b")
+        let marker = HTTPMarker(url: url, method: "GET", delegate: Delegate())
+
+        // Then
+        XCTAssertEqual(marker.url, url)
+        XCTAssertEqual(marker.method, "GET")
         XCTAssertEqual(marker.requestSize, 0)
         XCTAssertEqual(marker.trigger, .automatic)
         XCTAssertEqual(marker.connectionType, nil)
@@ -18,46 +22,42 @@ class HTTPMarkerTests: XCTestCase {
     }
     
     func test_marker_shouldNotRetainDelegate() {
+        // Given
+        let url: URL = .random
         var delegate: Delegate = Delegate()
         weak var weakDelegate = delegate
-        let marker = HTTPMarker(url: "c", method: "b", delegate: delegate)
+        let sut = HTTPMarker(url: url, method: "b", delegate: delegate)
         delegate = Delegate()
+
+        // Then
         XCTAssertNil(weakDelegate)
-        XCTAssertEqual(marker.url, "c") // random test, so maker is not deallocated and no warning is shown
+        XCTAssertEqual(sut.url, url) // random test, so maker is not deallocated and no warning is shown
     }
-    
-//    func test_marker_shouldAddTrackingHeaders_toNSMutableURLRequest() {
-//        let marker = HTTPMarker(url: "a", method: "b", delegate: Delegate())
-//        let request = NSMutableURLRequest(url: URL(string: "a")!)
-//        marker.addTrackingHeaders(to: request)
-//        XCTAssertEqual(request.value(forHTTPHeaderField: "X-INSTANA-T"), marker.eventId)
-//        XCTAssertNoThrow(marker.addTrackingHeaders(to: nil))
-//    }
-//
-//    func test_marker_shouldAddTrackingHeaders_toURLRequest() {
-//        let marker = HTTPMarker(url: "a", method: "b", delegate: Delegate())
-//        var request = URLRequest(url: URL(string: "a")!)
-//        marker.addTrackingHeaders(to: &request)
-//        XCTAssertEqual(request.value(forHTTPHeaderField: "X-INSTANA-T"), marker.eventId)
-//    }
-//
+
     func test_unfinaliedMarkerDuration_shouldBeZero() {
-        let marker = HTTPMarker(url: "a", method: "b", delegate: Delegate())
-        XCTAssertEqual(marker.duration(), 0)
+        // Given
+        let sut = HTTPMarker(url: .random, method: "b", delegate: Delegate())
+
+        // Then
+        XCTAssertEqual(sut.duration, 0)
     }
     
     func test_finalizingMarker_withSuccess_shouldRetainOriginalValues() {
+        // Given
         let delegate = Delegate()
-        let marker = HTTPMarker(url: "a", method: "b", requestSize: 4, delegate: delegate)
+        let marker = HTTPMarker(url: .random, method: "b", requestSize: 4, delegate: delegate)
+
+        // When
         wait(0.1)
-        marker.endedWith(responseCode: 200, responseSize: 123)
-        marker.endedWith(responseCode: 300, responseSize: 321)
+        marker.ended(responseCode: 200, responseSize: 123)
+        marker.ended(responseCode: 300, responseSize: 321)
         marker.canceled()
 
+        // Then
         XCTAssertEqual(delegate.finaliedCount, 1)
         XCTAssertEqual(marker.requestSize, 4)
         XCTAssertEqual(marker.responseSize, 123)
-        XCTAssertTrue(marker.duration() > 0)
+        XCTAssertTrue(marker.duration > 0)
         if case let .finished(responseCode) = marker.state {
             XCTAssertEqual(responseCode, 200)
         }
@@ -67,17 +67,21 @@ class HTTPMarkerTests: XCTestCase {
     }
     
     func test_finalizingMarker_withError_shouldRetainOriginalValues() {
+        // Given
         let delegate = Delegate()
-        let marker = HTTPMarker(url: "a", method: "b", delegate: delegate)
+        let marker = HTTPMarker(url: .random, method: "b", delegate: delegate)
         let error = CocoaError(CocoaError.coderValueNotFound)
+
+        // When
         wait(0.1)
-        marker.endedWith(error: error, responseSize: 10)
-        marker.endedWith(error: CocoaError(CocoaError.coderInvalidValue), responseSize: 20)
-        marker.endedWith(responseCode: 300, responseSize: 321)
-        
+        marker.ended(error: error, responseSize: 10)
+        marker.ended(error: CocoaError(CocoaError.coderInvalidValue), responseSize: 20)
+        marker.ended(responseCode: 300, responseSize: 321)
+
+        // Then
         XCTAssertEqual(delegate.finaliedCount, 1)
         XCTAssertEqual(marker.responseSize, 10)
-        XCTAssertTrue(marker.duration() > 0)
+        XCTAssertTrue(marker.duration > 0)
         if case let .failed(e) = marker.state {
             XCTAssertEqual(e as? CocoaError, error)
         }
@@ -87,33 +91,43 @@ class HTTPMarkerTests: XCTestCase {
     }
     
     func test_finalizingMarker_withCancel_shouldRetainOriginalValues() {
+        // Given
         let delegate = Delegate()
-        let marker = HTTPMarker(url: "a", method: "b", delegate: delegate)
+        let marker = HTTPMarker(url: .random, method: "b", delegate: delegate)
+
+        // When
         wait(0.1)
         marker.canceled()
         marker.canceled()
-        marker.endedWith(responseCode: 300, responseSize: 321)
-        
+        marker.ended(responseCode: 300, responseSize: 321)
+
+        // Then
         XCTAssertEqual(delegate.finaliedCount, 1)
         XCTAssertEqual(marker.responseSize, 0)
-        XCTAssertTrue(marker.duration() > 0)
+        XCTAssertTrue(marker.duration > 0)
         if case .canceled = marker.state {} else {
             XCTFail("Wrong marker state: \(marker.state)")
         }
     }
     
     func test_finishedMarker_toEventConversion() {
-        let marker = HTTPMarker(url: "u", method: "m", requestSize: 111, connectionType: .wifi, delegate: Delegate())
-        marker.endedWith(responseCode: 204, responseSize: 10)
-        
+        // Given
+        let url: URL = .random
+        let marker = HTTPMarker(url: url, method: "m", requestSize: 111, connectionType: .wifi, delegate: Delegate())
+        marker.ended(responseCode: 204, responseSize: 10)
+
+
+        // When
         guard let event = marker.createEvent() as? HTTPEvent else {
             XCTFail("Event type missmatch"); return
         }
-        XCTAssertTrue(event.eventId.count > 0)
+
+        // Then
+        XCTAssertTrue(event.id.count > 0)
         XCTAssertEqual(event.timestamp, marker.startTime)
-        XCTAssertEqual(event.duration, marker.duration())
+        XCTAssertEqual(event.duration, marker.duration)
         XCTAssertEqual(event.method, "m")
-        XCTAssertEqual(event.url, "u")
+        XCTAssertEqual(event.url, url)
         XCTAssertEqual(event.responseCode, 204)
         XCTAssertEqual(event.requestSize, 111)
         XCTAssertEqual(event.responseSize, 10)
@@ -122,18 +136,23 @@ class HTTPMarkerTests: XCTestCase {
     }
     
     func test_failedMarker_toEventConversion() {
-        let marker = HTTPMarker(url: "z", method: "t", requestSize: 123, connectionType: .cellular, delegate: Delegate())
+        // Given
+        let url: URL = .random
+        let marker = HTTPMarker(url: url, method: "t", requestSize: 123, connectionType: .cellular, delegate: Delegate())
         let error = CocoaError(CocoaError.coderValueNotFound)
-        marker.endedWith(error: error)
-        
+        marker.ended(error: error)
+
+        // When
         guard let event = marker.createEvent() as? HTTPEvent else {
             XCTFail("Event type missmatch"); return
         }
-        XCTAssertTrue(event.eventId.count > 0)
+
+        // Then
+        XCTAssertTrue(event.id.count > 0)
         XCTAssertEqual(event.timestamp, marker.startTime)
-        XCTAssertEqual(event.duration, marker.duration())
+        XCTAssertEqual(event.duration, marker.duration)
         XCTAssertEqual(event.method, "t")
-        XCTAssertEqual(event.url, "z")
+        XCTAssertEqual(event.url, url)
         XCTAssertEqual(event.responseCode, -1)
         XCTAssertEqual(event.requestSize, 123)
         XCTAssertEqual(event.responseSize, 0)
@@ -142,17 +161,22 @@ class HTTPMarkerTests: XCTestCase {
     }
     
     func test_canceledMarker_toEventConversion() {
-        let marker = HTTPMarker(url: "f", method: "c", requestSize: 1, delegate: Delegate())
+        // Given
+        let url: URL = .random
+        let marker = HTTPMarker(url: url, method: "c", requestSize: 1, delegate: Delegate())
         marker.canceled()
-        
+
+        // When
         guard let event = marker.createEvent() as? HTTPEvent else {
             XCTFail("Event type missmatch"); return
         }
-        XCTAssertTrue(event.eventId.count > 0)
+
+        // Then
+        XCTAssertTrue(event.id.count > 0)
         XCTAssertEqual(event.timestamp, marker.startTime)
-        XCTAssertEqual(event.duration, marker.duration())
+        XCTAssertEqual(event.duration, marker.duration)
         XCTAssertEqual(event.method, "c")
-        XCTAssertEqual(event.url, "f")
+        XCTAssertEqual(event.url, url)
         XCTAssertEqual(event.responseCode, -1)
         XCTAssertEqual(event.requestSize, 1)
         XCTAssertEqual(event.responseSize, 0)
@@ -160,21 +184,30 @@ class HTTPMarkerTests: XCTestCase {
     }
     
     func test_starteddMarker_toEventConversion() {
-        let marker = HTTPMarker(url: "f", method: "c", requestSize: 1, delegate: Delegate())
-        
+        // Given
+        let url: URL = .random
+        let marker = HTTPMarker(url: url, method: "c", requestSize: 1, delegate: Delegate())
+
+        // When
         guard let event = marker.createEvent() as? HTTPEvent else {
             XCTFail("Event type missmatch"); return
         }
-        XCTAssertTrue(event.eventId.count > 0)
+
+        // Then
+        XCTAssertTrue(event.id.count > 0)
         XCTAssertEqual(event.timestamp, marker.startTime)
         XCTAssertEqual(event.duration, 0)
         XCTAssertEqual(event.method, "c")
-        XCTAssertEqual(event.url, "f")
+        XCTAssertEqual(event.url, url)
         XCTAssertEqual(event.responseCode, -1)
         XCTAssertEqual(event.requestSize, 1)
         XCTAssertEqual(event.responseSize, 0)
         XCTAssertEqual(event.result, "started")
     }
+}
+
+extension URL {
+    static var random: URL { URL(string: "http://www.example.com/\((0...100).randomElement() ?? 0)")! }
 }
 
 extension HTTPMarkerTests {

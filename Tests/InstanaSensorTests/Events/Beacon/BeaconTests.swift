@@ -13,7 +13,7 @@ class BeaconTests: XCTestCase {
     func test_create_default() {
         // Given
         let timestamp = Date().millisecondsSince1970
-        let sut = Beacon.createDefault(key: "KEY123", timestamp: timestamp, sessionId: "SID", eventId: "EID")
+        let sut = Beacon.createDefault(key: "KEY123", timestamp: timestamp, sessionId: "SID", id: "EID")
 
         // Then
         AssertEqualAndNotNil(sut.k, "KEY123")
@@ -51,7 +51,7 @@ class BeaconTests: XCTestCase {
         let sut = Beacon.createDefault(key: "KEY123")
 
         // When
-        let values = Mirror(reflecting: sut).nonNilChildren
+        let values = Array(Mirror(reflecting: sut).nonNilChildren)
 
         // Then
         XCTAssertEqual(values.count, 18)
