@@ -102,4 +102,22 @@ class BeaconTests: XCTestCase {
         XCTAssertEqual(beacon.bt, "\n    Trace ab\n")
         XCTAssertEqual(sut, "Trace ab")
     }
+
+    func test_truncate_at_max_length() {
+        // Given
+        guard let url = Bundle(for: BeaconReporter.self).url(forResource: "BeaconReporter", withExtension: "swift"),
+            let data = try? Data(contentsOf: url),
+             let string = String(data: data, encoding: .utf8) else {
+            XCTFail("BeaconReporter.swift does not exist")
+            return
+        }
+        var beacon = Beacon.createDefault(key: "KEY123")
+        beacon.bt = string + string
+
+        // When
+        let sut = beacon.cleaning(beacon.bt) ?? ""
+
+        // Then
+        XCTAssertTrue(sut.hasSuffix("…"))
+    }
 }

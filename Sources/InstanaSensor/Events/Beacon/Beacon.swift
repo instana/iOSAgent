@@ -22,6 +22,14 @@ enum BeaconType: String, Equatable, Codable {
 struct Beacon: Equatable, Codable {
 
     /**
+    * The max byte for each field (bytes)
+    *
+    *
+    * Default: To be discussed if it can be dynamic
+    */
+    static let maxBytesPerField: Instana.Types.Bytes = 10000
+
+    /**
      * The type of the beacon.
      *
      * For example: `sessionStart`
