@@ -69,6 +69,7 @@ extension Beacon {
     func cleaning<T: Any>(_ entry: T) -> T? {
         if let stringValue = entry as? String {
             var trimmed = stringValue.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+            trimmed = trimmed.truncated(at: Int(Beacon.maxBytesPerField))
             trimmed = trimmed.replacingOccurrences(of: "\t", with: "")
             return trimmed.isEmpty ? nil : trimmed as? T
         }
