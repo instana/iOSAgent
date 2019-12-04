@@ -6,18 +6,20 @@ import UIKit
 
 class ApplicationNotRespondingMonitor {
     var threshold: Instana.Types.Seconds
-    private let submitter: BeaconReporter.Submitter
+    private let reporter: BeaconReporter
     private var timer: Timer?
     private let samplingInterval: Double
     
     private init() { fatalError() }
     
-    init(threshold: Instana.Types.Seconds, samplingInterval: Double = 1.0, submitter: @escaping BeaconReporter.Submitter = Instana.reporter.submit(_:)) {
-        self.submitter = submitter
+    init(threshold: Instana.Types.Seconds, samplingInterval: Double = 1.0, reporter: BeaconReporter) {
+        self.reporter = reporter
         self.threshold = threshold
         self.samplingInterval = samplingInterval
-        NotificationCenter.default.addObserver(self, selector: #selector(onApplicationEnteredForeground), name: UIApplication.didBecomeActiveNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(onApplicationEnteredBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(onApplicationEnteredForeground),
+                                               name: UIApplication.didBecomeActiveNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(onApplicationEnteredBackground),
+                                               name: UIApplication.didEnterBackgroundNotification, object: nil)
         scheduleTimer()
     }
     
@@ -38,10 +40,9 @@ private extension ApplicationNotRespondingMonitor {
         scheduleTimer()
     }
     
-    @objc func onApplicationEnteredBackground() {
+    @objc  func onApplicationEnteredBackground() {
         timer?.invalidate()
     }
-    
 }
 
 extension ApplicationNotRespondingMonitor: InstanaTimerProxiedTarget {
@@ -53,7 +54,7 @@ extension ApplicationNotRespondingMonitor: InstanaTimerProxiedTarget {
         
         let delay = CFAbsoluteTimeGetCurrent() - start - samplingInterval
         if delay > threshold {
-            submitter(AlertEvent(alertType: .anr(duration: delay), screen: InstanaSystemUtils.viewControllersHierarchy()))
+            reporter.submit(AlertEvent(alertType: .anr(duration: delay)))
         }
         scheduleTimer()
     }

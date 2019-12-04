@@ -8,7 +8,6 @@ class InstanaURLProtocolTests: XCTestCase {
     let makeRequest: (String) -> URLRequest = { URLRequest(url: URL(string: $0)!) }
 
     func test_urlProtocol_shouldOnlyInitForSupportedSchemes() {
-        
         XCTAssertTrue(InstanaURLProtocol.canInit(with: makeRequest("https://www.a.b")))
         XCTAssertTrue(InstanaURLProtocol.canInit(with: makeRequest("http://www.a.c")))
         XCTAssertFalse(InstanaURLProtocol.canInit(with: makeRequest("www.a.c")))
@@ -31,7 +30,7 @@ class InstanaURLProtocolTests: XCTestCase {
     
     func test_urlProtocol_shouldRemoveSelfFromCopiedInternalTaskSessionConfiguration() {
         let configuration = URLSessionConfiguration.default
-        HTTPMonitor().install(in: configuration)
+        HTTPMonitor(InstanaConfiguration.default(key: "KEY"), reporter: MockReporter()).track(configuration)
         let task = URLSession(configuration: configuration).dataTask(with: makeRequest("http://www.a.c"))
         let urlProtocol = InstanaURLProtocol(task: task, cachedResponse: nil, client: nil)
         XCTAssertFalse(urlProtocol.sessionConfiguration.protocolClasses?.contains { $0 == InstanaURLProtocol.self } ?? true)

@@ -28,10 +28,7 @@ internal class InstanaURLProtocol: URLProtocol {
     }
     
     override func startLoading() {
-        marker = Instana.httpMonitor.markCall(for: request)
-       // var mutableRequest = request
-        // TODO: What is this for?
-       // marker?.addTrackingHeaders(to: &mutableRequest)
+        marker = try? Instana.current.monitors.http?.mark(request)
         let task = session.dataTask(with: request)
         task.resume()
     }
@@ -46,11 +43,11 @@ extension InstanaURLProtocol: URLSessionTaskDelegate {
     internal func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
         if let error = error {
             client?.urlProtocol(self, didFailWithError: error)
-            marker?.endedWith(error: error, responseSize: task.countOfBytesReceived)
+            marker?.ended(error: error, responseSize: task.countOfBytesReceived)
         }
         else {
             client?.urlProtocolDidFinishLoading(self)
-            marker?.endedWith(responseCode: (task.response as? HTTPURLResponse)?.statusCode ?? 0, responseSize: task.countOfBytesReceived)
+            marker?.ended(responseCode: (task.response as? HTTPURLResponse)?.statusCode ?? 0, responseSize: task.countOfBytesReceived)
         }
     }
 }

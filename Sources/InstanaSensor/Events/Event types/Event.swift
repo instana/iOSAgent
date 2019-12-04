@@ -4,24 +4,28 @@
 import Foundation
 
 /// Base class for events. 
-@objc public class Event: NSObject {
+class Event: Identifiable {
 
     let timestamp: Instana.Types.Milliseconds
     let sessionId: String
-    let eventId: String
+    var id: String
 
     init(timestamp: Instana.Types.Milliseconds = Date().millisecondsSince1970,
-         sessionId: String = Instana.sessionId) {
+         sessionId: String = Instana.current.sessionId) {
         self.sessionId = sessionId
-        self.eventId = UUID().uuidString
+        self.id = UUID().uuidString
         self.timestamp = timestamp
-        super.init()
     }
-    
-    private override init() { fatalError() }
 }
 
 enum EventResult {
     case success
-    case failure(error: Error)
+    case failure(Error)
+
+    var error: Error? {
+        switch self {
+        case .success: return nil
+        case .failure(let error): return error
+        }
+    }
 }

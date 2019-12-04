@@ -8,22 +8,14 @@ class InstanaConfigurationTests: XCTestCase {
     
     func test_defaultValues() {
         let config = InstanaConfiguration.default(key: "a", reportingURL: nil)
-        XCTAssertEqual(config.key, "a")
-        assertDefaultValues(in: config)
-    }
-}
-
-extension InstanaConfigurationTests {
-    func assertDefaultValues(in config: InstanaConfiguration?, file: StaticString = #file, line: UInt = #line) {
-        typealias d = InstanaConfiguration.Defaults
-        XCTAssertNotNil(config, file: file, line: line)
-        XCTAssertEqual(config?.reportingURL, d.reportingURL, file: file, line: line)
-        XCTAssertEqual(config?.remoteCallInstrumentationType, d.remoteCallInstrumentationType, file: file, line: line)
-        XCTAssertEqual(config?.suspendReporting, d.suspendReporting, file: file, line: line)
-        XCTAssertEqual(config?.eventsBufferSize, d.eventsBufferSize, file: file, line: line)
-        XCTAssertEqual(config?.sendDeviceLocationIfAvailable, d.sendDeviceLocationIfAvailable, file: file, line: line)
-        XCTAssertEqual(config?.alertApplicationNotRespondingThreshold, d.alertApplicationNotRespondingThreshold, file: file, line: line)
-        XCTAssertEqual(config?.alertLowMemory, d.alertLowMemory, file: file, line: line)
-        XCTAssertEqual(config?.alertFramerateDropThreshold, d.alertFramerateDropThreshold, file: file, line: line)
+        AssertEqualAndNotNil(config.key, "a")
+        AssertEqualAndNotNil(config.reportingURL, URL(string: "http://localhost:3000")!)
+        AssertEqualAndNotNil(config.reportingType, .automaticAndManual)
+        AssertTrue(config.suspendReporting.isEmpty)
+        AssertTrue(config.monitorTypes.count == 4)
+        AssertTrue(config.monitorTypes.contains(.http))
+        AssertTrue(config.monitorTypes.contains(.memoryWarning))
+        AssertTrue(config.monitorTypes.contains(.alertApplicationNotResponding(threshold: 2.0)))
+        AssertTrue(config.monitorTypes.contains(.framerateDrop(frameThreshold: 20)))
     }
 }

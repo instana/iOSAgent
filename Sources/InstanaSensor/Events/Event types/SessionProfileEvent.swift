@@ -14,7 +14,7 @@ class SessionProfileEvent: Event {
 
     init(state: State,
          timestamp: Instana.Types.Milliseconds = Date().millisecondsSince1970,
-         sessionId: String = Instana.sessionId) {
+         sessionId: String) {
         self.state = state
         super.init(timestamp: timestamp, sessionId: sessionId)
     }

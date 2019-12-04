@@ -15,7 +15,9 @@ class LowMemoryMonitorTests: XCTestCase {
     
     func test_deviceLowMemory_triggersLowMemoryEvent() {
         var event: Event?
-        monitor = LowMemoryMonitor { event = $0 }
+        monitor = LowMemoryMonitor(reporter: MockReporter {submittedEvent in
+            event = submittedEvent
+        })
         
         NotificationCenter.default.post(name: UIApplication.didReceiveMemoryWarningNotification, object: nil)
         

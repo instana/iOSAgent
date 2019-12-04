@@ -56,9 +56,9 @@ All communication to the Instana backend is done trough events.
 
 > Other than custom event events, there is no way for the end user to send events, even so some configuration options are exposed.
 
-`bufferSize` represents the size of the ring buffer in which events are stored. Events can be overwritten if too many are triggered before a buffer flush. If you expect a large volume of events you can increase the buffer size.
+`beaconReporterQueueSize` represents the size of the ring buffer in which events are stored. Events can be overwritten if too many are triggered before a buffer flush. If you expect a large volume of events you can increase the buffer size.
 
-`suspendReporting` allows developers to decide in which cases to suspend the sending of events to the Instana backend. The options are: `never`, `lowBattery`, `cellularConnection`, `lowBatteryAndCellularConnection`.
+`suspendReporting` allows developers to decide in which cases to suspend the sending of events to the Instana backend. The options are: `never`, `lowBattery`, `cellularConnection`.
 
 ### Custom Events
 If you wish to mark a specific event in your application, you can use a custom event to send it to Instana.
@@ -87,13 +87,13 @@ In case you you are not using `URLSession` or want to customize the results, it 
 
 While starting a request you should also create a marker:
 
-    let marker = Instana.remoteCallInstrumentation.markCall(to: "your-url", method: "GET")
+    let marker = Instana.remoteCallInstrumentation.mark("your-url", method: "GET")
     
 Once the request finishes or fails, use one of the markers completion methods:
 
-	marker.endedWith(responseCode: 200, responseSize: // optionally calculate response size)
+	marker.ended(responseCode: 200, responseSize: // optionally calculate response size)
 	// or
-	marker.endedWith(error: error, responseSize: // optionally calculate response size)
+	marker.ended(error: error, responseSize: // optionally calculate response size)
 	// or
 	marker.canceled()
 	
@@ -128,13 +128,13 @@ will trigger an ANR alert after the main thread has been blocked for more than o
 
 To disable ANR alerts set the threshold to `nil`.
 
-Depending on the threshold settings, an ANR alert might overlap with a frame rate dip alert.
+Depending on the threshold settings, an ANR alert might overlap with a frame rate drop alert.
 
-### Frame-rate Dip
-If the application frame-rate dips below the configured threshold, a frame-rate dip alert will be triggered. For example:
+### Framerate Drop
+If the application framerate drops below the configured threshold, a framerate drop alert will be triggered. For example:
 
 	Instana.alerts.framerateDropThreshold = 20
 
-will trigger an alert if the frame-rate drops below 20 frames per second.
+will trigger an alert if the framerate drops below 20 frames per second.
 
-To disable frame-rate dip alerts set the threshold to `nil`.
+To disable framerate drop alerts set the threshold to `nil`.

@@ -10,11 +10,9 @@ class AlertEvent: Event {
         case framerateDrop(duration: Instana.Types.Seconds, averageFramerate: Float)
     }
     let alertType: AlertType
-    private let screen: String?
-    
-    init(alertType: AlertType, screen: String?) {
+
+    init(alertType: AlertType) {
         self.alertType = alertType
-        self.screen = screen
         super.init()
     }
 }

@@ -29,10 +29,19 @@ extension XCTestCase {
     }
 }
 
+// TODO: Rename all to Expect... instead of Assert...
 func AssertEqualAndNotNil<T: Equatable>(_ expression1: @autoclosure () throws -> T, _ expression2: @autoclosure () throws -> T, _ message: @autoclosure () -> String = "", file: StaticString = #file, line: UInt = #line) {
     XCTAssertEqual(try expression1(), try expression2(), message(), file: file, line: line)
     XCTAssertNotNil(try expression1())
     XCTAssertNotNil(try expression2())
+}
+
+func AssertNil<T: Equatable>(_ expression: @autoclosure () throws -> T, _ message: @autoclosure () -> String = "", file: StaticString = #file, line: UInt = #line) {
+    XCTAssertNil(try expression(), message(), file: file, line: line)
+}
+
+func AssertTrue(_ expression: @autoclosure () throws -> Bool, _ message: @autoclosure () -> String = "", file: StaticString = #file, line: UInt = #line) {
+    XCTAssertTrue(try expression(), message(), file: file, line: line)
 }
 
 func AssertEqualAndNotZero<T: Numeric & Comparable>(_ expression1: @autoclosure () throws -> T, _ expression2: @autoclosure () throws -> T, _ message: @autoclosure () -> String = "", file: StaticString = #file, line: UInt = #line) {

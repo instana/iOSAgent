@@ -11,11 +11,12 @@ extension Beacon {
     static func createDefault(key: String,
                               timestamp: Instana.Types.Milliseconds = Date().millisecondsSince1970,
                               sessionId: String = UUID().uuidString,
-                              eventId: String = UUID().uuidString) -> Beacon {
-        Beacon(k: key,
+                              id: String = UUID().uuidString) -> Beacon {
+        Beacon(v: InstanaSystemUtils.viewControllersHierarchy(),
+               k: key,
                ti: String(timestamp),
                sid: sessionId,
-               bid: eventId,
+               bid: id,
                buid: InstanaSystemUtils.applicationBundleIdentifier,
                ul: Locale.current.languageCode ?? "na",
                ab: InstanaSystemUtils.applicationBuildNumber,
