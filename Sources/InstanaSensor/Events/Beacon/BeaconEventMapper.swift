@@ -14,12 +14,12 @@ class BeaconEventMapper {
         self.configuration = configuration
     }
 
-    func map(_ events: [Event]) throws -> [Beacon] {
+    func map(_ events: [Event]) throws -> [CoreBeacon] {
         return try events.map { try map($0)}
     }
 
-    func map(_ event: Event) throws -> Beacon {
-        var beacon = Beacon.createDefault(key: configuration.key, timestamp: event.timestamp, sessionId: event.sessionId, id: event.id)
+    func map(_ event: Event) throws -> CoreBeacon {
+        var beacon = CoreBeacon.createDefault(key: configuration.key, timestamp: event.timestamp, sessionId: event.sessionId, id: event.id)
         switch event {
         case let e as HTTPEvent:
             beacon.append(e)
@@ -38,7 +38,7 @@ class BeaconEventMapper {
     }
 }
 
-extension Beacon {
+extension CoreBeacon {
 
     mutating func append(_ event: HTTPEvent) {
         t = .httpRequest

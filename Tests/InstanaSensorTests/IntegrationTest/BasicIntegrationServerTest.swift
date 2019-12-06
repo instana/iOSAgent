@@ -51,7 +51,7 @@ class BasicIntegrationServerTest: IntegrationTestCase {
         AssertTrue(reporter.queue.isEmpty)
 
         do {
-            let responseBeacon = try Beacon.create(from: serverReceivedHTTP ?? "")
+            let responseBeacon = try CoreBeacon.create(from: serverReceivedHTTP ?? "")
             let expectedBeacon = try BeaconEventMapper(config).map(event)
             AssertEqualAndNotNil(expectedBeacon, responseBeacon)
         } catch (let error) {
