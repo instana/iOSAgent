@@ -1,11 +1,9 @@
-//  Created by Nikola Lajic on 12/26/18.
-//  Copyright © 2018 Nikola Lajic. All rights reserved.
 
 import Foundation
 import Gzip
 
-/// BeaconReporter to manager and send out the events
-public class BeaconReporter: NSObject {
+/// Reporter to manager and send out the events
+public class Reporter: NSObject {
     
     typealias Submitter = (Event) -> Void
     typealias NetworkLoader = (URLRequest, @escaping (InstanaNetworking.Result) -> Void) -> Void
@@ -57,13 +55,13 @@ public class BeaconReporter: NSObject {
     }
 }
 
-extension BeaconReporter: InstanaTimerProxiedTarget {
+extension Reporter: InstanaTimerProxiedTarget {
     func onTimer(timer: Timer) {
         flushQueue()
     }
 }
 
-extension BeaconReporter {
+extension Reporter {
     // TODO: Test Flush
     // TODO: Consider flushing in a background thread
     func flushQueue() {
@@ -123,7 +121,7 @@ extension BeaconReporter {
     }
 }
 
-extension BeaconReporter {
+extension Reporter {
 
     func createBatchRequest(from beacons: [CoreBeacon]) throws -> URLRequest {
         guard !configuration.key.isEmpty else {

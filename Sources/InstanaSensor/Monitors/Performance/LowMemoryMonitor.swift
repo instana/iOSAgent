@@ -6,9 +6,9 @@ import UIKit
 
 class LowMemoryMonitor {
     
-    let reporter: BeaconReporter
+    let reporter: Reporter
     
-    init(reporter: BeaconReporter) {
+    init(reporter: Reporter) {
         self.reporter = reporter
         NotificationCenter.default.addObserver(self, selector: #selector(onLowMemoryWarning(notification:)),
                                                name: UIApplication.didReceiveMemoryWarningNotification,

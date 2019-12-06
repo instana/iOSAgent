@@ -14,7 +14,7 @@ import Foundation
     private (set) lazy var monitors = Monitors(configuration, reporter: reporter)
 
     /// Object to manage and report events.
-    private (set) lazy var reporter = BeaconReporter(configuration)
+    private (set) lazy var reporter = Reporter(configuration)
 
     /// A debugging console logger using levels
     let logger = InstanaLogger()

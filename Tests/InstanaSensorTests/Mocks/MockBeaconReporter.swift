@@ -8,7 +8,7 @@
 import Foundation
 @testable import InstanaSensor
 
-class MockReporter: BeaconReporter {
+class MockReporter: Reporter {
     var submitter: ((Event) -> Void)
     init(submitter: @escaping ((Event) -> Void)) {
         self.submitter = submitter
