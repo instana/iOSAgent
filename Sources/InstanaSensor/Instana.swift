@@ -13,7 +13,7 @@ import Foundation
     /// The Container for all Instana monitors (Network, HTTP, Framedrop, ...)
     private (set) lazy var monitors = Monitors(configuration, reporter: reporter)
 
-    /// Object to manage and report events.
+    /// Object to manage and report Beacons.
     private (set) lazy var reporter = Reporter(configuration)
 
     /// A debugging console logger using levels
@@ -32,7 +32,7 @@ import Foundation
         super.init()
         assert(!configuration.reportingURL.absoluteString.isEmpty, "Instana Reporting URL must not be empty")
         if configuration.isValid {
-            reporter.submit(SessionProfileEvent(state: .start, sessionId: sessionId))
+            reporter.submit(SessionProfileBeacon(state: .start, sessionId: sessionId))
         }
     }
 }

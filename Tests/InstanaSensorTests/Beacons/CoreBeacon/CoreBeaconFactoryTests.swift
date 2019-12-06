@@ -20,11 +20,11 @@ class CoreBeaconFactoryTests: XCTestCase {
 
     func test_undefined_beacon_type() {
         // Given
-        let event = Event()
+        let beacon = Beacon()
         let mapper = CoreBeaconFactory(config)
 
         // When
-        XCTAssertThrowsError(try mapper.map(event)) {error in
+        XCTAssertThrowsError(try mapper.map(beacon)) {error in
             // Then
             XCTAssertEqual((error as? InstanaError)?.code, InstanaError.Code.unknownType.rawValue)
         }
@@ -33,12 +33,12 @@ class CoreBeaconFactoryTests: XCTestCase {
     func test_map_session() {
         let sessionID = "ID-\((0...100).randomElement() ?? 0)"
         let timestamp = Date().millisecondsSince1970
-        let event = SessionProfileEvent(state: .start, timestamp: timestamp, sessionId: sessionID)
+        let beacon = SessionProfileBeacon(state: .start, timestamp: timestamp, sessionId: sessionID)
         let mapper = CoreBeaconFactory(config)
 
         // When
-        guard let sut = try? mapper.map(event) else {
-            XCTFail("Could not map event to beacon")
+        guard let sut = try? mapper.map(beacon) else {
+            XCTFail("Could not map Beacon to CoreBeacon")
             return
         }
 
@@ -54,7 +54,7 @@ class CoreBeaconFactoryTests: XCTestCase {
         let url = URL.random
         let method = "POST"
         let timestamp = Date().millisecondsSince1970
-        let event = HTTPEvent(timestamp: timestamp,
+        let beacon = HTTPBeacon(timestamp: timestamp,
                               method: method,
                               url: url,
                               connectionType: .wifi,
@@ -62,8 +62,8 @@ class CoreBeaconFactoryTests: XCTestCase {
         let mapper = CoreBeaconFactory(config)
 
         // When
-        guard let sut = try? mapper.map(event) else {
-            XCTFail("Could not map event to beacon")
+        guard let sut = try? mapper.map(beacon) else {
+            XCTFail("Could not map Beacon to CoreBeacon")
             return
         }
 
@@ -71,10 +71,10 @@ class CoreBeaconFactoryTests: XCTestCase {
         AssertEqualAndNotNil(sut.t, .httpRequest)
         AssertEqualAndNotNil(sut.hu, url.absoluteString)
         AssertEqualAndNotNil(sut.hp, url.path)
-        AssertEqualAndNotNil(sut.hs, String(event.responseCode))
+        AssertEqualAndNotNil(sut.hs, String(beacon.responseCode))
         AssertEqualAndNotNil(sut.hm, method)
-        AssertEqualAndNotNil(sut.trs, String(event.responseSize))
-        AssertEqualAndNotNil(sut.d, String(event.duration))
+        AssertEqualAndNotNil(sut.trs, String(beacon.responseSize))
+        AssertEqualAndNotNil(sut.d, String(beacon.duration))
 
         let values = Mirror(reflecting: sut).nonNilChildren
         XCTAssertEqual(values.count, 24)

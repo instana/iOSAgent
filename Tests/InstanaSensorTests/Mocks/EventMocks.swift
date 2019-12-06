@@ -8,12 +8,12 @@
 import Foundation
 @testable import InstanaSensor
 
-extension HTTPEvent {
+extension HTTPBeacon {
     static func createMock(timestamp: Int64 = Date().millisecondsSince1970,
               method: String = "POST",
               url: URL = URL(string: "https://www.example.com")!,
-        connectionType: NetworkMonitor.ConnectionType = .wifi) -> HTTPEvent {
-        return HTTPEvent(timestamp: timestamp,
+        connectionType: NetworkMonitor.ConnectionType = .wifi) -> HTTPBeacon {
+        return HTTPBeacon(timestamp: timestamp,
                          method: method,
                          url: url,
                          connectionType: connectionType,

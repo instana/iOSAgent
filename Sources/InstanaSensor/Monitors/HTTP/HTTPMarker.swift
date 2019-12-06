@@ -83,7 +83,7 @@ extension HTTPMarker {
 }
 
 extension HTTPMarker {
-    func createEvent() -> Event {
+    func createBeacon() -> Beacon {
         let result: String
         var responseCode: Int? = nil
         
@@ -99,7 +99,7 @@ extension HTTPMarker {
             result = String(describing: error)
         }
 
-        return HTTPEvent(timestamp: startTime,
+        return HTTPBeacon(timestamp: startTime,
                          duration: duration,
                          method: method,
                          url: url,

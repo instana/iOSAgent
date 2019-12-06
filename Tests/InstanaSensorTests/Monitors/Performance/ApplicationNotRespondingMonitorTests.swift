@@ -29,33 +29,33 @@ class ApplicationNotRespondingMonitorTests: XCTestCase {
         XCTAssertNil(weakMonitor)
     }
     
-    func test_performanceOverload_triggersANREvent() {
-        var event: Event?
-        let exp = expectation(description: "ANR event trigger")
+    func test_performanceOverload_triggersANRBeacon() {
+        var beacon: Beacon?
+        let exp = expectation(description: "ANR beacon trigger")
         monitor = ApplicationNotRespondingMonitor(threshold: 0.01, samplingInterval: 0.1, reporter: MockReporter {
-            event = $0
+            beacon = $0
             exp.fulfill()
         })
         
         Thread.sleep(forTimeInterval: 0.12)
         
         waitForExpectations(timeout: 0.14) { _ in
-            guard let alertEvent = event as? AlertEvent else {
-                XCTFail("Event not submitted or wrong type")
+            guard let alert = beacon as? AlertBeacon else {
+                XCTFail("Beacon not submitted or wrong type")
                 return
             }
-            guard case let .anr(duration) = alertEvent.alertType else {
-                XCTFail("Wrong alert type: \(alertEvent.alertType)")
+            guard case let .anr(duration) = alert.alertType else {
+                XCTFail("Wrong alert type: \(alert.alertType)")
                 return
             }
             XCTAssert(duration > 0.01)
         }
     }
     
-    func test_backgroundedApplication_shouldNotTriggerANREvent() {
-        let exp = expectation(description: "ANR event trigger")
+    func test_backgroundedApplication_shouldNotTriggerANRBeacon() {
+        let exp = expectation(description: "ANR beacon trigger")
         monitor = ApplicationNotRespondingMonitor(threshold: 0.01, samplingInterval: 0.1, reporter: MockReporter {_ in
-            XCTFail("ANR event triggered in background")
+            XCTFail("ANR beacon triggered in background")
         })
         DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(120)) {
             exp.fulfill()
@@ -68,14 +68,14 @@ class ApplicationNotRespondingMonitorTests: XCTestCase {
     }
     
     func test_foregrounding_shouldResumeMonitoring() {
-        var event: Event?
+        var beacon: Beacon?
         var count = 0
-        let exp = expectation(description: "ANR event trigger")
+        let exp = expectation(description: "ANR beacon trigger")
         monitor = ApplicationNotRespondingMonitor(threshold: 0.01, samplingInterval: 0.1, reporter: MockReporter {
-            event = $0
+            beacon = $0
             count += 1
         })
-        // fulfill expectation after a timer to catch mutliple events
+        // fulfill expectation after a timer to catch mutliple beacons
         DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(120)) {
             exp.fulfill()
         }
@@ -85,7 +85,7 @@ class ApplicationNotRespondingMonitorTests: XCTestCase {
         Thread.sleep(forTimeInterval: 0.12)
         
         waitForExpectations(timeout: 0.14) { _ in
-            XCTAssertNotNil(event as? AlertEvent)
+            XCTAssertNotNil(beacon as? AlertBeacon)
             XCTAssertEqual(count, 1)
         }
     }

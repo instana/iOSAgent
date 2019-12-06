@@ -8,52 +8,52 @@ class CoreBeaconFactory {
         self.configuration = configuration
     }
 
-    func map(_ events: [Event]) throws -> [CoreBeacon] {
-        return try events.map { try map($0)}
+    func map(_ beacons: [Beacon]) throws -> [CoreBeacon] {
+        return try beacons.map { try map($0)}
     }
 
-    func map(_ event: Event) throws -> CoreBeacon {
-        var beacon = CoreBeacon.createDefault(key: configuration.key, timestamp: event.timestamp, sessionId: event.sessionId, id: event.id)
-        switch event {
-        case let e as HTTPEvent:
-            beacon.append(e)
-        case let e as AlertEvent:
-            beacon.append(e)
-        case let e as CustomEvent:
-            beacon.append(e)
-        case let e as SessionProfileEvent:
-            beacon.append(e)
+    func map(_ beacon: Beacon) throws -> CoreBeacon {
+        var cbeacon = CoreBeacon.createDefault(key: configuration.key, timestamp: beacon.timestamp, sessionId: beacon.sessionId, id: beacon.id)
+        switch beacon {
+        case let b as HTTPBeacon:
+            cbeacon.append(b)
+        case let b as AlertBeacon:
+            cbeacon.append(b)
+        case let b as CustomBeacon:
+            cbeacon.append(b)
+        case let b as SessionProfileBeacon:
+            cbeacon.append(b)
         default:
-            let message = "Event <-> Beacon mapping for event \(event) not defined"
+            let message = "Beacon <-> CoreBeacon mapping for beacon \(beacon) not defined"
             debugAssertFailure(message)
             throw InstanaError(code: .unknownType, description: message)
         }
-        return beacon
+        return cbeacon
     }
 }
 
 extension CoreBeacon {
 
-    mutating func append(_ event: HTTPEvent) {
+    mutating func append(_ beacon: HTTPBeacon) {
         t = .httpRequest
-        hu = event.url.absoluteString
-        hp = event.path
-        hs = String(event.responseCode)
-        hm = event.method
-        trs = String(event.responseSize)
-        d = String(event.duration)
+        hu = beacon.url.absoluteString
+        hp = beacon.path
+        hs = String(beacon.responseCode)
+        hm = beacon.method
+        trs = String(beacon.responseSize)
+        d = String(beacon.duration)
     }
 
-    mutating func append(_ event: AlertEvent) {
+    mutating func append(_ beacon: AlertBeacon) {
         t = .custom // not yet defined
     }
 
-    mutating func append(_ event: CustomEvent) {
+    mutating func append(_ beacon: CustomBeacon) {
         t = .custom
     }
 
-    mutating func append(_ event: SessionProfileEvent) {
-        if event.state == .start {
+    mutating func append(_ beacon: SessionProfileBeacon) {
+        if beacon.state == .start {
             t = .sessionStart  // there is no sessionEnd yet
         }
     }

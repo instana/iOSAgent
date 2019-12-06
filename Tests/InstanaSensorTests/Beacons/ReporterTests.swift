@@ -39,7 +39,7 @@ class ReporterTests: XCTestCase {
         })
 
         // When
-        reporter.submit(AlertEvent(alertType: .lowMemory))
+        reporter.submit(AlertBeacon(alertType: .lowMemory))
         waitForExpectations(timeout: delay * 2, handler: nil)
         
 
@@ -74,7 +74,7 @@ class ReporterTests: XCTestCase {
         })
 
         // When
-        reporter.submit(AlertEvent(alertType: .lowMemory))
+        reporter.submit(AlertBeacon(alertType: .lowMemory))
         waitForExpectations(timeout: delay * 2, handler: nil)
 
 
@@ -110,7 +110,7 @@ class ReporterTests: XCTestCase {
             expectedError = result.error as? InstanaError
             exp.fulfill()
         }
-        reporter.submit(AlertEvent(alertType: .lowMemory))
+        reporter.submit(AlertBeacon(alertType: .lowMemory))
         waitForExpectations(timeout: 0.3, handler: nil)
 
         // Then
@@ -139,7 +139,7 @@ class ReporterTests: XCTestCase {
         })
 
         // When
-        reporter.submit(AlertEvent(alertType: .lowMemory))
+        reporter.submit(AlertBeacon(alertType: .lowMemory))
         waitForExpectations(timeout: 0.3, handler: nil)
 
         // Then
@@ -167,7 +167,7 @@ class ReporterTests: XCTestCase {
         })
 
         // When
-        reporter.submit(AlertEvent(alertType: .lowMemory))
+        reporter.submit(AlertBeacon(alertType: .lowMemory))
         waitForExpectations(timeout: 0.3, handler: nil)
 
         // Then
@@ -199,7 +199,7 @@ class ReporterTests: XCTestCase {
             expectedError = result.error as? InstanaError
             exp.fulfill()
         }
-        reporter.submit(AlertEvent(alertType: .lowMemory))
+        reporter.submit(AlertBeacon(alertType: .lowMemory))
         waitForExpectations(timeout: 0.3, handler: nil)
 
         // Then
@@ -233,7 +233,7 @@ class ReporterTests: XCTestCase {
             expectedError = result.error as? InstanaError
             exp.fulfill()
         }
-        reporter.submit(AlertEvent(alertType: .lowMemory))
+        reporter.submit(AlertBeacon(alertType: .lowMemory))
         waitForExpectations(timeout: 0.3, handler: nil)
 
         // Then
@@ -262,7 +262,7 @@ class ReporterTests: XCTestCase {
         })
 
         // When
-        reporter.submit(AlertEvent(alertType: .lowMemory))
+        reporter.submit(AlertBeacon(alertType: .lowMemory))
         waitForExpectations(timeout: 0.3, handler: nil)
 
         // Then
@@ -290,7 +290,7 @@ class ReporterTests: XCTestCase {
         })
 
         // When
-        reporter.submit(AlertEvent(alertType: .lowMemory))
+        reporter.submit(AlertBeacon(alertType: .lowMemory))
         waitForExpectations(timeout: 0.3, handler: nil)
 
         // Then
@@ -322,7 +322,7 @@ class ReporterTests: XCTestCase {
             expectedError = result.error as? InstanaError
             exp.fulfill()
         }
-        reporter.submit(AlertEvent(alertType: .lowMemory))
+        reporter.submit(AlertBeacon(alertType: .lowMemory))
         waitForExpectations(timeout: 0.3, handler: nil)
 
         // Then
@@ -356,7 +356,7 @@ class ReporterTests: XCTestCase {
             expectedError = result.error as? InstanaError
             exp.fulfill()
         }
-        reporter.submit(AlertEvent(alertType: .lowMemory))
+        reporter.submit(AlertBeacon(alertType: .lowMemory))
         waitForExpectations(timeout: 0.3, handler: nil)
 
         // Then
@@ -389,7 +389,7 @@ class ReporterTests: XCTestCase {
             expectedError = result.error as? InstanaError
             exp.fulfill()
         }
-        reporter.submit(AlertEvent(alertType: .lowMemory))
+        reporter.submit(AlertBeacon(alertType: .lowMemory))
         waitForExpectations(timeout: 0.3, handler: nil)
 
         // Then
@@ -421,7 +421,7 @@ class ReporterTests: XCTestCase {
             expectedError = result.error as? InstanaError
             exp.fulfill()
         }
-        reporter.submit(AlertEvent(alertType: .lowMemory))
+        reporter.submit(AlertBeacon(alertType: .lowMemory))
         waitForExpectations(timeout: 0.3, handler: nil)
 
         // Then
@@ -449,7 +449,7 @@ class ReporterTests: XCTestCase {
         })
 
         // When
-        reporter.submit(AlertEvent(alertType: .lowMemory))
+        reporter.submit(AlertBeacon(alertType: .lowMemory))
         waitForExpectations(timeout: 0.3, handler: nil)
 
         // Then
@@ -480,7 +480,7 @@ class ReporterTests: XCTestCase {
         })
 
         // When
-        reporter.submit(AlertEvent(alertType: .lowMemory))
+        reporter.submit(AlertBeacon(alertType: .lowMemory))
         waitForExpectations(timeout: 0.3, handler: nil)
 
         // Then
@@ -508,7 +508,7 @@ class ReporterTests: XCTestCase {
         })
 
         // When
-        reporter.submit(AlertEvent(alertType: .lowMemory))
+        reporter.submit(AlertBeacon(alertType: .lowMemory))
         waitForExpectations(timeout: 0.3, handler: nil)
 
         // Then
@@ -536,7 +536,7 @@ class ReporterTests: XCTestCase {
         })
 
         // When
-        reporter.submit(AlertEvent(alertType: .lowMemory))
+        reporter.submit(AlertBeacon(alertType: .lowMemory))
         waitForExpectations(timeout: 0.3, handler: nil)
 
         // Then
@@ -564,7 +564,7 @@ class ReporterTests: XCTestCase {
         })
 
         // When
-        reporter.submit(AlertEvent(alertType: .lowMemory))
+        reporter.submit(AlertBeacon(alertType: .lowMemory))
         waitForExpectations(timeout: 0.3, handler: nil)
 
         // Then
@@ -579,7 +579,7 @@ class ReporterTests: XCTestCase {
         let exp = expectation(description: "Delayed sending")
 
         // When
-        mockEventSubmission(.failure(givenError)) { result in
+        mockBeaconSubmission(.failure(givenError)) { result in
             guard case let .failure(e) = result else { XCTFail("Invalid result"); return }
             guard let resultError = e as? CocoaError else { XCTFail("Error type missmatch"); return }
             expectedError = resultError
@@ -611,7 +611,7 @@ class ReporterTests: XCTestCase {
                 exp.fulfill()
             }
         }
-        reporter.submit(Event(timestamp: 1000000, sessionId: "ID"))
+        reporter.submit(Beacon(timestamp: 1000000, sessionId: "ID"))
         waitForExpectations(timeout: 0.2, handler: nil)
 
 
@@ -621,28 +621,28 @@ class ReporterTests: XCTestCase {
     }
     
     func test_loadSuccess_withStatusCodeIn200Range_shouldReportSuccess() {
-        mockEventSubmission(.success(statusCode: 200)) {
+        mockBeaconSubmission(.success(statusCode: 200)) {
             guard case .success = $0 else { XCTFail("Result missmatch"); return }
         }
-        mockEventSubmission(.success(statusCode: 204)) {
+        mockBeaconSubmission(.success(statusCode: 204)) {
             guard case .success = $0 else { XCTFail("Result missmatch"); return }
         }
-        mockEventSubmission(.success(statusCode: 299)) {
+        mockBeaconSubmission(.success(statusCode: 299)) {
             guard case .success = $0 else { XCTFail("Result missmatch"); return }
         }
     }
     
     func test_loadSuccess_withStatusCodeOutside200Range_shouldReportFailure() {
-        let verifyResult: (EventResult) -> Void = {
+        let verifyResult: (BeaconResult) -> Void = {
             guard case let .failure(e) = $0 else { XCTFail("Invalid result: \($0)"); return }
             guard let resultError = e as? InstanaError else { XCTFail("Error type missmatch"); return }
             XCTAssertEqual(resultError.code, InstanaError.Code.invalidResponse.rawValue)
         }
         
-        mockEventSubmission(.success(statusCode: 100), resultCallback: verifyResult)
-        mockEventSubmission(.success(statusCode: 300), resultCallback: verifyResult)
-        mockEventSubmission(.success(statusCode: 400), resultCallback: verifyResult)
-        mockEventSubmission(.success(statusCode: 500), resultCallback: verifyResult)
+        mockBeaconSubmission(.success(statusCode: 100), resultCallback: verifyResult)
+        mockBeaconSubmission(.success(statusCode: 300), resultCallback: verifyResult)
+        mockBeaconSubmission(.success(statusCode: 400), resultCallback: verifyResult)
+        mockBeaconSubmission(.success(statusCode: 500), resultCallback: verifyResult)
     }
 
     // MARK: Test Timer
@@ -657,7 +657,7 @@ class ReporterTests: XCTestCase {
         let exp = expectation(description: "Delay")
 
         // When
-        reporter?.submit(Event(timestamp: 0))
+        reporter?.submit(Beacon(timestamp: 0))
         reporter = nil
         DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(10)) {
             exp.fulfill()
@@ -678,13 +678,13 @@ extension ReporterTests {
         config.transmissionDelay = 0.0
         config.transmissionLowBatteryDelay = 0.0
         let reporter = Reporter(config) { _, _ in}
-        let events = [HTTPEvent.createMock(), HTTPEvent.createMock()]
-        let beacons = try! CoreBeaconFactory(config).map(events)
-        let data = beacons.asString.data(using: .utf8)
+        let beacons = [HTTPBeacon.createMock(), HTTPBeacon.createMock()]
+        let cbeacons = try! CoreBeaconFactory(config).map(beacons)
+        let data = cbeacons.asString.data(using: .utf8)
         let gzippedData = try? data?.gzipped(level: .bestCompression)
 
         // When
-        let sut = try? reporter.createBatchRequest(from: beacons)
+        let sut = try? reporter.createBatchRequest(from: cbeacons)
 
         // Then
         AssertEqualAndNotNil(sut?.httpMethod, "POST")
@@ -702,11 +702,11 @@ extension ReporterTests {
         config.transmissionDelay = 0.0
         config.transmissionLowBatteryDelay = 0.0
         let reporter = Reporter(config) { _, _ in}
-        let events = [HTTPEvent.createMock(), HTTPEvent.createMock()]
-        let beacons = try! CoreBeaconFactory(config).map(events)
+        let beacons = [HTTPBeacon.createMock(), HTTPBeacon.createMock()]
+        let corebeacons = try! CoreBeaconFactory(config).map(beacons)
 
         // When
-        XCTAssertThrowsError(try reporter.createBatchRequest(from: beacons)) {error in
+        XCTAssertThrowsError(try reporter.createBatchRequest(from: corebeacons)) {error in
             // Then
             XCTAssertEqual((error as? InstanaError)?.code, InstanaError.Code.notAuthenticated.rawValue)
         }
@@ -714,7 +714,7 @@ extension ReporterTests {
 }
 
 extension ReporterTests {
-    func mockEventSubmission(_ loadResult: InstanaNetworking.Result, resultCallback: @escaping (EventResult) -> Void) {
+    func mockBeaconSubmission(_ loadResult: InstanaNetworking.Result, resultCallback: @escaping (BeaconResult) -> Void) {
         config.transmissionDelay = 0.0
         config.transmissionLowBatteryDelay = 0.0
         let reporter = Reporter(config,
@@ -722,6 +722,6 @@ extension ReporterTests {
                                       hasWifi: { true },
                                       send: { _, callback in callback(loadResult) })
         reporter.completion = resultCallback
-        reporter.submit(AlertEvent(alertType: .lowMemory))
+        reporter.submit(AlertBeacon(alertType: .lowMemory))
     }
 }

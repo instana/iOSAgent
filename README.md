@@ -51,22 +51,22 @@ If you don't want to use a configuration file you can use `Instana.setup(withKey
     
 >`reportingUrl` is optional and should only be used for on-premisses Instana installations.
 
-## Events
-All communication to the Instana backend is done trough events. 
+## Beacons
+All communication to the Instana backend is done trough beacons. 
 
-> Other than custom event events, there is no way for the end user to send events, even so some configuration options are exposed.
+> Other than custom beacons, there is no way for the end user to send beacons, even so some configuration options are exposed.
 
-`beaconReporterQueueSize` represents the size of the ring buffer in which events are stored. Events can be overwritten if too many are triggered before a buffer flush. If you expect a large volume of events you can increase the buffer size.
+`beaconReporterQueueSize` represents the size of the ring buffer in which beacons are stored. Beacons can be overwritten if too many are triggered before a buffer flush. If you expect a large volume of beacons you can increase the buffer size.
 
-`suspendReporting` allows developers to decide in which cases to suspend the sending of events to the Instana backend. The options are: `never`, `lowBattery`, `cellularConnection`.
+`suspendReporting` allows developers to decide in which cases to suspend the sending of beacons to the Instana backend. The options are: `never`, `lowBattery`, `cellularConnection`.
 
-### Custom Events
-If you wish to mark a specific event in your application, you can use a custom event to send it to Instana.
+### Custom Beacons
+If you wish to mark a specific beacon in your application, you can use a custom beacon to send it to Instana.
 
-	let event = CustomEventEvent(name: "my-custom-event", timestamp: Date().timeIntervalSince1970, duration: 2.5)
-    Instana.reporter.submit(event)
+	let beacon = CustomBeacon(name: "my-custom-Beacon", timestamp: Date().timeIntervalSince1970, duration: 2.5)
+    Instana.reporter.submit(beacon)
     
-> `timestamp` and `duration` are optional for custom events.
+> `timestamp` and `duration` are optional for custom beacons.
 
 ## Remote Call Instrumentation
 The following configuration options are available: `automaticAndManual`, `automatic`, `manual`, `none`.
@@ -117,10 +117,10 @@ The total number of breadcrumbs is limited to 100, after that newer breadcrumbs 
 Performance alerts can be individually disabled/enabled and configured.
 
 ### Memory Warning
-Low memory alerts will get reported on the standard low memory system event which triggers the `UIApplication.didReceiveMemoryWarningNotification` notification.
+Low memory alerts will get reported on the standard low memory system beacon which triggers the `UIApplication.didReceiveMemoryWarningNotification` notification.
 
 ### Application Not Responding (ANR)
-ANR events will get reported after the main thread is blocked for more than the duration specified in the configuration. It can also be adjusted at runtime, for example:
+ANR beacons will get reported after the main thread is blocked for more than the duration specified in the configuration. It can also be adjusted at runtime, for example:
 
 	Instana.alerts.applicationNotRespondingThreshold = 1
 	

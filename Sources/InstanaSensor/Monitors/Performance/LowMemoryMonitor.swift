@@ -16,6 +16,6 @@ class LowMemoryMonitor {
     }
     
     @objc func onLowMemoryWarning(notification: Notification) {
-        reporter.submit(AlertEvent(alertType: .lowMemory))
+        reporter.submit(AlertBeacon(alertType: .lowMemory))
     }
 }

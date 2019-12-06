@@ -2,19 +2,19 @@
 import Foundation
 import Gzip
 
-/// Reporter to manager and send out the events
+/// Reporter to manager and send out the beacons
 public class Reporter: NSObject {
     
-    typealias Submitter = (Event) -> Void
+    typealias Submitter = (Beacon) -> Void
     typealias NetworkLoader = (URLRequest, @escaping (InstanaNetworking.Result) -> Void) -> Void
-    var completion: (EventResult) -> Void = {_ in}
+    var completion: (BeaconResult) -> Void = {_ in}
     private var backgroundQueue = DispatchQueue(label: "com.instana.ios.app.background", qos: .background, attributes: .concurrent)
     private var timer: Timer?
     private let send: NetworkLoader
     private let batterySafeForNetworking: () -> Bool
     private let hasWifi: () -> Bool
     private var suspendReporting: Set<InstanaConfiguration.SuspendReporting> { configuration.suspendReporting }
-    private (set) var queue = [Event]()
+    private (set) var queue = [Beacon]()
 
     private let configuration: InstanaConfiguration
 
@@ -35,10 +35,10 @@ public class Reporter: NSObject {
         timer?.invalidate()
     }
 
-    func submit(_ event: Event) {
+    func submit(_ beacon: Beacon) {
         // TODO: Build OperationQueue later - send all directly now
-        // TODO: Queue should also persist the events in case of a crash or network failure
-        queue.append(event)
+        // TODO: Queue should also persist the beacons in case of a crash or network failure
+        queue.append(beacon)
         scheduleFlush()
     }
 
@@ -80,11 +80,11 @@ extension Reporter {
             return
         }
 
-        let eventsToSend = queue
+        let beaconsToSend = queue
         let request: URLRequest
         var beacons = [CoreBeacon]()
         do {
-            beacons = try CoreBeaconFactory(configuration).map(eventsToSend)
+            beacons = try CoreBeaconFactory(configuration).map(beaconsToSend)
             request = try createBatchRequest(from: beacons)
         } catch {
             complete(beacons, .failure(error))
@@ -103,7 +103,7 @@ extension Reporter {
         }
     }
     
-    func complete(_ beacons: [CoreBeacon],_ result: EventResult) {
+    func complete(_ beacons: [CoreBeacon],_ result: BeaconResult) {
         switch result {
         case .success:
             Instana.current.logger.add("Did send beacons \(beacons)")

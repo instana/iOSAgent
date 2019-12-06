@@ -28,11 +28,11 @@ class BasicIntegrationServerTest: IntegrationTestCase {
         config.transmissionLowBatteryDelay = 0.0
         config.gzipReport = false
         reporter = Reporter(config)
-        let event = HTTPEvent.createMock()
+        let beacon = HTTPBeacon.createMock()
 
         // When
-        var expectedResult: EventResult?
-        reporter.submit(event)
+        var expectedResult: BeaconResult?
+        reporter.submit(beacon)
 
         // Queue should have one item now!
         AssertTrue(reporter.queue.count == 1)
@@ -52,7 +52,7 @@ class BasicIntegrationServerTest: IntegrationTestCase {
 
         do {
             let responseBeacon = try CoreBeacon.create(from: serverReceivedHTTP ?? "")
-            let expectedBeacon = try CoreBeaconFactory(config).map(event)
+            let expectedBeacon = try CoreBeaconFactory(config).map(beacon)
             AssertEqualAndNotNil(expectedBeacon, responseBeacon)
         } catch (let error) {
             XCTFail(error.localizedDescription)

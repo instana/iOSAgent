@@ -13,20 +13,20 @@ class LowMemoryMonitorTests: XCTestCase {
         monitor = nil
     }
     
-    func test_deviceLowMemory_triggersLowMemoryEvent() {
-        var event: Event?
-        monitor = LowMemoryMonitor(reporter: MockReporter {submittedEvent in
-            event = submittedEvent
+    func test_deviceLowMemory_triggersLowMemoryBeacon() {
+        var beacon: Beacon?
+        monitor = LowMemoryMonitor(reporter: MockReporter {submittedBeacon in
+            beacon = submittedBeacon
         })
         
         NotificationCenter.default.post(name: UIApplication.didReceiveMemoryWarningNotification, object: nil)
         
-        guard let alertEvent = event as? AlertEvent else {
-            XCTFail("Event not submitted or wrong type")
+        guard let alert = beacon as? AlertBeacon else {
+            XCTFail("Beacon not submitted or wrong type")
             return
         }
-        guard case .lowMemory = alertEvent.alertType else {
-            XCTFail("Wrong alert type: \(alertEvent.alertType)")
+        guard case .lowMemory = alert.alertType else {
+            XCTFail("Wrong alert type: \(alert.alertType)")
             return
         }
     }

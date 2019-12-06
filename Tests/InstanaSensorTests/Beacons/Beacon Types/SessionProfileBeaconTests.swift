@@ -4,7 +4,7 @@
 import XCTest
 @testable import InstanaSensor
 
-class HTTPEventTests: XCTestCase {
+class SessionProfileBeaconTests: XCTestCase {
 
     // TODO: Write Tests
 }

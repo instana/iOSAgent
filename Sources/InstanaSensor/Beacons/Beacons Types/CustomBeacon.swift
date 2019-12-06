@@ -1,10 +1,8 @@
-//  Created by Nikola Lajic on 1/23/19.
-//  Copyright © 2019 Nikola Lajic. All rights reserved.
 
 import Foundation
 
-/// Use this class when submitting user events to the Instana backend.
-class CustomEvent: Event {
+/// Use this class when submitting user beacons to the Instana backend.
+class CustomBeacon: Beacon {
     public let name: String
     public let duration: Instana.Types.Milliseconds
 
