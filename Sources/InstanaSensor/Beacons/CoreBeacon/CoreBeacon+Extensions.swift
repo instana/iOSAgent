@@ -18,9 +18,6 @@ extension CoreBeacon {
         }
         return pairs.joined(separator: "\n")
     }
-}
-
-extension CoreBeacon {
 
     func formattedKVPair(key: String, value: Any) -> String? {
         let value = cleaning(value)
