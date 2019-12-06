@@ -35,7 +35,7 @@ class BasicIntegrationServerTest: IntegrationTestCase {
         reporter.submit(beacon)
 
         // Queue should have one item now!
-        AssertTrue(reporter.queue.count == 1)
+        AssertTrue(reporter.queue.items.count == 1)
 
         reporter.completion = {result in
             expectedResult = result
@@ -48,7 +48,7 @@ class BasicIntegrationServerTest: IntegrationTestCase {
         // Then
         XCTAssertNotNil(expectedResult)
         XCTAssertNotNil(serverReceivedHTTP)
-        AssertTrue(reporter.queue.isEmpty)
+        AssertTrue(reporter.queue.items.isEmpty)
 
         do {
             let responseBeacon = try CoreBeacon.create(from: serverReceivedHTTP ?? "")

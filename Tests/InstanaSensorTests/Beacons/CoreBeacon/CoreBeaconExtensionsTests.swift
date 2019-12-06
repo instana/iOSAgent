@@ -18,6 +18,24 @@ class CoreBeaconExtensionsTests: XCTestCase {
         XCTAssertEqual(sut, expected)
     }
 
+    func test_asJSON() {
+        // Given
+        let key = "123KEY"
+        let beacon = CoreBeacon.createDefault(key: key)
+
+        // When
+        let mirror = Mirror(reflecting: beacon)
+        guard let sut = beacon.asJSON else { XCTFail("Cannot convert Beacon to JSON"); return }
+
+        // Then
+        AssertTrue(sut.count > 0)
+        AssertTrue(sut.count == mirror.nonNilChildren.count)
+
+        mirror.nonNilChildren.forEach { child in
+            AssertEqualAndNotNil(sut[child.0] as? String, child.1 as? String, "Values for \(child.0) must be same")
+        }
+    }
+
     func test_formattedKVPair() {
         // Given
         let beacon = CoreBeacon.createDefault(key: "KEY123")

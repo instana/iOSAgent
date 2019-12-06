@@ -7,11 +7,12 @@
 
 import Foundation
 
-enum BeaconType: String, Equatable, Codable {
+enum BeaconType: String, Equatable, Codable, CustomStringConvertible {
     case sessionStart
     case httpRequest
     case crash
     case custom
+    var description: String { rawValue }
 }
 
 /// The final object that is used for the submission to the Instana backend
