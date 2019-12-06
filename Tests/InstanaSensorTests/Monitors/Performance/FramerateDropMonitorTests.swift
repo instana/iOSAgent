@@ -21,23 +21,23 @@ class FramerateDropMonitorTests: XCTestCase {
         XCTAssertNil(weakMonitor)
     }
     
-    func test_framerateDrop_triggersEvent() {
-        var event: Event?
-        let exp = expectation(description: "Framerate drop event trigger")
+    func test_framerateDrop_triggersBeacon() {
+        var beacon: Beacon?
+        let exp = expectation(description: "Framerate drop beacon trigger")
         monitor = FramerateDropMonitor(threshold: 50, samplingInterval: 0.1, reporter: MockReporter {
-            event = $0
+            beacon = $0
             exp.fulfill()
         })
         
         Thread.sleep(forTimeInterval: 0.1)
         
         waitForExpectations(timeout: 0.15) { _ in
-            guard let alertEvent = event as? AlertEvent else {
-                XCTFail("Event not submitted or wrong type")
+            guard let alert = beacon as? AlertBeacon else {
+                XCTFail("Beacon not submitted or wrong type")
                 return
             }
-            guard case let .framerateDrop(duration, avgFPS) = alertEvent.alertType else {
-                XCTFail("Wrong alert type: \(alertEvent.alertType)")
+            guard case let .framerateDrop(duration, avgFPS) = alert.alertType else {
+                XCTFail("Wrong alert type: \(alert.alertType)")
                 return
             }
             XCTAssert(avgFPS <= 25)
@@ -45,10 +45,10 @@ class FramerateDropMonitorTests: XCTestCase {
         }
     }
     
-    func test_backgroundedApplication_shouldNotTriggerEvent() {
-        let exp = expectation(description: "Framerate drop event trigger")
+    func test_backgroundedApplication_shouldNotTriggerBeacon() {
+        let exp = expectation(description: "Framerate drop beacon trigger")
         monitor = FramerateDropMonitor(threshold: 50, samplingInterval: 0.01, reporter: MockReporter {_ in
-            XCTFail("Framerate drop event triggered in background")
+            XCTFail("Framerate drop beacon triggered in background")
         })
         DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(200)) {
             exp.fulfill()
@@ -61,10 +61,10 @@ class FramerateDropMonitorTests: XCTestCase {
     }
     
     func test_foregrounding_shouldResumeMonitoring() {
-        var event: Event?
-        let exp = expectation(description: "Framerate drop event trigger")
+        var beacon: Beacon?
+        let exp = expectation(description: "Framerate drop beacon trigger")
         monitor = FramerateDropMonitor(threshold: 50, samplingInterval: 0.01, reporter: MockReporter {
-            event = $0
+            beacon = $0
             exp.fulfill()
         })
         
@@ -73,7 +73,7 @@ class FramerateDropMonitorTests: XCTestCase {
         Thread.sleep(forTimeInterval: 0.12)
         
         waitForExpectations(timeout: 0.14) { _ in
-            XCTAssertNotNil(event as? AlertEvent)
+            XCTAssertNotNil(beacon as? AlertBeacon)
         }
     }
 }

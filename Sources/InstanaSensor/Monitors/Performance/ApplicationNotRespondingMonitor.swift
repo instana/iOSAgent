@@ -54,7 +54,7 @@ extension ApplicationNotRespondingMonitor: InstanaTimerProxiedTarget {
         
         let delay = CFAbsoluteTimeGetCurrent() - start - samplingInterval
         if delay > threshold {
-            reporter.submit(AlertEvent(alertType: .anr(duration: delay)))
+            reporter.submit(AlertBeacon(alertType: .anr(duration: delay)))
         }
         scheduleTimer()
     }

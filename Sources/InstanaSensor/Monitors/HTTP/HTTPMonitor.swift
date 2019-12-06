@@ -83,6 +83,6 @@ extension HTTPMonitor {
 extension HTTPMonitor: HTTPMarkerDelegate {
     func finalized(marker: HTTPMarker) {
         guard shouldReport(marker: marker) else { return }
-        reporter.submit(marker.createEvent())
+        reporter.submit(marker.createBeacon())
     }
 }

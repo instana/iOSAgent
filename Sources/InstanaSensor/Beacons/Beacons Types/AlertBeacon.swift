@@ -1,9 +1,6 @@
-//  Created by Nikola Lajic on 1/31/19.
-//  Copyright © 2019 Nikola Lajic. All rights reserved.
-
 import Foundation
 
-class AlertEvent: Event {
+class AlertBeacon: Beacon {
     enum AlertType {
         case anr(duration: Instana.Types.Seconds)
         case lowMemory

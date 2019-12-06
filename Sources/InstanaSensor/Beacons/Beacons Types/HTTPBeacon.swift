@@ -3,7 +3,7 @@
 
 import Foundation
 
-class HTTPEvent: Event {
+class HTTPBeacon: Beacon {
     let duration: Instana.Types.Milliseconds
     let method: String
     let url: URL

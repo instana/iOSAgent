@@ -9,8 +9,8 @@ import Foundation
 @testable import InstanaSensor
 
 class MockReporter: Reporter {
-    var submitter: ((Event) -> Void)
-    init(submitter: @escaping ((Event) -> Void)) {
+    var submitter: ((Beacon) -> Void)
+    init(submitter: @escaping ((Beacon) -> Void)) {
         self.submitter = submitter
         super.init(InstanaConfiguration.default(key: "KEY"))
     }
@@ -20,7 +20,7 @@ class MockReporter: Reporter {
         super.init(InstanaConfiguration.default(key: "KEY"))
     }
 
-    override func submit(_ event: Event) {
-        submitter(event)
+    override func submit(_ b: Beacon) {
+        submitter(b)
     }
 }

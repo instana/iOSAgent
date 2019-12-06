@@ -110,7 +110,7 @@ class HTTPMarkerTests: XCTestCase {
         }
     }
     
-    func test_finishedMarker_toEventConversion() {
+    func test_finishedMarker_toBeaconConversion() {
         // Given
         let url: URL = .random
         let marker = HTTPMarker(url: url, method: "m", requestSize: 111, connectionType: .wifi, delegate: Delegate())
@@ -118,24 +118,24 @@ class HTTPMarkerTests: XCTestCase {
 
 
         // When
-        guard let event = marker.createEvent() as? HTTPEvent else {
-            XCTFail("Event type missmatch"); return
+        guard let beacon = marker.createBeacon() as? HTTPBeacon else {
+            XCTFail("Beacon type missmatch"); return
         }
 
         // Then
-        XCTAssertTrue(event.id.count > 0)
-        XCTAssertEqual(event.timestamp, marker.startTime)
-        XCTAssertEqual(event.duration, marker.duration)
-        XCTAssertEqual(event.method, "m")
-        XCTAssertEqual(event.url, url)
-        XCTAssertEqual(event.responseCode, 204)
-        XCTAssertEqual(event.requestSize, 111)
-        XCTAssertEqual(event.responseSize, 10)
-        XCTAssertEqual(event.connectionType, .wifi)
-        XCTAssertEqual(event.result, "finished")
+        XCTAssertTrue(beacon.id.count > 0)
+        XCTAssertEqual(beacon.timestamp, marker.startTime)
+        XCTAssertEqual(beacon.duration, marker.duration)
+        XCTAssertEqual(beacon.method, "m")
+        XCTAssertEqual(beacon.url, url)
+        XCTAssertEqual(beacon.responseCode, 204)
+        XCTAssertEqual(beacon.requestSize, 111)
+        XCTAssertEqual(beacon.responseSize, 10)
+        XCTAssertEqual(beacon.connectionType, .wifi)
+        XCTAssertEqual(beacon.result, "finished")
     }
     
-    func test_failedMarker_toEventConversion() {
+    func test_failedMarker_toBeaconConversion() {
         // Given
         let url: URL = .random
         let marker = HTTPMarker(url: url, method: "t", requestSize: 123, connectionType: .cellular, delegate: Delegate())
@@ -143,66 +143,66 @@ class HTTPMarkerTests: XCTestCase {
         marker.ended(error: error)
 
         // When
-        guard let event = marker.createEvent() as? HTTPEvent else {
-            XCTFail("Event type missmatch"); return
+        guard let beacon = marker.createBeacon() as? HTTPBeacon else {
+            XCTFail("Beacon type missmatch"); return
         }
 
         // Then
-        XCTAssertTrue(event.id.count > 0)
-        XCTAssertEqual(event.timestamp, marker.startTime)
-        XCTAssertEqual(event.duration, marker.duration)
-        XCTAssertEqual(event.method, "t")
-        XCTAssertEqual(event.url, url)
-        XCTAssertEqual(event.responseCode, -1)
-        XCTAssertEqual(event.requestSize, 123)
-        XCTAssertEqual(event.responseSize, 0)
-        XCTAssertEqual(event.connectionType, .cellular)
-        XCTAssertEqual(event.result, String(describing: error as Error))
+        XCTAssertTrue(beacon.id.count > 0)
+        XCTAssertEqual(beacon.timestamp, marker.startTime)
+        XCTAssertEqual(beacon.duration, marker.duration)
+        XCTAssertEqual(beacon.method, "t")
+        XCTAssertEqual(beacon.url, url)
+        XCTAssertEqual(beacon.responseCode, -1)
+        XCTAssertEqual(beacon.requestSize, 123)
+        XCTAssertEqual(beacon.responseSize, 0)
+        XCTAssertEqual(beacon.connectionType, .cellular)
+        XCTAssertEqual(beacon.result, String(describing: error as Error))
     }
     
-    func test_canceledMarker_toEventConversion() {
+    func test_canceledMarker_toBeaconConversion() {
         // Given
         let url: URL = .random
         let marker = HTTPMarker(url: url, method: "c", requestSize: 1, delegate: Delegate())
         marker.canceled()
 
         // When
-        guard let event = marker.createEvent() as? HTTPEvent else {
-            XCTFail("Event type missmatch"); return
+        guard let beacon = marker.createBeacon() as? HTTPBeacon else {
+            XCTFail("Beacon type missmatch"); return
         }
 
         // Then
-        XCTAssertTrue(event.id.count > 0)
-        XCTAssertEqual(event.timestamp, marker.startTime)
-        XCTAssertEqual(event.duration, marker.duration)
-        XCTAssertEqual(event.method, "c")
-        XCTAssertEqual(event.url, url)
-        XCTAssertEqual(event.responseCode, -1)
-        XCTAssertEqual(event.requestSize, 1)
-        XCTAssertEqual(event.responseSize, 0)
-        XCTAssertEqual(event.result, "canceled")
+        XCTAssertTrue(beacon.id.count > 0)
+        XCTAssertEqual(beacon.timestamp, marker.startTime)
+        XCTAssertEqual(beacon.duration, marker.duration)
+        XCTAssertEqual(beacon.method, "c")
+        XCTAssertEqual(beacon.url, url)
+        XCTAssertEqual(beacon.responseCode, -1)
+        XCTAssertEqual(beacon.requestSize, 1)
+        XCTAssertEqual(beacon.responseSize, 0)
+        XCTAssertEqual(beacon.result, "canceled")
     }
     
-    func test_starteddMarker_toEventConversion() {
+    func test_starteddMarker_toConversion() {
         // Given
         let url: URL = .random
         let marker = HTTPMarker(url: url, method: "c", requestSize: 1, delegate: Delegate())
 
         // When
-        guard let event = marker.createEvent() as? HTTPEvent else {
-            XCTFail("Event type missmatch"); return
+        guard let beacon = marker.createBeacon() as? HTTPBeacon else {
+            XCTFail("Beacon type missmatch"); return
         }
 
         // Then
-        XCTAssertTrue(event.id.count > 0)
-        XCTAssertEqual(event.timestamp, marker.startTime)
-        XCTAssertEqual(event.duration, 0)
-        XCTAssertEqual(event.method, "c")
-        XCTAssertEqual(event.url, url)
-        XCTAssertEqual(event.responseCode, -1)
-        XCTAssertEqual(event.requestSize, 1)
-        XCTAssertEqual(event.responseSize, 0)
-        XCTAssertEqual(event.result, "started")
+        XCTAssertTrue(beacon.id.count > 0)
+        XCTAssertEqual(beacon.timestamp, marker.startTime)
+        XCTAssertEqual(beacon.duration, 0)
+        XCTAssertEqual(beacon.method, "c")
+        XCTAssertEqual(beacon.url, url)
+        XCTAssertEqual(beacon.responseCode, -1)
+        XCTAssertEqual(beacon.requestSize, 1)
+        XCTAssertEqual(beacon.responseSize, 0)
+        XCTAssertEqual(beacon.result, "started")
     }
 }
 

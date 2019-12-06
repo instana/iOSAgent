@@ -3,8 +3,8 @@
 
 import Foundation
 
-/// Base class for events. 
-class Event: Identifiable {
+/// Base class for Beacon.
+class Beacon: Identifiable {
 
     let timestamp: Instana.Types.Milliseconds
     let sessionId: String
@@ -18,7 +18,7 @@ class Event: Identifiable {
     }
 }
 
-enum EventResult {
+enum BeaconResult {
     case success
     case failure(Error)
 

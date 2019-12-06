@@ -3,7 +3,7 @@
 
 import Foundation
 
-class SessionProfileEvent: Event {
+class SessionProfileBeacon: Beacon {
 
     enum State {
         case start

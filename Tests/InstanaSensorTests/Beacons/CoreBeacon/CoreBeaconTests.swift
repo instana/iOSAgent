@@ -1,14 +1,8 @@
-//
-//  File.swift
-//  
-//
-//  Created by Christian Menschel on 29.11.19.
-//
 
 import XCTest
 @testable import InstanaSensor
 
-class BeaconTests: XCTestCase {
+class CoreBeaconTests: XCTestCase {
 
     func test_create_default() {
         // Given
