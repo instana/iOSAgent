@@ -11,9 +11,9 @@ class Monitors {
     var http: HTTPMonitor?
     lazy var network = NetworkMonitor()
     private let configuration: InstanaConfiguration
-    let reporter: BeaconReporter
+    let reporter: Reporter
 
-    init(_ configuration: InstanaConfiguration, reporter: BeaconReporter) {
+    init(_ configuration: InstanaConfiguration, reporter: Reporter) {
         self.configuration = configuration
         self.reporter = reporter
         configuration.monitorTypes.forEach { type in

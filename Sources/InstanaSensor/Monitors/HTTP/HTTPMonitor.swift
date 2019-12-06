@@ -7,14 +7,14 @@ class HTTPMonitor {
 
     private let installer: (AnyClass) -> Bool
     private let uninstaller: (AnyClass) -> Void
-    private let reporter: BeaconReporter
+    private let reporter: Reporter
     private let networkConnectionType: () -> NetworkMonitor.ConnectionType?
     private let configuration: InstanaConfiguration
 
     init(_ configuration: InstanaConfiguration,
          installer: @escaping (AnyClass) -> Bool = URLProtocol.registerClass,
          uninstaller: @escaping (AnyClass) -> Void = URLProtocol.unregisterClass,
-         reporter: BeaconReporter,
+         reporter: Reporter,
          networkConnectionType: @escaping () -> NetworkMonitor.ConnectionType? = { Instana.current.monitors.network.connectionType } ) {
         self.configuration = configuration
         self.installer = installer

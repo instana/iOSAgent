@@ -12,7 +12,7 @@ import XCTest
 @available(iOS 12.0, *)
 class BasicIntegrationServerTest: IntegrationTestCase {
 
-    var reporter: BeaconReporter!
+    var reporter: Reporter!
 
     func xtest_Network() {
         load() {result in
@@ -27,7 +27,7 @@ class BasicIntegrationServerTest: IntegrationTestCase {
         config.transmissionDelay = 0.0
         config.transmissionLowBatteryDelay = 0.0
         config.gzipReport = false
-        reporter = BeaconReporter(config)
+        reporter = Reporter(config)
         let event = HTTPEvent.createMock()
 
         // When

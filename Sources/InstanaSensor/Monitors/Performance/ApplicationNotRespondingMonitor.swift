@@ -6,13 +6,13 @@ import UIKit
 
 class ApplicationNotRespondingMonitor {
     var threshold: Instana.Types.Seconds
-    private let reporter: BeaconReporter
+    private let reporter: Reporter
     private var timer: Timer?
     private let samplingInterval: Double
     
     private init() { fatalError() }
     
-    init(threshold: Instana.Types.Seconds, samplingInterval: Double = 1.0, reporter: BeaconReporter) {
+    init(threshold: Instana.Types.Seconds, samplingInterval: Double = 1.0, reporter: Reporter) {
         self.reporter = reporter
         self.threshold = threshold
         self.samplingInterval = samplingInterval

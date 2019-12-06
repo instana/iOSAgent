@@ -4,7 +4,7 @@
 import XCTest
 @testable import InstanaSensor
 
-class BeaconReporterTests: XCTestCase {
+class ReporterTests: XCTestCase {
 
     var config: InstanaConfiguration!
 
@@ -32,7 +32,7 @@ class BeaconReporterTests: XCTestCase {
 
         let start = Date()
         var didSend: Date?
-        let reporter = BeaconReporter(config, batterySafeForNetworking: { true }, hasWifi: { false },
+        let reporter = Reporter(config, batterySafeForNetworking: { true }, hasWifi: { false },
                                       send: { _, _ in
                                         didSend = Date()
                                         exp.fulfill()
@@ -67,7 +67,7 @@ class BeaconReporterTests: XCTestCase {
         let start = Date()
         var finished: Date?
 
-        let reporter = BeaconReporter(config, batterySafeForNetworking: { false }, hasWifi: { false },
+        let reporter = Reporter(config, batterySafeForNetworking: { false }, hasWifi: { false },
                                       send: { _, _ in
                                         finished = Date()
                                         exp.fulfill()
@@ -100,7 +100,7 @@ class BeaconReporterTests: XCTestCase {
         config.transmissionDelay = 0.0
         config.transmissionLowBatteryDelay = 0.0
         var sendNotCalled = true
-        let reporter = BeaconReporter(config, batterySafeForNetworking: { true }, hasWifi: { false },
+        let reporter = Reporter(config, batterySafeForNetworking: { true }, hasWifi: { false },
                                       send: { _, _ in
                                         sendNotCalled = false
         })
@@ -132,7 +132,7 @@ class BeaconReporterTests: XCTestCase {
         config.transmissionDelay = 0.0
         config.transmissionLowBatteryDelay = 0.0
         var didSendReport = false
-        let reporter = BeaconReporter(config, batterySafeForNetworking: { false }, hasWifi: { true },
+        let reporter = Reporter(config, batterySafeForNetworking: { false }, hasWifi: { true },
                                       send: { _, _ in
                                         didSendReport = true
                                         exp.fulfill()
@@ -160,7 +160,7 @@ class BeaconReporterTests: XCTestCase {
         config.transmissionDelay = 0.0
         config.transmissionLowBatteryDelay = 0.0
         var didSendReport = false
-        let reporter = BeaconReporter(config, batterySafeForNetworking: { true }, hasWifi: { true },
+        let reporter = Reporter(config, batterySafeForNetworking: { true }, hasWifi: { true },
                                       send: { _, _ in
                                         didSendReport = true
                                         exp.fulfill()
@@ -189,7 +189,7 @@ class BeaconReporterTests: XCTestCase {
         config.transmissionDelay = 0.0
         config.transmissionLowBatteryDelay = 0.0
         var sendNotCalled = true
-        let reporter = BeaconReporter(config, batterySafeForNetworking: { false }, hasWifi: { false },
+        let reporter = Reporter(config, batterySafeForNetworking: { false }, hasWifi: { false },
                                       send: { _, _ in
                                         sendNotCalled = false
         })
@@ -223,7 +223,7 @@ class BeaconReporterTests: XCTestCase {
         config.transmissionDelay = 0.0
         config.transmissionLowBatteryDelay = 0.0
         var sendNotCalled = true
-        let reporter = BeaconReporter(config, batterySafeForNetworking: { false }, hasWifi: { false },
+        let reporter = Reporter(config, batterySafeForNetworking: { false }, hasWifi: { false },
                                       send: { _, _ in
                                         sendNotCalled = false
         })
@@ -255,7 +255,7 @@ class BeaconReporterTests: XCTestCase {
         config.transmissionDelay = 0.0
         config.transmissionLowBatteryDelay = 0.0
         var didSendReport = false
-        let reporter = BeaconReporter(config, batterySafeForNetworking: { true }, hasWifi: { true },
+        let reporter = Reporter(config, batterySafeForNetworking: { true }, hasWifi: { true },
                                       send: { _, _ in
                                         didSendReport = true
                                         exp.fulfill()
@@ -283,7 +283,7 @@ class BeaconReporterTests: XCTestCase {
         config.transmissionDelay = 0.0
         config.transmissionLowBatteryDelay = 0.0
         var didSendReport = false
-        let reporter = BeaconReporter(config, batterySafeForNetworking: { true }, hasWifi: { false },
+        let reporter = Reporter(config, batterySafeForNetworking: { true }, hasWifi: { false },
                                       send: { _, _ in
                                         didSendReport = true
                                         exp.fulfill()
@@ -312,7 +312,7 @@ class BeaconReporterTests: XCTestCase {
         config.transmissionDelay = 0.0
         config.transmissionLowBatteryDelay = 0.0
         var didNOTSendReport = true
-        let reporter = BeaconReporter(config, batterySafeForNetworking: { false }, hasWifi: { true },
+        let reporter = Reporter(config, batterySafeForNetworking: { false }, hasWifi: { true },
                                       send: { _, _ in
                                         didNOTSendReport = false
         })
@@ -346,7 +346,7 @@ class BeaconReporterTests: XCTestCase {
         config.transmissionDelay = 0.0
         config.transmissionLowBatteryDelay = 0.0
         var sendNotCalled = true
-        let reporter = BeaconReporter(config, batterySafeForNetworking: { false }, hasWifi: { false },
+        let reporter = Reporter(config, batterySafeForNetworking: { false }, hasWifi: { false },
                                       send: { _, _ in
                                         sendNotCalled = false
         })
@@ -378,7 +378,7 @@ class BeaconReporterTests: XCTestCase {
         config.transmissionDelay = 0.0
         config.transmissionLowBatteryDelay = 0.0
         var sendNotCalled = true
-        let reporter = BeaconReporter(config, batterySafeForNetworking: { true }, hasWifi: { false },
+        let reporter = Reporter(config, batterySafeForNetworking: { true }, hasWifi: { false },
                                       send: { _, _ in
                                         sendNotCalled = false
                                         exp.fulfill()
@@ -411,7 +411,7 @@ class BeaconReporterTests: XCTestCase {
         config.transmissionDelay = 0.0
         config.transmissionLowBatteryDelay = 0.0
         var sendNotCalled = true
-        let reporter = BeaconReporter(config, batterySafeForNetworking: { false }, hasWifi: { true },
+        let reporter = Reporter(config, batterySafeForNetworking: { false }, hasWifi: { true },
                                       send: { _, _ in
                                         sendNotCalled = false
         })
@@ -442,7 +442,7 @@ class BeaconReporterTests: XCTestCase {
         config.transmissionDelay = 0.0
         config.transmissionLowBatteryDelay = 0.0
         var didSendReport = false
-        let reporter = BeaconReporter(config, batterySafeForNetworking: { true }, hasWifi: { true },
+        let reporter = Reporter(config, batterySafeForNetworking: { true }, hasWifi: { true },
                                       send: { _, _ in
                                         didSendReport = true
                                         exp.fulfill()
@@ -473,7 +473,7 @@ class BeaconReporterTests: XCTestCase {
         config.transmissionDelay = 0.0
         config.transmissionLowBatteryDelay = 0.0
         var didSendReport = false
-        let reporter = BeaconReporter(config, batterySafeForNetworking: { false }, hasWifi: { false },
+        let reporter = Reporter(config, batterySafeForNetworking: { false }, hasWifi: { false },
                                       send: { _, _ in
                                         didSendReport = true
                                         exp.fulfill()
@@ -501,7 +501,7 @@ class BeaconReporterTests: XCTestCase {
         config.transmissionDelay = 0.0
         config.transmissionLowBatteryDelay = 0.0
         var didSendReport = false
-        let reporter = BeaconReporter(config, batterySafeForNetworking: { true }, hasWifi: { true },
+        let reporter = Reporter(config, batterySafeForNetworking: { true }, hasWifi: { true },
                                       send: { _, _ in
                                         didSendReport = true
                                         exp.fulfill()
@@ -529,7 +529,7 @@ class BeaconReporterTests: XCTestCase {
         config.transmissionDelay = 0.0
         config.transmissionLowBatteryDelay = 0.0
         var didSendReport = false
-        let reporter = BeaconReporter(config, batterySafeForNetworking: { false }, hasWifi: { true },
+        let reporter = Reporter(config, batterySafeForNetworking: { false }, hasWifi: { true },
                                       send: { _, _ in
                                         didSendReport = true
                                         exp.fulfill()
@@ -557,7 +557,7 @@ class BeaconReporterTests: XCTestCase {
         config.transmissionDelay = 0.0
         config.transmissionLowBatteryDelay = 0.0
         var didSendReport = false
-        let reporter = BeaconReporter(config, batterySafeForNetworking: { true }, hasWifi: { false },
+        let reporter = Reporter(config, batterySafeForNetworking: { true }, hasWifi: { false },
                                       send: { _, _ in
                                         didSendReport = true
                                         exp.fulfill()
@@ -599,7 +599,7 @@ class BeaconReporterTests: XCTestCase {
         var expectedError: Error?
         var config = self.config!
         config.transmissionDelay = 0.0
-        let reporter = BeaconReporter(config, batterySafeForNetworking: { true }, hasWifi: { true },
+        let reporter = Reporter(config, batterySafeForNetworking: { true }, hasWifi: { true },
                                       send: { _, _ in
                                         shouldNotSend = false
         })
@@ -652,7 +652,7 @@ class BeaconReporterTests: XCTestCase {
         config.suspendReporting = []
         config.transmissionDelay = 0.01
         config.transmissionLowBatteryDelay = 0.0
-        var reporter: BeaconReporter? = BeaconReporter(config) { _, _ in}
+        var reporter: Reporter? = Reporter(config) { _, _ in}
         weak var weakReporter = reporter
         let exp = expectation(description: "Delay")
 
@@ -670,14 +670,14 @@ class BeaconReporterTests: XCTestCase {
 }
 
 // MARK: Test CreateBatchRequest
-extension BeaconReporterTests {
+extension ReporterTests {
 
     func test_createBatchRequest() {
         // Given
         var config = self.config!
         config.transmissionDelay = 0.0
         config.transmissionLowBatteryDelay = 0.0
-        let reporter = BeaconReporter(config) { _, _ in}
+        let reporter = Reporter(config) { _, _ in}
         let events = [HTTPEvent.createMock(), HTTPEvent.createMock()]
         let beacons = try! BeaconEventMapper(config).map(events)
         let data = beacons.asString.data(using: .utf8)
@@ -701,7 +701,7 @@ extension BeaconReporterTests {
         config.key = ""
         config.transmissionDelay = 0.0
         config.transmissionLowBatteryDelay = 0.0
-        let reporter = BeaconReporter(config) { _, _ in}
+        let reporter = Reporter(config) { _, _ in}
         let events = [HTTPEvent.createMock(), HTTPEvent.createMock()]
         let beacons = try! BeaconEventMapper(config).map(events)
 
@@ -713,11 +713,11 @@ extension BeaconReporterTests {
     }
 }
 
-extension BeaconReporterTests {
+extension ReporterTests {
     func mockEventSubmission(_ loadResult: InstanaNetworking.Result, resultCallback: @escaping (EventResult) -> Void) {
         config.transmissionDelay = 0.0
         config.transmissionLowBatteryDelay = 0.0
-        let reporter = BeaconReporter(config,
+        let reporter = Reporter(config,
                                       batterySafeForNetworking: { true },
                                       hasWifi: { true },
                                       send: { _, callback in callback(loadResult) })
