@@ -1,13 +1,63 @@
-//
-//  Beacon+Factory+Extensions.swift
-//  
-//
-//  Created by Christian Menschel on 02.12.19.
-//
 
 import Foundation
 
+class CoreBeaconFactory {
+    private let configuration: InstanaConfiguration
+
+    init(_ configuration: InstanaConfiguration) {
+        self.configuration = configuration
+    }
+
+    func map(_ events: [Event]) throws -> [CoreBeacon] {
+        return try events.map { try map($0)}
+    }
+
+    func map(_ event: Event) throws -> CoreBeacon {
+        var beacon = CoreBeacon.createDefault(key: configuration.key, timestamp: event.timestamp, sessionId: event.sessionId, id: event.id)
+        switch event {
+        case let e as HTTPEvent:
+            beacon.append(e)
+        case let e as AlertEvent:
+            beacon.append(e)
+        case let e as CustomEvent:
+            beacon.append(e)
+        case let e as SessionProfileEvent:
+            beacon.append(e)
+        default:
+            let message = "Event <-> Beacon mapping for event \(event) not defined"
+            debugAssertFailure(message)
+            throw InstanaError(code: .unknownType, description: message)
+        }
+        return beacon
+    }
+}
+
 extension CoreBeacon {
+
+    mutating func append(_ event: HTTPEvent) {
+        t = .httpRequest
+        hu = event.url.absoluteString
+        hp = event.path
+        hs = String(event.responseCode)
+        hm = event.method
+        trs = String(event.responseSize)
+        d = String(event.duration)
+    }
+
+    mutating func append(_ event: AlertEvent) {
+        t = .custom // not yet defined
+    }
+
+    mutating func append(_ event: CustomEvent) {
+        t = .custom
+    }
+
+    mutating func append(_ event: SessionProfileEvent) {
+        if event.state == .start {
+            t = .sessionStart  // there is no sessionEnd yet
+        }
+    }
+
     static func createDefault(key: String,
                               timestamp: Instana.Types.Milliseconds = Date().millisecondsSince1970,
                               sessionId: String = UUID().uuidString,
@@ -30,9 +80,7 @@ extension CoreBeacon {
                cn: InstanaSystemUtils.carrierName,
                ct: InstanaSystemUtils.connectionTypeDescription)
     }
-}
 
-extension CoreBeacon {
     static func create(from httpBody: String) throws -> CoreBeacon {
         let lines = httpBody.components(separatedBy: "\n")
         let kvPairs = lines.reduce([String: Any](), {result, line -> [String: Any] in
@@ -42,43 +90,9 @@ extension CoreBeacon {
             newResult[key] = value
             return newResult
         })
-        
+
         let jsonData = try JSONSerialization.data(withJSONObject: kvPairs, options: .prettyPrinted)
         let beacon = try JSONDecoder().decode(CoreBeacon.self, from: jsonData)
         return beacon
     }
-
-    var asString: String? {
-        guard let jsonData = try? JSONEncoder().encode(self),
-            let json = try? JSONSerialization.jsonObject(with: jsonData, options: .fragmentsAllowed) as? [String: Any] else {
-                return nil
-        }
-        let pairs = json.sorted { $0.0 < $1.0 }.compactMap { (key, value) in
-            return formattedKVPair(key: key, value: value)
-        }
-        return pairs.joined(separator: "\n")
-    }
-}
-
-extension CoreBeacon {
-
-    func formattedKVPair(key: String, value: Any) -> String? {
-        let value = cleaning(value)
-        guard Mirror.isNotNil(value: value) else { return nil }
-        return "\(key)\t\(value)"
-    }
-
-    func cleaning<T: Any>(_ entry: T) -> T {
-        if let stringValue = entry as? String {
-            var trimmed = stringValue.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
-            trimmed = trimmed.truncated(at: Int(CoreBeacon.maxBytesPerField))
-            trimmed = trimmed.replacingOccurrences(of: "\t", with: "")
-            return trimmed as! T
-        }
-        return entry
-    }
-}
-
-extension Collection where Element == CoreBeacon {
-    var asString: String { compactMap {$0.asString}.joined(separator: "\n\n") }
 }

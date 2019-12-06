@@ -52,7 +52,7 @@ class BasicIntegrationServerTest: IntegrationTestCase {
 
         do {
             let responseBeacon = try CoreBeacon.create(from: serverReceivedHTTP ?? "")
-            let expectedBeacon = try BeaconEventMapper(config).map(event)
+            let expectedBeacon = try CoreBeaconFactory(config).map(event)
             AssertEqualAndNotNil(expectedBeacon, responseBeacon)
         } catch (let error) {
             XCTFail(error.localizedDescription)
