@@ -9,14 +9,19 @@ import Foundation
 
 extension CoreBeacon {
     var asString: String? {
-        guard let jsonData = try? JSONEncoder().encode(self),
-            let json = try? JSONSerialization.jsonObject(with: jsonData, options: .fragmentsAllowed) as? [String: Any] else {
-                return nil
-        }
+        guard let json = asJSON else { return nil }
         let pairs = json.sorted { $0.0 < $1.0 }.compactMap { (key, value) in
             return formattedKVPair(key: key, value: value)
         }
         return pairs.joined(separator: "\n")
+    }
+
+    var asJSON: [String: Any]? {
+        guard let jsonData = try? JSONEncoder().encode(self),
+            let json = try? JSONSerialization.jsonObject(with: jsonData, options: .fragmentsAllowed) as? [String: Any] else {
+                return nil
+        }
+        return json
     }
 
     func formattedKVPair(key: String, value: Any) -> String? {

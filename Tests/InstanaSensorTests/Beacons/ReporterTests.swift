@@ -592,32 +592,25 @@ class ReporterTests: XCTestCase {
         AssertEqualAndNotNil(expectedError, givenError)
     }
 
-    func test_send_invalid_beacon_should_fail() {
+    func test_invalid_beacon_should_not_send() {
         // Given
-        let exp = expectation(description: "Delayed sending")
         var shouldNotSend = true
-        var expectedError: Error?
         var config = self.config!
         config.transmissionDelay = 0.0
+        config.transmissionLowBatteryDelay = 0.0
         let reporter = Reporter(config, batterySafeForNetworking: { true }, hasWifi: { true },
                                       send: { _, _ in
                                         shouldNotSend = false
         })
 
         // When
-        reporter.completion = {result in
-            if case let .failure(error) = result {
-                expectedError = error
-                exp.fulfill()
-            }
+        reporter.completion = {_ in
+            shouldNotSend = false
         }
         reporter.submit(Beacon(timestamp: 1000000, sessionId: "ID"))
-        waitForExpectations(timeout: 0.2, handler: nil)
-
 
         // Then
         AssertTrue(shouldNotSend)
-        AssertTrue(expectedError != nil)
     }
     
     func test_loadSuccess_withStatusCodeIn200Range_shouldReportSuccess() {

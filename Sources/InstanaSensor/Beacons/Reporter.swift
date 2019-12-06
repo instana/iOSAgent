@@ -2,8 +2,8 @@
 import Foundation
 import Gzip
 
-/// Reporter to manager and send out the beacons
-public class Reporter: NSObject {
+/// Reporter to queue and submit the Beacons
+public class Reporter {
     
     typealias Submitter = (Beacon) -> Void
     typealias NetworkLoader = (URLRequest, @escaping (InstanaNetworking.Result) -> Void) -> Void
@@ -14,8 +14,7 @@ public class Reporter: NSObject {
     private let batterySafeForNetworking: () -> Bool
     private let hasWifi: () -> Bool
     private var suspendReporting: Set<InstanaConfiguration.SuspendReporting> { configuration.suspendReporting }
-    private (set) var queue = [Beacon]()
-
+    private (set) var queue = InstanaPersistableQueue<CoreBeacon>()
     private let configuration: InstanaConfiguration
 
     // MARK: Init
@@ -28,7 +27,6 @@ public class Reporter: NSObject {
         self.batterySafeForNetworking = batterySafeForNetworking
         self.hasWifi = hasWifi
         self.send = send
-        super.init()
     }
 
     deinit {
@@ -37,8 +35,8 @@ public class Reporter: NSObject {
 
     func submit(_ beacon: Beacon) {
         // TODO: Build OperationQueue later - send all directly now
-        // TODO: Queue should also persist the beacons in case of a crash or network failure
-        queue.append(beacon)
+        guard let coreBeacon = try? CoreBeaconFactory(configuration).map(beacon) else { return }
+        queue.add(coreBeacon)
         scheduleFlush()
     }
 
@@ -62,8 +60,6 @@ extension Reporter: InstanaTimerProxiedTarget {
 }
 
 extension Reporter {
-    // TODO: Test Flush
-    // TODO: Consider flushing in a background thread
     func flushQueue() {
         backgroundQueue.async {
             self._flushQueue()
@@ -80,14 +76,12 @@ extension Reporter {
             return
         }
 
-        let beaconsToSend = queue
+        let beacons = queue.items
         let request: URLRequest
-        var beacons = [CoreBeacon]()
         do {
-            beacons = try CoreBeaconFactory(configuration).map(beaconsToSend)
             request = try createBatchRequest(from: beacons)
         } catch {
-            complete(beacons, .failure(error))
+            complete([], .failure(error))
             return
         }
         send(request) {[weak self] result in
@@ -107,17 +101,11 @@ extension Reporter {
         switch result {
         case .success:
             Instana.current.logger.add("Did send beacons \(beacons)")
-            removeFromQueue(beacons)
+            queue.remove(beacons)
         case .failure(let error):
             Instana.current.logger.add("Failed to send Beacon batch: \(error)", level: .warning)
         }
         completion(result)
-    }
-
-    func removeFromQueue(_ beacons: [CoreBeacon]) {
-        beacons.forEach { beacon in
-            queue.removeAll(where: {$0.id == beacon.bid})
-        }
     }
 }
 
