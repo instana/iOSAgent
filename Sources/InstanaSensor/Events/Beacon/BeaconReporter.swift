@@ -84,7 +84,7 @@ extension BeaconReporter {
 
         let eventsToSend = queue
         let request: URLRequest
-        var beacons = [Beacon]()
+        var beacons = [CoreBeacon]()
         do {
             beacons = try BeaconEventMapper(configuration).map(eventsToSend)
             request = try createBatchRequest(from: beacons)
@@ -105,7 +105,7 @@ extension BeaconReporter {
         }
     }
     
-    func complete(_ beacons: [Beacon],_ result: EventResult) {
+    func complete(_ beacons: [CoreBeacon],_ result: EventResult) {
         switch result {
         case .success:
             Instana.current.logger.add("Did send beacons \(beacons)")
@@ -116,7 +116,7 @@ extension BeaconReporter {
         completion(result)
     }
 
-    func removeFromQueue(_ beacons: [Beacon]) {
+    func removeFromQueue(_ beacons: [CoreBeacon]) {
         beacons.forEach { beacon in
             queue.removeAll(where: {$0.id == beacon.bid})
         }
@@ -125,7 +125,7 @@ extension BeaconReporter {
 
 extension BeaconReporter {
 
-    func createBatchRequest(from beacons: [Beacon]) throws -> URLRequest {
+    func createBatchRequest(from beacons: [CoreBeacon]) throws -> URLRequest {
         guard !configuration.key.isEmpty else {
             throw InstanaError(code: .notAuthenticated, description: "Missing application key. No data will be sent.")
         }

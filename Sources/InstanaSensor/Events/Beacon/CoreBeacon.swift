@@ -19,7 +19,7 @@ enum BeaconType: String, Equatable, Codable {
 /// This model uses a short field name to reduce the transfer size
 /// We transfer a simple String (no json) to the backend via the HTTP body.
 /// That means we also loose the type information, so we need treat all fields as String
-struct Beacon: Equatable, Codable {
+struct CoreBeacon: Equatable, Codable {
 
     /**
     * The max byte for each field (bytes)

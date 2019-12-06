@@ -7,12 +7,12 @@
 
 import Foundation
 
-extension Beacon {
+extension CoreBeacon {
     static func createDefault(key: String,
                               timestamp: Instana.Types.Milliseconds = Date().millisecondsSince1970,
                               sessionId: String = UUID().uuidString,
-                              id: String = UUID().uuidString) -> Beacon {
-        Beacon(v: InstanaSystemUtils.viewControllersHierarchy(),
+                              id: String = UUID().uuidString) -> CoreBeacon {
+        CoreBeacon(v: InstanaSystemUtils.viewControllersHierarchy(),
                k: key,
                ti: String(timestamp),
                sid: sessionId,
@@ -32,8 +32,8 @@ extension Beacon {
     }
 }
 
-extension Beacon {
-    static func create(from httpBody: String) throws -> Beacon {
+extension CoreBeacon {
+    static func create(from httpBody: String) throws -> CoreBeacon {
         let lines = httpBody.components(separatedBy: "\n")
         let kvPairs = lines.reduce([String: Any](), {result, line -> [String: Any] in
             let components = line.components(separatedBy: "\t")
@@ -44,7 +44,7 @@ extension Beacon {
         })
         
         let jsonData = try JSONSerialization.data(withJSONObject: kvPairs, options: .prettyPrinted)
-        let beacon = try JSONDecoder().decode(Beacon.self, from: jsonData)
+        let beacon = try JSONDecoder().decode(CoreBeacon.self, from: jsonData)
         return beacon
     }
 
@@ -60,7 +60,7 @@ extension Beacon {
     }
 }
 
-extension Beacon {
+extension CoreBeacon {
 
     func formattedKVPair(key: String, value: Any) -> String? {
         let value = cleaning(value)
@@ -71,7 +71,7 @@ extension Beacon {
     func cleaning<T: Any>(_ entry: T) -> T {
         if let stringValue = entry as? String {
             var trimmed = stringValue.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
-            trimmed = trimmed.truncated(at: Int(Beacon.maxBytesPerField))
+            trimmed = trimmed.truncated(at: Int(CoreBeacon.maxBytesPerField))
             trimmed = trimmed.replacingOccurrences(of: "\t", with: "")
             return trimmed as! T
         }
@@ -79,6 +79,6 @@ extension Beacon {
     }
 }
 
-extension Collection where Element == Beacon {
+extension Collection where Element == CoreBeacon {
     var asString: String { compactMap {$0.asString}.joined(separator: "\n\n") }
 }

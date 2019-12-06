@@ -13,7 +13,7 @@ class BeaconTests: XCTestCase {
     func test_create_default() {
         // Given
         let timestamp = Date().millisecondsSince1970
-        let sut = Beacon.createDefault(key: "KEY123", timestamp: timestamp, sessionId: "SID", id: "EID")
+        let sut = CoreBeacon.createDefault(key: "KEY123", timestamp: timestamp, sessionId: "SID", id: "EID")
 
         // Then
         AssertEqualAndNotNil(sut.k, "KEY123")
@@ -37,7 +37,7 @@ class BeaconTests: XCTestCase {
 
     func testNumberOfFields_all() {
         // Given
-        let sut = Beacon.createDefault(key: "KEY123")
+        let sut = CoreBeacon.createDefault(key: "KEY123")
 
         // When
         let values = Mirror(reflecting: sut).children
@@ -48,7 +48,7 @@ class BeaconTests: XCTestCase {
 
     func testNumberOfFields_non_nil() {
         // Given
-        let sut = Beacon.createDefault(key: "KEY123")
+        let sut = CoreBeacon.createDefault(key: "KEY123")
 
         // When
         let values = Array(Mirror(reflecting: sut).nonNilChildren)
@@ -60,7 +60,7 @@ class BeaconTests: XCTestCase {
 
     func test_all_keys() {
         // Given
-        let sut = Beacon.createDefault(key: "KEY123")
+        let sut = CoreBeacon.createDefault(key: "KEY123")
         // TODO: Add all keys of Beacon
         let expectedKeys = ["t", "bt", "k"]
     
@@ -77,7 +77,7 @@ class BeaconTests: XCTestCase {
 
     func test_formattedKVPair() {
         // Given
-        let beacon = Beacon.createDefault(key: "KEY123")
+        let beacon = CoreBeacon.createDefault(key: "KEY123")
         let value = beacon.ab
 
         // When
@@ -89,7 +89,7 @@ class BeaconTests: XCTestCase {
 
     func test_formattedKVPair_nil_value() {
         // Given
-        let beacon = Beacon.createDefault(key: "KEY123")
+        let beacon = CoreBeacon.createDefault(key: "KEY123")
         let value = Optional<Any>.none as Any
 
         // When
@@ -101,7 +101,7 @@ class BeaconTests: XCTestCase {
 
     func test_cleaning() {
         // Given
-        var beacon = Beacon.createDefault(key: "KEY123")
+        var beacon = CoreBeacon.createDefault(key: "KEY123")
         beacon.bt = """
 
                         Trace ab
@@ -118,8 +118,8 @@ class BeaconTests: XCTestCase {
 
     func test_truncate_at_max_length() {
         // Given
-        let longString = (0...Beacon.maxBytesPerField).map {"\($0)"}.joined()
-        var beacon = Beacon.createDefault(key: "KEY123")
+        let longString = (0...CoreBeacon.maxBytesPerField).map {"\($0)"}.joined()
+        var beacon = CoreBeacon.createDefault(key: "KEY123")
         beacon.bt = longString
 
         // When
