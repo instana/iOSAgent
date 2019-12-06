@@ -679,7 +679,7 @@ extension ReporterTests {
         config.transmissionLowBatteryDelay = 0.0
         let reporter = Reporter(config) { _, _ in}
         let events = [HTTPEvent.createMock(), HTTPEvent.createMock()]
-        let beacons = try! BeaconEventMapper(config).map(events)
+        let beacons = try! CoreBeaconFactory(config).map(events)
         let data = beacons.asString.data(using: .utf8)
         let gzippedData = try? data?.gzipped(level: .bestCompression)
 
@@ -703,7 +703,7 @@ extension ReporterTests {
         config.transmissionLowBatteryDelay = 0.0
         let reporter = Reporter(config) { _, _ in}
         let events = [HTTPEvent.createMock(), HTTPEvent.createMock()]
-        let beacons = try! BeaconEventMapper(config).map(events)
+        let beacons = try! CoreBeaconFactory(config).map(events)
 
         // When
         XCTAssertThrowsError(try reporter.createBatchRequest(from: beacons)) {error in

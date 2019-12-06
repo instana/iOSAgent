@@ -84,7 +84,7 @@ extension Reporter {
         let request: URLRequest
         var beacons = [CoreBeacon]()
         do {
-            beacons = try BeaconEventMapper(configuration).map(eventsToSend)
+            beacons = try CoreBeaconFactory(configuration).map(eventsToSend)
             request = try createBatchRequest(from: beacons)
         } catch {
             complete(beacons, .failure(error))

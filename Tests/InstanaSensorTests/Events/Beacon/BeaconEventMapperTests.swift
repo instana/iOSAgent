@@ -1,5 +1,5 @@
 //
-//  BeaconEventMapperTests.swift
+//  CoreBeaconFactoryTests.swift
 //  
 //
 //  Created by Christian Menschel on 29.11.19.
@@ -9,7 +9,7 @@ import Foundation
 import XCTest
 @testable import InstanaSensor
 
-class BeaconEventMapperTests: XCTestCase {
+class CoreBeaconFactoryTests: XCTestCase {
 
     var config: InstanaConfiguration!
 
@@ -21,7 +21,7 @@ class BeaconEventMapperTests: XCTestCase {
     func test_undefined_beacon_type() {
         // Given
         let event = Event()
-        let mapper = BeaconEventMapper(config)
+        let mapper = CoreBeaconFactory(config)
 
         // When
         XCTAssertThrowsError(try mapper.map(event)) {error in
@@ -34,7 +34,7 @@ class BeaconEventMapperTests: XCTestCase {
         let sessionID = "ID-\((0...100).randomElement() ?? 0)"
         let timestamp = Date().millisecondsSince1970
         let event = SessionProfileEvent(state: .start, timestamp: timestamp, sessionId: sessionID)
-        let mapper = BeaconEventMapper(config)
+        let mapper = CoreBeaconFactory(config)
 
         // When
         guard let sut = try? mapper.map(event) else {
@@ -59,7 +59,7 @@ class BeaconEventMapperTests: XCTestCase {
                               url: url,
                               connectionType: .wifi,
                               result: "RESULT")
-        let mapper = BeaconEventMapper(config)
+        let mapper = CoreBeaconFactory(config)
 
         // When
         guard let sut = try? mapper.map(event) else {
