@@ -48,7 +48,7 @@ class CoreBeaconTests: XCTestCase {
         let values = Array(Mirror(reflecting: sut).nonNilChildren)
 
         // Then
-        XCTAssertEqual(values.count, 18)
+        XCTAssertEqual(values.count, 17)
     }
 
 

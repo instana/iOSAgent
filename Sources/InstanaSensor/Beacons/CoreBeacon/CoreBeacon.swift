@@ -8,7 +8,6 @@
 import Foundation
 
 enum BeaconType: String, Equatable, Codable {
-    case undefined
     case sessionStart
     case httpRequest
     case crash
@@ -36,7 +35,7 @@ struct CoreBeacon: Equatable, Codable {
      *
      * Default: undefined
      */
-    var t: BeaconType = .undefined
+    var t: BeaconType?
 
     /**
      * View
