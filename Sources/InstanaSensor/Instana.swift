@@ -11,10 +11,7 @@ import Foundation
 
     /// MARK: Framework Internal
     /// The Container for all Instana monitors (Network, HTTP, Framedrop, ...)
-    private (set) lazy var monitors = Monitors(configuration, reporter: reporter)
-
-    /// Object to manage and report Beacons.
-    private (set) lazy var reporter = Reporter(configuration)
+    private (set) lazy var monitors = Monitors(configuration)
 
     /// A debugging console logger using levels
     let logger = InstanaLogger()
@@ -32,7 +29,7 @@ import Foundation
         super.init()
         assert(!configuration.reportingURL.absoluteString.isEmpty, "Instana Reporting URL must not be empty")
         if configuration.isValid {
-            reporter.submit(SessionProfileBeacon(state: .start, sessionId: sessionId))
+            monitors.reporter.submit(SessionProfileBeacon(state: .start, sessionId: sessionId))
         }
     }
 }
@@ -54,6 +51,8 @@ import Foundation
     ///   - key: Instana key identifying your application.
     ///   - reportingURL: Optional reporting URL used for on-premises Instana backend installations.
     @objc static func setup(key: String, reportingURL: URL? = nil, reportingType: ReportingType = .automaticAndManual) {
+        // TODO: leave when current a session exists
+        // Currently setup would be possible n times in one app lifecycle
         let config = InstanaConfiguration.default(key: key, reportingURL:  reportingURL)
         Instana.current = Instana(configuration: config)
     }
