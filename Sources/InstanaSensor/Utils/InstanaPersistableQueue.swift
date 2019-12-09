@@ -38,7 +38,6 @@ struct InstanaPersistableQueue<T: Codable & Equatable>: Codable {
     }
 
     func write() {
-        // TODO: Make write in background
         guard let fileURL = InstanaPersistableQueue.queueJSONFileURL else { return }
         do {
             let data = try JSONEncoder().encode(self)
@@ -48,13 +47,20 @@ struct InstanaPersistableQueue<T: Codable & Equatable>: Codable {
         }
     }
 
-    // TODO: Test this
     mutating func add(_ item: T) {
-        items.append(item)
+        add([item])
+    }
+
+    mutating func add(_ newItems: [T]) {
+        items.append(contentsOf: newItems)
         write()
     }
 
-    // TODO: Test this
+    mutating func removeAll() {
+        items.removeAll()
+        write()
+    }
+
     mutating func remove(_ removalItems: [T]) {
         removalItems.forEach { removal in
             items.removeAll(where: {$0 == removal})

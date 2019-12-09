@@ -58,4 +58,41 @@ class BasicIntegrationServerTest: IntegrationTestCase {
             XCTFail(error.localizedDescription)
         }
     }
+
+    // Can't send items to the backend - beacons should be persisted in the queue
+    func test_send_with_transmission_error() {
+        // Given
+        mockserver.stop()
+
+        var config = InstanaConfiguration.default(key: "KEY")
+        config.reportingURL = Defaults.baseURL
+        config.transmissionDelay = 0.0
+        config.transmissionLowBatteryDelay = 0.0
+        config.gzipReport = false
+        reporter = Reporter(config)
+        let beacon = HTTPBeacon.createMock()
+
+        // When
+        var expectedResult: BeaconResult?
+        reporter.submit(beacon)
+
+        // Queue should have one item now!
+        AssertTrue(reporter.queue.items.count == 1)
+
+        reporter.completion = {result in
+            expectedResult = result
+            self.fulfilled()
+        }
+        wait(for: [expectation], timeout: 10.0)
+
+        // Then
+        AssertTrue(expectedResult != nil)
+        AssertTrue(reporter.queue.items.count == 1)
+
+        // When creating a new instance of the reporter
+        reporter = Reporter(config)
+
+        // Then
+        AssertTrue(reporter.queue.items.count == 1)
+    }
 }

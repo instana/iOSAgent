@@ -34,7 +34,6 @@ public class Reporter {
     }
 
     func submit(_ beacon: Beacon) {
-        // TODO: Build OperationQueue later - send all directly now
         guard let coreBeacon = try? CoreBeaconFactory(configuration).map(beacon) else { return }
         queue.add(coreBeacon)
         scheduleFlush()
