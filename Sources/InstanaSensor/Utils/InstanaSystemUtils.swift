@@ -2,7 +2,6 @@
 //  Copyright © 2019 Nikola Lajic. All rights reserved.
 
 import Foundation
-import CoreTelephony
 import UIKit
 
 class InstanaSystemUtils {
@@ -20,63 +19,26 @@ class InstanaSystemUtils {
         }
         return identifier
     }()
+
+    static var networkMonitor = { NetworkMonitor() }()
     
     /// Returns iOS version (for ex. "12.1")
-    static var systemVersion: String = {
-        return UIDevice.current.systemVersion
-    }()
+    static var systemVersion: String = { UIDevice.current.systemVersion }()
 
-    static var systemName: String = {
-        return UIDevice.current.systemName
-    }()
+    static var systemName: String = { UIDevice.current.systemName }()
     
     /// Returns application version (for ex. "1.1")
-    static var applicationVersion: String = {
-        return Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "unknown-version"
-    }()
+    static var applicationVersion: String = { Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "unknown-version" }()
     
     /// Returns application build number (for ex. "123")
-    static var applicationBuildNumber: String = {
-        return Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "unkown-build-number"
-    }()
+    static var applicationBuildNumber: String = { Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "unkown-build-number" }()
 
     /// Returns bundle identifer (for ex. "com.instana.ios.app")
-    static var applicationBundleIdentifier: String = {
-        return Bundle.main.infoDictionary?["CFBundleIdentifier"] as? String ?? "unkown-bundle-id"
-    }()
+    static var applicationBundleIdentifier: String = { Bundle.main.infoDictionary?["CFBundleIdentifier"] as? String ?? "unkown-bundle-id" }()
 
     /// Returns the screen size in Pixel
-    static var screenSize: CGSize = {
-        return UIScreen.main.nativeBounds.size
-    }()
+    static var screenSize: CGSize = { UIScreen.main.nativeBounds.size }()
     
-    /// Returns carrier name
-    static var carrierName: String? {
-        if ProcessInfo.processInfo.isRunningTests {
-            return "None"
-        }
-        let networkInfo = CTTelephonyNetworkInfo()
-        let carrier = networkInfo.subscriberCellularProvider
-        return carrier?.carrierName
-    }
-    
-    /// Returns current cellular connection type
-    static var cellularConnectionType: String? {
-        if ProcessInfo.processInfo.isRunningTests {
-            return "None"
-        }
-        switch CTTelephonyNetworkInfo().currentRadioAccessTechnology {
-        case CTRadioAccessTechnologyGPRS?, CTRadioAccessTechnologyEdge?, CTRadioAccessTechnologyCDMA1x?:
-            return "2G"
-        case CTRadioAccessTechnologyWCDMA?, CTRadioAccessTechnologyHSDPA?, CTRadioAccessTechnologyHSUPA?, CTRadioAccessTechnologyCDMAEVDORev0?, CTRadioAccessTechnologyCDMAEVDORevA?, CTRadioAccessTechnologyCDMAEVDORevB?, CTRadioAccessTechnologyeHRPD?:
-            return "3G"
-        case CTRadioAccessTechnologyLTE?:
-            return "4G"
-        default:
-            return nil
-        }
-    }
-
     static var isDeviceJailbroken: Bool = {
         var isBroken = false
         do {
@@ -89,10 +51,6 @@ class InstanaSystemUtils {
         return isBroken
     }()
 
-    static var connectionTypeDescription: String {
-        return (Instana.current.monitors.network.connectionType?.rawValue ?? "no connection type") + " - " + (cellularConnectionType ?? "no cellular")
-    }
-    
     /// Returns a ' > ' sepparated string of view controller class names in the app hierarchy.
     /// This is only a superficial check, and doesn't go deeper than one level.
     static func viewControllersHierarchy() -> String? {
