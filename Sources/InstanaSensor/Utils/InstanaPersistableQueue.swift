@@ -8,7 +8,7 @@
 import Foundation
 
 // TODO: Use Ooperation queue later
-struct InstanaPersistableQueue<T: Codable & Equatable>: Codable {
+class InstanaPersistableQueue<T: Codable & Equatable>: Codable {
     var items: [T]
 
     init() {
@@ -21,7 +21,7 @@ struct InstanaPersistableQueue<T: Codable & Equatable>: Codable {
         read()
     }
 
-    private mutating func read() {
+    private func read() {
         if let persisted = try? InstanaPersistableQueue<T>.read() {
             items.append(contentsOf: persisted.items)
         }
@@ -47,21 +47,21 @@ struct InstanaPersistableQueue<T: Codable & Equatable>: Codable {
         }
     }
 
-    mutating func add(_ item: T) {
+    func add(_ item: T) {
         add([item])
     }
 
-    mutating func add(_ newItems: [T]) {
+    func add(_ newItems: [T]) {
         items.append(contentsOf: newItems)
         write()
     }
 
-    mutating func removeAll() {
+    func removeAll() {
         items.removeAll()
         write()
     }
 
-    mutating func remove(_ removalItems: [T]) {
+    func remove(_ removalItems: [T]) {
         removalItems.forEach { removal in
             items.removeAll(where: {$0 == removal})
         }
