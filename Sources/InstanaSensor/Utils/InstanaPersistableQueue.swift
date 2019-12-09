@@ -7,7 +7,7 @@
 
 import Foundation
 
-// TODO: Use Ooperation queue later
+// TODO: Use Operation queue later
 class InstanaPersistableQueue<T: Codable & Equatable>: Codable {
     var items: [T]
 
@@ -38,6 +38,8 @@ class InstanaPersistableQueue<T: Codable & Equatable>: Codable {
     }
 
     func write() {
+        // TODO: Write performance tests
+        // TODO: Do this in background with OperationQueue
         guard let fileURL = InstanaPersistableQueue.queueJSONFileURL else { return }
         do {
             let data = try JSONEncoder().encode(self)

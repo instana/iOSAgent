@@ -8,7 +8,7 @@ class InstanaPersistableQueueTests: XCTestCase {
     func test_add_read_Queue_single() {
         // Given
         let corebeacons = createCoreBeacons()
-        var queueHandler = InstanaPersistableQueue<CoreBeacon>()
+        let queueHandler = InstanaPersistableQueue<CoreBeacon>()
         let singleBeacon = corebeacons.first!
         queueHandler.removeAll()
 

@@ -14,6 +14,7 @@ import Foundation
         case bufferOverwrite
         case unknownType
         case noWifiAvailable
+        case offline
         case lowBattery
     }
     

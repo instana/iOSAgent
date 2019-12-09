@@ -9,9 +9,8 @@ class Monitors {
     var lowMemory: LowMemoryMonitor?
     var framerateDrop: FramerateDropMonitor?
     var http: HTTPMonitor?
-    lazy var network = NetworkMonitor()
-    private let configuration: InstanaConfiguration
     let reporter: Reporter
+    private let configuration: InstanaConfiguration
 
     init(_ configuration: InstanaConfiguration) {
         self.configuration = configuration
@@ -26,13 +25,6 @@ class Monitors {
                 framerateDrop = FramerateDropMonitor(threshold: threshold, reporter: reporter)
             case .alertApplicationNotResponding(let threshold):
                 applicationNotResponding = ApplicationNotRespondingMonitor(threshold: threshold, reporter: reporter)
-            }
-        }
-
-        network.connectionUpdateHandler = {[weak self] connectionType in
-            guard let self = self else { return }
-            if connectionType != .none {
-                self.reporter.flushQueue()
             }
         }
     }

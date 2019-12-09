@@ -3,6 +3,7 @@
 
 import XCTest
 @testable import InstanaSensor
+import Network
 
 class ReporterTests: XCTestCase {
 
@@ -13,8 +14,9 @@ class ReporterTests: XCTestCase {
         config = InstanaConfiguration.default(key: "KEY")
     }
 
+
     /// Criteria:
-    ///  - Suspend Sending when: Never
+    ///  - Suspend Sending: Never
     ///   - TransmissionDelay: 0.4
     ///  - Battery: Good
     ///  - WIFI: NO
@@ -32,7 +34,7 @@ class ReporterTests: XCTestCase {
 
         let start = Date()
         var didSend: Date?
-        let reporter = Reporter(config, batterySafeForNetworking: { true }, hasWifi: { false },
+        let reporter = Reporter(config, batterySafeForNetworking: { true }, networkUtility: .cell,
                                       send: { _, _ in
                                         didSend = Date()
                                         exp.fulfill()
@@ -49,7 +51,7 @@ class ReporterTests: XCTestCase {
     }
 
     /// Criteria:
-    ///  - Suspend Sending when: Never
+    ///  - Suspend Sending: Never
     ///  - Low Battery TransmissionDelay: 0.4
     ///  - Battery: low
     ///  - WIFI: NO
@@ -67,7 +69,7 @@ class ReporterTests: XCTestCase {
         let start = Date()
         var finished: Date?
 
-        let reporter = Reporter(config, batterySafeForNetworking: { false }, hasWifi: { false },
+        let reporter = Reporter(config, batterySafeForNetworking: { false }, networkUtility: .cell,
                                       send: { _, _ in
                                         finished = Date()
                                         exp.fulfill()
@@ -81,6 +83,87 @@ class ReporterTests: XCTestCase {
         // Then
         AssertTrue(finished != nil)
         AssertTrue(finished?.timeIntervalSince(start) ?? 0.0 >= delay)
+    }
+
+    /// Don't send when offline
+    /// Criteria:
+    ///  - TransmissionDelay: 0.0
+    ///  - Battery: Good
+    ///  - Network: Offline
+    ///
+    /// Expected Result - Report should NOT be sent (because we are offline)
+    func test_dont_send_when_offline() {
+        // Given
+        let exp = expectation(description: "Dont_send_offline")
+        var config = self.config!
+        config.suspendReporting = []
+        config.transmissionDelay = 0.0
+        config.transmissionLowBatteryDelay = 0.0
+        var expectedError: InstanaError?
+        var sendNotCalled = true
+        let reporter = Reporter(config, batterySafeForNetworking: { true }, networkUtility: .none,
+                                send: { _, _ in
+                                    sendNotCalled = false
+        })
+
+        // When Offline
+        reporter.completion = {result in
+            expectedError = result.error as? InstanaError
+            exp.fulfill()
+        }
+        reporter.submit(AlertBeacon(alertType: .lowMemory))
+        waitForExpectations(timeout: 0.2, handler: nil)
+
+        // Then
+        AssertTrue(sendNotCalled)
+        AssertTrue(expectedError?.code == InstanaError.Code.offline.rawValue)
+    }
+
+    /// Send when coming back offline again (starting offline
+    /// Criteria:
+    ///  - TransmissionDelay: 0.0
+    ///  - Battery: Good
+    ///  - Network: Offline and online delayed
+    ///
+    /// Expected Result - Report should NOT be sent (because we are offline)
+    func test_send_queue_when_back_online() {
+        // Given
+        let firstStep = expectation(description: "Dont_send_offline")
+        let secondStep = expectation(description: "Send_when_back_online")
+        var config = self.config!
+        config.suspendReporting = []
+        config.transmissionDelay = 0.0
+        config.transmissionLowBatteryDelay = 0.0
+        var expectedError: InstanaError?
+        var sendCalled = false
+        let networkUtility: NetworkUtility = .none
+        let reporter = Reporter(config, batterySafeForNetworking: { true }, networkUtility: networkUtility,
+                                send: { _, _ in
+                                    sendCalled = true
+                                    expectedError = nil
+                                    print("ARSCH")
+                                    secondStep.fulfill()
+        })
+
+        // When Offline
+        reporter.completion = {result in
+            expectedError = result.error as? InstanaError
+            expectedError != nil ? firstStep.fulfill() : ()
+        }
+        reporter.submit(AlertBeacon(alertType: .lowMemory))
+        wait(for: [firstStep], timeout: 5.0)
+
+        // Then
+        AssertTrue(sendCalled == false)
+        AssertTrue(expectedError?.code == InstanaError.Code.offline.rawValue)
+
+        // When coming back online
+        networkUtility.update(.wifi)
+        wait(for: [secondStep], timeout: 10.0)
+
+        // Then
+        AssertTrue(sendCalled)
+        AssertTrue(expectedError == nil)
     }
 
     // MARK: Test suspending behavior on NO WIFI connection
@@ -100,7 +183,7 @@ class ReporterTests: XCTestCase {
         config.transmissionDelay = 0.0
         config.transmissionLowBatteryDelay = 0.0
         var sendNotCalled = true
-        let reporter = Reporter(config, batterySafeForNetworking: { true }, hasWifi: { false },
+        let reporter = Reporter(config, batterySafeForNetworking: { true }, networkUtility: .cell,
                                       send: { _, _ in
                                         sendNotCalled = false
         })
@@ -132,7 +215,7 @@ class ReporterTests: XCTestCase {
         config.transmissionDelay = 0.0
         config.transmissionLowBatteryDelay = 0.0
         var didSendReport = false
-        let reporter = Reporter(config, batterySafeForNetworking: { false }, hasWifi: { true },
+        let reporter = Reporter(config, batterySafeForNetworking: { false }, networkUtility: .wifi,
                                       send: { _, _ in
                                         didSendReport = true
                                         exp.fulfill()
@@ -160,7 +243,7 @@ class ReporterTests: XCTestCase {
         config.transmissionDelay = 0.0
         config.transmissionLowBatteryDelay = 0.0
         var didSendReport = false
-        let reporter = Reporter(config, batterySafeForNetworking: { true }, hasWifi: { true },
+        let reporter = Reporter(config, batterySafeForNetworking: { true }, networkUtility: .wifi,
                                       send: { _, _ in
                                         didSendReport = true
                                         exp.fulfill()
@@ -189,7 +272,7 @@ class ReporterTests: XCTestCase {
         config.transmissionDelay = 0.0
         config.transmissionLowBatteryDelay = 0.0
         var sendNotCalled = true
-        let reporter = Reporter(config, batterySafeForNetworking: { false }, hasWifi: { false },
+        let reporter = Reporter(config, batterySafeForNetworking: { false }, networkUtility: .cell,
                                       send: { _, _ in
                                         sendNotCalled = false
         })
@@ -223,7 +306,7 @@ class ReporterTests: XCTestCase {
         config.transmissionDelay = 0.0
         config.transmissionLowBatteryDelay = 0.0
         var sendNotCalled = true
-        let reporter = Reporter(config, batterySafeForNetworking: { false }, hasWifi: { false },
+        let reporter = Reporter(config, batterySafeForNetworking: { false }, networkUtility: .cell,
                                       send: { _, _ in
                                         sendNotCalled = false
         })
@@ -255,7 +338,7 @@ class ReporterTests: XCTestCase {
         config.transmissionDelay = 0.0
         config.transmissionLowBatteryDelay = 0.0
         var didSendReport = false
-        let reporter = Reporter(config, batterySafeForNetworking: { true }, hasWifi: { true },
+        let reporter = Reporter(config, batterySafeForNetworking: { true }, networkUtility: .wifi,
                                       send: { _, _ in
                                         didSendReport = true
                                         exp.fulfill()
@@ -283,7 +366,7 @@ class ReporterTests: XCTestCase {
         config.transmissionDelay = 0.0
         config.transmissionLowBatteryDelay = 0.0
         var didSendReport = false
-        let reporter = Reporter(config, batterySafeForNetworking: { true }, hasWifi: { false },
+        let reporter = Reporter(config, batterySafeForNetworking: { true }, networkUtility: .cell,
                                       send: { _, _ in
                                         didSendReport = true
                                         exp.fulfill()
@@ -312,7 +395,7 @@ class ReporterTests: XCTestCase {
         config.transmissionDelay = 0.0
         config.transmissionLowBatteryDelay = 0.0
         var didNOTSendReport = true
-        let reporter = Reporter(config, batterySafeForNetworking: { false }, hasWifi: { true },
+        let reporter = Reporter(config, batterySafeForNetworking: { false }, networkUtility: .wifi,
                                       send: { _, _ in
                                         didNOTSendReport = false
         })
@@ -346,7 +429,7 @@ class ReporterTests: XCTestCase {
         config.transmissionDelay = 0.0
         config.transmissionLowBatteryDelay = 0.0
         var sendNotCalled = true
-        let reporter = Reporter(config, batterySafeForNetworking: { false }, hasWifi: { false },
+        let reporter = Reporter(config, batterySafeForNetworking: { false }, networkUtility: .cell,
                                       send: { _, _ in
                                         sendNotCalled = false
         })
@@ -378,7 +461,7 @@ class ReporterTests: XCTestCase {
         config.transmissionDelay = 0.0
         config.transmissionLowBatteryDelay = 0.0
         var sendNotCalled = true
-        let reporter = Reporter(config, batterySafeForNetworking: { true }, hasWifi: { false },
+        let reporter = Reporter(config, batterySafeForNetworking: { true }, networkUtility: .cell,
                                       send: { _, _ in
                                         sendNotCalled = false
                                         exp.fulfill()
@@ -411,7 +494,7 @@ class ReporterTests: XCTestCase {
         config.transmissionDelay = 0.0
         config.transmissionLowBatteryDelay = 0.0
         var sendNotCalled = true
-        let reporter = Reporter(config, batterySafeForNetworking: { false }, hasWifi: { true },
+        let reporter = Reporter(config, batterySafeForNetworking: { false }, networkUtility: .wifi,
                                       send: { _, _ in
                                         sendNotCalled = false
         })
@@ -442,7 +525,7 @@ class ReporterTests: XCTestCase {
         config.transmissionDelay = 0.0
         config.transmissionLowBatteryDelay = 0.0
         var didSendReport = false
-        let reporter = Reporter(config, batterySafeForNetworking: { true }, hasWifi: { true },
+        let reporter = Reporter(config, batterySafeForNetworking: { true }, networkUtility: .wifi,
                                       send: { _, _ in
                                         didSendReport = true
                                         exp.fulfill()
@@ -473,7 +556,7 @@ class ReporterTests: XCTestCase {
         config.transmissionDelay = 0.0
         config.transmissionLowBatteryDelay = 0.0
         var didSendReport = false
-        let reporter = Reporter(config, batterySafeForNetworking: { false }, hasWifi: { false },
+        let reporter = Reporter(config, batterySafeForNetworking: { false }, networkUtility: .cell,
                                       send: { _, _ in
                                         didSendReport = true
                                         exp.fulfill()
@@ -501,7 +584,7 @@ class ReporterTests: XCTestCase {
         config.transmissionDelay = 0.0
         config.transmissionLowBatteryDelay = 0.0
         var didSendReport = false
-        let reporter = Reporter(config, batterySafeForNetworking: { true }, hasWifi: { true },
+        let reporter = Reporter(config, batterySafeForNetworking: { true }, networkUtility: .wifi,
                                       send: { _, _ in
                                         didSendReport = true
                                         exp.fulfill()
@@ -529,7 +612,7 @@ class ReporterTests: XCTestCase {
         config.transmissionDelay = 0.0
         config.transmissionLowBatteryDelay = 0.0
         var didSendReport = false
-        let reporter = Reporter(config, batterySafeForNetworking: { false }, hasWifi: { true },
+        let reporter = Reporter(config, batterySafeForNetworking: { false }, networkUtility: .wifi,
                                       send: { _, _ in
                                         didSendReport = true
                                         exp.fulfill()
@@ -557,7 +640,7 @@ class ReporterTests: XCTestCase {
         config.transmissionDelay = 0.0
         config.transmissionLowBatteryDelay = 0.0
         var didSendReport = false
-        let reporter = Reporter(config, batterySafeForNetworking: { true }, hasWifi: { false },
+        let reporter = Reporter(config, batterySafeForNetworking: { true }, networkUtility: .cell,
                                       send: { _, _ in
                                         didSendReport = true
                                         exp.fulfill()
@@ -598,7 +681,7 @@ class ReporterTests: XCTestCase {
         var config = self.config!
         config.transmissionDelay = 0.0
         config.transmissionLowBatteryDelay = 0.0
-        let reporter = Reporter(config, batterySafeForNetworking: { true }, hasWifi: { true },
+        let reporter = Reporter(config, batterySafeForNetworking: { true }, networkUtility: .wifi,
                                       send: { _, _ in
                                         shouldNotSend = false
         })
@@ -712,9 +795,24 @@ extension ReporterTests {
         config.transmissionLowBatteryDelay = 0.0
         let reporter = Reporter(config,
                                       batterySafeForNetworking: { true },
-                                      hasWifi: { true },
+                                      networkUtility: .wifi,
                                       send: { _, callback in callback(loadResult) })
         reporter.completion = resultCallback
         reporter.submit(AlertBeacon(alertType: .lowMemory))
+    }
+}
+
+extension NetworkUtility {
+    static var wifi: NetworkUtility { utility(connectionType: .wifi) }
+    static var cell: NetworkUtility { utility(connectionType: .cellular) }
+    static var none: NetworkUtility { utility(connectionType: .none) }
+
+    static func utility(connectionType: NetworkUtility.ConnectionType) -> NetworkUtility {
+        let util = NetworkUtility(connectionType: connectionType)
+        if #available(iOS 12.0, *) {
+            // We disable the monitor updater to have more control in our tests
+            util.pathMonitor.cancel()
+        }
+        return util
     }
 }
