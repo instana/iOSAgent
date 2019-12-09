@@ -13,9 +13,9 @@ class Monitors {
     private let configuration: InstanaConfiguration
     let reporter: Reporter
 
-    init(_ configuration: InstanaConfiguration, reporter: Reporter) {
+    init(_ configuration: InstanaConfiguration) {
         self.configuration = configuration
-        self.reporter = reporter
+        self.reporter = Reporter(configuration)
         configuration.monitorTypes.forEach { type in
             switch type {
             case .http:
@@ -26,6 +26,13 @@ class Monitors {
                 framerateDrop = FramerateDropMonitor(threshold: threshold, reporter: reporter)
             case .alertApplicationNotResponding(let threshold):
                 applicationNotResponding = ApplicationNotRespondingMonitor(threshold: threshold, reporter: reporter)
+            }
+        }
+
+        network.connectionUpdateHandler = {[weak self] connectionType in
+            guard let self = self else { return }
+            if connectionType != .none {
+                self.reporter.flushQueue()
             }
         }
     }

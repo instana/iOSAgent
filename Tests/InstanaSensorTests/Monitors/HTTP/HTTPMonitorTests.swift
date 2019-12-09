@@ -27,7 +27,7 @@ class HTTPMonitorTests: XCTestCase {
             XCTAssert($0 == InstanaURLProtocol.self)
             installed = true
             return true
-        }, reporter: instana.reporter)
+        }, reporter: instana.monitors.reporter)
         monitor.install()
         XCTAssertTrue(installed)
     }
@@ -37,14 +37,14 @@ class HTTPMonitorTests: XCTestCase {
         let monitor = HTTPMonitor(config, uninstaller: {
             XCTAssert($0 == InstanaURLProtocol.self)
             uninstalled = true
-        }, reporter: instana.reporter)
+        }, reporter: instana.monitors.reporter)
         monitor.uninstall()
         XCTAssertTrue(uninstalled)
     }
 
     func test_installingInConfiguration_shouldAddCustomProtocol() {
         // Given
-        let monitor = HTTPMonitor(config, reporter: instana.reporter)
+        let monitor = HTTPMonitor(config, reporter: instana.monitors.reporter)
         let sessionConfig = URLSessionConfiguration.default
 
         // Then
@@ -56,7 +56,7 @@ class HTTPMonitorTests: XCTestCase {
     func test_markingURL() {
         // Given
         let url: URL = .random
-        let monitor = HTTPMonitor(config, reporter: instana.reporter, networkConnectionType: { .wifi })
+        let monitor = HTTPMonitor(config, reporter: instana.monitors.reporter, networkConnectionType: { .wifi })
 
         // When
         let marker = try! monitor.mark(url, method: "method", size: 64)
@@ -72,7 +72,7 @@ class HTTPMonitorTests: XCTestCase {
     func test_markingRequest() {
         // Given
         let url: URL = .random
-        let monitor = HTTPMonitor(config, reporter: instana.reporter, networkConnectionType: { .cellular })
+        let monitor = HTTPMonitor(config, reporter: instana.monitors.reporter, networkConnectionType: { .cellular })
         var request = URLRequest(url: url)
         request.httpMethod = "m"
         request.httpBody = "11".data(using: .utf8)
@@ -91,7 +91,7 @@ class HTTPMonitorTests: XCTestCase {
     func test_invalid_request() {
         // Given
         let url: URL = .random
-        let monitor = HTTPMonitor(config, reporter: instana.reporter, networkConnectionType: { nil })
+        let monitor = HTTPMonitor(config, reporter: instana.monitors.reporter, networkConnectionType: { nil })
         var request = URLRequest(url: url)
         request.url = nil
         request.httpMethod = nil
