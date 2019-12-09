@@ -56,7 +56,7 @@ class HTTPMonitorTests: XCTestCase {
     func test_markingURL() {
         // Given
         let url: URL = .random
-        let monitor = HTTPMonitor(config, reporter: instana.monitors.reporter, networkConnectionType: { .wifi })
+        let monitor = HTTPMonitor(config, reporter: instana.monitors.reporter)
 
         // When
         let marker = try! monitor.mark(url, method: "method", size: 64)
@@ -66,13 +66,12 @@ class HTTPMonitorTests: XCTestCase {
         XCTAssertEqual(marker.method, "method")
         XCTAssertEqual(marker.trigger, .automatic)
         XCTAssertEqual(marker.requestSize, 64)
-        XCTAssertEqual(marker.connectionType, .wifi)
     }
     
     func test_markingRequest() {
         // Given
         let url: URL = .random
-        let monitor = HTTPMonitor(config, reporter: instana.monitors.reporter, networkConnectionType: { .cellular })
+        let monitor = HTTPMonitor(config, reporter: instana.monitors.reporter)
         var request = URLRequest(url: url)
         request.httpMethod = "m"
         request.httpBody = "11".data(using: .utf8)
@@ -85,13 +84,12 @@ class HTTPMonitorTests: XCTestCase {
         XCTAssertEqual(marker.method, "m")
         XCTAssertEqual(marker.requestSize, 2)
         XCTAssertEqual(marker.trigger, .automatic)
-        XCTAssertEqual(marker.connectionType, .cellular)
     }
     
     func test_invalid_request() {
         // Given
         let url: URL = .random
-        let monitor = HTTPMonitor(config, reporter: instana.monitors.reporter, networkConnectionType: { nil })
+        let monitor = HTTPMonitor(config, reporter: instana.monitors.reporter)
         var request = URLRequest(url: url)
         request.url = nil
         request.httpMethod = nil

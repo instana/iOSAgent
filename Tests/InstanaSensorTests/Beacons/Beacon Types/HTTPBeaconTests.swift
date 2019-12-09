@@ -13,7 +13,6 @@ class HTTPBeaconTests: XCTestCase {
         let http = HTTPBeacon(timestamp: timestamp,
                                 method: method,
                                 url: url,
-                                connectionType: .wifi,
                                 result: "RESULT")
         let mapper = CoreBeaconFactory(config)
 
@@ -46,7 +45,7 @@ class HTTPBeaconTests: XCTestCase {
         let responseSize: Instana.Types.Bytes = 512
         let timestamp: Instana.Types.Milliseconds = 1000
         let duration: Instana.Types.Milliseconds = 1
-        let http = HTTPBeacon(timestamp: timestamp, duration: duration, method: method, url: url, connectionType: .cellular, responseCode: responseCode, requestSize: requestSize, responseSize: responseSize, result: "R")
+        let http = HTTPBeacon(timestamp: timestamp, duration: duration, method: method, url: url, responseCode: responseCode, requestSize: requestSize, responseSize: responseSize, result: "R")
         var beacon: CoreBeacon!
         do {
              beacon = try CoreBeaconFactory(InstanaConfiguration.default(key: key)).map(http)
@@ -65,7 +64,7 @@ class HTTPBeaconTests: XCTestCase {
     func test_asJSON() {
         // Given
         let key = "123KEY"
-        let http = HTTPBeacon(timestamp: 1000, duration: 10, method: "M", url: URL.random, connectionType: .cellular, responseCode: 200, requestSize: 512, responseSize: 64, result: "R")
+        let http = HTTPBeacon(timestamp: 1000, duration: 10, method: "M", url: URL.random, responseCode: 200, requestSize: 512, responseSize: 64, result: "R")
 
         // When
         var beacon: CoreBeacon!

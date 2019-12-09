@@ -12,7 +12,7 @@ public class Reporter {
     private var timer: Timer?
     private let send: NetworkLoader
     private let batterySafeForNetworking: () -> Bool
-    private let hasWifi: () -> Bool
+    private let networkUtility: NetworkUtility
     private var suspendReporting: Set<InstanaConfiguration.SuspendReporting> { configuration.suspendReporting }
     private (set) var queue = InstanaPersistableQueue<CoreBeacon>()
     private let configuration: InstanaConfiguration
@@ -21,12 +21,19 @@ public class Reporter {
     init(_ configuration: InstanaConfiguration,
          useGzip: Bool = true,
          batterySafeForNetworking: @escaping () -> Bool = { InstanaSystemUtils.battery.safeForNetworking },
-         hasWifi: @escaping () -> Bool = { Instana.current.monitors.network.connectionType == .wifi },
+         networkUtility: NetworkUtility = NetworkUtility(),
          send: @escaping NetworkLoader = InstanaNetworking().send(request:completion:)) {
+        self.networkUtility = networkUtility
         self.configuration = configuration
         self.batterySafeForNetworking = batterySafeForNetworking
-        self.hasWifi = hasWifi
         self.send = send
+
+        networkUtility.connectionUpdateHandler = {[weak self] connectionType in
+            guard let self = self else { return }
+            if connectionType != .none {
+                self.flushQueue()
+            }
+        }
     }
 
     deinit {
@@ -66,7 +73,12 @@ extension Reporter {
     }
 
     private func _flushQueue() {
-        if suspendReporting.contains(.cellularConnection) && !hasWifi() {
+        let connectionType = networkUtility.connectionType
+        guard connectionType != .none else {
+            complete([], .failure(InstanaError(code: .offline, description: "No connection available")))
+            return
+        }
+        if suspendReporting.contains(.cellularConnection) && connectionType == .cellular {
             complete([], .failure(InstanaError(code: .noWifiAvailable, description: "No WIFI Available")))
             return
         }

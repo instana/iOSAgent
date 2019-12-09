@@ -8,7 +8,7 @@ class CoreBeaconExtensionsTests: XCTestCase {
     func test_asString_Default() {
         // Given
         let key = "123KEY"
-        let beacon = CoreBeacon.createDefault(key: key)
+        let beacon = CoreBeacon.createDefault(key: key, connectionType: .wifi)
 
         // When
         let sut = beacon.asString

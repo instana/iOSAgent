@@ -87,8 +87,7 @@ import Foundation
     /// - Returns: A remote call marker which is used to notify the SDK of call results by invoking one of its completion methods.
     @objc class func markHTTP(_ url: URL, method: String) -> HTTPMarker {
         let delegate = Instana.current.monitors.http
-        let networktype = Instana.current.monitors.network.connectionType
-        return HTTPMarker(url: url, method: method, trigger: .manual, connectionType: networktype, delegate: delegate)
+        return HTTPMarker(url: url, method: method, trigger: .manual, delegate: delegate)
     }
 
     /// Use this method to manually monitor remote calls that can't be tracked automatically.
@@ -110,8 +109,7 @@ import Foundation
     /// - Returns: A remote call marker which is used to notify the SDK of call results by invoking one of its completion methods.
     @objc class func markHTTP(_ request: URLRequest) -> HTTPMarker {
         let delegate = Instana.current.monitors.http
-        let networktype = Instana.current.monitors.network.connectionType
         let url = request.url ?? URL(string: "http://instana-invalid")!
-        return HTTPMarker(url: url, method: request.httpMethod ?? "invalid", trigger: .manual, requestSize: Instana.Types.Bytes(request.httpBody?.count ?? 0), connectionType: networktype, delegate: delegate)
+        return HTTPMarker(url: url, method: request.httpMethod ?? "invalid", trigger: .manual, requestSize: Instana.Types.Bytes(request.httpBody?.count ?? 0), delegate: delegate)
     }
 }

@@ -61,7 +61,8 @@ extension CoreBeacon {
     static func createDefault(key: String,
                               timestamp: Instana.Types.Milliseconds = Date().millisecondsSince1970,
                               sessionId: String = UUID().uuidString,
-                              id: String = UUID().uuidString) -> CoreBeacon {
+                              id: String = UUID().uuidString,
+                              connectionType: NetworkUtility.ConnectionType = InstanaSystemUtils.networkUtility.connectionType) -> CoreBeacon {
         CoreBeacon(v: InstanaSystemUtils.viewControllersHierarchy(),
                k: key,
                ti: String(timestamp),
@@ -77,8 +78,8 @@ extension CoreBeacon {
                ro: String(InstanaSystemUtils.isDeviceJailbroken),
                vw: String(Int(InstanaSystemUtils.screenSize.width)),
                vh: String(Int(InstanaSystemUtils.screenSize.height)),
-               cn: InstanaSystemUtils.networkMonitor.connectionType.cellular.carrierName,
-               ct: InstanaSystemUtils.networkMonitor.connectionType.description)
+               cn: connectionType.cellular.carrierName,
+               ct: connectionType.description)
     }
 
     static func create(from httpBody: String) throws -> CoreBeacon {

@@ -21,20 +21,18 @@ protocol HTTPMarkerDelegate: class {
     let trigger: Trigger
     let requestSize: Instana.Types.Bytes
     let startTime: Instana.Types.Milliseconds
-    let connectionType: NetworkMonitor.ConnectionType?
     private(set) var responseSize: Instana.Types.Bytes = 0
     private var endTime: Instana.Types.Milliseconds?
     private(set) var state: State = .started
     private weak var delegate: HTTPMarkerDelegate?
     
-    init(url: URL, method: String, trigger: Trigger = .automatic, requestSize: Instana.Types.Bytes = 0, connectionType: NetworkMonitor.ConnectionType? = nil, delegate: HTTPMarkerDelegate?) {
+    init(url: URL, method: String, trigger: Trigger = .automatic, requestSize: Instana.Types.Bytes = 0, delegate: HTTPMarkerDelegate?) {
         self.startTime = Date().millisecondsSince1970
         self.url = url
         self.method = method
         self.delegate = delegate
         self.trigger = trigger
         self.requestSize = requestSize
-        self.connectionType = connectionType
     }
 }
 
@@ -103,7 +101,6 @@ extension HTTPMarker {
                          duration: duration,
                          method: method,
                          url: url,
-                         connectionType: connectionType,
                          responseCode: responseCode ?? -1,
                          requestSize: requestSize,
                          responseSize: responseSize,

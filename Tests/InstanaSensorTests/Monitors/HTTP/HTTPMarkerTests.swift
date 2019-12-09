@@ -17,7 +17,6 @@ class HTTPMarkerTests: XCTestCase {
         XCTAssertEqual(marker.method, "GET")
         XCTAssertEqual(marker.requestSize, 0)
         XCTAssertEqual(marker.trigger, .automatic)
-        XCTAssertEqual(marker.connectionType, nil)
         XCTAssertTrue(marker.startTime >= start)
     }
     
@@ -113,7 +112,7 @@ class HTTPMarkerTests: XCTestCase {
     func test_finishedMarker_toBeaconConversion() {
         // Given
         let url: URL = .random
-        let marker = HTTPMarker(url: url, method: "m", requestSize: 111, connectionType: .wifi, delegate: Delegate())
+        let marker = HTTPMarker(url: url, method: "m", requestSize: 111, delegate: Delegate())
         marker.ended(responseCode: 204, responseSize: 10)
 
 
@@ -131,14 +130,13 @@ class HTTPMarkerTests: XCTestCase {
         XCTAssertEqual(beacon.responseCode, 204)
         XCTAssertEqual(beacon.requestSize, 111)
         XCTAssertEqual(beacon.responseSize, 10)
-        XCTAssertEqual(beacon.connectionType, .wifi)
         XCTAssertEqual(beacon.result, "finished")
     }
     
     func test_failedMarker_toBeaconConversion() {
         // Given
         let url: URL = .random
-        let marker = HTTPMarker(url: url, method: "t", requestSize: 123, connectionType: .cellular, delegate: Delegate())
+        let marker = HTTPMarker(url: url, method: "t", requestSize: 123, delegate: Delegate())
         let error = CocoaError(CocoaError.coderValueNotFound)
         marker.ended(error: error)
 
@@ -156,7 +154,6 @@ class HTTPMarkerTests: XCTestCase {
         XCTAssertEqual(beacon.responseCode, -1)
         XCTAssertEqual(beacon.requestSize, 123)
         XCTAssertEqual(beacon.responseSize, 0)
-        XCTAssertEqual(beacon.connectionType, .cellular)
         XCTAssertEqual(beacon.result, String(describing: error as Error))
     }
     
