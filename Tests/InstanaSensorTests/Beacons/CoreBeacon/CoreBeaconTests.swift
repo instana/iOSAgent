@@ -25,8 +25,8 @@ class CoreBeaconTests: XCTestCase {
         AssertEqualAndNotNil(sut.ro, String(InstanaSystemUtils.isDeviceJailbroken))
         AssertEqualAndNotNil(sut.vw, String(Int(InstanaSystemUtils.screenSize.width)))
         AssertEqualAndNotNil(sut.vh, String(Int(InstanaSystemUtils.screenSize.height)))
-        AssertEqualAndNotNil(sut.cn, InstanaSystemUtils.carrierName)
-        AssertEqualAndNotNil(sut.ct, InstanaSystemUtils.connectionTypeDescription)
+        AssertEqualAndNotNil(sut.cn, InstanaSystemUtils.networkMonitor.connectionType.cellular.carrierName)
+        AssertEqualAndNotNil(sut.ct, InstanaSystemUtils.networkMonitor.connectionType.description)
     }
 
     func testNumberOfFields_all() {

@@ -77,8 +77,8 @@ extension CoreBeacon {
                ro: String(InstanaSystemUtils.isDeviceJailbroken),
                vw: String(Int(InstanaSystemUtils.screenSize.width)),
                vh: String(Int(InstanaSystemUtils.screenSize.height)),
-               cn: InstanaSystemUtils.carrierName,
-               ct: InstanaSystemUtils.connectionTypeDescription)
+               cn: InstanaSystemUtils.networkMonitor.connectionType.cellular.carrierName,
+               ct: InstanaSystemUtils.networkMonitor.connectionType.description)
     }
 
     static func create(from httpBody: String) throws -> CoreBeacon {
