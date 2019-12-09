@@ -28,6 +28,7 @@ class BasicIntegrationServerTest: IntegrationTestCase {
         config.transmissionLowBatteryDelay = 0.0
         config.gzipReport = false
         reporter = Reporter(config)
+        reporter.queue.removeAll() // Remove any old items
         let beacon = HTTPBeacon.createMock()
 
         // When
@@ -70,6 +71,7 @@ class BasicIntegrationServerTest: IntegrationTestCase {
         config.transmissionLowBatteryDelay = 0.0
         config.gzipReport = false
         reporter = Reporter(config)
+        reporter.queue.removeAll() // Remove any old items
         let beacon = HTTPBeacon.createMock()
 
         // When
