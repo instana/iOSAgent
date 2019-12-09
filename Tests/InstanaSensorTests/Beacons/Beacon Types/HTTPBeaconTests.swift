@@ -7,12 +7,14 @@ class HTTPBeaconTests: XCTestCase {
     func test_map_http() {
         // Given
         let config = InstanaConfiguration.default(key: "KEY")
+        let responseSize = Instana.Types.HTTPSize(header: 4, body: 5, bodyAfterDecoding: 6)
         let url = URL.random
         let method = "POST"
         let timestamp = Date().millisecondsSince1970
         let http = HTTPBeacon(timestamp: timestamp,
                                 method: method,
                                 url: url,
+                                responseSize: responseSize,
                                 result: "RESULT")
         let mapper = CoreBeaconFactory(config)
 
@@ -28,11 +30,14 @@ class HTTPBeaconTests: XCTestCase {
         AssertEqualAndNotNil(sut.hp, url.path)
         AssertEqualAndNotNil(sut.hs, String(http.responseCode))
         AssertEqualAndNotNil(sut.hm, method)
-        AssertEqualAndNotNil(sut.trs, String(http.responseSize))
         AssertEqualAndNotNil(sut.d, String(http.duration))
+        AssertEqualAndNotNil(sut.ebs, String(responseSize.bodyBytes!))
+        AssertEqualAndNotNil(sut.trs, String(responseSize.headerBytes! + responseSize.bodyBytes!))
+        AssertEqualAndNotNil(sut.dbs, String(responseSize.bodyBytesAfterDecoding!))
+
 
         let values = Mirror(reflecting: sut).nonNilChildren
-        XCTAssertEqual(values.count, 24)
+        XCTAssertEqual(values.count, 26)
     }
 
     func test_asString() {
@@ -41,11 +46,10 @@ class HTTPBeaconTests: XCTestCase {
         let key = "K1234"
         let method = "POST"
         let responseCode = 200
-        let requestSize: Instana.Types.Bytes = 1024
-        let responseSize: Instana.Types.Bytes = 512
+        let responseSize = Instana.Types.HTTPSize.random
         let timestamp: Instana.Types.Milliseconds = 1000
         let duration: Instana.Types.Milliseconds = 1
-        let http = HTTPBeacon(timestamp: timestamp, duration: duration, method: method, url: url, responseCode: responseCode, requestSize: requestSize, responseSize: responseSize, result: "R")
+        let http = HTTPBeacon(timestamp: timestamp, duration: duration, method: method, url: url, responseCode: responseCode, responseSize: responseSize, result: "R")
         var beacon: CoreBeacon!
         do {
              beacon = try CoreBeaconFactory(InstanaConfiguration.default(key: key)).map(http)
@@ -57,14 +61,15 @@ class HTTPBeaconTests: XCTestCase {
         let sut = beacon.asString
 
         // When
-        let expected = "ab\t\(beacon.ab)\nav\t\(beacon.av)\nbid\t\(beacon.bid)\nbuid\t\(beacon.buid)\ncn\t\(beacon.cn ?? "")\nct\t\(beacon.ct ?? "")\nd\t\(duration)\ndma\tApple\ndmo\t\(beacon.dmo)\nhm\t\(method)\nhp\t\(url.path)\nhs\t\(responseCode)\nhu\t\(url.absoluteString)\nk\t\(key)\nosn\tiOS\nosv\t\(beacon.osv)\nro\tfalse\nsid\t\(beacon.sid)\nt\thttpRequest\nti\t\(timestamp)\ntrs\t\(responseSize)\nul\ten\nvh\t\(Int(UIScreen.main.nativeBounds.height))\nvw\t\(Int(UIScreen.main.nativeBounds.width))"
+        let expected = "ab\t\(beacon.ab)\nav\t\(beacon.av)\nbid\t\(beacon.bid)\nbuid\t\(beacon.buid)\ncn\t\(beacon.cn ?? "")\nct\t\(beacon.ct ?? "")\nd\t\(duration)\ndbs\t\(responseSize.bodyBytesAfterDecoding!)\ndma\tApple\ndmo\t\(beacon.dmo)\nebs\t\(responseSize.bodyBytes!)\nhm\t\(method)\nhp\t\(url.path)\nhs\t\(responseCode)\nhu\t\(url.absoluteString)\nk\t\(key)\nosn\tiOS\nosv\t\(beacon.osv)\nro\tfalse\nsid\t\(beacon.sid)\nt\thttpRequest\nti\t\(timestamp)\ntrs\t\(responseSize.headerBytes! + responseSize.bodyBytes!)\nul\ten\nvh\t\(Int(UIScreen.main.nativeBounds.height))\nvw\t\(Int(UIScreen.main.nativeBounds.width))"
         XCTAssertEqual(sut, expected)
     }
 
     func test_asJSON() {
         // Given
         let key = "123KEY"
-        let http = HTTPBeacon(timestamp: 1000, duration: 10, method: "M", url: URL.random, responseCode: 200, requestSize: 512, responseSize: 64, result: "R")
+        let responseSize = Instana.Types.HTTPSize.random
+        let http = HTTPBeacon(timestamp: 1000, duration: 10, method: "M", url: URL.random, responseCode: 200, responseSize: responseSize, result: "R")
 
         // When
         var beacon: CoreBeacon!

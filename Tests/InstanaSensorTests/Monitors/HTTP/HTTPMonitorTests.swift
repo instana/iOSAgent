@@ -57,15 +57,15 @@ class HTTPMonitorTests: XCTestCase {
         // Given
         let url: URL = .random
         let monitor = HTTPMonitor(config, reporter: instana.monitors.reporter)
+        let size = Instana.Types.HTTPSize(header: 1, body: 2)
 
         // When
-        let marker = try! monitor.mark(url, method: "method", size: 64)
+        let marker = try! monitor.mark(url, method: "method", size: size)
 
         // Then
         XCTAssertEqual(marker.url, url)
         XCTAssertEqual(marker.method, "method")
         XCTAssertEqual(marker.trigger, .automatic)
-        XCTAssertEqual(marker.requestSize, 64)
     }
     
     func test_markingRequest() {
@@ -82,7 +82,6 @@ class HTTPMonitorTests: XCTestCase {
         // Then
         XCTAssertEqual(marker.url, url)
         XCTAssertEqual(marker.method, "m")
-        XCTAssertEqual(marker.requestSize, 2)
         XCTAssertEqual(marker.trigger, .automatic)
     }
     
