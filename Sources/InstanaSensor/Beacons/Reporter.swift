@@ -112,11 +112,14 @@ extension Reporter {
         switch result {
         case .success:
             Instana.current.logger.add("Did send beacons \(beacons)")
-            queue.remove(beacons)
+            queue.remove(beacons) {[weak self] _ in
+                guard let self = self else { return }
+                self.completion(result)
+            }
         case .failure(let error):
             Instana.current.logger.add("Failed to send Beacon batch: \(error)", level: .warning)
+            completion(result)
         }
-        completion(result)
     }
 }
 

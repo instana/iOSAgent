@@ -141,7 +141,6 @@ class ReporterTests: XCTestCase {
                                 send: { _, _ in
                                     sendCalled = true
                                     expectedError = nil
-                                    print("ARSCH")
                                     secondStep.fulfill()
         })
 
