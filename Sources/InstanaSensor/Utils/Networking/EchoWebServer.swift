@@ -29,8 +29,6 @@ final class EchoWebServer {
     init() {
         let tcpprotocol = NWProtocolTCP.Options()
         tcpprotocol.enableKeepalive = true
-//        tcpprotocol.connectionTimeout = 60
-//        tcpprotocol.keepaliveIdle = 5
         tcpprotocol.enableFastOpen = true
         listener = try! NWListener(using: NWParameters(tls: nil, tcp: tcpprotocol), on: port)
     }
@@ -77,7 +75,7 @@ final class EchoWebServer {
         }
     }
 
-    private func stop() {
+    func stop() {
         listener.stateUpdateHandler = nil
         listener.newConnectionHandler = nil
         listener.cancel()
