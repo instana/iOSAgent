@@ -10,14 +10,37 @@ class HTTPMarkerTests: XCTestCase {
         // Given
         let url: URL = .random
         let start = Date().millisecondsSince1970
+
+        // When
         let marker = HTTPMarker(url: url, method: "GET", delegate: Delegate())
 
         // Then
         XCTAssertEqual(marker.url, url)
         XCTAssertEqual(marker.method, "GET")
-        XCTAssertEqual(marker.requestSize, 0)
         XCTAssertEqual(marker.trigger, .automatic)
         XCTAssertTrue(marker.startTime >= start)
+    }
+
+    func test_marker_httpResponse_Sizes() {
+        // Given
+        let task = MockURLSessionTask()
+        let response = MockHTTPURLResponse(url: URL.random, mimeType: "text/plain", expectedContentLength: 1024, textEncodingName: "txt")
+        response.stubbedAllHeaderFields = ["KEY": "VALUE"]
+        task.stubbedResponse = response
+        let headerMetric = MockURLSessionTaskTransactionMetrics(stubbedCountOfResponseHeaderBytesReceived: 512)
+        let bodyMetric = MockURLSessionTaskTransactionMetrics(stubbedCountOfResponseBodyBytesReceived: 1024)
+        let decodedMetric = MockURLSessionTaskTransactionMetrics(stubbedCountOfResponseBodyBytesAfterDecoding: 2000)
+
+        let marker = HTTPMarker(url: URL.random, method: "GET", delegate: Delegate())
+        let responseSize = Instana.Types.HTTPSize.response(task: task, transactionMetrics:  [headerMetric, bodyMetric, decodedMetric])
+
+        // When
+        marker.set(responseSize: responseSize)
+
+        // Then
+        XCTAssertEqual(marker.responseSize?.headerBytes, 512)
+        XCTAssertEqual(marker.responseSize?.bodyBytes, 1024)
+        XCTAssertEqual(marker.responseSize?.bodyBytesAfterDecoding, 2000)
     }
     
     func test_marker_shouldNotRetainDelegate() {
@@ -44,18 +67,19 @@ class HTTPMarkerTests: XCTestCase {
     func test_finalizingMarker_withSuccess_shouldRetainOriginalValues() {
         // Given
         let delegate = Delegate()
-        let marker = HTTPMarker(url: .random, method: "b", requestSize: 4, delegate: delegate)
+        let responseSize = Instana.Types.HTTPSize.random
+        let marker = HTTPMarker(url: .random, method: "b", delegate: delegate)
 
         // When
         wait(0.1)
-        marker.ended(responseCode: 200, responseSize: 123)
-        marker.ended(responseCode: 300, responseSize: 321)
+        marker.set(responseSize: responseSize)
+        marker.finished(responseCode: 200)
+        marker.finished(responseCode: 300)
         marker.canceled()
 
         // Then
         XCTAssertEqual(delegate.finaliedCount, 1)
-        XCTAssertEqual(marker.requestSize, 4)
-        XCTAssertEqual(marker.responseSize, 123)
+        XCTAssertEqual(marker.responseSize, responseSize)
         XCTAssertTrue(marker.duration > 0)
         if case let .finished(responseCode) = marker.state {
             XCTAssertEqual(responseCode, 200)
@@ -67,19 +91,22 @@ class HTTPMarkerTests: XCTestCase {
     
     func test_finalizingMarker_withError_shouldRetainOriginalValues() {
         // Given
+
         let delegate = Delegate()
         let marker = HTTPMarker(url: .random, method: "b", delegate: delegate)
         let error = CocoaError(CocoaError.coderValueNotFound)
+        let responseSize = Instana.Types.HTTPSize.random
 
         // When
         wait(0.1)
-        marker.ended(error: error, responseSize: 10)
-        marker.ended(error: CocoaError(CocoaError.coderInvalidValue), responseSize: 20)
-        marker.ended(responseCode: 300, responseSize: 321)
+        marker.set(responseSize: responseSize)
+        marker.finished(error: error)
+        marker.finished(error: CocoaError(CocoaError.coderInvalidValue))
+        marker.finished(responseCode: 300)
 
         // Then
         XCTAssertEqual(delegate.finaliedCount, 1)
-        XCTAssertEqual(marker.responseSize, 10)
+        XCTAssertEqual(marker.responseSize, responseSize)
         XCTAssertTrue(marker.duration > 0)
         if case let .failed(e) = marker.state {
             XCTAssertEqual(e as? CocoaError, error)
@@ -92,17 +119,19 @@ class HTTPMarkerTests: XCTestCase {
     func test_finalizingMarker_withCancel_shouldRetainOriginalValues() {
         // Given
         let delegate = Delegate()
+        let responseSize = Instana.Types.HTTPSize.random
         let marker = HTTPMarker(url: .random, method: "b", delegate: delegate)
 
         // When
         wait(0.1)
+        marker.set(responseSize: responseSize)
         marker.canceled()
         marker.canceled()
-        marker.ended(responseCode: 300, responseSize: 321)
+        marker.finished(responseCode: 300)
 
         // Then
         XCTAssertEqual(delegate.finaliedCount, 1)
-        XCTAssertEqual(marker.responseSize, 0)
+        XCTAssertEqual(marker.responseSize, responseSize)
         XCTAssertTrue(marker.duration > 0)
         if case .canceled = marker.state {} else {
             XCTFail("Wrong marker state: \(marker.state)")
@@ -112,11 +141,12 @@ class HTTPMarkerTests: XCTestCase {
     func test_finishedMarker_toBeaconConversion() {
         // Given
         let url: URL = .random
-        let marker = HTTPMarker(url: url, method: "m", requestSize: 111, delegate: Delegate())
-        marker.ended(responseCode: 204, responseSize: 10)
-
+        let responseSize = Instana.Types.HTTPSize.random
+        let marker = HTTPMarker(url: url, method: "m", delegate: Delegate())
 
         // When
+        marker.set(responseSize: responseSize)
+        marker.finished(responseCode: 204)
         guard let beacon = marker.createBeacon() as? HTTPBeacon else {
             XCTFail("Beacon type missmatch"); return
         }
@@ -128,19 +158,20 @@ class HTTPMarkerTests: XCTestCase {
         XCTAssertEqual(beacon.method, "m")
         XCTAssertEqual(beacon.url, url)
         XCTAssertEqual(beacon.responseCode, 204)
-        XCTAssertEqual(beacon.requestSize, 111)
-        XCTAssertEqual(beacon.responseSize, 10)
+        XCTAssertEqual(beacon.responseSize, responseSize)
         XCTAssertEqual(beacon.result, "finished")
     }
     
     func test_failedMarker_toBeaconConversion() {
         // Given
         let url: URL = .random
-        let marker = HTTPMarker(url: url, method: "t", requestSize: 123, delegate: Delegate())
+        let responseSize = Instana.Types.HTTPSize.random
+        let marker = HTTPMarker(url: url, method: "t", delegate: Delegate())
         let error = CocoaError(CocoaError.coderValueNotFound)
-        marker.ended(error: error)
 
         // When
+        marker.set(responseSize: responseSize)
+        marker.finished(error: error)
         guard let beacon = marker.createBeacon() as? HTTPBeacon else {
             XCTFail("Beacon type missmatch"); return
         }
@@ -152,15 +183,17 @@ class HTTPMarkerTests: XCTestCase {
         XCTAssertEqual(beacon.method, "t")
         XCTAssertEqual(beacon.url, url)
         XCTAssertEqual(beacon.responseCode, -1)
-        XCTAssertEqual(beacon.requestSize, 123)
-        XCTAssertEqual(beacon.responseSize, 0)
+        AssertEqualAndNotNil(beacon.responseSize, responseSize)
+        AssertEqualAndNotNil(beacon.responseSize?.headerBytes, responseSize.headerBytes)
+        AssertEqualAndNotNil(beacon.responseSize?.bodyBytes, responseSize.bodyBytes)
+        AssertEqualAndNotNil(beacon.responseSize?.bodyBytesAfterDecoding, responseSize.bodyBytesAfterDecoding)
         XCTAssertEqual(beacon.result, String(describing: error as Error))
     }
     
     func test_canceledMarker_toBeaconConversion() {
         // Given
         let url: URL = .random
-        let marker = HTTPMarker(url: url, method: "c", requestSize: 1, delegate: Delegate())
+        let marker = HTTPMarker(url: url, method: "c", delegate: Delegate())
         marker.canceled()
 
         // When
@@ -175,15 +208,14 @@ class HTTPMarkerTests: XCTestCase {
         XCTAssertEqual(beacon.method, "c")
         XCTAssertEqual(beacon.url, url)
         XCTAssertEqual(beacon.responseCode, -1)
-        XCTAssertEqual(beacon.requestSize, 1)
-        XCTAssertEqual(beacon.responseSize, 0)
+        XCTAssertNil(beacon.responseSize)
         XCTAssertEqual(beacon.result, "canceled")
     }
     
     func test_starteddMarker_toConversion() {
         // Given
         let url: URL = .random
-        let marker = HTTPMarker(url: url, method: "c", requestSize: 1, delegate: Delegate())
+        let marker = HTTPMarker(url: url, method: "c", delegate: Delegate())
 
         // When
         guard let beacon = marker.createBeacon() as? HTTPBeacon else {
@@ -197,8 +229,7 @@ class HTTPMarkerTests: XCTestCase {
         XCTAssertEqual(beacon.method, "c")
         XCTAssertEqual(beacon.url, url)
         XCTAssertEqual(beacon.responseCode, -1)
-        XCTAssertEqual(beacon.requestSize, 1)
-        XCTAssertEqual(beacon.responseSize, 0)
+        XCTAssertNil(beacon.responseSize)
         XCTAssertEqual(beacon.result, "started")
     }
 }
@@ -213,5 +244,46 @@ extension HTTPMarkerTests {
         func finalized(marker: HTTPMarker) {
             finaliedCount += 1
         }
+    }
+}
+
+extension HTTPMarker.HTTPSize {
+    static var random: HTTPMarker.HTTPSize { Instana.Types.HTTPSize(header: (0...1000).randomElement() ?? 1,
+                                                                    body: (0...1000).randomElement() ?? 1,
+                                                                    bodyAfterDecoding: (0...1000).randomElement() ?? 1) }
+}
+
+class MockHTTPURLResponse: HTTPURLResponse {
+    var stubbedAllHeaderFields: [AnyHashable: Any] = ["":""]
+    override var allHeaderFields: [AnyHashable : Any] { stubbedAllHeaderFields }
+}
+
+class MockURLSessionTask: URLSessionTask {
+    var stubbedResponse: URLResponse?
+    override var response: URLResponse? { stubbedResponse }
+}
+
+class MockURLSessionTaskTransactionMetrics: URLSessionTaskTransactionMetrics {
+    var stubbedCountOfResponseHeaderBytesReceived: Int64 = 0
+    var stubbedCountOfResponseBodyBytesReceived: Int64 = 0
+    var stubbedCountOfResponseBodyBytesAfterDecoding: Int64 = 0
+
+    override var countOfResponseHeaderBytesReceived: Int64 { stubbedCountOfResponseHeaderBytesReceived }
+    override var countOfResponseBodyBytesReceived: Int64 { stubbedCountOfResponseBodyBytesReceived }
+    override var countOfResponseBodyBytesAfterDecoding: Int64 { stubbedCountOfResponseBodyBytesAfterDecoding }
+
+    init(stubbedCountOfResponseHeaderBytesReceived: Int64) {
+        self.stubbedCountOfResponseHeaderBytesReceived = stubbedCountOfResponseHeaderBytesReceived
+        super.init()
+    }
+
+    init(stubbedCountOfResponseBodyBytesReceived: Int64) {
+        self.stubbedCountOfResponseBodyBytesReceived = stubbedCountOfResponseBodyBytesReceived
+        super.init()
+    }
+
+    init(stubbedCountOfResponseBodyBytesAfterDecoding: Int64) {
+        self.stubbedCountOfResponseBodyBytesAfterDecoding = stubbedCountOfResponseBodyBytesAfterDecoding
+        super.init()
     }
 }

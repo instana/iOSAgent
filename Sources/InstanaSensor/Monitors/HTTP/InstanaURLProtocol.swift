@@ -40,25 +40,29 @@ internal class InstanaURLProtocol: URLProtocol {
 }
 
 extension InstanaURLProtocol: URLSessionTaskDelegate {
-    internal func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+        let response = task.response as? HTTPURLResponse
         if let error = error {
             client?.urlProtocol(self, didFailWithError: error)
-            marker?.ended(error: error, responseSize: task.countOfBytesReceived)
-        }
-        else {
+            marker?.finished(error: error)
+        } else {
             client?.urlProtocolDidFinishLoading(self)
-            marker?.ended(responseCode: (task.response as? HTTPURLResponse)?.statusCode ?? 0, responseSize: task.countOfBytesReceived)
+            marker?.finished(responseCode: response?.statusCode ?? 0)
         }
+    }
+
+    func urlSession(_ session: URLSession, task: URLSessionTask, didFinishCollecting metrics: URLSessionTaskMetrics) {
+        marker?.set(responseSize: Instana.Types.HTTPSize.response(task: task, transactionMetrics: metrics.transactionMetrics))
     }
 }
 
 extension InstanaURLProtocol: URLSessionDataDelegate {
-    internal func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse, completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
+    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse, completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
         completionHandler(.allow)
         client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .allowed)
     }
     
-    internal func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
+    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
         client?.urlProtocol(self, didLoad: data)
     }
 }

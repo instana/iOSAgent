@@ -67,19 +67,27 @@ import Foundation
         Instana.current.monitors.http?.track(configuration)
     }
 
+    // TODO: Move this into a namedspace wrapper
     /// Use this method to manually monitor remote calls that can't be tracked automatically.
     ///
-    /// For example:
+    ///
+    /// Monitor the response of this request like this:
     ///
     ///     let marker = Instana.markHTTPCall(url, method: "GET")
     ///     URLSession.shared.dataTask(with: url) { data, response, error in
     ///         if let error = error {
-    ///             marker.ended(error: error)
-    ///         }
-    ///         else {
-    ///             marker.ended(responseCode: (response as? HTTPURLResponse)?.statusCode ?? 200)
+    ///             marker.finished(error: error)
+    ///         } else {
+    ///             marker.finished(responseCode: (response as? HTTPURLResponse)?.statusCode ?? 200)
     ///         }
     ///     }
+    ///
+    /// You can also trace the HTTP reponse size manually once the size has been determined via the URLSessionDelegate. For example:
+    ///
+    ///       func urlSession(_ session: URLSession, task: URLSessionTask, didFinishCollecting metrics: URLSessionTaskMetrics) {
+    ///            marker?.set(responseSize: Instana.Types.HTTPSize(task: task, transactionMetrics: metrics.transactionMetrics))
+    ///       }
+    ///
     ///
     /// - Parameters:
     ///   - url: URL of the call.
@@ -92,17 +100,22 @@ import Foundation
 
     /// Use this method to manually monitor remote calls that can't be tracked automatically.
     ///
-    /// For example:
+    /// Monitor the response of this request like this::
     ///
     ///     let marker = Instana.markHTTP(urlRequest)
     ///     URLSession.shared.dataTask(with: url) { data, response, error in
     ///         if let error = error {
-    ///             marker.ended(error: error)
-    ///         }
-    ///         else {
-    ///             marker.ended(responseCode: (response as? HTTPURLResponse)?.statusCode ?? 200)
+    ///             marker.finished(error: error)
+    ///         } else {
+    ///             marker.finished(responseCode: (response as? HTTPURLResponse)?.statusCode ?? 200)
     ///         }
     ///     }
+    ///
+    /// You can also trace the HTTP reponse size manually once the size has been determined via the URLSessionDelegate. (Must be called before finished) For example:
+    ///
+    ///       func urlSession(_ session: URLSession, task: URLSessionTask, didFinishCollecting metrics: URLSessionTaskMetrics) {
+    ///            marker?.set(responseSize: Instana.Types.HTTPSize(task: task, transactionMetrics: metrics.transactionMetrics))
+    ///       }
     ///
     /// - Parameters:
     ///   - request: URLRequest of the call.
@@ -110,6 +123,6 @@ import Foundation
     @objc class func markHTTP(_ request: URLRequest) -> HTTPMarker {
         let delegate = Instana.current.monitors.http
         let url = request.url ?? URL(string: "http://instana-invalid")!
-        return HTTPMarker(url: url, method: request.httpMethod ?? "invalid", trigger: .manual, requestSize: Instana.Types.Bytes(request.httpBody?.count ?? 0), delegate: delegate)
+        return HTTPMarker(url: url, method: request.httpMethod ?? "invalid", trigger: .manual, delegate: delegate)
     }
 }

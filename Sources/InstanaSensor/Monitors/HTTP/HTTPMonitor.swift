@@ -40,11 +40,11 @@ extension HTTPMonitor {
     func install() {
         _ = installer(InstanaURLProtocol.self)
     }
-    
+
     func uninstall() {
         uninstaller(InstanaURLProtocol.self)
     }
-    
+
     func mark(_ request: URLRequest) throws -> HTTPMarker {
         debugAssert((request.url != nil), "URLRequest URL must not be nil")
         guard let url = request.url, let method = request.httpMethod else {
@@ -53,15 +53,13 @@ extension HTTPMonitor {
         return HTTPMarker(url: url,
                           method: method,
                           trigger: .automatic,
-                          requestSize: Instana.Types.Bytes(request.httpBody?.count ?? 0),
                           delegate: self)
     }
 
-    func mark(_ url: URL, method: String, size: Instana.Types.Bytes = 0) throws -> HTTPMarker {
+    func mark(_ url: URL, method: String, size: Instana.Types.HTTPSize) throws -> HTTPMarker {
         return HTTPMarker(url: url,
                           method: method,
                           trigger: .automatic,
-                          requestSize: size,
                           delegate: self)
     }
     

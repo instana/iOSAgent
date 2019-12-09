@@ -40,8 +40,19 @@ extension CoreBeacon {
         hp = beacon.path
         hs = String(beacon.responseCode)
         hm = beacon.method
-        trs = String(beacon.responseSize)
         d = String(beacon.duration)
+
+        if let responseSize = beacon.responseSize {
+            if let headerSize = responseSize.headerBytes, let bodySize = responseSize.bodyBytes {
+                trs = String(headerSize + bodySize)
+            }
+            if let bodySize = responseSize.bodyBytes {
+                ebs = String(bodySize)
+            }
+            if let bodyBytesAfterDecoding = responseSize.bodyBytesAfterDecoding {
+                dbs = String(bodyBytesAfterDecoding)
+            }
+        }
     }
 
     mutating func append(_ beacon: AlertBeacon) {

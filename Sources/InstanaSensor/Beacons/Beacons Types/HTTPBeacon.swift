@@ -10,23 +10,20 @@ class HTTPBeacon: Beacon {
     let path: String?
     let responseCode: Int
     let result: String
-    let requestSize: Instana.Types.Bytes
-    let responseSize: Instana.Types.Bytes
+    let responseSize: Instana.Types.HTTPSize?
     
     init(timestamp: Instana.Types.Milliseconds,
          duration: Instana.Types.Milliseconds = Date().millisecondsSince1970,
          method: String,
          url: URL,
          responseCode: Int = -1,
-         requestSize: Instana.Types.Bytes = 0,
-         responseSize: Instana.Types.Bytes = 0,
+         responseSize: Instana.Types.HTTPSize? = nil,
          result: String) {
         self.duration = duration
         self.method = method
         self.url = url
         self.path = !url.path.isEmpty ? url.path : nil
         self.responseCode = responseCode
-        self.requestSize = requestSize
         self.responseSize = responseSize
         self.result = result
         super.init(timestamp: timestamp)

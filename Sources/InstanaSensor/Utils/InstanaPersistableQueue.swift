@@ -48,6 +48,7 @@ class InstanaPersistableQueue<T: Codable & Equatable> {
         }
     }
 
+    // TODO: make it thread safe
     func add(_ item: T, _ completion: Completion? = nil) {
         add([item], completion)
     }

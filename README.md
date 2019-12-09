@@ -91,9 +91,9 @@ While starting a request you should also create a marker:
     
 Once the request finishes or fails, use one of the markers completion methods:
 
-	marker.ended(responseCode: 200, responseSize: // optionally calculate response size)
+	marker.finished(responseCode: 200)
 	// or
-	marker.ended(error: error, responseSize: // optionally calculate response size)
+	marker.finished(error: error)
 	// or
 	marker.canceled()
 	

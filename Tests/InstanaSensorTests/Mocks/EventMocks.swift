@@ -15,6 +15,7 @@ extension HTTPBeacon {
         return HTTPBeacon(timestamp: timestamp,
                          method: method,
                          url: url,
+                         responseSize:  Instana.Types.HTTPSize(),
                          result: "RESULT")
     }
 }
