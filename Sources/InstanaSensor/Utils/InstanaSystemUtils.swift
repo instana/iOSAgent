@@ -126,17 +126,4 @@ class InstanaSystemUtils {
         let result = hierarchies.joined(separator: "\n")
         return result.isEmpty ? nil : result
     }
-    
-    /// Persistent client id stored in user defaults.
-    static let clientId: String = {
-        let clientIdKey = "INSTANA_CLIENT_ID"
-        if let id = UserDefaults.standard.value(forKey: clientIdKey) as? String {
-            return id
-        }
-        else {
-            let id = UUID().uuidString
-            UserDefaults.standard.set(id, forKey: clientIdKey)
-            return id
-        }
-    }()
 }
