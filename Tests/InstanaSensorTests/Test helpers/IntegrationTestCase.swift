@@ -23,12 +23,12 @@ class IntegrationTestCase: XCTestCase {
         super.setUp()
 
         mockserver = EchoWebServer.shared
-        expectation = expectation(description: UUID().uuidString)
         let config = URLSessionConfiguration.default
         session = URLSession(configuration: config)
     }
 
     func load(url: URL = Defaults.baseURL, completion: @escaping (Result<Data, Error>) -> Void) {
+        expectation = expectation(description: UUID().uuidString)
         var request = URLRequest(url: url)
         request.httpBody = "Key:Value".data(using: .utf8)
         request.addValue("text/plain", forHTTPHeaderField: "Content-Type")

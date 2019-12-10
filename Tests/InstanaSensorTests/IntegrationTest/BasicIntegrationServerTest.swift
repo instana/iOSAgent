@@ -20,8 +20,10 @@ class BasicIntegrationServerTest: IntegrationTestCase {
         }
     }
 
-    func xtest_send_and_receive_beaocns() {
+    func test_send_and_receive_beaocns() {
         // Given
+        let waitAddQueue = expectation(description: "add_queue")
+        let waitFlushQueue = expectation(description: "flush")
         var config = InstanaConfiguration.default(key: "KEY")
         config.reportingURL = Defaults.baseURL
         config.transmissionDelay = 0.0
@@ -33,16 +35,20 @@ class BasicIntegrationServerTest: IntegrationTestCase {
 
         // When
         var expectedResult: BeaconResult?
-        reporter.submit(beacon)
+        reporter.submit(beacon) {
+            waitAddQueue.fulfill()
+        }
+        wait(for: [waitAddQueue], timeout: 1.0)
 
         // Queue should have one item now!
         AssertTrue(reporter.queue.items.count == 1)
 
         reporter.completion = {result in
             expectedResult = result
-            self.fulfilled()
+            waitFlushQueue.fulfill()
         }
-        wait(for: [expectation], timeout: 10.0)
+
+        wait(for: [waitFlushQueue], timeout: 10.0)
         let serverReceivedtData = mockserver.connections.last?.receivedData ?? Data()
         let serverReceivedHTTP = String(data: serverReceivedtData, encoding: .utf8)
 
@@ -71,6 +77,9 @@ class BasicIntegrationServerTest: IntegrationTestCase {
     func test_send_with_transmission_due_to_offline() {
         // Given
         var config = InstanaConfiguration.default(key: "KEY")
+        let waitAddQueue = expectation(description: "add_queue")
+        let waitFirstFlush = expectation(description: "expect_first_flush")
+        let waitSecondFlush = expectation(description: "expect_second_flush")
         config.reportingURL = Defaults.baseURL
         config.transmissionDelay = 0.0
         config.transmissionLowBatteryDelay = 0.0
@@ -82,27 +91,28 @@ class BasicIntegrationServerTest: IntegrationTestCase {
 
         // When
         var expectedResult: BeaconResult?
-        reporter.submit(beacon)
-
+        reporter.submit(beacon) {
+            waitAddQueue.fulfill()
+        }
+        wait(for: [waitAddQueue], timeout: 1.0)
         // Queue should have one item now!
         AssertTrue(reporter.queue.items.count == 1)
 
         reporter.completion = {result in
             expectedResult = result
-            self.fulfilled()
+            waitFirstFlush.fulfill()
         }
-        wait(for: [expectation], timeout: 10.0)
 
-        // Then
+        // Then - Expect an error due no network connection
+        wait(for: [waitFirstFlush], timeout: 10.0)
         AssertTrue(expectedResult != nil)
         AssertTrue((expectedResult?.error as! InstanaError).code == InstanaError.Code.offline.rawValue)
         AssertTrue(reporter.queue.items.count == 1)
 
         // When creating a new instance of the reporter
-        let expFlush = expectation(description: "expect_flush")
         reporter = Reporter(config, networkUtility: networkUtil)
         reporter.completion = {_ in
-            expFlush.fulfill()
+            waitSecondFlush.fulfill()
         }
 
         // Then
@@ -110,9 +120,10 @@ class BasicIntegrationServerTest: IntegrationTestCase {
 
         // When going online again
         networkUtil.update(.wifi)
-        wait(for: [expFlush], timeout: 20.0)
 
-        // Then
+        // Then - expect a successful flush
+        wait(for: [waitSecondFlush], timeout: 5.0)
+        print(reporter.queue.items)
         AssertTrue(reporter.queue.items.count == 0)
     }
 }

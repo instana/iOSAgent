@@ -8,14 +8,15 @@ public class Reporter {
     typealias Submitter = (Beacon) -> Void
     typealias NetworkLoader = (URLRequest, @escaping (InstanaNetworking.Result) -> Void) -> Void
     var completion: (BeaconResult) -> Void = {_ in}
-    private var backgroundQueue = DispatchQueue(label: "com.instana.ios.app.background", qos: .background, attributes: .concurrent)
-    private var timer: Timer?
+    private var backgroundQueue = DispatchQueue(label: "com.instana.ios.app.background", qos: .background)
     private let send: NetworkLoader
     private let batterySafeForNetworking: () -> Bool
     private let networkUtility: NetworkUtility
     private var suspendReporting: Set<InstanaConfiguration.SuspendReporting> { configuration.suspendReporting }
     private (set) var queue = InstanaPersistableQueue<CoreBeacon>()
     private let configuration: InstanaConfiguration
+    private weak var flushWorkItem: DispatchWorkItem?
+    private var flushSemaphore: DispatchSemaphore?
 
     // MARK: Init
     init(_ configuration: InstanaConfiguration,
@@ -27,52 +28,44 @@ public class Reporter {
         self.configuration = configuration
         self.batterySafeForNetworking = batterySafeForNetworking
         self.send = send
-
         networkUtility.connectionUpdateHandler = {[weak self] connectionType in
             guard let self = self else { return }
             if connectionType != .none {
-                self.flushQueue()
+                self.scheduleFlush()
             }
         }
     }
 
-    deinit {
-        timer?.invalidate()
-    }
-
-    func submit(_ beacon: Beacon) {
-        guard let coreBeacon = try? CoreBeaconFactory(configuration).map(beacon) else { return }
-        queue.add(coreBeacon)
+    func submit(_ beacon: Beacon, _ completion: (() -> Void)? = nil) {
+        backgroundQueue.async(qos: .background) {
+            let start = Date()
+            guard let coreBeacon = try? CoreBeaconFactory(self.configuration).map(beacon) else { return }
+            self.queue.add(coreBeacon)
+            let passed = Date().timeIntervalSince(start)
+            Instana.current.logger.add("Creating the CoreBeacon took \(passed*1000) ms")
+            completion?()
+        }
         scheduleFlush()
     }
 
     func scheduleFlush() {
-        timer?.invalidate()
-        let interval = batterySafeForNetworking() ? configuration.transmissionDelay : configuration.transmissionLowBatteryDelay
-        if interval == 0.0 {
-            flushQueue()
-            return // No timer needed - flush directly
+        flushWorkItem?.cancel()
+        let workItem = DispatchWorkItem() {
+            let start = Date()
+            self.flushSemaphore = DispatchSemaphore(value: 0)
+            self.flushQueue()
+            _ = self.flushSemaphore?.wait(timeout: .now() + 20)
+            let passed = Date().timeIntervalSince(start)
+            Instana.current.logger.add("Flushing and writing the queue took \(passed*1000) ms")
         }
-        let t = InstanaTimerProxy.timer(proxied: self, timeInterval: interval, userInfo: CFAbsoluteTimeGetCurrent(), repeats: false)
-        timer = t
-        RunLoop.main.add(t, forMode: .common)
-    }
-}
-
-extension Reporter: InstanaTimerProxiedTarget {
-    func onTimer(timer: Timer) {
-        flushQueue()
+        flushWorkItem = workItem
+        let interval = batterySafeForNetworking() ? configuration.transmissionDelay : configuration.transmissionLowBatteryDelay
+        backgroundQueue.asyncAfter(deadline: .now() + interval, execute: workItem)
     }
 }
 
 extension Reporter {
     func flushQueue() {
-        backgroundQueue.async {
-            self._flushQueue()
-        }
-    }
-
-    private func _flushQueue() {
         let connectionType = networkUtility.connectionType
         guard connectionType != .none else {
             complete([], .failure(InstanaError(code: .offline, description: "No connection available")))
@@ -120,6 +113,7 @@ extension Reporter {
             Instana.current.logger.add("Failed to send Beacon batch: \(error)", level: .warning)
             completion(result)
         }
+        flushSemaphore?.signal()
     }
 }
 
