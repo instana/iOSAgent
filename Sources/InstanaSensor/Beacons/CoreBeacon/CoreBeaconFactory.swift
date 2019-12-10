@@ -42,6 +42,10 @@ extension CoreBeacon {
         hm = beacon.method
         d = String(beacon.duration)
 
+        if 400...599 ~= beacon.responseCode {
+            ec = String(1)
+        }
+
         if let responseSize = beacon.responseSize {
             if let headerSize = responseSize.headerBytes, let bodySize = responseSize.bodyBytes {
                 trs = String(headerSize + bodySize)
