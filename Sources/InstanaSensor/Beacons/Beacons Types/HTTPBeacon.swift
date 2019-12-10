@@ -16,7 +16,7 @@ class HTTPBeacon: Beacon {
          duration: Instana.Types.Milliseconds = Date().millisecondsSince1970,
          method: String,
          url: URL,
-         responseCode: Int = -1,
+         responseCode: Int,
          responseSize: Instana.Types.HTTPSize? = nil,
          result: String) {
         self.duration = duration

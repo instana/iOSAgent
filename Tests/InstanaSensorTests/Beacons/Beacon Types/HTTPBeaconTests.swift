@@ -14,6 +14,7 @@ class HTTPBeaconTests: XCTestCase {
         let http = HTTPBeacon(timestamp: timestamp,
                                 method: method,
                                 url: url,
+                                responseCode: 200,
                                 responseSize: responseSize,
                                 result: "RESULT")
         let mapper = CoreBeaconFactory(config)
@@ -34,10 +35,58 @@ class HTTPBeaconTests: XCTestCase {
         AssertEqualAndNotNil(sut.ebs, String(responseSize.bodyBytes!))
         AssertEqualAndNotNil(sut.trs, String(responseSize.headerBytes! + responseSize.bodyBytes!))
         AssertEqualAndNotNil(sut.dbs, String(responseSize.bodyBytesAfterDecoding!))
-
+        AssertTrue(sut.ec == nil)
 
         let values = Mirror(reflecting: sut).nonNilChildren
         XCTAssertEqual(values.count, 26)
+    }
+
+    func test_map_http_with_code_399() {
+        // Given
+        let responseCode = 399
+        let http = HTTPBeacon(timestamp: Date().millisecondsSince1970,
+                                method: "POST",
+                                url: URL.random,
+                                responseCode: responseCode,
+                                responseSize: Instana.Types.HTTPSize.random,
+                                result: "RESULT")
+        let mapper = CoreBeaconFactory(InstanaConfiguration.default(key: "KEY"))
+
+        // When
+        guard let sut = try? mapper.map(http) else {
+            XCTFail("Could not map Beacon to CoreBeacon")
+            return
+        }
+
+        // Then
+        AssertEqualAndNotNil(sut.t, .httpRequest)
+        AssertEqualAndNotNil(sut.hs, String(responseCode))
+        AssertTrue(sut.ec == nil)
+    }
+
+    func test_map_http_with_error_since_400() {
+        // Given
+        let errorResponseCodes = (400...599)
+        errorResponseCodes.forEach { code in
+            let http = HTTPBeacon(timestamp: Date().millisecondsSince1970,
+                                  method: "POST",
+                                  url: URL.random,
+                                  responseCode: code,
+                                  responseSize: Instana.Types.HTTPSize.random,
+                                  result: "RESULT")
+            let mapper = CoreBeaconFactory(InstanaConfiguration.default(key: "KEY"))
+
+            // When
+            guard let sut = try? mapper.map(http) else {
+                XCTFail("Could not map Beacon to CoreBeacon")
+                return
+            }
+
+            // Then
+            AssertEqualAndNotNil(sut.t, .httpRequest)
+            AssertEqualAndNotNil(sut.hs, String(code))
+            AssertTrue(sut.ec == "1")
+        }
     }
 
     func test_asString() {
