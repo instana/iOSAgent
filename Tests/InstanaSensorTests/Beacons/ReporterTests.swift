@@ -725,19 +725,15 @@ class ReporterTests: XCTestCase {
         // Given
         var config = self.config!
         config.suspendReporting = []
-        config.transmissionDelay = 0.01
+        config.transmissionDelay = 0.0
         config.transmissionLowBatteryDelay = 0.0
         var reporter: Reporter? = Reporter(config) { _, _ in}
         weak var weakReporter = reporter
-        let exp = expectation(description: "Delay")
 
         // When
         reporter?.submit(Beacon(timestamp: 0))
+        wait(0.2)
         reporter = nil
-        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(10)) {
-            exp.fulfill()
-        }
-        waitForExpectations(timeout: 0.2, handler: nil)
 
         // Then
         XCTAssertNil(weakReporter)

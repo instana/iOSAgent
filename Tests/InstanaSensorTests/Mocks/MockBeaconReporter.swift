@@ -20,7 +20,7 @@ class MockReporter: Reporter {
         super.init(InstanaConfiguration.default(key: "KEY"))
     }
 
-    override func submit(_ b: Beacon) {
+    override func submit(_ b: Beacon, _ completion: (() -> Void)? = nil) {
         submitter(b)
     }
 }

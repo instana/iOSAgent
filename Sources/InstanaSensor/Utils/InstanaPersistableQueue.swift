@@ -23,7 +23,7 @@ class InstanaPersistableQueue<T: Codable & Equatable> {
             return cacheDirectory.appendingPathComponent(filename)
         }
     }
-    private let writeQueue = DispatchQueue(label: "com.instana.ios.writeQueue")
+
     var items: [T]
 
     init() {
@@ -35,20 +35,17 @@ class InstanaPersistableQueue<T: Codable & Equatable> {
     }
 
     func write(_ completion: Completion? = nil) {
-        writeQueue.async {
-            guard let fileURL = Static.queueJSONFileURL else { return }
-            do {
-                let data = try JSONEncoder().encode(self.items)
-                try data.write(to: fileURL, options: .completeFileProtection)
-                completion?(.success(()))
-            } catch (let error) {
-                completion?(.failure(error))
-                Instana.current.logger.add("Could not write queue to file \(fileURL) error: \(error)", level: .error)
-            }
+        guard let fileURL = Static.queueJSONFileURL else { return }
+        do {
+            let data = try JSONEncoder().encode(self.items)
+            try data.write(to: fileURL, options: .completeFileProtection)
+            completion?(.success(()))
+        } catch (let error) {
+            completion?(.failure(error))
+            Instana.current.logger.add("Could not write queue to file \(fileURL) error: \(error)", level: .error)
         }
     }
 
-    // TODO: make it thread safe
     func add(_ item: T, _ completion: Completion? = nil) {
         add([item], completion)
     }
