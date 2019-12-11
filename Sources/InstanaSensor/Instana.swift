@@ -11,7 +11,7 @@ import Foundation
 
     /// MARK: Framework Internal
     /// The Container for all Instana monitors (Network, HTTP, Framedrop, ...)
-    private (set) lazy var monitors = Monitors(configuration)
+    let monitors: Monitors
 
     /// A debugging console logger using levels
     let logger = InstanaLogger()
@@ -26,6 +26,7 @@ import Foundation
 
     private init(configuration: InstanaConfiguration) {
         self.configuration = configuration
+        self.monitors = Monitors(configuration)
         super.init()
         assert(!configuration.reportingURL.absoluteString.isEmpty, "Instana Reporting URL must not be empty")
         if configuration.isValid {
