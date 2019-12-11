@@ -49,7 +49,7 @@ class HTTPMonitorTests: XCTestCase {
 
         // Then
         XCTAssertFalse(sessionConfig.protocolClasses?.contains { $0 == InstanaURLProtocol.self } ?? true)
-        monitor.track(sessionConfig)
+        monitor.install(sessionConfig)
         XCTAssertTrue(sessionConfig.protocolClasses?.contains { $0 == InstanaURLProtocol.self } ?? false)
     }
     

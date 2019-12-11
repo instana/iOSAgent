@@ -18,20 +18,15 @@ class HTTPMonitor {
         self.installer = installer
         self.uninstaller = uninstaller
         self.reporter = reporter
-        determineReporting(reportingType: configuration.reportingType)
-    }
-
-    /// Determines what types of calls will be reported to the Instana backend.
-    private func determineReporting(reportingType: ReportingType) {
-        switch reportingType {
+        switch configuration.reportingType {
         case .automaticAndManual, .automatic:
             install()
         case .manual, .none:
-            uninstall()
+            break
         }
     }
 
-    func track(_ configuration: URLSessionConfiguration) {
+    func install(_ configuration: URLSessionConfiguration) {
         configuration.protocolClasses?.insert(InstanaURLProtocol.self, at: 0)
     }
 }

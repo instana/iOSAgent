@@ -42,7 +42,7 @@ class InstanaPersistableQueue<T: Codable & Equatable> {
             completion?(.success(()))
         } catch (let error) {
             completion?(.failure(error))
-            Instana.current.logger.add("Could not write queue to file \(fileURL) error: \(error)", level: .error)
+            Instana.current?.logger.add("Could not write queue to file \(fileURL) error: \(error)", level: .error)
         }
     }
 

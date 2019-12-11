@@ -42,7 +42,7 @@ public class Reporter {
             guard let coreBeacon = try? CoreBeaconFactory(self.configuration).map(beacon) else { return }
             self.queue.add(coreBeacon)
             let passed = Date().timeIntervalSince(start)
-            Instana.current.logger.add("Creating the CoreBeacon took \(passed*1000) ms")
+            Instana.current?.logger.add("Creating the CoreBeacon took \(passed*1000) ms")
             completion?()
         }
         scheduleFlush()
@@ -56,7 +56,7 @@ public class Reporter {
             self.flushQueue()
             _ = self.flushSemaphore?.wait(timeout: .now() + 20)
             let passed = Date().timeIntervalSince(start)
-            Instana.current.logger.add("Flushing and writing the queue took \(passed*1000) ms")
+            Instana.current?.logger.add("Flushing and writing the queue took \(passed*1000) ms")
         }
         flushWorkItem = workItem
         let interval = batterySafeForNetworking() ? configuration.transmissionDelay : configuration.transmissionLowBatteryDelay
@@ -104,13 +104,13 @@ extension Reporter {
     func complete(_ beacons: [CoreBeacon],_ result: BeaconResult) {
         switch result {
         case .success:
-            Instana.current.logger.add("Did send beacons \(beacons)")
+            Instana.current?.logger.add("Did send beacons \(beacons)")
             queue.remove(beacons) {[weak self] _ in
                 guard let self = self else { return }
                 self.completion(result)
             }
         case .failure(let error):
-            Instana.current.logger.add("Failed to send Beacon batch: \(error)", level: .warning)
+            Instana.current?.logger.add("Failed to send Beacon batch: \(error)", level: .warning)
             completion(result)
         }
         flushSemaphore?.signal()

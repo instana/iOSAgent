@@ -11,7 +11,7 @@ class Beacon: Identifiable {
     var id: String
 
     init(timestamp: Instana.Types.Milliseconds = Date().millisecondsSince1970,
-         sessionId: String = Instana.current.sessionId) {
+         sessionId: String = Instana.current?.sessionId ?? UUID().uuidString) {
         self.sessionId = sessionId
         self.id = UUID().uuidString
         self.timestamp = timestamp

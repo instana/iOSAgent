@@ -30,7 +30,7 @@ class InstanaURLProtocolTests: XCTestCase {
     
     func test_urlProtocol_shouldRemoveSelfFromCopiedInternalTaskSessionConfiguration() {
         let configuration = URLSessionConfiguration.default
-        HTTPMonitor(InstanaConfiguration.default(key: "KEY"), reporter: MockReporter()).track(configuration)
+        HTTPMonitor(InstanaConfiguration.default(key: "KEY"), reporter: MockReporter()).install(configuration)
         let task = URLSession(configuration: configuration).dataTask(with: makeRequest("http://www.a.c"))
         let urlProtocol = InstanaURLProtocol(task: task, cachedResponse: nil, client: nil)
         XCTAssertFalse(urlProtocol.sessionConfiguration.protocolClasses?.contains { $0 == InstanaURLProtocol.self } ?? true)
