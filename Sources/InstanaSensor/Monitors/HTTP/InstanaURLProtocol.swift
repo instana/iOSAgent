@@ -3,7 +3,35 @@
 
 import Foundation
 
-internal class InstanaURLProtocol: URLProtocol {
+@objc extension URLSession {
+    // The swizzled class func to create (NS)URLSession with the given configuration
+    // We monitor all sessions implicitly
+    @objc class func instana_session(configuration: URLSessionConfiguration) -> URLSession {
+        Instana.current?.monitors.http?.install(configuration)
+        return URLSession.instana_session(configuration: configuration)
+    }
+}
+
+class InstanaURLProtocol: URLProtocol {
+    // We do some swizzling to inject our InstanaURLProtocol to all custom sessions automatically
+    static let prepare: () = {
+        let originalSelector = #selector(URLSession.init(configuration:))
+        let newSelector = #selector(URLSession.instana_session(configuration:))
+
+        guard let originalMethod = class_getClassMethod(URLSession.self, originalSelector),
+            let newMethod = class_getClassMethod(URLSession.self, newSelector) else { return }
+
+        method_exchangeImplementations(originalMethod, newMethod)
+        // TODO: This should be actually the right behavior
+//        return
+//        let didAddMethod = class_addMethod(URLSession.self, originalSelector, method_getImplementation(newMethod), method_getTypeEncoding(newMethod))
+//        if didAddMethod {
+//            class_replaceMethod(URLSession.self, newSelector, method_getImplementation(originalMethod), method_getTypeEncoding(originalMethod))
+//        } else {
+//            method_exchangeImplementations(originalMethod, newMethod)
+//        }
+    }()
+
     enum Mode {
         case enabled, disabled
     }
