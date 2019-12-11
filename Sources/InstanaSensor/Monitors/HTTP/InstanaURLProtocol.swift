@@ -28,7 +28,7 @@ internal class InstanaURLProtocol: URLProtocol {
     }
     
     override func startLoading() {
-        marker = try? Instana.current.monitors.http?.mark(request)
+        marker = try? Instana.current?.monitors.http?.mark(request)
         let task = session.dataTask(with: request)
         task.resume()
     }
