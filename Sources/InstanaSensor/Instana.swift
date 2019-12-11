@@ -22,7 +22,7 @@ import Foundation
     /// The current Instana configuration
     let configuration: InstanaConfiguration
 
-    static var current = Instana(configuration: .default(key: ""))
+    static var current = Instana(configuration: .empty)
 
     private init(configuration: InstanaConfiguration) {
         self.configuration = configuration

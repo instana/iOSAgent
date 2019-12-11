@@ -56,7 +56,7 @@ struct InstanaConfiguration {
     var isValid: Bool { !key.isEmpty && !reportingURL.absoluteString.isEmpty }
 
     static var empty: InstanaConfiguration {
-        .default(key: "", reportingURL: nil)
+        .default(key: "", reportingURL: nil, reportingType: .none)
     }
 
     static func `default`(key: String, reportingURL: URL? = nil, reportingType: ReportingType = .automaticAndManual) -> InstanaConfiguration {
