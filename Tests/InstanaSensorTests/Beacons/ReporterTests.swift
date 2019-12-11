@@ -14,6 +14,128 @@ class ReporterTests: XCTestCase {
         config = InstanaConfiguration.default(key: "KEY")
     }
 
+    func test_submit() {
+        // Given
+        var didSchedule = false
+        var didSubmit = false
+        let submittedToQueue = expectation(description: "Submitted To Queue")
+        let reporter = TestReporter(config(delay: 0.2)) {}
+        reporter.didSchedule = {
+            didSchedule = true
+        }
+
+        // When
+        reporter.submit(AlertBeacon(alertType: .lowMemory)) {
+            didSubmit = true
+            submittedToQueue.fulfill()
+        }
+        wait(for: [submittedToQueue], timeout: 0.2)
+
+        // Then
+        AssertTrue(didSchedule)
+        AssertTrue(didSubmit)
+        AssertTrue(reporter.queue.items.count == 1)
+    }
+
+    func test_submit_multiple_must_be_delayed() {
+        // Given
+        var didSchedule = false
+        var didSubmitFirst = false
+        var didSubmitSecond = false
+        let firstSubmittedToQueue = expectation(description: "Submitted To Queue")
+        let secondSubmittedToQueue = expectation(description: "Submitted To Queue")
+        let reporter = TestReporter(config(delay: 0.2)) {}
+        reporter.didSchedule = {
+            didSchedule = true
+        }
+
+        // When
+        reporter.submit(AlertBeacon(alertType: .lowMemory)) {
+            didSubmitFirst = true
+            firstSubmittedToQueue.fulfill()
+        }
+        reporter.submit(AlertBeacon(alertType: .lowMemory)) {
+            didSubmitSecond = true
+            secondSubmittedToQueue.fulfill()
+        }
+        wait(for: [firstSubmittedToQueue], timeout: 0.2)
+
+        // Then
+        AssertTrue(didSchedule)
+        AssertTrue(didSubmitFirst)
+        AssertTrue(didSubmitSecond == false)
+        AssertTrue(reporter.queue.items.count == 1)
+
+        // Wait more
+        wait(for: [secondSubmittedToQueue], timeout: 0.2)
+        AssertTrue(didSubmitSecond)
+        AssertTrue(reporter.queue.items.count == 2)
+    }
+
+    func test_schedule_and_flush_once() {
+        // Given
+        var didFlush = false
+        let expectflush = expectation(description: "Submitted To Queue")
+        let reporter = TestReporter(config(delay: 0.0)) {
+            didFlush = true
+            expectflush.fulfill()
+        }
+
+        // When
+        reporter.submit(AlertBeacon(alertType: .lowMemory))
+        wait(for: [expectflush], timeout: 0.6)
+
+        // Then
+        AssertTrue(didFlush)
+        AssertTrue(reporter.queue.items.count == 0)
+    }
+
+    func test_schedule_and_flush_once_with_multiple() {
+        // Given
+        let flushDelay = 0.2
+        var flushCount = 0
+        let reporter = TestReporter(config(delay: flushDelay)) {
+            flushCount += 1
+        }
+
+        // When
+        reporter.submit(AlertBeacon(alertType: .lowMemory))
+        reporter.submit(AlertBeacon(alertType: .lowMemory))
+        reporter.submit(AlertBeacon(alertType: .lowMemory))
+        reporter.submit(AlertBeacon(alertType: .lowMemory))
+        reporter.submit(AlertBeacon(alertType: .lowMemory))
+        reporter.submit(AlertBeacon(alertType: .lowMemory))
+        wait(flushDelay * 3)
+
+        // Then - Should only flush once when getting more beacons before flushing occured
+        AssertTrue(flushCount == 1)
+        AssertTrue(reporter.queue.items.count == 0)
+    }
+
+    func test_schedule_and_flush_twice() {
+        // Given
+        let flushDelay = 0.2
+        var flushCount = 0
+        let reporter = TestReporter(config(delay: flushDelay)) {
+            flushCount += 1
+        }
+
+        // When
+        reporter.submit(AlertBeacon(alertType: .lowMemory))
+        // Submit one more after delay
+        wait(flushDelay + 0.2)
+        AssertTrue(flushCount == 1)
+        reporter.submit(AlertBeacon(alertType: .lowMemory))
+        wait(flushDelay * 2)
+
+        // Then - Should flush twice when getting more beacons after first flushing occured
+        AssertTrue(flushCount == 2)
+        AssertTrue(reporter.queue.items.count == 0)
+    }
+
+    //
+    // Testing flushing the queue
+    //
 
     /// Criteria:
     ///  - Suspend Sending: Never
@@ -22,33 +144,43 @@ class ReporterTests: XCTestCase {
     ///  - WIFI: NO
     ///
     /// Expected Result - Report should be sent after delay of 0.4
-    func test_send_delay() {
+    func test_submit_and_flush_with_delay() {
         // Given
-        let exp = expectation(description: "Delayed sending")
-
+        let submitExp = expectation(description: "Submit Expect")
+        let finalExp = expectation(description: "Delayed sending")
         let delay = 0.4
-        var config = self.config!
-        config.suspendReporting = []
-        config.transmissionDelay = delay
-        config.transmissionLowBatteryDelay = 0.0
+        let beacon = AlertBeacon(alertType: .lowMemory)
 
         let start = Date()
+        var flushCount = 0
         var didSend: Date?
-        let reporter = Reporter(config, batterySafeForNetworking: { true }, networkUtility: .cell,
-                                      send: { _, _ in
-                                        didSend = Date()
-                                        exp.fulfill()
-        })
+        let reporter = TestReporter(config(delay: delay)) {
+            flushCount += 1
+            didSend = Date()
+            finalExp.fulfill()
+        }
 
         // When
-        reporter.submit(AlertBeacon(alertType: .lowMemory))
-        waitForExpectations(timeout: delay * 2, handler: nil)
-        
+        reporter.submit(beacon) {
+            submitExp.fulfill()
+        }
+        wait(for: [submitExp], timeout: 0.2)
 
         // Then
-        AssertTrue(didSend != nil)
+        AssertTrue(reporter.queue.items.count == 1)
+        AssertTrue(flushCount == 0)
+        AssertEqualAndNotNil(reporter.queue.items.last?.bid, beacon.id)
+
+        // Wait for final flush
+        wait(for: [finalExp], timeout: delay * 2)
+
+
+        // Then
+        AssertTrue(flushCount == 1)
         AssertTrue(didSend?.timeIntervalSince(start) ?? 0.0 >= delay)
+        AssertTrue(reporter.queue.items.count == 0)
     }
+
 
     /// Criteria:
     ///  - Suspend Sending: Never
@@ -57,19 +189,13 @@ class ReporterTests: XCTestCase {
     ///  - WIFI: NO
     ///
     /// Expected Result - Report should be sent after delay of 0.4
-    func test_send_delay_onLowBattery() {
+    func test_submit_delay_onLowBattery() {
         // Given
         let exp = expectation(description: "Delayed sending")
         let delay = 0.4
-        var config = self.config!
-        config.suspendReporting = []
-        config.transmissionDelay = delay
-        config.transmissionLowBatteryDelay = delay
-
         let start = Date()
         var finished: Date?
-
-        let reporter = Reporter(config, batterySafeForNetworking: { false }, networkUtility: .cell,
+        let reporter = Reporter(config(delay: delay), batterySafeForNetworking: { false }, networkUtility: .cell,
                                       send: { _, _ in
                                         finished = Date()
                                         exp.fulfill()
@@ -78,7 +204,6 @@ class ReporterTests: XCTestCase {
         // When
         reporter.submit(AlertBeacon(alertType: .lowMemory))
         waitForExpectations(timeout: delay * 2, handler: nil)
-
 
         // Then
         AssertTrue(finished != nil)
@@ -95,13 +220,9 @@ class ReporterTests: XCTestCase {
     func test_dont_send_when_offline() {
         // Given
         let exp = expectation(description: "Dont_send_offline")
-        var config = self.config!
-        config.suspendReporting = []
-        config.transmissionDelay = 0.0
-        config.transmissionLowBatteryDelay = 0.0
         var expectedError: InstanaError?
         var sendNotCalled = true
-        let reporter = Reporter(config, batterySafeForNetworking: { true }, networkUtility: .none,
+        let reporter = Reporter(config(delay: 0.0), batterySafeForNetworking: { true }, networkUtility: .none,
                                 send: { _, _ in
                                     sendNotCalled = false
         })
@@ -126,18 +247,14 @@ class ReporterTests: XCTestCase {
     ///  - Network: Offline and online delayed
     ///
     /// Expected Result - Report should NOT be sent (because we are offline)
-    func test_send_queue_when_back_online() {
+    func test_submit_queue_when_back_online() {
         // Given
         let firstStep = expectation(description: "Dont_send_offline")
         let secondStep = expectation(description: "Send_when_back_online")
-        var config = self.config!
-        config.suspendReporting = []
-        config.transmissionDelay = 0.0
-        config.transmissionLowBatteryDelay = 0.0
         var expectedError: InstanaError?
         var sendCalled = false
         let networkUtility: NetworkUtility = .none
-        let reporter = Reporter(config, batterySafeForNetworking: { true }, networkUtility: networkUtility,
+        let reporter = Reporter(config(delay: 0.0), batterySafeForNetworking: { true }, networkUtility: networkUtility,
                                 send: { _, _ in
                                     sendCalled = true
                                     expectedError = nil
@@ -177,14 +294,11 @@ class ReporterTests: XCTestCase {
         // Given
         let exp = expectation(description: "Delayed sending")
         var expectedError: InstanaError?
-        var config = self.config!
-        config.suspendReporting = [.cellularConnection]
-        config.transmissionDelay = 0.0
-        config.transmissionLowBatteryDelay = 0.0
         var sendNotCalled = true
-        let reporter = Reporter(config, batterySafeForNetworking: { true }, networkUtility: .cell,
-                                      send: { _, _ in
-                                        sendNotCalled = false
+        let reporter = Reporter(config(delay: 0.0, suspend: [.cellularConnection]),
+                                batterySafeForNetworking: { true }, networkUtility: .cell,
+                                send: { _, _ in
+                                    sendNotCalled = false
         })
 
         // When
@@ -193,7 +307,7 @@ class ReporterTests: XCTestCase {
             exp.fulfill()
         }
         reporter.submit(AlertBeacon(alertType: .lowMemory))
-        waitForExpectations(timeout: 0.3, handler: nil)
+        waitForExpectations(timeout: 0.5, handler: nil)
 
         // Then
         AssertTrue(sendNotCalled)
@@ -206,15 +320,12 @@ class ReporterTests: XCTestCase {
     ///  - WIFI: YES
     ///
     /// Expected Result - Report should be sent
-    func test_sending_cellularConnection_lowBattery_wifi() {
+    func test_submiting_cellularConnection_lowBattery_wifi() {
         // Given
         let exp = expectation(description: "Delayed sending")
-        var config = self.config!
-        config.suspendReporting = [.cellularConnection]
-        config.transmissionDelay = 0.0
-        config.transmissionLowBatteryDelay = 0.0
         var didSendReport = false
-        let reporter = Reporter(config, batterySafeForNetworking: { false }, networkUtility: .wifi,
+        let reporter = Reporter(config(delay: 0.0, suspend: [.cellularConnection]),
+                                batterySafeForNetworking: { false }, networkUtility: .wifi,
                                       send: { _, _ in
                                         didSendReport = true
                                         exp.fulfill()
@@ -234,15 +345,12 @@ class ReporterTests: XCTestCase {
     ///  - WIFI: YES
     ///
     /// Expected Result - Report should be sent
-    func test_sending_cellularConnection_goodBattery_wifi() {
+    func test_submiting_cellularConnection_goodBattery_wifi() {
         // Given
         let exp = expectation(description: "Delayed sending")
-        var config = self.config!
-        config.suspendReporting = [.cellularConnection]
-        config.transmissionDelay = 0.0
-        config.transmissionLowBatteryDelay = 0.0
         var didSendReport = false
-        let reporter = Reporter(config, batterySafeForNetworking: { true }, networkUtility: .wifi,
+        let reporter = Reporter(config(delay: 0.0, suspend: [.cellularConnection]),
+                                batterySafeForNetworking: { true }, networkUtility: .wifi,
                                       send: { _, _ in
                                         didSendReport = true
                                         exp.fulfill()
@@ -266,12 +374,9 @@ class ReporterTests: XCTestCase {
         // Given
         let exp = expectation(description: "Delayed sending")
         var expectedError: InstanaError?
-        var config = self.config!
-        config.suspendReporting = [.cellularConnection]
-        config.transmissionDelay = 0.0
-        config.transmissionLowBatteryDelay = 0.0
         var sendNotCalled = true
-        let reporter = Reporter(config, batterySafeForNetworking: { false }, networkUtility: .cell,
+        let reporter = Reporter(config(delay: 0.0, suspend: [.cellularConnection]),
+                                batterySafeForNetworking: { false }, networkUtility: .cell,
                                       send: { _, _ in
                                         sendNotCalled = false
         })
@@ -300,12 +405,9 @@ class ReporterTests: XCTestCase {
         // Given
         let exp = expectation(description: "Delayed sending")
         var expectedError: InstanaError?
-        var config = self.config!
-        config.suspendReporting = [.lowBattery]
-        config.transmissionDelay = 0.0
-        config.transmissionLowBatteryDelay = 0.0
         var sendNotCalled = true
-        let reporter = Reporter(config, batterySafeForNetworking: { false }, networkUtility: .cell,
+        let reporter = Reporter(config(delay: 0.0, suspend: [.lowBattery]),
+                                batterySafeForNetworking: { false }, networkUtility: .cell,
                                       send: { _, _ in
                                         sendNotCalled = false
         })
@@ -332,12 +434,9 @@ class ReporterTests: XCTestCase {
     func test_suspendLowBattery_goodBattery_Wifi() {
         // Given
         let exp = expectation(description: "Delayed sending")
-        var config = self.config!
-        config.suspendReporting = [.lowBattery]
-        config.transmissionDelay = 0.0
-        config.transmissionLowBatteryDelay = 0.0
         var didSendReport = false
-        let reporter = Reporter(config, batterySafeForNetworking: { true }, networkUtility: .wifi,
+        let reporter = Reporter(config(delay: 0.0, suspend: [.lowBattery]),
+                                batterySafeForNetworking: { true }, networkUtility: .wifi,
                                       send: { _, _ in
                                         didSendReport = true
                                         exp.fulfill()
@@ -360,12 +459,9 @@ class ReporterTests: XCTestCase {
     func test_suspendLowBattery_goodBattery_noWifi() {
         // Given
         let exp = expectation(description: "Delayed sending")
-        var config = self.config!
-        config.suspendReporting = [.lowBattery]
-        config.transmissionDelay = 0.0
-        config.transmissionLowBatteryDelay = 0.0
         var didSendReport = false
-        let reporter = Reporter(config, batterySafeForNetworking: { true }, networkUtility: .cell,
+        let reporter = Reporter(config(delay: 0.0, suspend: [.lowBattery]),
+                                batterySafeForNetworking: { true }, networkUtility: .cell,
                                       send: { _, _ in
                                         didSendReport = true
                                         exp.fulfill()
@@ -389,12 +485,9 @@ class ReporterTests: XCTestCase {
         // Given
         let exp = expectation(description: "Delayed sending")
         var expectedError: InstanaError?
-        var config = self.config!
-        config.suspendReporting = [.lowBattery]
-        config.transmissionDelay = 0.0
-        config.transmissionLowBatteryDelay = 0.0
         var didNOTSendReport = true
-        let reporter = Reporter(config, batterySafeForNetworking: { false }, networkUtility: .wifi,
+        let reporter = Reporter(config(delay: 0.0, suspend: [.lowBattery]),
+                                batterySafeForNetworking: { false }, networkUtility: .wifi,
                                       send: { _, _ in
                                         didNOTSendReport = false
         })
@@ -423,12 +516,9 @@ class ReporterTests: XCTestCase {
     func test_suspend_all_lowBattery_noWIFI() {
         let exp = expectation(description: "Delayed sending")
         var expectedError: InstanaError?
-        var config = self.config!
-        config.suspendReporting = [.lowBattery, .cellularConnection]
-        config.transmissionDelay = 0.0
-        config.transmissionLowBatteryDelay = 0.0
         var sendNotCalled = true
-        let reporter = Reporter(config, batterySafeForNetworking: { false }, networkUtility: .cell,
+        let reporter = Reporter(config(delay: 0.0, suspend: [.lowBattery, .cellularConnection]),
+                                batterySafeForNetworking: { false }, networkUtility: .cell,
                                       send: { _, _ in
                                         sendNotCalled = false
         })
@@ -455,12 +545,9 @@ class ReporterTests: XCTestCase {
     func test_suspend_all_goodBattery_noWIFI() {
         let exp = expectation(description: "Delayed sending")
         var expectedError: InstanaError?
-        var config = self.config!
-        config.suspendReporting = [.lowBattery, .cellularConnection]
-        config.transmissionDelay = 0.0
-        config.transmissionLowBatteryDelay = 0.0
         var sendNotCalled = true
-        let reporter = Reporter(config, batterySafeForNetworking: { true }, networkUtility: .cell,
+        let reporter = Reporter(config(delay: 0.0, suspend: [.lowBattery, .cellularConnection]),
+                                batterySafeForNetworking: { true }, networkUtility: .cell,
                                       send: { _, _ in
                                         sendNotCalled = false
                                         exp.fulfill()
@@ -488,12 +575,9 @@ class ReporterTests: XCTestCase {
     func test_suspend_all_lowBattery_WIFI() {
         var expectedError: InstanaError?
         let exp = expectation(description: "Delayed sending")
-        var config = self.config!
-        config.suspendReporting = [.lowBattery, .cellularConnection]
-        config.transmissionDelay = 0.0
-        config.transmissionLowBatteryDelay = 0.0
         var sendNotCalled = true
-        let reporter = Reporter(config, batterySafeForNetworking: { false }, networkUtility: .wifi,
+        let reporter = Reporter(config(delay: 0.0, suspend: [.lowBattery, .cellularConnection]),
+                                batterySafeForNetworking: { false }, networkUtility: .wifi,
                                       send: { _, _ in
                                         sendNotCalled = false
         })
@@ -519,12 +603,10 @@ class ReporterTests: XCTestCase {
     /// Expected Result - Report with beacons should be sent
     func test_suspend_all_goodBattery_WIFI() {
         let exp = expectation(description: "Delayed sending")
-        var config = self.config!
-        config.suspendReporting = [.lowBattery, .cellularConnection]
-        config.transmissionDelay = 0.0
-        config.transmissionLowBatteryDelay = 0.0
+
         var didSendReport = false
-        let reporter = Reporter(config, batterySafeForNetworking: { true }, networkUtility: .wifi,
+        let reporter = Reporter(config(delay: 0.0, suspend: [.lowBattery, .cellularConnection]),
+                                batterySafeForNetworking: { true }, networkUtility: .wifi,
                                       send: { _, _ in
                                         didSendReport = true
                                         exp.fulfill()
@@ -547,15 +629,12 @@ class ReporterTests: XCTestCase {
     ///  - WIFI: NO
     ///
     /// Expected Result - Report with beacons should be sent
-    func test_sending_no_wifi_low_battery() {
+    func test_submiting_no_wifi_low_battery() {
         // Given
         let exp = expectation(description: "Delayed sending")
-        var config = self.config!
-        config.suspendReporting = []
-        config.transmissionDelay = 0.0
-        config.transmissionLowBatteryDelay = 0.0
         var didSendReport = false
-        let reporter = Reporter(config, batterySafeForNetworking: { false }, networkUtility: .cell,
+        let reporter = Reporter(config(delay: 0.0),
+                                batterySafeForNetworking: { false }, networkUtility: .cell,
                                       send: { _, _ in
                                         didSendReport = true
                                         exp.fulfill()
@@ -575,15 +654,12 @@ class ReporterTests: XCTestCase {
     ///  - WIFI: YES
     ///
     /// Expected Result - Report with beacons should be sent
-    func test_sending_wifi_good_battery() {
+    func test_submiting_wifi_good_battery() {
         // Given
         let exp = expectation(description: "Delayed sending")
-        var config = self.config!
-        config.suspendReporting = []
-        config.transmissionDelay = 0.0
-        config.transmissionLowBatteryDelay = 0.0
         var didSendReport = false
-        let reporter = Reporter(config, batterySafeForNetworking: { true }, networkUtility: .wifi,
+        let reporter = Reporter(config(delay: 0.0),
+                                batterySafeForNetworking: { true }, networkUtility: .wifi,
                                       send: { _, _ in
                                         didSendReport = true
                                         exp.fulfill()
@@ -603,15 +679,12 @@ class ReporterTests: XCTestCase {
     ///  - WIFI: YES
     ///
     /// Expected Result - Report with beacons should be sent
-    func test_sending_wifi_low_battery() {
+    func test_submiting_wifi_low_battery() {
         // Given
         let exp = expectation(description: "Delayed sending")
-        var config = self.config!
-        config.suspendReporting = []
-        config.transmissionDelay = 0.0
-        config.transmissionLowBatteryDelay = 0.0
         var didSendReport = false
-        let reporter = Reporter(config, batterySafeForNetworking: { false }, networkUtility: .wifi,
+        let reporter = Reporter(config(delay: 0.0),
+                                batterySafeForNetworking: { false }, networkUtility: .wifi,
                                       send: { _, _ in
                                         didSendReport = true
                                         exp.fulfill()
@@ -631,18 +704,15 @@ class ReporterTests: XCTestCase {
     ///  - WIFI: NO
     ///
     /// Expected Result - Report with beacons should be sent
-    func test_sending_no_wifi_good_battery() {
+    func test_submiting_no_wifi_good_battery() {
         // Given
         let exp = expectation(description: "Delayed sending")
-        var config = self.config!
-        config.suspendReporting = []
-        config.transmissionDelay = 0.0
-        config.transmissionLowBatteryDelay = 0.0
         var didSendReport = false
-        let reporter = Reporter(config, batterySafeForNetworking: { true }, networkUtility: .cell,
-                                      send: { _, _ in
-                                        didSendReport = true
-                                        exp.fulfill()
+        let reporter = Reporter(config(delay: 0.0),
+                                batterySafeForNetworking: { true }, networkUtility: .cell,
+                                send: { _, _ in
+                                    didSendReport = true
+                                    exp.fulfill()
         })
 
         // When
@@ -654,7 +724,7 @@ class ReporterTests: XCTestCase {
     }
 
     // MARK: Test Result Code and Errors
-    func test_loadError() {
+    func test_submit_Error() {
         // Given
         let givenError = CocoaError(.coderInvalidValue)
         var expectedError: CocoaError?
@@ -674,13 +744,11 @@ class ReporterTests: XCTestCase {
         AssertEqualAndNotNil(expectedError, givenError)
     }
 
-    func test_invalid_beacon_should_not_send() {
+    func test_invalid_beacon_should_not_submitted() {
         // Given
         var shouldNotSend = true
-        var config = self.config!
-        config.transmissionDelay = 0.0
-        config.transmissionLowBatteryDelay = 0.0
-        let reporter = Reporter(config, batterySafeForNetworking: { true }, networkUtility: .wifi,
+        let reporter = Reporter(config(delay: 0.0),
+                                batterySafeForNetworking: { true }, networkUtility: .wifi,
                                       send: { _, _ in
                                         shouldNotSend = false
         })
@@ -695,7 +763,7 @@ class ReporterTests: XCTestCase {
         AssertTrue(shouldNotSend)
     }
     
-    func test_loadSuccess_withStatusCodeIn200Range_shouldReportSuccess() {
+    func test_submitSuccess_withStatusCodeIn200Range_shouldReportSuccess() {
         mockBeaconSubmission(.success(statusCode: 200)) {
             guard case .success = $0 else { XCTFail("Result missmatch"); return }
         }
@@ -707,7 +775,7 @@ class ReporterTests: XCTestCase {
         }
     }
     
-    func test_loadSuccess_withStatusCodeOutside200Range_shouldReportFailure() {
+    func test_submitSuccess_withStatusCodeOutside200Range_shouldReportFailure() {
         let verifyResult: (BeaconResult) -> Void = {
             guard case let .failure(e) = $0 else { XCTFail("Invalid result: \($0)"); return }
             guard let resultError = e as? InstanaError else { XCTFail("Error type missmatch"); return }
@@ -720,14 +788,9 @@ class ReporterTests: XCTestCase {
         mockBeaconSubmission(.success(statusCode: 500), resultCallback: verifyResult)
     }
 
-    // MARK: Test Timer
     func test_internalTimer_shouldNotCauseRetainCycle() {
         // Given
-        var config = self.config!
-        config.suspendReporting = []
-        config.transmissionDelay = 0.0
-        config.transmissionLowBatteryDelay = 0.0
-        var reporter: Reporter? = Reporter(config) { _, _ in}
+        var reporter: Reporter? = Reporter(config(delay: 0.0)) { _, _ in}
         weak var weakReporter = reporter
 
         // When
@@ -740,15 +803,13 @@ class ReporterTests: XCTestCase {
     }
 }
 
+
 // MARK: Test CreateBatchRequest
 extension ReporterTests {
 
     func test_createBatchRequest() {
         // Given
-        var config = self.config!
-        config.transmissionDelay = 0.0
-        config.transmissionLowBatteryDelay = 0.0
-        let reporter = Reporter(config) { _, _ in}
+        let reporter = Reporter(config(delay: 0.0)) { _, _ in}
         let beacons = [HTTPBeacon.createMock(), HTTPBeacon.createMock()]
         let cbeacons = try! CoreBeaconFactory(config).map(beacons)
         let data = cbeacons.asString.data(using: .utf8)
@@ -768,11 +829,9 @@ extension ReporterTests {
 
     func test_createBatchRequest_invalid_key() {
         // Given
-        var config = self.config!
-        config.key = ""
-        config.transmissionDelay = 0.0
-        config.transmissionLowBatteryDelay = 0.0
-        let reporter = Reporter(config) { _, _ in}
+        var invalidConfig = config(delay: 0.0)
+        invalidConfig.key = ""
+        let reporter = Reporter(invalidConfig) { _, _ in}
         let beacons = [HTTPBeacon.createMock(), HTTPBeacon.createMock()]
         let corebeacons = try! CoreBeaconFactory(config).map(beacons)
 
@@ -785,6 +844,37 @@ extension ReporterTests {
 }
 
 extension ReporterTests {
+
+    func config(delay: Instana.Types.Seconds, suspend: Set<InstanaConfiguration.SuspendReporting> = []) -> InstanaConfiguration {
+        var config = InstanaConfiguration.default(key: "KEY")
+        config.transmissionDelay = delay
+        config.transmissionLowBatteryDelay = delay
+        config.suspendReporting = suspend
+        return config
+    }
+
+    class TestReporter: Reporter {
+        var didFlushQueue: () -> Void
+        var didSchedule: (() -> Void)?
+        init(_ config: InstanaConfiguration, _ didFlushQueue: @escaping () -> Void) {
+            self.didFlushQueue = didFlushQueue
+            super.init(config)
+            self.queue.items.removeAll()
+        }
+        override func flushQueue() {
+            queue.items.removeAll()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                self.didFlushQueue()
+            }
+            super.flushQueue()
+        }
+
+        override func scheduleFlush() {
+            didSchedule?()
+            super.scheduleFlush()
+        }
+    }
+
     func mockBeaconSubmission(_ loadResult: InstanaNetworking.Result, resultCallback: @escaping (BeaconResult) -> Void) {
         config.transmissionDelay = 0.0
         config.transmissionLowBatteryDelay = 0.0
