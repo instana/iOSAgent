@@ -4,6 +4,12 @@
 import Foundation
 
 internal class InstanaURLProtocol: URLProtocol {
+    enum Mode {
+        case enabled, disabled
+    }
+
+    static var mode: Mode = .disabled
+
     private lazy var session: URLSession = {
         URLSession(configuration: sessionConfiguration, delegate: self, delegateQueue: nil)
     }()
@@ -19,6 +25,7 @@ internal class InstanaURLProtocol: URLProtocol {
     }
     
     override class func canInit(with request: URLRequest) -> Bool {
+        guard mode == .enabled else { return false }
         guard let url = request.url, let scheme = url.scheme else { return false }
         return ["http", "https"].contains(scheme)
     }
@@ -28,6 +35,7 @@ internal class InstanaURLProtocol: URLProtocol {
     }
     
     override func startLoading() {
+        guard InstanaURLProtocol.mode == .enabled else { return }
         marker = try? Instana.current?.monitors.http?.mark(request)
         let task = session.dataTask(with: request)
         task.resume()

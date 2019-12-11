@@ -33,10 +33,13 @@ class HTTPMonitor {
 
 extension HTTPMonitor {
     func install() {
+        InstanaURLProtocol.prepare
+        InstanaURLProtocol.mode = .enabled
         _ = installer(InstanaURLProtocol.self)
     }
 
     func uninstall() {
+        InstanaURLProtocol.mode = .disabled
         uninstaller(InstanaURLProtocol.self)
     }
 
