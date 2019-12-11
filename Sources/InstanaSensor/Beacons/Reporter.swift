@@ -15,7 +15,7 @@ public class Reporter {
     private var suspendReporting: Set<InstanaConfiguration.SuspendReporting> { configuration.suspendReporting }
     private (set) var queue = InstanaPersistableQueue<CoreBeacon>()
     private let configuration: InstanaConfiguration
-    private weak var flushWorkItem: DispatchWorkItem?
+    private var flushWorkItem: DispatchWorkItem?
     private var flushSemaphore: DispatchSemaphore?
 
     // MARK: Init
@@ -49,7 +49,6 @@ public class Reporter {
     }
 
     func scheduleFlush() {
-        flushWorkItem?.cancel()
         let workItem = DispatchWorkItem() {
             let start = Date()
             self.flushSemaphore = DispatchSemaphore(value: 0)
@@ -57,14 +56,15 @@ public class Reporter {
             _ = self.flushSemaphore?.wait(timeout: .now() + 20)
             let passed = Date().timeIntervalSince(start)
             Instana.current?.logger.add("Flushing and writing the queue took \(passed*1000) ms")
+            self.flushSemaphore = nil
+            self.flushWorkItem = nil
         }
+        flushWorkItem?.cancel()
         flushWorkItem = workItem
         let interval = batterySafeForNetworking() ? configuration.transmissionDelay : configuration.transmissionLowBatteryDelay
         backgroundQueue.asyncAfter(deadline: .now() + interval, execute: workItem)
     }
-}
 
-extension Reporter {
     func flushQueue() {
         let connectionType = networkUtility.connectionType
         guard connectionType != .none else {
