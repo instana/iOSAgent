@@ -1,7 +1,7 @@
 
 import Foundation
 
-extension Result {
+extension Swift.Result {
     var error: Failure? {
         switch self {
         case .success: return nil
