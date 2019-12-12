@@ -24,22 +24,42 @@ class HTTPMonitorTests: XCTestCase {
     func test_installing_shouldAddCustomProtocol() {
         var installed = false
         let monitor = HTTPMonitor(config, installer: {
-            XCTAssert($0 == InstanaURLProtocol.self)
+            AssertTrue($0 == InstanaURLProtocol.self)
             installed = true
             return true
         }, reporter: instana.monitors.reporter)
+
+        // When
         monitor.install()
-        XCTAssertTrue(installed)
+        _ = URLSession(configuration: URLSessionConfiguration.default)
+
+        // Then
+        let allURLProtocolClasses = URLSession.allSessionConfigs.compactMap{$0.protocolClasses}.flatMap {$0}
+        AssertTrue(installed)
+        AssertTrue(allURLProtocolClasses.contains {$0 == InstanaURLProtocol.self})
     }
     
     func test_uninstalling_shouldRemoveCustomProtocol() {
-        var uninstalled = false
+        var deinstall = false
         let monitor = HTTPMonitor(config, uninstaller: {
-            XCTAssert($0 == InstanaURLProtocol.self)
-            uninstalled = true
+            AssertTrue($0 == InstanaURLProtocol.self)
+            deinstall = true
         }, reporter: instana.monitors.reporter)
-        monitor.uninstall()
-        XCTAssertTrue(uninstalled)
+
+        // When
+        _ = URLSession(configuration: URLSessionConfiguration.default)
+
+        // Then
+        var allURLProtocolClasses = URLSession.allSessionConfigs.compactMap{$0.protocolClasses}.flatMap {$0}
+        AssertTrue(allURLProtocolClasses.contains {$0 == InstanaURLProtocol.self})
+
+        // When
+        monitor.deinstall()
+
+        // Then
+        allURLProtocolClasses = URLSession.allSessionConfigs.compactMap{$0.protocolClasses}.flatMap {$0}
+        AssertTrue(deinstall)
+        AssertTrue(allURLProtocolClasses.contains {$0 == InstanaURLProtocol.self} == false)
     }
 
     func test_installingInConfiguration_shouldAddCustomProtocol() {
@@ -47,9 +67,12 @@ class HTTPMonitorTests: XCTestCase {
         let monitor = HTTPMonitor(config, reporter: instana.monitors.reporter)
         let sessionConfig = URLSessionConfiguration.default
 
+        // When
+        monitor.install()
+
         // Then
         XCTAssertFalse(sessionConfig.protocolClasses?.contains { $0 == InstanaURLProtocol.self } ?? true)
-        monitor.install(sessionConfig)
+        sessionConfig.protocolClasses?.insert(InstanaURLProtocol.self, at: 0)
         XCTAssertTrue(sessionConfig.protocolClasses?.contains { $0 == InstanaURLProtocol.self } ?? false)
     }
     

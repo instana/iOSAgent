@@ -21,17 +21,22 @@ class HTTPMonitor {
 
         switch configuration.reportingType {
         case .automaticAndManual, .automatic:
-            InstanaURLProtocol.install
-            InstanaURLProtocol.mode = .enabled
-            _ = installer(InstanaURLProtocol.self)
+            install()
         case .manual, .none:
-            InstanaURLProtocol.mode = .disabled
-            uninstaller(InstanaURLProtocol.self)
+            deinstall()
         }
     }
 
-    func install(_ configuration: URLSessionConfiguration) {
-        configuration.protocolClasses?.insert(InstanaURLProtocol.self, at: 0)
+    func install() {
+        InstanaURLProtocol.install()
+        InstanaURLProtocol.mode = .enabled
+        _ = installer(InstanaURLProtocol.self)
+    }
+
+    func deinstall() {
+        InstanaURLProtocol.deinstall()
+        InstanaURLProtocol.mode = .disabled
+        uninstaller(InstanaURLProtocol.self)
     }
 }
 

@@ -77,38 +77,64 @@ extension InstanaURLProtocol: URLSessionDataDelegate {
     }
 }
 
+extension URLSessionConfiguration {
+    func registerInstanaURLProtocol() {
+        typealias IP = InstanaURLProtocol
+        if let classes = protocolClasses, !classes.contains(where: {$0 == IP.self}) {
+            protocolClasses?.insert(IP.self, at: 0)
+            URLSession.store(config: self)
+        }
+    }
+}
+
 @objc extension URLSession {
     // The swizzled class func to create (NS)URLSession with the given configuration
     // We monitor all sessions implicitly
     @objc class func instana_session(configuration: URLSessionConfiguration) -> URLSession {
-        Instana.current?.monitors.http?.install(configuration)
-        store(config: configuration)
+        configuration.registerInstanaURLProtocol()
         return URLSession.instana_session(configuration: configuration)
     }
 
     private static let lock = NSLock()
-    private static var allSessionConfigs = [URLSessionConfiguration]()
-    private static func store(config: URLSessionConfiguration) {
-        lock.lock()
-        allSessionConfigs.append(config)
-        lock.unlock()
+    private static var _unsafe_allSessionConfigs = [URLSessionConfiguration]()
+    static var allSessionConfigs: [URLSessionConfiguration] {
+        set {
+            lock.lock()
+            _unsafe_allSessionConfigs = newValue
+            lock.unlock()
+        }
+        get {
+            lock.lock()
+            defer {
+                lock.unlock()
+            }
+            return _unsafe_allSessionConfigs
+        }
+    }
+    static func store(config: URLSessionConfiguration) {
+        if !allSessionConfigs.contains(config) {
+            allSessionConfigs.append(config)
+        }
     }
 
-    private static func removeURLProtocol() {
-        lock.lock()
+    static func removeInstanaURLProtocol() {
         allSessionConfigs.forEach {$0.protocolClasses?.removeAll(where: { (protocolClass) -> Bool in
             protocolClass == InstanaURLProtocol.self
         })}
-        lock.unlock()
     }
 }
 
 extension InstanaURLProtocol {
     // We do some swizzling to inject our InstanaURLProtocol to all custom sessions automatically
-    static let install: () = {
+    static func install() {
+        URLSession.allSessionConfigs.removeAll()
         prepareWebView
         prepareURLSessions
-    }()
+    }
+
+    static func deinstall() {
+        URLSession.removeInstanaURLProtocol()
+    }
 
     static let prepareWebView: () = {
         guard let something = WKWebView().value(forKey: "browsingContextController") as? NSObject else { return }

@@ -12,9 +12,10 @@ class Monitors {
     let reporter: Reporter
     private let configuration: InstanaConfiguration
 
-    init(_ configuration: InstanaConfiguration) {
+    init(_ configuration: InstanaConfiguration, reporter: Reporter? = nil) {
         self.configuration = configuration
-        self.reporter = Reporter(configuration)
+        let reporter = reporter ?? Reporter(configuration)
+        self.reporter = reporter
         configuration.monitorTypes.forEach { type in
             switch type {
             case .http:
