@@ -14,56 +14,14 @@ class BasicIntegrationServerTest: IntegrationTestCase {
 
     var reporter: Reporter!
 
-    func xtest_Network() {
-        load() {result in
-            XCTAssertNotNil(try? result.map {$0}.get())
-        }
-    }
-
-    func test_send_and_receive_beaocns() {
-        // Given
+    func test_Network() {
+        // Need this as warm up for the webserver
+        // when we remove this, our server is flaky
         let waitAddQueue = expectation(description: "add_queue")
-        let waitFlushQueue = expectation(description: "flush")
-        var config = InstanaConfiguration.default(key: "KEY")
-        config.reportingURL = Defaults.baseURL
-        config.transmissionDelay = 0.0
-        config.transmissionLowBatteryDelay = 0.0
-        config.gzipReport = false
-        reporter = Reporter(config, networkUtility: .wifi)
-        reporter.queue.removeAll() // Remove any old items
-        let beacon = HTTPBeacon.createMock()
-
-        // When
-        var expectedResult: BeaconResult?
-        reporter.submit(beacon) {
+        load() {_ in
             waitAddQueue.fulfill()
         }
-        wait(for: [waitAddQueue], timeout: 1.0)
-
-        // Queue should have one item now!
-        AssertTrue(reporter.queue.items.count == 1)
-
-        reporter.completion = {result in
-            expectedResult = result
-            waitFlushQueue.fulfill()
-        }
-
-        wait(for: [waitFlushQueue], timeout: 10.0)
-        let serverReceivedtData = mockserver.connections.last?.receivedData ?? Data()
-        let serverReceivedHTTP = String(data: serverReceivedtData, encoding: .utf8)
-
-        // Then
-        XCTAssertNotNil(expectedResult)
-        XCTAssertNotNil(serverReceivedHTTP)
-        AssertTrue(reporter.queue.items.isEmpty)
-
-        do {
-            let responseBeacon = try CoreBeacon.create(from: serverReceivedHTTP ?? "")
-            let expectedBeacon = try CoreBeaconFactory(config).map(beacon)
-            AssertEqualAndNotNil(expectedBeacon, responseBeacon)
-        } catch (let error) {
-            XCTFail(error.localizedDescription)
-        }
+        wait(for: [waitAddQueue], timeout: 2.0)
     }
 
     ////
@@ -105,8 +63,11 @@ class BasicIntegrationServerTest: IntegrationTestCase {
 
         // Then - Expect an error due no network connection
         wait(for: [waitFirstFlush], timeout: 10.0)
-        AssertTrue(expectedResult != nil)
-        AssertTrue((expectedResult?.error as! InstanaError).code == InstanaError.Code.offline.rawValue)
+        guard let expectedError = expectedResult?.error as? InstanaError else {
+            XCTFail("Expected InstanaError not found")
+            return
+        }
+        AssertTrue(expectedError.code == InstanaError.Code.offline.rawValue)
         AssertTrue(reporter.queue.items.count == 1)
 
         // When creating a new instance of the reporter
@@ -125,5 +86,16 @@ class BasicIntegrationServerTest: IntegrationTestCase {
         wait(for: [waitSecondFlush], timeout: 5.0)
         print(reporter.queue.items)
         AssertTrue(reporter.queue.items.count == 0)
+
+        // Then Verify the server response - must be the same as we sent it
+        let serverReceivedtData = mockserver.connections.last?.receivedData ?? Data()
+        let serverReceivedHTTP = String(data: serverReceivedtData, encoding: .utf8)
+        do {
+            let responseBeacon = try CoreBeacon.create(from: serverReceivedHTTP ?? "")
+            let expectedBeacon = try CoreBeaconFactory(config).map(beacon)
+            AssertEqualAndNotNil(expectedBeacon, responseBeacon)
+        } catch (let error) {
+            XCTFail(error.localizedDescription)
+        }
     }
 }

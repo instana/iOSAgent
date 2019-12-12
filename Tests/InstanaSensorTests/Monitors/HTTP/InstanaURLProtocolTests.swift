@@ -7,7 +7,10 @@ import XCTest
 class InstanaURLProtocolTests: XCTestCase {
     let makeRequest: (String) -> URLRequest = { URLRequest(url: URL(string: $0)!) }
 
-    func test_urlProtocol_disabled_default() {
+    func test_urlProtocol_disabled() {
+        // Given
+        InstanaURLProtocol.mode = .disabled
+
         // Then
         XCTAssertTrue(InstanaURLProtocol.mode == .disabled)
         XCTAssertFalse(InstanaURLProtocol.canInit(with: makeRequest("https://www.a.b")))
