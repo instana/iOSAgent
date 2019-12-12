@@ -13,7 +13,8 @@ let package = Package(
             targets: ["InstanaSensor"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/1024jp/GzipSwift.git", from: "5.0.0")
+        .package(url: "https://github.com/1024jp/GzipSwift.git", from: "5.0.0"),
+        .package(url: "https://github.com/apple/swift-nio.git", from: "1.12.0")
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
@@ -23,6 +24,6 @@ let package = Package(
             dependencies: ["Gzip"]),
         .testTarget(
             name: "InstanaSensorTests",
-            dependencies: ["InstanaSensor"]),
+            dependencies: ["InstanaSensor", "NIO", "NIOHTTP1"]),
     ]
 )
