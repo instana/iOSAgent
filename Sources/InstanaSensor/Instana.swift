@@ -24,13 +24,13 @@ import Foundation
 
     static var current: Instana?
 
-    private init(configuration: InstanaConfiguration) {
+    init(configuration: InstanaConfiguration, monitors: Monitors? = nil) {
         self.configuration = configuration
-        self.monitors = Monitors(configuration)
+        self.monitors = monitors ?? Monitors(configuration)
         super.init()
         assert(!configuration.reportingURL.absoluteString.isEmpty, "Instana Reporting URL must not be empty")
         if configuration.isValid {
-            monitors.reporter.submit(SessionProfileBeacon(state: .start, sessionId: sessionId))
+            monitors?.reporter.submit(SessionProfileBeacon(state: .start, sessionId: sessionId))
         }
     }
 }
