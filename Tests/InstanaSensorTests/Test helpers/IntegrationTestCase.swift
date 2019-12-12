@@ -9,23 +9,39 @@ enum IntegrationTestCaseError: Error {
 
 @available(iOS 12.0, *)
 class IntegrationTestCase: XCTestCase {
-
     struct Defaults {
-        static let baseURL = URL(string: "http://localhost:81")!
-        static let someURL = URL(string: "http://localhost:81/some")!
+        static let serverPort: Int = 9999
+        static let baseURL = URL(string: "http://localhost:\(serverPort)")!
+        static let someURL = URL(string: "http://localhost:\(serverPort)/some")!
     }
 
     var expectation: XCTestExpectation!
     var session: URLSession!
     var task: URLSessionTask!
-    var mockserver: EchoWebServer!
+    var mockserver: TestEchoWebServer!
 
     override func setUp() {
         super.setUp()
 
-        mockserver = EchoWebServer.shared
+        func echo(
+            request: TestEchoWebServer.HTTPHandler.Request,
+            response: TestEchoWebServer.HTTPHandler.Response,
+            next: @escaping () -> Void
+        ) {
+            response.statusCode = .ok
+            response.body = request.body
+            next()
+        }
+        mockserver = TestEchoWebServer(port: Defaults.serverPort, handler: echo)
+        try! mockserver.start()
         let config = URLSessionConfiguration.default
         session = URLSession(configuration: config)
+    }
+
+    override func tearDown() {
+        try! mockserver.stop()
+        mockserver = nil
+        super.tearDown()
     }
 
     func load(url: URL = Defaults.baseURL, completion: @escaping (Result<Data, Error>) -> Void) {
