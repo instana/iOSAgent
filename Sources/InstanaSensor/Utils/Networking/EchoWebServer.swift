@@ -162,7 +162,8 @@ class Connection {
     }
 
     private func setupReceive() {
-        nwConnection.receive(minimumIncompleteLength: 1, maximumLength: 65536) {[weak self] (data, _, isComplete, error) in
+        let maxSize = 1024*1024*10 // 10 MB
+        nwConnection.receive(minimumIncompleteLength: 1, maximumLength: maxSize) {[weak self] (data, _, isComplete, error) in
             guard let self = self else { return }
             if let data = data, !data.isEmpty {
                 let string = String(data: data, encoding:.utf8)
