@@ -152,11 +152,11 @@ extension InstanaURLProtocol {
             let newMethod = class_getClassMethod(URLSession.self, newSelector) else { return }
 
         // Should be prefered over the function (method)
-//        let newBlock: (URLSessionConfiguration) -> (URLSession) = {configuration in
-//            Instana.current?.monitors.http?.install(configuration)
+//        let newBlock: @convention(block) (AnyObject, Selector, URLSessionConfiguration) -> (URLSession) = {_,_,configuration in
+//            configuration.registerInstanaURLProtocol()
 //            return URLSession.instana_session(configuration: configuration)
 //        }
-//        let newImp = imp_implementationWithBlock(unsafeBitCast(newBlock, to: ().self))
+//        let newImp = imp_implementationWithBlock(newBlock)
 
         let className = object_getClassName(URLSession.self)
         let didAddMethod = class_addMethod(objc_getMetaClass(className) as? AnyClass, originalSelector, method_getImplementation(newMethod), method_getTypeEncoding(newMethod))
