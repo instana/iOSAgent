@@ -12,6 +12,7 @@ class IntegrationTestCase: XCTestCase {
 
     struct Defaults {
         static let baseURL = URL(string: "http://localhost:81")!
+        static let someURL = URL(string: "http://localhost:81/some")!
     }
 
     var expectation: XCTestExpectation!

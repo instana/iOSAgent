@@ -3,7 +3,6 @@
 
 import XCTest
 @testable import InstanaSensor
-import WebKit
 
 class InstanaURLProtocolTests: XCTestCase {
     let makeRequest: (String) -> URLRequest = { URLRequest(url: URL(string: $0)!) }
@@ -117,29 +116,5 @@ class InstanaURLProtocolTests: XCTestCase {
         let allURLProtocolClasses = URLSession.allSessionConfigs.compactMap {$0.protocolClasses}.flatMap {$0}
         AssertTrue(URLSession.allSessionConfigs.contains {$0 == config})
         AssertTrue(allURLProtocolClasses.contains {$0 == InstanaURLProtocol.self} == false)
-    }
-
-    func test_urlprotocol_with_Webview() {
-        // Given
-        let givenURL = URL.random
-        let didReportWait = expectation(description: "didFinalizeWait")
-        let config = InstanaConfiguration.default(key: "KEY", reportingURL: URL.random, reportingType: .automatic)
-        var expectedBeacon: HTTPBeacon?
-        let mockReporter = MockReporter { submittedBeacon in
-            if let httpBeacon = submittedBeacon as? HTTPBeacon {
-                expectedBeacon = httpBeacon
-                didReportWait.fulfill()
-            }
-        }
-        let monitors = Monitors(config, reporter: mockReporter)
-        Instana.current = Instana(configuration: config, monitors: monitors)
-        let webView = WKWebView()
-
-        // When
-        webView.load(URLRequest(url: givenURL))
-        wait(for: [didReportWait], timeout: 1.4)
-
-        // Then
-        AssertEqualAndNotNil(expectedBeacon?.url, givenURL)
     }
 }
