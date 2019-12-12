@@ -2,35 +2,9 @@
 //  Copyright © 2018 Nikola Lajic. All rights reserved.
 
 import Foundation
-
-@objc extension URLSession {
-    // The swizzled class func to create (NS)URLSession with the given configuration
-    // We monitor all sessions implicitly
-    @objc class func instana_session(configuration: URLSessionConfiguration) -> URLSession {
-        Instana.current?.monitors.http?.install(configuration)
-        return URLSession.instana_session(configuration: configuration)
-    }
-}
+import WebKit
 
 class InstanaURLProtocol: URLProtocol {
-    // We do some swizzling to inject our InstanaURLProtocol to all custom sessions automatically
-    static let prepare: () = {
-        let originalSelector = #selector(URLSession.init(configuration:))
-        let newSelector = #selector(URLSession.instana_session(configuration:))
-
-        guard let originalMethod = class_getClassMethod(URLSession.self, originalSelector),
-            let newMethod = class_getClassMethod(URLSession.self, newSelector) else { return }
-
-        method_exchangeImplementations(originalMethod, newMethod)
-        // TODO: This should be actually the right behavior
-//        return
-//        let didAddMethod = class_addMethod(URLSession.self, originalSelector, method_getImplementation(newMethod), method_getTypeEncoding(newMethod))
-//        if didAddMethod {
-//            class_replaceMethod(URLSession.self, newSelector, method_getImplementation(originalMethod), method_getTypeEncoding(originalMethod))
-//        } else {
-//            method_exchangeImplementations(originalMethod, newMethod)
-//        }
-    }()
 
     enum Mode {
         case enabled, disabled
@@ -101,6 +75,71 @@ extension InstanaURLProtocol: URLSessionDataDelegate {
     func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
         client?.urlProtocol(self, didLoad: data)
     }
+}
+
+@objc extension URLSession {
+    // The swizzled class func to create (NS)URLSession with the given configuration
+    // We monitor all sessions implicitly
+    @objc class func instana_session(configuration: URLSessionConfiguration) -> URLSession {
+        Instana.current?.monitors.http?.install(configuration)
+        store(config: configuration)
+        return URLSession.instana_session(configuration: configuration)
+    }
+
+    private static let lock = NSLock()
+    private static var allSessionConfigs = [URLSessionConfiguration]()
+    private static func store(config: URLSessionConfiguration) {
+        lock.lock()
+        allSessionConfigs.append(config)
+        lock.unlock()
+    }
+
+    private static func removeURLProtocol() {
+        lock.lock()
+        allSessionConfigs.forEach {$0.protocolClasses?.removeAll(where: { (protocolClass) -> Bool in
+            protocolClass == InstanaURLProtocol.self
+        })}
+        lock.unlock()
+    }
+}
+
+extension InstanaURLProtocol {
+    // We do some swizzling to inject our InstanaURLProtocol to all custom sessions automatically
+    static let install: () = {
+        prepareWebView
+        prepareURLSessions
+    }()
+
+    static let prepareWebView: () = {
+        guard let something = WKWebView().value(forKey: "browsingContextController") as? NSObject else { return }
+        let selector = NSSelectorFromString("registerSchemeForCustomProtocol:")
+        if type(of: something).responds(to: selector) {
+            type(of: something).perform(selector, with: "http")
+            type(of: something).perform(selector, with: "https")
+        }
+    }()
+
+    static let prepareURLSessions: () = {
+        let originalSelector = #selector(URLSession.init(configuration:))
+        let newSelector = #selector(URLSession.instana_session(configuration:))
+        guard let originalMethod = class_getClassMethod(URLSession.self, originalSelector),
+            let newMethod = class_getClassMethod(URLSession.self, newSelector) else { return }
+
+        // Should be prefered over the function (method)
+//        let newBlock: (URLSessionConfiguration) -> (URLSession) = {configuration in
+//            Instana.current?.monitors.http?.install(configuration)
+//            return URLSession.instana_session(configuration: configuration)
+//        }
+//        let newImp = imp_implementationWithBlock(unsafeBitCast(newBlock, to: ().self))
+
+        let className = object_getClassName(URLSession.self)
+        let didAddMethod = class_addMethod(objc_getMetaClass(className) as? AnyClass, originalSelector, method_getImplementation(newMethod), method_getTypeEncoding(newMethod))
+        if didAddMethod {
+            class_replaceMethod(URLSession.self, newSelector, method_getImplementation(originalMethod), method_getTypeEncoding(originalMethod))
+        } else {
+            method_exchangeImplementations(originalMethod, newMethod)
+        }
+    }()
 }
 
 private extension URLSessionTask {

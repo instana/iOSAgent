@@ -18,11 +18,15 @@ class HTTPMonitor {
         self.installer = installer
         self.uninstaller = uninstaller
         self.reporter = reporter
+
         switch configuration.reportingType {
         case .automaticAndManual, .automatic:
-            install()
+            InstanaURLProtocol.install
+            InstanaURLProtocol.mode = .enabled
+            _ = installer(InstanaURLProtocol.self)
         case .manual, .none:
-            break
+            InstanaURLProtocol.mode = .disabled
+            uninstaller(InstanaURLProtocol.self)
         }
     }
 
@@ -32,16 +36,6 @@ class HTTPMonitor {
 }
 
 extension HTTPMonitor {
-    func install() {
-        InstanaURLProtocol.prepare
-        InstanaURLProtocol.mode = .enabled
-        _ = installer(InstanaURLProtocol.self)
-    }
-
-    func uninstall() {
-        InstanaURLProtocol.mode = .disabled
-        uninstaller(InstanaURLProtocol.self)
-    }
 
     func mark(_ request: URLRequest) throws -> HTTPMarker {
         debugAssert((request.url != nil), "URLRequest URL must not be nil")
