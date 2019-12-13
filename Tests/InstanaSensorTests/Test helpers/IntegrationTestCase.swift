@@ -18,21 +18,12 @@ class IntegrationTestCase: XCTestCase {
     var expectation: XCTestExpectation!
     var session: URLSession!
     var task: URLSessionTask!
-    var mockserver: TestEchoWebServer!
+    var mockserver: EchoWebServer!
 
     override func setUp() {
         super.setUp()
 
-        func echo(
-            request: TestEchoWebServer.HTTPHandler.Request,
-            response: TestEchoWebServer.HTTPHandler.Response,
-            next: @escaping () -> Void
-        ) {
-            response.statusCode = .ok
-            response.body = request.body
-            next()
-        }
-        mockserver = TestEchoWebServer(port: Defaults.serverPort, handler: echo)
+        mockserver = EchoWebServer(port: Defaults.serverPort)
         try! mockserver.start()
         let config = URLSessionConfiguration.default
         session = URLSession(configuration: config)
