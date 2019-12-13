@@ -7,6 +7,27 @@ import NIOHTTP1
 // Inspired from: https://github.com/ilyapuchka/SwiftNIOMock
 //
 open class EchoWebServer {
+
+
+    public class RequestStorage {
+        private let lock = NSLock()
+        private var _unsafe_storage = [HTTPHandler.Request]()
+        public var receivedRequests: [HTTPHandler.Request] {
+            get {
+                lock.lock()
+                defer {
+                    lock.unlock()
+                }
+                return _unsafe_storage
+            }
+            set {
+                lock.lock()
+                _unsafe_storage = newValue
+                lock.unlock()
+            }
+        }
+    }
+    public static let requestStorage = RequestStorage()
     public let port: Int
     private(set) var group: EventLoopGroup!
     private(set) var bootstrap: ServerBootstrap!
@@ -17,6 +38,7 @@ open class EchoWebServer {
     }
 
     public func start() throws {
+        EchoWebServer.requestStorage.receivedRequests.removeAll()
         group = group ?? MultiThreadedEventLoopGroup(numberOfThreads: System.coreCount)
         bootstrap = bootstrap ?? bootstrapServer()
 
@@ -76,8 +98,8 @@ extension EchoWebServer {
                 if var body = buffer {
                     httpBody = body.readString(length: body.readableBytes)?.data(using: .utf8)
                 }
-
                 let request = Request(head: head, body: httpBody, ctx: ctx)
+                EchoWebServer.requestStorage.receivedRequests.append(request)
                 var responseBuffer = ctx.channel.allocator.buffer(capacity: 0)
                 let eventLoop = ctx.channel.eventLoop
                 let response = Response()
