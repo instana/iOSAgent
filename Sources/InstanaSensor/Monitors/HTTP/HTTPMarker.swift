@@ -21,6 +21,7 @@ protocol HTTPMarkerDelegate: class {
     let method: String
     let trigger: Trigger
     let startTime: Instana.Types.Milliseconds
+    private(set) var backendTracingID: String?
     private(set) var responseSize: Instana.Types.HTTPSize?
     private var endTime: Instana.Types.Milliseconds?
     private(set) var state: State = .started
@@ -42,15 +43,33 @@ extension HTTPMarker {
     /// - Parameters:
     ///   - responseSize: Size of the response.
     ///
-    ///  Must be set before calling finished
+    /// Note: You must make sure to trigger `set(responseSize:` before calling the finished or canceled method
     @objc public func set(responseSize: Instana.Types.HTTPSize) {
+        guard case .started = state else { return }
         self.responseSize = responseSize
+    }
+
+    /// Set the Backend Tracing ID
+    ///
+    /// - Parameters:
+    ///   - backendTracingID: Backend Tracing ID.
+    ///
+    /// Set the Backend Tracing ID to map the response received by client with the sending server.
+    /// The Backend Tracing ID will be sent by the server via the HTTP header field
+    /// This ID will be set automatically if you choose automatic HTTP monitoring.
+    ///
+    /// Note: You must make sure to trigger `set(backendTracingID:` before calling the finished or canceled method
+    @objc public func set(backendTracingID: String) {
+        guard case .started = state else { return }
+        self.backendTracingID = backendTracingID
     }
 
     /// Invoke this method after the request has successfuly finished.
     ///
     /// - Parameters:
     ///   - responseCode: Usually a HTTP status code.
+    ///
+    /// Note: Make sure you don't call any methods on this HTTPMarker after you called finish
     @objc public func finished(responseCode: Int) {
         guard case .started = state else { return }
         state = .finished(responseCode: responseCode)
@@ -62,6 +81,8 @@ extension HTTPMarker {
     ///
     /// - Parameters:
     ///   - error: Error that explains what happened.
+    ///
+    /// Note: Make sure you don't call any methods on this HTTPMarker after you called finish
     @objc public func finished(error: Error) {
         guard case .started = state else { return }
         state = .failed(error: error)
@@ -70,6 +91,7 @@ extension HTTPMarker {
     }
     
     /// Invoke this method if the reuqest has been canceled before completion.
+    /// Note: Make sure you don't call more methods on this HTTPMarker after you called canceled
     @objc public func canceled() {
         guard case .started = state else { return }
         state = .canceled
@@ -108,7 +130,8 @@ extension HTTPMarker {
                          url: url,
                          responseCode: responseCode ?? -1,
                          responseSize: responseSize,
-                         result: result)
+                         result: result,
+                         backendTracingID: backendTracingID)
     }
 }
 

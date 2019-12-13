@@ -16,7 +16,7 @@ class InstanaURLProtocol: URLProtocol {
         URLSession(configuration: sessionConfiguration, delegate: self, delegateQueue: nil)
     }()
     private(set) lazy var sessionConfiguration: URLSessionConfiguration = { .default }()
-    private var marker: HTTPMarker?
+    var marker: HTTPMarker?
     
     convenience init(task: URLSessionTask, cachedResponse: CachedURLResponse?, client: URLProtocolClient?) {
         self.init(request: task.originalRequest!, cachedResponse: cachedResponse, client: client)
@@ -52,6 +52,9 @@ class InstanaURLProtocol: URLProtocol {
 extension InstanaURLProtocol: URLSessionTaskDelegate {
     func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
         let response = task.response as? HTTPURLResponse
+        if let backendTracingID = task.response?.backendTracingID {
+            marker?.set(backendTracingID: backendTracingID)
+        }
         if let error = error {
             client?.urlProtocol(self, didFailWithError: error)
             marker?.finished(error: error)

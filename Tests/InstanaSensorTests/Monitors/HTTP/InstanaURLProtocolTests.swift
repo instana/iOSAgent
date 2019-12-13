@@ -120,4 +120,107 @@ class InstanaURLProtocolTests: XCTestCase {
         AssertTrue(URLSession.allSessionConfigs.contains {$0 == config})
         AssertTrue(allURLProtocolClasses.contains {$0 == InstanaURLProtocol.self} == false)
     }
+
+    // Integration Tests
+    func test_finish_success() {
+        // Given
+        let delegate = Delegate()
+        let backendTracingID = "981d9553578fc280"
+        let url = URL.random
+        let task = MockURLSessionTask()
+        let response = MockHTTPURLResponse(url: url, mimeType: "text/plain", expectedContentLength: 10, textEncodingName: "txt")
+        response.stubbedAllHeaderFields = ["Server-Timing": "intid;desc=981d9553578fc280"]
+        task.stubbedResponse = response
+        let metrics = MockURLSessionTaskMetrics.random
+        let session = URLSession(configuration: .default)
+        let urlProtocol = InstanaURLProtocol()
+        urlProtocol.marker = HTTPMarker(url: url, method: "GET", delegate: delegate)
+
+        // When
+        urlProtocol.urlSession(session, task: task, didFinishCollecting: metrics)
+        urlProtocol.urlSession(session, task: task, didCompleteWithError: nil)
+
+        // Then
+        AssertEqualAndNotNil(urlProtocol.marker?.backendTracingID, backendTracingID)
+        AssertTrue(delegate.calledFinalized)
+        if case let .finished(responseCode) = urlProtocol.marker?.state {
+            AssertTrue(responseCode == 200)
+        } else {
+            XCTFail("Wrong state for marker")
+        }
+
+        if #available(iOS 13.0, *) {
+            let metric = metrics.transactionMetrics.first
+            AssertEqualAndNotZero(urlProtocol.marker?.responseSize?.headerBytes ?? 0, metric?.countOfResponseHeaderBytesReceived ?? 0)
+            AssertEqualAndNotZero(urlProtocol.marker?.responseSize?.bodyBytes ?? 0, metric?.countOfResponseBodyBytesReceived ?? 0)
+            AssertEqualAndNotZero(urlProtocol.marker?.responseSize?.bodyBytesAfterDecoding ?? 0, metric?.countOfResponseBodyBytesAfterDecoding ?? 0)
+        } else {
+            AssertTrue(urlProtocol.marker?.responseSize?.headerBytes ?? 0 > 0)
+            AssertEqualAndNotNil(urlProtocol.marker?.responseSize?.bodyBytes, task.countOfBytesReceived)
+            AssertTrue(urlProtocol.marker?.responseSize?.bodyBytesAfterDecoding == nil)
+        }
+    }
+
+    func test_finish_error() {
+        // Given
+        let delegate = Delegate()
+        let backendTracingID = "981d9553578fc280"
+        let task = MockURLSessionTask()
+        let url = URL.random
+        let response = MockHTTPURLResponse(url: url, mimeType: "text/plain", expectedContentLength: 10, textEncodingName: "txt")
+        response.stubbedAllHeaderFields = ["Server-Timing": "intid;desc=981d9553578fc280"]
+        task.stubbedResponse = response
+        let session = URLSession(configuration: .default)
+        let urlProtocol = InstanaURLProtocol()
+        urlProtocol.marker = HTTPMarker(url: url, method: "GET", delegate: delegate)
+        let givenError = NSError(domain: NSURLErrorDomain, code: NSURLErrorDataNotAllowed, userInfo: nil)
+        var expectedError: NSError?
+
+        // When
+        urlProtocol.urlSession(session, task: task, didFinishCollecting: MockURLSessionTaskMetrics.random)
+        urlProtocol.urlSession(session, task: task, didCompleteWithError: givenError)
+
+        // Then
+        AssertEqualAndNotNil(urlProtocol.marker?.backendTracingID, backendTracingID)
+        AssertTrue(delegate.calledFinalized)
+        if case let .failed(error) = urlProtocol.marker?.state {
+            expectedError = error as NSError
+        } else {
+            XCTFail("Wrong state for marker")
+        }
+
+        AssertEqualAndNotNil(expectedError, givenError)
+
+        if #available(iOS 13.0, *) {
+            AssertTrue(urlProtocol.marker?.responseSize?.headerBytes ?? 0 > 0)
+        } else {
+            AssertTrue(urlProtocol.marker?.responseSize?.headerBytes ?? 0 > 0)
+        }
+    }
+
+    func test_stop_loading() {
+        let delegate = Delegate()
+        let url = URL.random
+        let urlProtocol = InstanaURLProtocol()
+        urlProtocol.marker = HTTPMarker(url: url, method: "GET", delegate: delegate)
+
+        // When
+        urlProtocol.stopLoading()
+
+        // Then
+        AssertTrue(urlProtocol.marker?.backendTracingID == nil)
+        AssertTrue(delegate.calledFinalized)
+        guard case .canceled = urlProtocol.marker?.state else {
+            XCTFail("Wrong state for marker")
+            return
+        }
+    }
+
+    // MARK: Helper
+    class Delegate: HTTPMarkerDelegate {
+        var calledFinalized = false
+        func finalized(marker: HTTPMarker) {
+            calledFinalized = true
+        }
+    }
 }
