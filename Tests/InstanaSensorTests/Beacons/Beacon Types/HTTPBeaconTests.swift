@@ -10,13 +10,15 @@ class HTTPBeaconTests: XCTestCase {
         let responseSize = Instana.Types.HTTPSize(header: 4, body: 5, bodyAfterDecoding: 6)
         let url = URL.random
         let method = "POST"
+        let backendTracingID = "BackendTID"
         let timestamp = Date().millisecondsSince1970
         let http = HTTPBeacon(timestamp: timestamp,
                                 method: method,
                                 url: url,
                                 responseCode: 200,
                                 responseSize: responseSize,
-                                result: "RESULT")
+                                result: "RESULT",
+                                backendTracingID: backendTracingID)
         let mapper = CoreBeaconFactory(config)
 
         // When
@@ -27,6 +29,7 @@ class HTTPBeaconTests: XCTestCase {
 
         // Then
         AssertEqualAndNotNil(sut.t, .httpRequest)
+        AssertEqualAndNotNil(sut.bt, backendTracingID)
         AssertEqualAndNotNil(sut.hu, url.absoluteString)
         AssertEqualAndNotNil(sut.hp, url.path)
         AssertEqualAndNotNil(sut.hs, String(http.responseCode))
@@ -38,7 +41,7 @@ class HTTPBeaconTests: XCTestCase {
         AssertTrue(sut.ec == nil)
 
         let values = Mirror(reflecting: sut).nonNilChildren
-        XCTAssertEqual(values.count, 26)
+        XCTAssertEqual(values.count, 27)
     }
 
     func test_map_http_with_code_399() {
@@ -98,7 +101,8 @@ class HTTPBeaconTests: XCTestCase {
         let responseSize = Instana.Types.HTTPSize.random
         let timestamp: Instana.Types.Milliseconds = 1000
         let duration: Instana.Types.Milliseconds = 1
-        let http = HTTPBeacon(timestamp: timestamp, duration: duration, method: method, url: url, responseCode: responseCode, responseSize: responseSize, result: "R")
+        let backendTracingID = "BackendTID"
+        let http = HTTPBeacon(timestamp: timestamp, duration: duration, method: method, url: url, responseCode: responseCode, responseSize: responseSize, result: "R", backendTracingID: backendTracingID)
         var beacon: CoreBeacon!
         do {
              beacon = try CoreBeaconFactory(InstanaConfiguration.default(key: key)).map(http)
@@ -110,7 +114,7 @@ class HTTPBeaconTests: XCTestCase {
         let sut = beacon.asString
 
         // When
-        let expected = "ab\t\(beacon.ab)\nav\t\(beacon.av)\nbid\t\(beacon.bid)\nbuid\t\(beacon.buid)\ncn\t\(beacon.cn ?? "")\nct\t\(beacon.ct ?? "")\nd\t\(duration)\ndbs\t\(responseSize.bodyBytesAfterDecoding!)\ndma\tApple\ndmo\t\(beacon.dmo)\nebs\t\(responseSize.bodyBytes!)\nhm\t\(method)\nhp\t\(url.path)\nhs\t\(responseCode)\nhu\t\(url.absoluteString)\nk\t\(key)\nosn\tiOS\nosv\t\(beacon.osv)\nro\tfalse\nsid\t\(beacon.sid)\nt\thttpRequest\nti\t\(timestamp)\ntrs\t\(responseSize.headerBytes! + responseSize.bodyBytes!)\nul\ten\nvh\t\(Int(UIScreen.main.nativeBounds.height))\nvw\t\(Int(UIScreen.main.nativeBounds.width))"
+        let expected = "ab\t\(beacon.ab)\nav\t\(beacon.av)\nbid\t\(beacon.bid)\nbt\t\(backendTracingID)\nbuid\t\(beacon.buid)\ncn\t\(beacon.cn ?? "")\nct\t\(beacon.ct ?? "")\nd\t\(duration)\ndbs\t\(responseSize.bodyBytesAfterDecoding!)\ndma\tApple\ndmo\t\(beacon.dmo)\nebs\t\(responseSize.bodyBytes!)\nhm\t\(method)\nhp\t\(url.path)\nhs\t\(responseCode)\nhu\t\(url.absoluteString)\nk\t\(key)\nosn\tiOS\nosv\t\(beacon.osv)\nro\tfalse\nsid\t\(beacon.sid)\nt\thttpRequest\nti\t\(timestamp)\ntrs\t\(responseSize.headerBytes! + responseSize.bodyBytes!)\nul\ten\nvh\t\(Int(UIScreen.main.nativeBounds.height))\nvw\t\(Int(UIScreen.main.nativeBounds.width))"
         XCTAssertEqual(sut, expected)
     }
 
@@ -118,7 +122,8 @@ class HTTPBeaconTests: XCTestCase {
         // Given
         let key = "123KEY"
         let responseSize = Instana.Types.HTTPSize.random
-        let http = HTTPBeacon(timestamp: 1000, duration: 10, method: "M", url: URL.random, responseCode: 200, responseSize: responseSize, result: "R")
+        let backendTracingID = "BackendTID"
+        let http = HTTPBeacon(timestamp: 1000, duration: 10, method: "M", url: URL.random, responseCode: 200, responseSize: responseSize, result: "R", backendTracingID: backendTracingID)
 
         // When
         var beacon: CoreBeacon!

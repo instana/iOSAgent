@@ -36,6 +36,7 @@ extension CoreBeacon {
 
     mutating func append(_ beacon: HTTPBeacon) {
         t = .httpRequest
+        bt = beacon.backendTracingID
         hu = beacon.url.absoluteString
         hp = beacon.path
         hs = String(beacon.responseCode)
