@@ -89,14 +89,14 @@ class BasicIntegrationServerTest: IntegrationTestCase {
         AssertTrue(reporter.queue.items.count == 0)
 
         // Then Verify the server response - must be the same as we sent it
-//        let serverReceivedtData = mockserver.connections.last?.receivedData ?? Data()
-//        let serverReceivedHTTP = String(data: serverReceivedtData, encoding: .utf8)
-//        do {
-//            let responseBeacon = try CoreBeacon.create(from: serverReceivedHTTP ?? "")
-//            let expectedBeacon = try CoreBeaconFactory(config).map(beacon)
-//            AssertEqualAndNotNil(expectedBeacon, responseBeacon)
-//        } catch (let error) {
-//            XCTFail(error.localizedDescription)
-//        }
+        let serverReceivedtData = serverReceivedBody.last ?? Data()
+        let serverReceivedHTTP = String(data: serverReceivedtData, encoding: .utf8)
+        do {
+            let responseBeacon = try CoreBeacon.create(from: serverReceivedHTTP ?? "")
+            let expectedBeacon = try CoreBeaconFactory(config).map(beacon)
+            AssertEqualAndNotNil(expectedBeacon, responseBeacon)
+        } catch (let error) {
+            XCTFail(error.localizedDescription)
+        }
     }
 }

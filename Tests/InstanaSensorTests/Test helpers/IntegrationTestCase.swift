@@ -58,6 +58,10 @@ class IntegrationTestCase: XCTestCase {
         wait(for: [expectation], timeout: 10.0)
     }
 
+    var serverReceivedBody: [Data] {
+        EchoWebServer.requestStorage.receivedRequests.compactMap {$0.body}
+    }
+
     func fulfilled() {
         expectation.fulfill()
     }
