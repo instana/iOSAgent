@@ -8,7 +8,9 @@ extension URL {
 
 class MockHTTPURLResponse: HTTPURLResponse {
     var stubbedAllHeaderFields: [AnyHashable: Any] = ["":""]
+    var stubbedStatusCode: Int = 200
     override var allHeaderFields: [AnyHashable : Any] { stubbedAllHeaderFields }
+    override var statusCode: Int { stubbedStatusCode }
 }
 
 class MockURLSessionTask: URLSessionTask {

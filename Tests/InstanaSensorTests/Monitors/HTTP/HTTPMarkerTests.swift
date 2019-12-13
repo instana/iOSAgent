@@ -22,18 +22,16 @@ class HTTPMarkerTests: XCTestCase {
         XCTAssertTrue(marker.startTime >= start)
     }
 
-    func test_set_httpResponse_Sizes() {
+    func test_set_HTTP_Sizes_for_task_and_transactionMetrics() {
         // Given
-        let task = MockURLSessionTask()
         let response = MockHTTPURLResponse(url: URL.random, mimeType: "text/plain", expectedContentLength: 1024, textEncodingName: "txt")
         response.stubbedAllHeaderFields = ["KEY": "VALUE"]
-        task.stubbedResponse = response
         let headerMetric = MockURLSessionTaskTransactionMetrics(stubbedCountOfResponseHeaderBytesReceived: 512)
         let bodyMetric = MockURLSessionTaskTransactionMetrics(stubbedCountOfResponseBodyBytesReceived: 1024)
         let decodedMetric = MockURLSessionTaskTransactionMetrics(stubbedCountOfResponseBodyBytesAfterDecoding: 2000)
 
         let marker = HTTPMarker(url: URL.random, method: "GET", delegate: Delegate())
-        let responseSize = Instana.Types.HTTPSize.response(task: task, transactionMetrics:  [headerMetric, bodyMetric, decodedMetric])
+        let responseSize = Instana.Types.HTTPSize.size(for: response, transactionMetrics:  [headerMetric, bodyMetric, decodedMetric])
 
         // When
         marker.set(responseSize: responseSize)
@@ -42,6 +40,24 @@ class HTTPMarkerTests: XCTestCase {
         XCTAssertEqual(marker.responseSize?.headerBytes, 512)
         XCTAssertEqual(marker.responseSize?.bodyBytes, 1024)
         XCTAssertEqual(marker.responseSize?.bodyBytesAfterDecoding, 2000)
+    }
+
+    func test_set_HTTP_Sizes_for_task() {
+        // Given
+        let response = MockHTTPURLResponse(url: URL.random, mimeType: "text/plain", expectedContentLength: 1024, textEncodingName: "txt")
+        response.stubbedAllHeaderFields = ["KEY": "VALUE"]
+        let marker = HTTPMarker(url: URL.random, method: "GET", delegate: Delegate())
+        let responseSize = Instana.Types.HTTPSize.size(response: response)
+        let excpectedHeaderSize = Instana.Types.Bytes(NSKeyedArchiver.archivedData(withRootObject: response.stubbedAllHeaderFields).count)
+
+        // When
+        marker.set(responseSize: responseSize)
+
+        // Then
+        AssertTrue(excpectedHeaderSize > 0)
+        AssertEqualAndNotZero(marker.responseSize?.headerBytes ?? 0, excpectedHeaderSize)
+        AssertEqualAndNotZero(marker.responseSize?.bodyBytes ?? 0, response.expectedContentLength)
+        XCTAssertNil(marker.responseSize?.bodyBytesAfterDecoding)
     }
 
     func test_set_BackendTracingID() {

@@ -132,16 +132,17 @@ class InstanaURLProtocolTests: XCTestCase {
         response.stubbedAllHeaderFields = ["Server-Timing": "intid;desc=981d9553578fc280"]
         task.stubbedResponse = response
         let metrics = MockURLSessionTaskMetrics.random
-        let session = URLSession(configuration: .default)
         let urlProtocol = InstanaURLProtocol()
-        urlProtocol.marker = HTTPMarker(url: url, method: "GET", delegate: delegate)
+        let marker = HTTPMarker(url: url, method: "GET", delegate: delegate)
+        urlProtocol.marker = marker
 
         // When
-        urlProtocol.urlSession(session, task: task, didFinishCollecting: metrics)
-        urlProtocol.urlSession(session, task: task, didCompleteWithError: nil)
+        urlProtocol.urlSession(URLSession.shared, task: task, didFinishCollecting: metrics)
+        urlProtocol.urlSession(URLSession.shared, task: task, didCompleteWithError: nil)
 
         // Then
         AssertEqualAndNotNil(urlProtocol.marker?.backendTracingID, backendTracingID)
+        AssertEqualAndNotNil(urlProtocol.marker, marker)
         AssertTrue(delegate.calledFinalized)
         if case let .finished(responseCode) = urlProtocol.marker?.state {
             AssertTrue(responseCode == 200)
@@ -156,9 +157,51 @@ class InstanaURLProtocolTests: XCTestCase {
             AssertEqualAndNotZero(urlProtocol.marker?.responseSize?.bodyBytesAfterDecoding ?? 0, metric?.countOfResponseBodyBytesAfterDecoding ?? 0)
         } else {
             AssertTrue(urlProtocol.marker?.responseSize?.headerBytes ?? 0 > 0)
-            AssertEqualAndNotNil(urlProtocol.marker?.responseSize?.bodyBytes, task.countOfBytesReceived)
+            AssertEqualAndNotNil(urlProtocol.marker?.responseSize?.bodyBytes, response.expectedContentLength)
             AssertTrue(urlProtocol.marker?.responseSize?.bodyBytesAfterDecoding == nil)
         }
+    }
+
+    func test_finish_success_with_http_forward_301() {
+        // Given
+        Instana.setup(key: "KEY")
+        let delegate = Delegate()
+        let backendTracingID = "981d9553578fc280"
+        let url = URL.random
+        let task = MockURLSessionTask()
+        let response = MockHTTPURLResponse(url: url, mimeType: "text/plain", expectedContentLength: 10, textEncodingName: "txt")
+        response.stubbedStatusCode = 301
+        response.stubbedAllHeaderFields = ["Server-Timing": "intid;desc=981d9553578fc280"]
+        task.stubbedResponse = response
+        let urlProtocol = InstanaURLProtocol()
+        let marker = HTTPMarker(url: url, method: "GET", delegate: delegate)
+        urlProtocol.marker = marker
+        let newRequest = URLRequest(url: URL.random)
+        var expectedCompletionRequest: URLRequest?
+
+        // When perfom the HTTP Forward
+        urlProtocol.urlSession(URLSession.shared, task: task, willPerformHTTPRedirection: response, newRequest: newRequest) { comingRequest in
+            expectedCompletionRequest = comingRequest
+        }
+
+        // Then
+        AssertEqualAndNotNil(marker.backendTracingID, backendTracingID)
+        AssertEqualAndNotNil(expectedCompletionRequest, newRequest)
+        AssertTrue(delegate.calledFinalized)
+        if case let .finished(responseCode) = marker.state {
+            AssertTrue(responseCode == 301)
+        } else {
+            XCTFail("Wrong state for marker")
+        }
+
+        AssertTrue(marker.responseSize?.headerBytes ?? 0 > 0)
+        AssertEqualAndNotNil(marker.responseSize?.bodyBytes, response.expectedContentLength)
+        AssertTrue(marker.responseSize?.bodyBytesAfterDecoding == nil)
+
+        // We expect a new marker created by the URLProtocol for the HTTP Forward
+        AssertTrue(urlProtocol.marker?.backendTracingID == nil)
+        XCTAssertNotNil(urlProtocol.marker)
+        AssertTrue(urlProtocol.marker != marker)
     }
 
     func test_finish_error() {
@@ -170,15 +213,14 @@ class InstanaURLProtocolTests: XCTestCase {
         let response = MockHTTPURLResponse(url: url, mimeType: "text/plain", expectedContentLength: 10, textEncodingName: "txt")
         response.stubbedAllHeaderFields = ["Server-Timing": "intid;desc=981d9553578fc280"]
         task.stubbedResponse = response
-        let session = URLSession(configuration: .default)
         let urlProtocol = InstanaURLProtocol()
         urlProtocol.marker = HTTPMarker(url: url, method: "GET", delegate: delegate)
         let givenError = NSError(domain: NSURLErrorDomain, code: NSURLErrorDataNotAllowed, userInfo: nil)
         var expectedError: NSError?
 
         // When
-        urlProtocol.urlSession(session, task: task, didFinishCollecting: MockURLSessionTaskMetrics.random)
-        urlProtocol.urlSession(session, task: task, didCompleteWithError: givenError)
+        urlProtocol.urlSession(URLSession.shared, task: task, didFinishCollecting: MockURLSessionTaskMetrics.random)
+        urlProtocol.urlSession(URLSession.shared, task: task, didCompleteWithError: givenError)
 
         // Then
         AssertEqualAndNotNil(urlProtocol.marker?.backendTracingID, backendTracingID)

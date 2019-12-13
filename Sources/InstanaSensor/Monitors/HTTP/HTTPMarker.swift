@@ -170,18 +170,21 @@ extension HTTPMarker {
             self.bodyBytesAfterDecoding = bodyAfterDecoding
         }
 
-        @objc public class func response(task: URLSessionTask, transactionMetrics: [URLSessionTaskTransactionMetrics]) -> HTTPSize {
+        @objc public class func size(for response: URLResponse, transactionMetrics: [URLSessionTaskTransactionMetrics]) -> HTTPSize {
+            guard #available(iOS 13.0, *) else { return size(response: response) }
             let size = HTTPSize()
-            guard #available(iOS 13.0, *) else {
-                if let headerFields = (task.response as? HTTPURLResponse)?.allHeaderFields {
-                    size.headerBytes = Instana.Types.Bytes(NSKeyedArchiver.archivedData(withRootObject: headerFields).count)
-                }
-                size.bodyBytes = task.countOfBytesReceived
-                return size
-            }
             size.headerBytes = transactionMetrics.map {$0.countOfResponseHeaderBytesReceived}.reduce(0, +)
             size.bodyBytes = transactionMetrics.map{ $0.countOfResponseBodyBytesReceived}.reduce(0, +)
             size.bodyBytesAfterDecoding = transactionMetrics.map {$0.countOfResponseBodyBytesAfterDecoding}.reduce(0, +)
+            return size
+        }
+
+        @objc public class func size(response: URLResponse) -> HTTPSize {
+            let size = HTTPSize()
+            if let headerFields = (response as? HTTPURLResponse)?.allHeaderFields {
+                size.headerBytes = Instana.Types.Bytes(NSKeyedArchiver.archivedData(withRootObject: headerFields).count)
+            }
+            size.bodyBytes = response.expectedContentLength
             return size
         }
     }

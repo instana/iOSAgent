@@ -65,7 +65,7 @@ extension InstanaURLProtocol: URLSessionTaskDelegate {
     }
 
     func urlSession(_ session: URLSession, task: URLSessionTask, didFinishCollecting metrics: URLSessionTaskMetrics) {
-        marker?.set(responseSize: Instana.Types.HTTPSize.response(task: task, transactionMetrics: metrics.transactionMetrics))
+        marker?.set(responseSize: Instana.Types.HTTPSize.size(for: task.response ?? URLResponse(), transactionMetrics: metrics.transactionMetrics))
     }
 }
 
@@ -77,6 +77,16 @@ extension InstanaURLProtocol: URLSessionDataDelegate {
     
     func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
         client?.urlProtocol(self, didLoad: data)
+    }
+
+    func urlSession(_ session: URLSession, task: URLSessionTask, willPerformHTTPRedirection response: HTTPURLResponse, newRequest request: URLRequest, completionHandler: @escaping (URLRequest?) -> Void) {
+        if let backendTracingID = response.backendTracingID {
+            marker?.set(backendTracingID: backendTracingID)
+        }
+        marker?.set(responseSize:Instana.Types.HTTPSize.size(response: response))
+        marker?.finished(responseCode: response.statusCode)
+        marker = try? Instana.current?.monitors.http?.mark(request)
+        completionHandler(request)
     }
 }
 
