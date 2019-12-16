@@ -8,6 +8,7 @@
 import Foundation
 
 // TODO: Use Operation queue later
+/// To be used in an asynchronous world (i.e. via a background dispatch queue)
 class InstanaPersistableQueue<T: Codable & Equatable> {
 
     typealias Completion = ((Result<Void, Error>) -> Void)
