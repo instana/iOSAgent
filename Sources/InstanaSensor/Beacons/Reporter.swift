@@ -8,12 +8,12 @@ public class Reporter {
     typealias Submitter = (Beacon) -> Void
     typealias NetworkLoader = (URLRequest, @escaping (InstanaNetworking.Result) -> Void) -> Void
     var completion: (BeaconResult) -> Void = {_ in}
-    private var backgroundQueue = DispatchQueue(label: "com.instana.ios.app.background", qos: .background)
+    let queue = InstanaPersistableQueue<CoreBeacon>()
+    private let backgroundQueue = DispatchQueue(label: "com.instana.ios.app.background", qos: .background)
     private let send: NetworkLoader
     private let batterySafeForNetworking: () -> Bool
     private let networkUtility: NetworkUtility
     private var suspendReporting: Set<InstanaConfiguration.SuspendReporting> { configuration.suspendReporting }
-    private (set) var queue = InstanaPersistableQueue<CoreBeacon>()
     private let configuration: InstanaConfiguration
     private var flushWorkItem: DispatchWorkItem?
     private var flushSemaphore: DispatchSemaphore?
@@ -49,15 +49,16 @@ public class Reporter {
     }
 
     func scheduleFlush() {
-        let workItem = DispatchWorkItem() {
+        guard !queue.items.isEmpty else { return }
+        let workItem = DispatchWorkItem() {[weak self] in
+            guard let self = self else { return }
             let start = Date()
             self.flushSemaphore = DispatchSemaphore(value: 0)
             self.flushQueue()
-            _ = self.flushSemaphore?.wait(timeout: .now() + 20)
             let passed = Date().timeIntervalSince(start)
             Instana.current?.logger.add("Flushing and writing the queue took \(passed*1000) ms")
+             _ = self.flushSemaphore?.wait(timeout: .now() + 20)
             self.flushSemaphore = nil
-            self.flushWorkItem = nil
         }
         flushWorkItem?.cancel()
         flushWorkItem = workItem
