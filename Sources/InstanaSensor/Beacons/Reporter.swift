@@ -42,16 +42,18 @@ public class Reporter {
             guard let coreBeacon = try? CoreBeaconFactory(self.configuration).map(beacon) else { return }
             self.queue.add(coreBeacon)
             let passed = Date().timeIntervalSince(start)
-            Instana.current?.logger.add("Creating the CoreBeacon took \(passed*1000) ms")
+            Instana.current?.logger.add("\(Date().millisecondsSince1970) Creating the CoreBeacon took \(passed*1000) ms")
+            self.scheduleFlush()
             completion?()
         }
-        scheduleFlush()
     }
 
     func scheduleFlush() {
         guard !queue.items.isEmpty else { return }
+        flushWorkItem?.cancel()
         let workItem = DispatchWorkItem() {[weak self] in
             guard let self = self else { return }
+            guard let flushWorkItem = self.flushWorkItem, !flushWorkItem.isCancelled else { return }
             let start = Date()
             self.flushSemaphore = DispatchSemaphore(value: 0)
             self.flushQueue()
@@ -60,7 +62,6 @@ public class Reporter {
              _ = self.flushSemaphore?.wait(timeout: .now() + 20)
             self.flushSemaphore = nil
         }
-        flushWorkItem?.cancel()
         flushWorkItem = workItem
         let interval = batterySafeForNetworking() ? configuration.transmissionDelay : configuration.transmissionLowBatteryDelay
         backgroundQueue.asyncAfter(deadline: .now() + interval, execute: workItem)
