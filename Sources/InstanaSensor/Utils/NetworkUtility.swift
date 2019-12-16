@@ -6,9 +6,11 @@ import Network
 import CoreTelephony
 
 class NetworkUtility {
-    private(set) var connectionType: ConnectionType = .none {
+    private(set) var connectionType: ConnectionType = .undetermined {
         didSet {
-            connectionUpdateHandler(connectionType)
+            if oldValue != .undetermined {
+                connectionUpdateHandler(connectionType)
+            }
         }
     }
     private let queue = DispatchQueue(label: "NetworkUtility")
@@ -77,7 +79,7 @@ extension NetworkUtility {
     }
 
     enum ConnectionType: String, CustomStringConvertible {
-        case none, wifi, cellular, unknown
+        case undetermined, none, wifi, cellular
 
         var cellular: CellularType { CellularType.current }
 
@@ -86,21 +88,21 @@ extension NetworkUtility {
             case .none: return "None"
             case .wifi: return "Wifi"
             case .cellular: return CellularType.current.rawValue
-            case .unknown: return "Unknown"
+            case .undetermined: return "Unknown"
             }
         }
 
         @available(iOS 12.0, *)
         static func from(_ path: NWPath) -> ConnectionType {
             guard path.status == .satisfied else {
-                return .none
+                return .undetermined
             }
             if path.usesInterfaceType(.cellular) {
                 return .cellular
             } else if path.usesInterfaceType(.wifi) {
                 return .wifi
             }
-            return .unknown
+            return .undetermined
         }
     }
 }
