@@ -6,7 +6,6 @@ class HTTPBeaconTests: XCTestCase {
 
     func test_map_http() {
         // Given
-        let config = InstanaConfiguration.default(key: "KEY")
         let responseSize = Instana.Types.HTTPSize(header: 4, body: 5, bodyAfterDecoding: 6)
         let url = URL.random
         let method = "POST"
@@ -19,7 +18,7 @@ class HTTPBeaconTests: XCTestCase {
                                 responseSize: responseSize,
                                 result: "RESULT",
                                 backendTracingID: backendTracingID)
-        let mapper = CoreBeaconFactory(config)
+        let mapper = CoreBeaconFactory(.mock)
 
         // When
         guard let sut = try? mapper.map(http) else {
@@ -53,7 +52,7 @@ class HTTPBeaconTests: XCTestCase {
                                 responseCode: responseCode,
                                 responseSize: Instana.Types.HTTPSize.random,
                                 result: "RESULT")
-        let mapper = CoreBeaconFactory(InstanaConfiguration.default(key: "KEY"))
+        let mapper = CoreBeaconFactory(.mock)
 
         // When
         guard let sut = try? mapper.map(http) else {
@@ -77,7 +76,7 @@ class HTTPBeaconTests: XCTestCase {
                                   responseCode: code,
                                   responseSize: Instana.Types.HTTPSize.random,
                                   result: "RESULT")
-            let mapper = CoreBeaconFactory(InstanaConfiguration.default(key: "KEY"))
+            let mapper = CoreBeaconFactory(.mock)
 
             // When
             guard let sut = try? mapper.map(http) else {
@@ -105,7 +104,7 @@ class HTTPBeaconTests: XCTestCase {
         let http = HTTPBeacon(timestamp: timestamp, duration: duration, method: method, url: url, responseCode: responseCode, responseSize: responseSize, result: "R", backendTracingID: backendTracingID)
         var beacon: CoreBeacon!
         do {
-             beacon = try CoreBeaconFactory(InstanaConfiguration.default(key: key)).map(http)
+            beacon = try CoreBeaconFactory(.mock(configuration: .default(key: key))).map(http)
         } catch {
             XCTFail("Could not create CoreBeacon")
         }
@@ -128,7 +127,7 @@ class HTTPBeaconTests: XCTestCase {
         // When
         var beacon: CoreBeacon!
         do {
-             beacon = try CoreBeaconFactory(InstanaConfiguration.default(key: key)).map(http)
+             beacon = try CoreBeaconFactory(.mock(configuration: .default(key: key))).map(http)
         } catch {
             XCTFail("Could not create CoreBeacon")
         }

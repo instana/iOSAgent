@@ -13,3 +13,10 @@ extension URLResponse {
         return String(servertiming[range])
     }
 }
+
+extension URLRequest {
+    var bodyString: String? {
+        guard let data = httpBody else { return nil }
+        return String(data: data, encoding: .utf8)
+    }
+}

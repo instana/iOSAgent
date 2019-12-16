@@ -42,7 +42,8 @@ struct CoreBeacon: Equatable, Codable {
      * View
      *
      * The current visible ViewController
-     * For example: `UserTableViewController`
+     *
+     * For example: `WebView: Privacy Policy`
      *
      */
     var v: String?
@@ -52,8 +53,10 @@ struct CoreBeacon: Equatable, Codable {
      *
      * The backend exposes trace IDs via the Server-Timing HTTP response header.
      * The app needs to pick up the trace ID from this header and put it into this field.
+     *
      * For example: Server-Timing: intid;desc=bd777df70e5e5356
-     * In this case the field should hold the value bd777df70e5e5356.
+     *
+     * Note: In this case the field should hold the value bd777df70e5e5356.
      * This allows us to build a connection between end-user (mobile monitoring) and backend activity (tracing).
      */
     var bt: String?
@@ -95,9 +98,20 @@ struct CoreBeacon: Equatable, Codable {
      * Bundle ID
      *
      * The unique bundle identifier for the app.
+     *
      * For example: com.instana.ios.app
      */
     var buid: String
+
+    /**
+     * Meta for custom key/value entries
+     *
+     * Will be converted at transmission to separated string prefixed by `m_`
+     * For example: `m_email    some@example.com`
+     *
+     * optional
+     */
+    var m: [String: String]?
 
     /**
      * User ID
@@ -106,14 +120,14 @@ struct CoreBeacon: Equatable, Codable {
      *
      * optional
      */
-    var userId: String?
+    var ui: String?
 
     /**
      * User name.
      *
      * optional
      */
-    var userName: String?
+    var un: String?
 
     /**
      * User’s email address.

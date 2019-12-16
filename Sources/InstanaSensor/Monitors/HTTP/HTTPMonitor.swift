@@ -8,18 +8,18 @@ class HTTPMonitor {
     private let installer: (AnyClass) -> Bool
     private let uninstaller: (AnyClass) -> Void
     private let reporter: Reporter
-    private let configuration: InstanaConfiguration
+    private let environment: InstanaEnvironment
 
-    init(_ configuration: InstanaConfiguration,
+    init(_ environment: InstanaEnvironment,
          installer: @escaping (AnyClass) -> Bool = URLProtocol.registerClass,
          uninstaller: @escaping (AnyClass) -> Void = URLProtocol.unregisterClass,
          reporter: Reporter) {
-        self.configuration = configuration
+        self.environment = environment
         self.installer = installer
         self.uninstaller = uninstaller
         self.reporter = reporter
 
-        switch configuration.reportingType {
+        switch environment.configuration.reportingType {
         case .automaticAndManual, .automatic:
             install()
         case .manual, .none:
@@ -61,7 +61,7 @@ extension HTTPMonitor {
     }
     
     private func shouldReport(marker: HTTPMarker) -> Bool {
-        switch configuration.reportingType {
+        switch environment.configuration.reportingType {
         case .automaticAndManual: return true
         case .automatic: return marker.trigger == .automatic
         case .manual: return marker.trigger == .manual

@@ -6,14 +6,14 @@ import XCTest
 
 class HTTPMonitorTests: XCTestCase {
 
-    var config: InstanaConfiguration!
+    var env: InstanaEnvironment!
     var instana: Instana!
 
     override func setUp() {
         super.setUp()
         Instana.setup(key: "KEY123")
         instana = Instana.current
-        config = instana.configuration
+        env = instana.environment
     }
 
     override func tearDown() {
@@ -23,7 +23,7 @@ class HTTPMonitorTests: XCTestCase {
 
     func test_installing_shouldAddCustomProtocol() {
         var installed = false
-        let monitor = HTTPMonitor(config, installer: {
+        let monitor = HTTPMonitor(env, installer: {
             AssertTrue($0 == InstanaURLProtocol.self)
             installed = true
             return true
@@ -41,7 +41,7 @@ class HTTPMonitorTests: XCTestCase {
     
     func test_uninstalling_shouldRemoveCustomProtocol() {
         var deinstall = false
-        let monitor = HTTPMonitor(config, uninstaller: {
+        let monitor = HTTPMonitor(env, uninstaller: {
             AssertTrue($0 == InstanaURLProtocol.self)
             deinstall = true
         }, reporter: instana.monitors.reporter)
@@ -64,7 +64,7 @@ class HTTPMonitorTests: XCTestCase {
 
     func test_installingInConfiguration_shouldAddCustomProtocol() {
         // Given
-        let monitor = HTTPMonitor(config, reporter: instana.monitors.reporter)
+        let monitor = HTTPMonitor(env, reporter: instana.monitors.reporter)
         let sessionConfig = URLSessionConfiguration.default
 
         // When
@@ -79,7 +79,7 @@ class HTTPMonitorTests: XCTestCase {
     func test_markingURL() {
         // Given
         let url: URL = .random
-        let monitor = HTTPMonitor(config, reporter: instana.monitors.reporter)
+        let monitor = HTTPMonitor(env, reporter: instana.monitors.reporter)
         let size = Instana.Types.HTTPSize(header: 1, body: 2)
 
         // When
@@ -94,7 +94,7 @@ class HTTPMonitorTests: XCTestCase {
     func test_markingRequest() {
         // Given
         let url: URL = .random
-        let monitor = HTTPMonitor(config, reporter: instana.monitors.reporter)
+        let monitor = HTTPMonitor(env, reporter: instana.monitors.reporter)
         var request = URLRequest(url: url)
         request.httpMethod = "m"
         request.httpBody = "11".data(using: .utf8)
@@ -111,7 +111,7 @@ class HTTPMonitorTests: XCTestCase {
     func test_invalid_request() {
         // Given
         let url: URL = .random
-        let monitor = HTTPMonitor(config, reporter: instana.monitors.reporter)
+        let monitor = HTTPMonitor(env, reporter: instana.monitors.reporter)
         var request = URLRequest(url: url)
         request.url = nil
         request.httpMethod = nil
@@ -131,7 +131,7 @@ class HTTPMonitorTests: XCTestCase {
         // Automatic
         // When
         config.reportingType = .automatic
-        var monitor = HTTPMonitor(config, reporter: MockReporter { _ in
+        var monitor = HTTPMonitor(.mock(configuration: config), reporter: MockReporter { _ in
             count += 1
         })
         monitor.finalized(marker: Random.marker(monitor, trigger: .automatic))
@@ -141,7 +141,7 @@ class HTTPMonitorTests: XCTestCase {
         // Automatic And manual
         // When
         config.reportingType = .automaticAndManual
-        monitor = HTTPMonitor(config, reporter: MockReporter { _ in
+        monitor = HTTPMonitor(.mock(configuration: config), reporter: MockReporter { _ in
             count += 1
         })
         monitor.finalized(marker: Random.marker(monitor, trigger: .automatic))
@@ -151,7 +151,7 @@ class HTTPMonitorTests: XCTestCase {
         // Manual
         // When
         config.reportingType = .manual
-        monitor = HTTPMonitor(config, reporter: MockReporter { _ in
+        monitor = HTTPMonitor(.mock(configuration: config), reporter: MockReporter { _ in
             count += 1
         })
         monitor.finalized(marker: Random.marker(monitor, trigger: .automatic))
@@ -161,7 +161,7 @@ class HTTPMonitorTests: XCTestCase {
         // None
         // When
         config.reportingType = .none
-        monitor = HTTPMonitor(config, reporter: MockReporter { _ in
+        monitor = HTTPMonitor(.mock(configuration: config), reporter: MockReporter { _ in
             count += 1
         })
         monitor.finalized(marker: Random.marker(monitor, trigger: .automatic))
@@ -177,7 +177,7 @@ class HTTPMonitorTests: XCTestCase {
         // Automatic
         // When
         config.reportingType = .automatic
-        var monitor = HTTPMonitor(config, reporter: MockReporter { _ in
+        var monitor = HTTPMonitor(.mock(configuration: config), reporter: MockReporter { _ in
             count += 1
         })
         monitor.finalized(marker: Random.marker(monitor, trigger: .manual))
@@ -187,7 +187,7 @@ class HTTPMonitorTests: XCTestCase {
         // Automatic And manual
         // When
         config.reportingType = .automaticAndManual
-        monitor = HTTPMonitor(config, reporter: MockReporter { _ in
+        monitor = HTTPMonitor(.mock(configuration: config), reporter: MockReporter { _ in
             count += 1
         })
         monitor.finalized(marker: Random.marker(monitor, trigger: .manual))
@@ -197,7 +197,7 @@ class HTTPMonitorTests: XCTestCase {
         // Manual
         // When
         config.reportingType = .manual
-        monitor = HTTPMonitor(config, reporter: MockReporter { _ in
+        monitor = HTTPMonitor(.mock(configuration: config), reporter: MockReporter { _ in
             count += 1
         })
         monitor.finalized(marker: Random.marker(monitor, trigger: .manual))
@@ -207,7 +207,7 @@ class HTTPMonitorTests: XCTestCase {
         // None
         // When
         config.reportingType = .none
-        monitor = HTTPMonitor(config, reporter: MockReporter { _ in
+        monitor = HTTPMonitor(.mock(configuration: config), reporter: MockReporter { _ in
             count += 1
         })
         monitor.finalized(marker: Random.marker(monitor, trigger: .manual))

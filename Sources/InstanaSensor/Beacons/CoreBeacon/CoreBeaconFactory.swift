@@ -2,10 +2,12 @@
 import Foundation
 
 class CoreBeaconFactory {
-    private let configuration: InstanaConfiguration
+    private let environment: InstanaEnvironment
+    private var conf: InstanaConfiguration { environment.configuration }
+    private var properties: InstanaProperties { environment.propertyHandler.properties }
 
-    init(_ configuration: InstanaConfiguration) {
-        self.configuration = configuration
+    init(_ environment: InstanaEnvironment) {
+        self.environment = environment
     }
 
     func map(_ beacons: [Beacon]) throws -> [CoreBeacon] {
@@ -13,7 +15,7 @@ class CoreBeaconFactory {
     }
 
     func map(_ beacon: Beacon) throws -> CoreBeacon {
-        var cbeacon = CoreBeacon.createDefault(key: configuration.key, timestamp: beacon.timestamp, sessionId: beacon.sessionId, id: beacon.id)
+        var cbeacon = CoreBeacon.createDefault(key: conf.key, timestamp: beacon.timestamp, sessionID: beacon.sessionID, id: beacon.id, properties: properties)
         switch beacon {
         case let b as HTTPBeacon:
             cbeacon.append(b)
@@ -76,26 +78,31 @@ extension CoreBeacon {
 
     static func createDefault(key: String,
                               timestamp: Instana.Types.Milliseconds = Date().millisecondsSince1970,
-                              sessionId: String = UUID().uuidString,
-                              id: String = UUID().uuidString,
-                              connectionType: NetworkUtility.ConnectionType = InstanaSystemUtils.networkUtility.connectionType) -> CoreBeacon {
-        CoreBeacon(v: InstanaSystemUtils.viewControllersHierarchy(),
-               k: key,
-               ti: String(timestamp),
-               sid: sessionId,
-               bid: id,
-               buid: InstanaSystemUtils.applicationBundleIdentifier,
-               ul: Locale.current.languageCode ?? "na",
-               ab: InstanaSystemUtils.applicationBuildNumber,
-               av: InstanaSystemUtils.applicationVersion,
-               osn: InstanaSystemUtils.systemName,
-               osv: InstanaSystemUtils.systemVersion,
-               dmo: InstanaSystemUtils.deviceModel,
-               ro: String(InstanaSystemUtils.isDeviceJailbroken),
-               vw: String(Int(InstanaSystemUtils.screenSize.width)),
-               vh: String(Int(InstanaSystemUtils.screenSize.height)),
-               cn: connectionType.cellular.carrierName,
-               ct: connectionType.description)
+                              sessionID: UUID = UUID(),
+                              id: UUID = UUID(),
+                              connectionType: NetworkUtility.ConnectionType = InstanaSystemUtils.networkUtility.connectionType,
+                              properties: InstanaProperties) -> CoreBeacon {
+        CoreBeacon(v: properties.view,
+                   k: key,
+                   ti: String(timestamp),
+                   sid: sessionID.uuidString,
+                   bid: id.uuidString,
+                   buid: InstanaSystemUtils.applicationBundleIdentifier,
+                   m: properties.metaData,
+                   ui: properties.user?.id,
+                   un: properties.user?.name,
+                   ue: properties.user?.email,
+                   ul: Locale.current.languageCode ?? "na",
+                   ab: InstanaSystemUtils.applicationBuildNumber,
+                   av: InstanaSystemUtils.applicationVersion,
+                   osn: InstanaSystemUtils.systemName,
+                   osv: InstanaSystemUtils.systemVersion,
+                   dmo: InstanaSystemUtils.deviceModel,
+                   ro: String(InstanaSystemUtils.isDeviceJailbroken),
+                   vw: String(Int(InstanaSystemUtils.screenSize.width)),
+                   vh: String(Int(InstanaSystemUtils.screenSize.height)),
+                   cn: connectionType.cellular.carrierName,
+                   ct: connectionType.description)
     }
 
     static func create(from httpBody: String) throws -> CoreBeacon {

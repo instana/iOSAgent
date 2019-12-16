@@ -27,6 +27,9 @@ extension CoreBeacon {
     func formattedKVPair(key: String, value: Any) -> String? {
         let value = cleaning(value)
         guard Mirror.isNotNil(value: value) else { return nil }
+        if let dict = value as? [AnyHashable: AnyObject] {
+            return dict.asString(prefix: key)
+        }
         return "\(key)\t\(value)"
     }
 
@@ -38,6 +41,12 @@ extension CoreBeacon {
             return trimmed as! T
         }
         return entry
+    }
+}
+
+extension Dictionary {
+    func asString(prefix: String) -> String {
+        return map { "\(prefix)_\($0.key)\t\($0.value)" }.joined(separator: "\n")
     }
 }
 

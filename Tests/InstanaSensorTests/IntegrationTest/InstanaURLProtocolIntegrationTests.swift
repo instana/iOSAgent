@@ -6,11 +6,19 @@ import WebKit
 
 @available(iOS 12.0, *)
 class InstanaURLProtocolIntegrationTests: IntegrationTestCase {
+
+    var env: InstanaEnvironment!
+    var givenURL: URL!
+
+    override func setUp() {
+        super.setUp()
+        env = InstanaEnvironment.mock
+        givenURL = Defaults.someURL
+    }
+
     func test_urlprotocol_with_shared_URLSession_mock_report() {
         // Given
-        let givenURL = Defaults.someURL
         let didReportWait = expectation(description: "didFinish")
-        let config = InstanaConfiguration.default(key: "KEY", reportingURL: URL.random, reportingType: .automatic)
         var expectedBeacon: HTTPBeacon?
         let mockReporter = MockReporter { submittedBeacon in
             if let httpBeacon = submittedBeacon as? HTTPBeacon {
@@ -18,8 +26,8 @@ class InstanaURLProtocolIntegrationTests: IntegrationTestCase {
                 didReportWait.fulfill()
             }
         }
-        let monitors = Monitors(config, reporter: mockReporter)
-        Instana.current = Instana(configuration: config, monitors: monitors)
+        let monitors = Monitors(env, reporter: mockReporter)
+        Instana.current = Instana(configuration: env.configuration, monitors: monitors)
 
         // When
         URLSession.shared.dataTask(with: givenURL) {_, _, _ in}.resume()
@@ -31,9 +39,7 @@ class InstanaURLProtocolIntegrationTests: IntegrationTestCase {
 
     func test_urlprotocol_with_custom_URLSession_mock_report() {
         // Given
-        let givenURL = Defaults.someURL
         let didReportWait = expectation(description: "didFinish")
-        let config = InstanaConfiguration.default(key: "KEY", reportingURL: URL.random, reportingType: .automatic)
         var expectedBeacon: HTTPBeacon?
         let mockReporter = MockReporter { submittedBeacon in
             if let httpBeacon = submittedBeacon as? HTTPBeacon {
@@ -41,8 +47,8 @@ class InstanaURLProtocolIntegrationTests: IntegrationTestCase {
                 didReportWait.fulfill()
             }
         }
-        let monitors = Monitors(config, reporter: mockReporter)
-        Instana.current = Instana(configuration: config, monitors: monitors)
+        let monitors = Monitors(env, reporter: mockReporter)
+        Instana.current = Instana(configuration: env.configuration, monitors: monitors)
         session = URLSession(configuration: URLSessionConfiguration.default)
 
         // When
@@ -55,9 +61,7 @@ class InstanaURLProtocolIntegrationTests: IntegrationTestCase {
 
     func test_urlprotocol_with_Webview_mock_report() {
         // Given
-        let givenURL = Defaults.someURL
         let didReportWait = expectation(description: "didFinish")
-        let config = InstanaConfiguration.default(key: "KEY", reportingURL: URL.random, reportingType: .automatic)
         var expectedBeacon: HTTPBeacon?
         let mockReporter = MockReporter { submittedBeacon in
             if let httpBeacon = submittedBeacon as? HTTPBeacon {
@@ -65,8 +69,8 @@ class InstanaURLProtocolIntegrationTests: IntegrationTestCase {
                 didReportWait.fulfill()
             }
         }
-        let monitors = Monitors(config, reporter: mockReporter)
-        Instana.current = Instana(configuration: config, monitors: monitors)
+        let monitors = Monitors(env, reporter: mockReporter)
+        Instana.current = Instana(configuration: env.configuration, monitors: monitors)
         let webView = WKWebView()
 
         // When

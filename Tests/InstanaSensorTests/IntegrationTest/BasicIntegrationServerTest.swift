@@ -12,7 +12,24 @@ import XCTest
 @available(iOS 12.0, *)
 class BasicIntegrationServerTest: IntegrationTestCase {
 
+    var env: InstanaEnvironment!
+    var networkUtil: NetworkUtility!
+    var beacon: HTTPBeacon!
     var reporter: Reporter!
+
+    override func setUp() {
+        super.setUp()
+        var config = InstanaConfiguration.default(key: "KEY")
+        config.reportingURL = Defaults.baseURL
+        config.transmissionDelay = 0.0
+        config.transmissionLowBatteryDelay = 0.0
+        config.gzipReport = false
+        env = InstanaEnvironment.mock(configuration: config)
+
+        networkUtil = NetworkUtility.none
+        beacon = HTTPBeacon.createMock()
+        reporter = Reporter(env, networkUtility: networkUtil)
+    }
 
     func test_Network() {
         // Need this as warm up for the webserver
@@ -35,18 +52,10 @@ class BasicIntegrationServerTest: IntegrationTestCase {
     /// => Expect: Beacon queue should be empty
     func test_send_with_transmission_due_to_offline() {
         // Given
-        var config = InstanaConfiguration.default(key: "KEY")
         let waitAddQueue = expectation(description: "add_queue")
         let waitFirstFlush = expectation(description: "expect_first_flush")
         let waitSecondFlush = expectation(description: "expect_second_flush")
-        config.reportingURL = Defaults.baseURL
-        config.transmissionDelay = 0.0
-        config.transmissionLowBatteryDelay = 0.0
-        config.gzipReport = false
-        let networkUtil = NetworkUtility.none
-        reporter = Reporter(config, networkUtility: networkUtil)
         reporter.queue.removeAll() // Remove any old items
-        let beacon = HTTPBeacon.createMock()
 
         // When
         var expectedResult: BeaconResult?
@@ -72,7 +81,7 @@ class BasicIntegrationServerTest: IntegrationTestCase {
         AssertTrue(reporter.queue.items.count == 1)
 
         // When creating a new instance of the reporter
-        reporter = Reporter(config, networkUtility: networkUtil)
+        reporter = Reporter(env, networkUtility: networkUtil)
         reporter.completion = {_ in
             waitSecondFlush.fulfill()
         }
@@ -93,7 +102,7 @@ class BasicIntegrationServerTest: IntegrationTestCase {
         let serverReceivedHTTP = String(data: serverReceivedtData, encoding: .utf8)
         do {
             let responseBeacon = try CoreBeacon.create(from: serverReceivedHTTP ?? "")
-            let expectedBeacon = try CoreBeaconFactory(config).map(beacon)
+            let expectedBeacon = try CoreBeaconFactory(env).map(beacon)
             AssertEqualAndNotNil(expectedBeacon, responseBeacon)
         } catch (let error) {
             XCTFail(error.localizedDescription)

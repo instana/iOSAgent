@@ -5,7 +5,7 @@ import Foundation
 
 /// Represents errors that can be thrown by the Instana SDK
 @objc public class InstanaError: NSError {
-    @objc public static let domain = "com.instana.mobile"
+    @objc public static let domain = "com.instana.ios.agent.error"
     
     @objc public enum Code: Int {
         case invalidRequest
