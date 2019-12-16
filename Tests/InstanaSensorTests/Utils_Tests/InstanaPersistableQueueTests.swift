@@ -136,7 +136,7 @@ class InstanaPersistableQueueTests: XCTestCase {
     func createCoreBeacons() -> [CoreBeacon] {
         let beacons = [HTTPBeacon.createMock(), HTTPBeacon.createMock(), HTTPBeacon.createMock()]
         do {
-            return try CoreBeaconFactory(InstanaConfiguration.default(key: "KEY")).map(beacons)
+            return try CoreBeaconFactory(InstanaEnvironment.mock).map(beacons)
         } catch {
             XCTFail("Could not create CoreBeacons")
         }

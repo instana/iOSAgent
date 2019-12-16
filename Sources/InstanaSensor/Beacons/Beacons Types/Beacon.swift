@@ -7,13 +7,13 @@ import Foundation
 class Beacon: Identifiable {
 
     let timestamp: Instana.Types.Milliseconds
-    let sessionId: String
-    var id: String
+    let sessionID: UUID
+    var id: UUID
 
     init(timestamp: Instana.Types.Milliseconds = Date().millisecondsSince1970,
-         sessionId: String = Instana.current?.sessionId ?? UUID().uuidString) {
-        self.sessionId = sessionId
-        self.id = UUID().uuidString
+         sessionID: UUID = Instana.current?.environment.sessionID ?? UUID()) {
+        self.sessionID = sessionID
+        self.id = UUID()
         self.timestamp = timestamp
     }
 }

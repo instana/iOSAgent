@@ -9,23 +9,22 @@ public class Reporter {
     typealias NetworkLoader = (URLRequest, @escaping (InstanaNetworking.Result) -> Void) -> Void
     var completion: (BeaconResult) -> Void = {_ in}
     let queue = InstanaPersistableQueue<CoreBeacon>()
-    private let backgroundQueue = DispatchQueue(label: "com.instana.ios.app.background", qos: .background)
+    private let backgroundQueue = DispatchQueue(label: "com.instana.ios.agent.background", qos: .background)
     private let send: NetworkLoader
     private let batterySafeForNetworking: () -> Bool
     private let networkUtility: NetworkUtility
-    private var suspendReporting: Set<InstanaConfiguration.SuspendReporting> { configuration.suspendReporting }
-    private let configuration: InstanaConfiguration
+    private var suspendReporting: Set<InstanaConfiguration.SuspendReporting> { environment.configuration.suspendReporting }
+    private let environment: InstanaEnvironment
     private var flushWorkItem: DispatchWorkItem?
     private var flushSemaphore: DispatchSemaphore?
 
     // MARK: Init
-    init(_ configuration: InstanaConfiguration,
-         useGzip: Bool = true,
+    init(_ environment: InstanaEnvironment,
          batterySafeForNetworking: @escaping () -> Bool = { InstanaSystemUtils.battery.safeForNetworking },
          networkUtility: NetworkUtility = NetworkUtility(),
          send: @escaping NetworkLoader = InstanaNetworking().send(request:completion:)) {
         self.networkUtility = networkUtility
-        self.configuration = configuration
+        self.environment = environment
         self.batterySafeForNetworking = batterySafeForNetworking
         self.send = send
         networkUtility.connectionUpdateHandler = {[weak self] connectionType in
@@ -39,10 +38,10 @@ public class Reporter {
     func submit(_ beacon: Beacon, _ completion: (() -> Void)? = nil) {
         backgroundQueue.async(qos: .background) {
             let start = Date()
-            guard let coreBeacon = try? CoreBeaconFactory(self.configuration).map(beacon) else { return }
+            guard let coreBeacon = try? CoreBeaconFactory(self.environment).map(beacon) else { return }
             self.queue.add(coreBeacon)
             let passed = Date().timeIntervalSince(start)
-            Instana.current?.logger.add("\(Date().millisecondsSince1970) Creating the CoreBeacon took \(passed*1000) ms")
+            self.environment.logger.add("\(Date().millisecondsSince1970) Creating the CoreBeacon took \(passed*1000) ms")
             self.scheduleFlush()
             completion?()
         }
@@ -58,12 +57,12 @@ public class Reporter {
             self.flushSemaphore = DispatchSemaphore(value: 0)
             self.flushQueue()
             let passed = Date().timeIntervalSince(start)
-            Instana.current?.logger.add("Flushing and writing the queue took \(passed*1000) ms")
+            self.environment.logger.add("Flushing and writing the queue took \(passed*1000) ms")
              _ = self.flushSemaphore?.wait(timeout: .now() + 20)
             self.flushSemaphore = nil
         }
         flushWorkItem = workItem
-        let interval = batterySafeForNetworking() ? configuration.transmissionDelay : configuration.transmissionLowBatteryDelay
+        let interval = batterySafeForNetworking() ? environment.configuration.transmissionDelay : environment.configuration.transmissionLowBatteryDelay
         backgroundQueue.asyncAfter(deadline: .now() + interval, execute: workItem)
     }
 
@@ -83,15 +82,17 @@ public class Reporter {
         }
 
         let beacons = queue.items
+        let beaconsAsString = beacons.asString
         let request: URLRequest
         do {
-            request = try createBatchRequest(from: beacons)
+            request = try createBatchRequest(from: beaconsAsString)
         } catch {
             complete([], .failure(error))
             return
         }
         send(request) {[weak self] result in
             guard let self = self else { return }
+            self.environment.logger.add("Did transfer beacon\n \(beaconsAsString)")
             switch result {
             case .failure(let error):
                 self.complete(beacons, .failure(error))
@@ -103,16 +104,16 @@ public class Reporter {
         }
     }
     
-    func complete(_ beacons: [CoreBeacon],_ result: BeaconResult) {
+    func complete(_ beacons: [CoreBeacon], _ result: BeaconResult) {
         switch result {
         case .success:
-            Instana.current?.logger.add("Did send beacons \(beacons)")
+            environment.logger.add("Did successfully send beacons")
             queue.remove(beacons) {[weak self] _ in
                 guard let self = self else { return }
                 self.completion(result)
             }
         case .failure(let error):
-            Instana.current?.logger.add("Failed to send Beacon batch: \(error)", level: .warning)
+            environment.logger.add("Failed to send Beacon batch: \(error)", level: .warning)
             completion(result)
         }
         flushSemaphore?.signal()
@@ -121,18 +122,18 @@ public class Reporter {
 
 extension Reporter {
 
-    func createBatchRequest(from beacons: [CoreBeacon]) throws -> URLRequest {
-        guard !configuration.key.isEmpty else {
+    func createBatchRequest(from beacons: String) throws -> URLRequest {
+        guard !environment.configuration.key.isEmpty else {
             throw InstanaError(code: .notAuthenticated, description: "Missing application key. No data will be sent.")
         }
 
-        var urlRequest = URLRequest(url: configuration.reportingURL)
+        var urlRequest = URLRequest(url: environment.configuration.reportingURL)
         urlRequest.httpMethod = "POST"
         urlRequest.addValue("text/plain", forHTTPHeaderField: "Content-Type")
 
-        let data = beacons.asString.data(using: .utf8)
+        let data = beacons.data(using: .utf8)
 
-        if configuration.gzipReport, let gzippedData = try? data?.gzipped(level: .bestCompression) {
+        if environment.configuration.gzipReport, let gzippedData = try? data?.gzipped(level: .bestCompression) {
             urlRequest.httpBody = gzippedData
             urlRequest.setValue("gzip", forHTTPHeaderField: "Content-Encoding")
             urlRequest.setValue("\(gzippedData.count)", forHTTPHeaderField: "Content-Length")

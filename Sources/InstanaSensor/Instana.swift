@@ -13,24 +13,19 @@ import Foundation
     /// The Container for all Instana monitors (Network, HTTP, Framedrop, ...)
     let monitors: Monitors
 
-    /// A debugging console logger using levels
-    let logger = InstanaLogger()
-
-    /// The Session ID created on each app launch
-    let sessionId = UUID().uuidString
-
-    /// The current Instana configuration
-    let configuration: InstanaConfiguration
+    /// The current Instana environment that holds the configuration, session information, custom properties and more
+    let environment: InstanaEnvironment
 
     static var current: Instana?
 
     init(configuration: InstanaConfiguration, monitors: Monitors? = nil) {
-        self.configuration = configuration
-        self.monitors = monitors ?? Monitors(configuration)
+        let environment = InstanaEnvironment(configuration: configuration, propertyHandler: InstanaPropertyHandler())
+        self.environment = environment
+        self.monitors = monitors ?? Monitors(environment)
         super.init()
         assert(!configuration.reportingURL.absoluteString.isEmpty, "Instana Reporting URL must not be empty")
         if configuration.isValid {
-            monitors?.reporter.submit(SessionProfileBeacon(state: .start, sessionId: sessionId))
+            monitors?.reporter.submit(SessionProfileBeacon(state: .start, sessionID: environment.sessionID))
         }
     }
 }
@@ -40,10 +35,18 @@ import Foundation
 
 
     /// Optional reporting URL used for on-premises Instana backend installations.
-    @objc class var reportingURL: URL? { Instana.current?.configuration.reportingURL }
+    @objc class var reportingURL: URL? { Instana.current?.environment.configuration.reportingURL }
 
     /// Instana key identifying your application.
-    @objc class var key: String? { Instana.current?.configuration.key }
+    @objc class var key: String? { Instana.current?.environment.configuration.key }
+
+    /// Instana global property handler that will attach the custom properties to each monitored event. (beacon)
+    /// Those values can be changed any time by the InstanaAgent consumer (i.e. iOS app).
+    /// This class is thread-safe
+    @objc class var propertyHandler: InstanaPropertyHandler {
+        guard let current = Instana.current else { fatalError("Instana Config error: There is no active & valid instana setup") }
+        return current.environment.propertyHandler
+    }
 
     /// Configures and sets up the Instana SDK with the default configuration.
     ///
@@ -84,7 +87,7 @@ import Foundation
     ///   - url: URL of the call.
     ///   - method: Method of the call.
     /// - Returns: A remote call marker which is used to notify the SDK of call results by invoking one of its completion methods.
-    @objc class func markHTTP(_ url: URL, method: String) -> HTTPMarker {
+    @objc static func markHTTP(_ url: URL, method: String) -> HTTPMarker {
         let delegate = Instana.current?.monitors.http
         return HTTPMarker(url: url, method: method, trigger: .manual, delegate: delegate)
     }
@@ -111,7 +114,7 @@ import Foundation
     /// - Parameters:
     ///   - request: URLRequest of the call.
     /// - Returns: A remote call marker which is used to notify the SDK of call results by invoking one of its completion methods.
-    @objc class func markHTTP(_ request: URLRequest) -> HTTPMarker {
+    @objc static func markHTTP(_ request: URLRequest) -> HTTPMarker {
         let delegate = Instana.current?.monitors.http
         let url = request.url ?? URL(string: "http://instana-invalid")!
         return HTTPMarker(url: url, method: request.httpMethod ?? "invalid", trigger: .manual, delegate: delegate)

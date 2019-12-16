@@ -5,23 +5,48 @@ import XCTest
 
 class CoreBeaconExtensionsTests: XCTestCase {
 
+    var sessionID: UUID!
+    var key: String!
+    var user: InstanaProperties.User!
+    var metaData: [String: String]!
+    var viewName: String!
+    var env: InstanaEnvironment!
+    var props: InstanaProperties!
+    var defaultCoreBeacon: CoreBeacon!
+    var defaultWifiCoreBeacon: CoreBeacon!
+
+    override func setUp() {
+        super.setUp()
+        sessionID = UUID()
+        user = InstanaProperties.User(id: UUID().uuidString , email: "ex@example.com", name: "John Appleseed")
+        viewName = "SomeView"
+        metaData = ["MetaKey": "MetaValue"]
+        key = "123KEY"
+        env = InstanaEnvironment.mock(configuration: .default(key: key),
+                                      sessionID: sessionID,
+                                      metaData: metaData,
+                                      user: user,
+                                      currentView: viewName)
+        props = env.propertyHandler.properties
+        defaultCoreBeacon = CoreBeacon.createDefault(key: key, sessionID: sessionID, properties: props)
+        defaultWifiCoreBeacon = CoreBeacon.createDefault(key: key, sessionID: sessionID, connectionType: .wifi, properties: props)
+    }
+
     func test_asString_Default() {
         // Given
-        let key = "123KEY"
-        let beacon = CoreBeacon.createDefault(key: key, connectionType: .wifi)
+        let beacon = defaultWifiCoreBeacon!
 
         // When
         let sut = beacon.asString
 
         // Then
-        let expected = "ab\t\(beacon.ab)\nav\t\(beacon.av)\nbid\t\(beacon.bid)\nbuid\t\(beacon.buid)\ncn\tNone\nct\tWifi\ndma\tApple\ndmo\t\(beacon.dmo)\nk\t\(key)\nosn\tiOS\nosv\t\(beacon.osv)\nro\tfalse\nsid\t\(beacon.sid)\nti\t\(beacon.ti)\nul\ten\nvh\t\(Int(UIScreen.main.nativeBounds.height))\nvw\t\(Int(UIScreen.main.nativeBounds.width))"
+        let expected = "ab\t\(beacon.ab)\nav\t\(beacon.av)\nbid\t\(beacon.bid)\nbuid\t\(beacon.buid)\ncn\tNone\nct\tWifi\ndma\tApple\ndmo\t\(beacon.dmo)\nk\t\(key!)\nm_MetaKey\t\(metaData["MetaKey"]!)\nosn\tiOS\nosv\t\(beacon.osv)\nro\tfalse\nsid\t\(sessionID.uuidString)\nti\t\(beacon.ti)\nue\t\(user.email ?? "")\nui\t\(user.id)\nul\ten\nun\t\(user.name ?? "")\nv\t\(viewName!)\nvh\t\(Int(UIScreen.main.nativeBounds.height))\nvw\t\(Int(UIScreen.main.nativeBounds.width))"
         XCTAssertEqual(sut, expected)
     }
 
     func test_asJSON() {
         // Given
-        let key = "123KEY"
-        let beacon = CoreBeacon.createDefault(key: key)
+        let beacon = defaultCoreBeacon!
 
         // When
         let mirror = Mirror(reflecting: beacon)
@@ -38,7 +63,7 @@ class CoreBeaconExtensionsTests: XCTestCase {
 
     func test_formattedKVPair() {
         // Given
-        let beacon = CoreBeacon.createDefault(key: "KEY123")
+        let beacon = defaultCoreBeacon!
         let value = beacon.ab
 
         // When
@@ -50,7 +75,7 @@ class CoreBeaconExtensionsTests: XCTestCase {
 
     func test_formattedKVPair_nil_value() {
         // Given
-        let beacon = CoreBeacon.createDefault(key: "KEY123")
+        let beacon = defaultCoreBeacon!
         let value = Optional<Any>.none as Any
 
         // When
@@ -62,7 +87,7 @@ class CoreBeaconExtensionsTests: XCTestCase {
 
     func test_cleaning() {
         // Given
-        var beacon = CoreBeacon.createDefault(key: "KEY123")
+        var beacon = defaultCoreBeacon!
         beacon.bt = """
 
                         Trace ab
@@ -80,7 +105,7 @@ class CoreBeaconExtensionsTests: XCTestCase {
     func test_truncate_at_max_length() {
         // Given
         let longString = (0...CoreBeacon.maxBytesPerField).map {"\($0)"}.joined()
-        var beacon = CoreBeacon.createDefault(key: "KEY123")
+        var beacon = defaultCoreBeacon!
         beacon.bt = longString
 
         // When

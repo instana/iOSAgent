@@ -14,7 +14,7 @@ import Foundation
     case none
 }
 
-struct InstanaConfiguration {
+struct InstanaConfiguration: Equatable {
 
     enum SuspendReporting {
         /// Reporting is suspended while the device battery is low.

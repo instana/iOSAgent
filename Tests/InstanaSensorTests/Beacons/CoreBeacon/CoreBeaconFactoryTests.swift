@@ -21,7 +21,7 @@ class CoreBeaconFactoryTests: XCTestCase {
     func test_undefined_beacon_type() {
         // Given
         let beacon = Beacon()
-        let mapper = CoreBeaconFactory(config)
+        let mapper = CoreBeaconFactory(InstanaEnvironment.mock)
 
         // When
         XCTAssertThrowsError(try mapper.map(beacon)) {error in
