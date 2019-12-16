@@ -39,7 +39,7 @@ struct InstanaConfiguration {
 
     struct Defaults {
         static let reporterURL = URL(string: "http://localhost:3000")!
-        static let transmissionDelay: Instana.Types.Seconds = 1.0
+        static let transmissionDelay: Instana.Types.Seconds = 3.0
         static let transmissionLowBatteryDelay: Instana.Types.Seconds = 10.0
         static let gzipReport = true
     }
