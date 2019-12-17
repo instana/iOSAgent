@@ -14,24 +14,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "InstanaSensor"
-               BuildableName = "InstanaSensor"
-               BlueprintName = "InstanaSensor"
-               ReferencedContainer = "container:">
-            </BuildableReference>
-         </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "NO"
-            buildForArchiving = "NO"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "InstanaSensorTests"
-               BuildableName = "InstanaSensorTests"
-               BlueprintName = "InstanaSensorTests"
-               ReferencedContainer = "container:">
+               BlueprintIdentifier = "72FC4F6B23AA1A5A004EF4E2"
+               BuildableName = "Dev.app"
+               BlueprintName = "Dev"
+               ReferencedContainer = "container:Dev.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -46,10 +32,10 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "InstanaSensorTests"
-               BuildableName = "InstanaSensorTests"
-               BlueprintName = "InstanaSensorTests"
-               ReferencedContainer = "container:">
+               BlueprintIdentifier = "72FC4F8123AA1A5B004EF4E2"
+               BuildableName = "DevTests.xctest"
+               BlueprintName = "DevTests"
+               ReferencedContainer = "container:Dev.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -64,6 +50,16 @@
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "72FC4F6B23AA1A5A004EF4E2"
+            BuildableName = "Dev.app"
+            BlueprintName = "Dev"
+            ReferencedContainer = "container:Dev.xcodeproj">
+         </BuildableReference>
+      </BuildableProductRunnable>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
@@ -71,15 +67,16 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
-      <MacroExpansion>
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "InstanaSensor"
-            BuildableName = "InstanaSensor"
-            BlueprintName = "InstanaSensor"
-            ReferencedContainer = "container:">
+            BlueprintIdentifier = "72FC4F6B23AA1A5A004EF4E2"
+            BuildableName = "Dev.app"
+            BlueprintName = "Dev"
+            ReferencedContainer = "container:Dev.xcodeproj">
          </BuildableReference>
-      </MacroExpansion>
+      </BuildableProductRunnable>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">
