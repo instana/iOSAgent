@@ -28,7 +28,7 @@ Pod::Spec.new do |s|
 Integrate Instana Application Performance Management into your iOS app.
                    DESC
 
-  s.homepage     = "https://github.com/instana/iOSSensor.git"
+  s.homepage     = "https://github.com/instana/iOSAgent"
 
 
   # ―――  Spec License  ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
@@ -51,10 +51,7 @@ Integrate Instana Application Performance Management into your iOS app.
   #  profile URL.
   #
 
-  s.author             = { "Nikola Lajic" => "nikola.lajic@codecentric.de" }
-  # Or just: s.author    = "Nikola Lajic"
-  # s.authors            = { "Nikola Lajic" => "nikola.lajic@codecentric.de" }
-  # s.social_media_url   = "http://twitter.com/Nikola Lajic"
+  s.author             = { "Instana Inc." => "info@instana.com" }
 
   # ――― Platform Specifics ――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
   #
@@ -63,7 +60,7 @@ Integrate Instana Application Performance Management into your iOS app.
   #
 
   # s.platform     = :ios
-  s.platform     = :ios, "10.3"
+  s.platform     = :ios, "11.0"
 
   #  When using multiple platforms
   # s.ios.deployment_target = "5.0"
@@ -78,7 +75,7 @@ Integrate Instana Application Performance Management into your iOS app.
   #  Supports git, hg, bzr, svn and HTTP.
   #
 
-  s.source       = { :git => "https://github.com/instana/iOSSensor.git", :tag => "#{s.version}" }
+  s.source       = { :git => "https://github.com/instana/iOSAgent", :branch => "development" }
 
 
   # ――― Source Code ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
@@ -89,7 +86,7 @@ Integrate Instana Application Performance Management into your iOS app.
   #  Not including the public_header_files will make all headers public.
   #
 
-  s.source_files  = "Instana/*.{swift}","Instana/**/*.{swift,h,m}"
+  s.source_files  = "Sources/InstanaSensor/*.{swift}"
   # s.exclude_files = "Classes/Exclude"
 
   # s.public_header_files = "Instana/Instana.h"
@@ -131,7 +128,7 @@ Integrate Instana Application Performance Management into your iOS app.
   s.requires_arc = true
 
   # s.xcconfig = { "HEADER_SEARCH_PATHS" => "$(SDKROOT)/usr/include/libxml2" }
-  
+
   s.swift_version = "5.1"
 
 end
