@@ -86,7 +86,7 @@ Integrate Instana Application Performance Management into your iOS app.
   #  Not including the public_header_files will make all headers public.
   #
 
-  s.source_files  = "Sources/InstanaSensor/*.{swift}"
+  s.source_files  = "Sources/InstanaSensor/**/*.{swift}"
   # s.exclude_files = "Classes/Exclude"
 
   # s.public_header_files = "Instana/Instana.h"
@@ -111,13 +111,12 @@ Integrate Instana Application Performance Management into your iOS app.
   #  Link your library with frameworks, or libraries. Libraries do not include
   #  the lib prefix of their name.
   #
-
-  # s.framework  = "SomeFramework"
   # s.frameworks = "SomeFramework", "AnotherFramework"
 
   # s.library   = "iconv"
   # s.libraries = "iconv", "xml2"
 
+  s.dependency "GzipSwift"
 
   # ――― Project Settings ――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
   #
