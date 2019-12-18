@@ -30,6 +30,9 @@
                   Identifier = "ApplicationNotRespondingMonitorTests">
                </Test>
                <Test
+                  Identifier = "BasicIntegrationServerTest">
+               </Test>
+               <Test
                   Identifier = "BeaconTests">
                </Test>
                <Test
