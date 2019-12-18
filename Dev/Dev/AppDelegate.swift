@@ -33,13 +33,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 }
 
-extension AppDelegate {
-    var isRunningTests: Bool {
-        return ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
-    }
-
-    var isRunningUITests: Bool  {
-        return ProcessInfo.processInfo.environment["UITestsActive"] == "true"
-    }
+var isRunningTests: Bool {
+    return ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
 }
 
+var isRunningUITests: Bool  {
+    return ProcessInfo.processInfo.environment["UITestsActive"] == "true"
+}
