@@ -25,7 +25,7 @@ import Foundation
         super.init()
         assert(!configuration.reportingURL.absoluteString.isEmpty, "Instana Reporting URL must not be empty")
         if configuration.isValid {
-            monitors?.reporter.submit(SessionProfileBeacon(state: .start, sessionID: environment.sessionID))
+            self.monitors.reporter.submit(SessionProfileBeacon(state: .start, sessionID: environment.sessionID))
         }
     }
 }
