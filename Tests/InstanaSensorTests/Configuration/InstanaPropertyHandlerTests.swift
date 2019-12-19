@@ -1,65 +1,42 @@
-import Foundation
 import XCTest
+import Foundation
 @testable import InstanaSensor
+
+//extension InstanaProperties.User: Equatable {}
+//extension InstanaProperties: Equatable {}
 
 class InstanaPropertyHandlerTests: XCTestCase {
 
-    func test_setUser() {
+    func test_locking() {
         // Given
-        let id = UUID().uuidString
-        let email = "email@example.com"
-        let name = "John Appleseed"
-        let sut = InstanaPropertyHandler()
+        var done = false
+        let await = expectation(description: "test_locking")
+        let queue = DispatchQueue(label: "background_queue", qos: .background, attributes: .concurrent)
+        let propertyHandler = InstanaPropertyHandler()
+        let propertyOne = InstanaProperties(user: InstanaProperties.User(id: "ID", email: "email@example.com", name: "Name"), metaData: nil, view: nil)
+        let propertyTwo = InstanaProperties(user: InstanaProperties.User(id: "ID", email: "email@example.com", name: "Name"), metaData: nil, view: nil)
+        let propertyThree = InstanaProperties(user: InstanaProperties.User(id: "ID2", email: "another@example.com", name: "Name"), metaData: nil, view: nil)
+        let signal = {
+            if !done {
+                done = true
+                await.fulfill()
+            }
+        }
 
         // When
-        sut.setUser(id: id, email: email, name: name)
+        propertyHandler.properties = propertyOne
+        queue.async {
+            propertyHandler.properties = propertyTwo
+            signal()
+        }
+        queue.async {
+            propertyHandler.properties = propertyThree
+            signal()
+        }
+        wait(for: [await], timeout: 0.5)
 
         // Then
-        AssertEqualAndNotNil(sut.properties.user?.id, id)
-        AssertEqualAndNotNil(sut.properties.user?.email, email)
-        AssertEqualAndNotNil(sut.properties.user?.name, name)
-    }
-
-    func test_setViewName() {
-        // Given
-        let viewName = "Some View"
-        let sut = InstanaPropertyHandler()
-
-        // When
-        sut.setVisibleView(name: viewName)
-
-        // Then
-        AssertEqualAndNotNil(sut.properties.view, viewName)
-    }
-
-    func test_unsetVisibleView() {
-        // Given
-        let viewName = "Some View"
-        let sut = InstanaPropertyHandler()
-
-        // When
-        sut.setVisibleView(name: viewName)
-
-        // Then
-        AssertEqualAndNotNil(sut.properties.view, viewName)
-
-        // When
-        sut.unsetVisibleView()
-
-        // Then
-        AssertTrue(sut.properties.view == nil)
-    }
-
-    func test_setMetaData() {
-        // Given
-        let given = ["Key": "Value", "Key2": "Value2"]
-        let sut = InstanaPropertyHandler()
-
-        // When
-        sut.setMeta(value: given["Key"]!, key: "Key")
-        sut.setMeta(value: given["Key2"]!, key: "Key2")
-
-        // Then
-        AssertEqualAndNotNil(sut.properties.metaData, given)
+        AssertTrue(propertyHandler.properties != propertyOne)
+        AssertTrue(propertyHandler.properties.user != nil)
     }
 }

@@ -28,14 +28,7 @@ class WebViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         if !isRunningTests {
-            Instana.propertyHandler.setVisibleView(name: "WebView: Instana.com")
-        }
-    }
-
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        if !isRunningTests {
-            Instana.propertyHandler.unsetVisibleView()
+            Instana.setView(name: "WebView: Instana.com")
         }
     }
 }

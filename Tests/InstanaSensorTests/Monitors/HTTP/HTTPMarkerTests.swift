@@ -13,7 +13,7 @@ class HTTPMarkerTests: XCTestCase {
         let start = Date().millisecondsSince1970
 
         // When
-        let marker = HTTPMarker(url: url, method: "GET", delegate: Delegate())
+        let marker = HTTPMarker(url: url, method: "GET", trigger: .automatic, delegate: Delegate())
 
         // Then
         XCTAssertEqual(marker.url, url)
@@ -30,7 +30,7 @@ class HTTPMarkerTests: XCTestCase {
         let bodyMetric = MockURLSessionTaskTransactionMetrics(stubbedCountOfResponseBodyBytesReceived: 1024)
         let decodedMetric = MockURLSessionTaskTransactionMetrics(stubbedCountOfResponseBodyBytesAfterDecoding: 2000)
 
-        let marker = HTTPMarker(url: URL.random, method: "GET", delegate: Delegate())
+        let marker = HTTPMarker(url: URL.random, method: "GET", trigger: .automatic, delegate: Delegate())
         let responseSize = Instana.Types.HTTPSize.size(for: response, transactionMetrics:  [headerMetric, bodyMetric, decodedMetric])
 
         // When
@@ -46,7 +46,7 @@ class HTTPMarkerTests: XCTestCase {
         // Given
         let response = MockHTTPURLResponse(url: URL.random, mimeType: "text/plain", expectedContentLength: 1024, textEncodingName: "txt")
         response.stubbedAllHeaderFields = ["KEY": "VALUE"]
-        let marker = HTTPMarker(url: URL.random, method: "GET", delegate: Delegate())
+        let marker = HTTPMarker(url: URL.random, method: "GET", trigger: .automatic, delegate: Delegate())
         let responseSize = Instana.Types.HTTPSize.size(response: response)
         let excpectedHeaderSize = Instana.Types.Bytes(NSKeyedArchiver.archivedData(withRootObject: response.stubbedAllHeaderFields).count)
 
@@ -68,7 +68,7 @@ class HTTPMarkerTests: XCTestCase {
         response.stubbedAllHeaderFields = ["Server-Timing": "intid;desc=\(backendTracingID)"]
         task.stubbedResponse = response
 
-        let marker = HTTPMarker(url: URL.random, method: "GET", delegate: Delegate())
+        let marker = HTTPMarker(url: URL.random, method: "GET", trigger: .automatic, delegate: Delegate())
 
         // When
         marker.set(backendTracingID: response.backendTracingID ?? "")
@@ -82,7 +82,7 @@ class HTTPMarkerTests: XCTestCase {
         let url: URL = .random
         var delegate: Delegate = Delegate()
         weak var weakDelegate = delegate
-        let sut = HTTPMarker(url: url, method: "b", delegate: delegate)
+        let sut = HTTPMarker(url: url, method: "b", trigger: .automatic, delegate: delegate)
         delegate = Delegate()
 
         // Then
@@ -92,7 +92,7 @@ class HTTPMarkerTests: XCTestCase {
 
     func test_unfished_MarkerDuration_shouldBeZero() {
         // Given
-        let sut = HTTPMarker(url: .random, method: "b", delegate: Delegate())
+        let sut = HTTPMarker(url: .random, method: "b", trigger: .automatic, delegate: Delegate())
 
         // Then
         XCTAssertEqual(sut.duration, 0)
@@ -102,7 +102,7 @@ class HTTPMarkerTests: XCTestCase {
         // Given
         let delegate = Delegate()
         let responseSize = Instana.Types.HTTPSize.random
-        let marker = HTTPMarker(url: .random, method: "b", delegate: delegate)
+        let marker = HTTPMarker(url: .random, method: "b", trigger: .automatic, delegate: delegate)
 
         // When
         wait(0.1)
@@ -127,7 +127,7 @@ class HTTPMarkerTests: XCTestCase {
         // Given
 
         let delegate = Delegate()
-        let marker = HTTPMarker(url: .random, method: "b", delegate: delegate)
+        let marker = HTTPMarker(url: .random, method: "b", trigger: .automatic, delegate: delegate)
         let error = CocoaError(CocoaError.coderValueNotFound)
         let responseSize = Instana.Types.HTTPSize.random
 
@@ -154,7 +154,7 @@ class HTTPMarkerTests: XCTestCase {
         // Given
         let delegate = Delegate()
         let responseSize = Instana.Types.HTTPSize.random
-        let marker = HTTPMarker(url: .random, method: "b", delegate: delegate)
+        let marker = HTTPMarker(url: .random, method: "b", trigger: .automatic, delegate: delegate)
 
         // When
         wait(0.1)
@@ -176,7 +176,7 @@ class HTTPMarkerTests: XCTestCase {
         // Given
         let url: URL = .random
         let responseSize = Instana.Types.HTTPSize.random
-        let marker = HTTPMarker(url: url, method: "m", delegate: Delegate())
+        let marker = HTTPMarker(url: url, method: "m", trigger: .automatic, delegate: Delegate())
 
         // When
         marker.set(responseSize: responseSize)
@@ -200,7 +200,7 @@ class HTTPMarkerTests: XCTestCase {
         // Given
         let url: URL = .random
         let responseSize = Instana.Types.HTTPSize.random
-        let marker = HTTPMarker(url: url, method: "t", delegate: Delegate())
+        let marker = HTTPMarker(url: url, method: "t", trigger: .automatic, delegate: Delegate())
         let error = CocoaError(CocoaError.coderValueNotFound)
 
         // When
@@ -227,7 +227,7 @@ class HTTPMarkerTests: XCTestCase {
     func test_canceled_Marker_toBeaconConversion() {
         // Given
         let url: URL = .random
-        let marker = HTTPMarker(url: url, method: "c", delegate: Delegate())
+        let marker = HTTPMarker(url: url, method: "c", trigger: .automatic, delegate: Delegate())
         marker.canceled()
 
         // When
@@ -249,7 +249,7 @@ class HTTPMarkerTests: XCTestCase {
     func test_started_Marker_toConversion() {
         // Given
         let url: URL = .random
-        let marker = HTTPMarker(url: url, method: "c", delegate: Delegate())
+        let marker = HTTPMarker(url: url, method: "c", trigger: .automatic, delegate: Delegate())
 
         // When
         guard let beacon = marker.createBeacon() as? HTTPBeacon else {

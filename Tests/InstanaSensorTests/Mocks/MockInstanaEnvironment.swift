@@ -4,7 +4,7 @@ import XCTest
 
 extension InstanaEnvironment {
     static var mock: InstanaEnvironment {
-        let conf = InstanaConfiguration.default(key: "KEY", reportingURL: URL.random, reportingType: .automatic)
+        let conf = InstanaConfiguration.default(key: "KEY", reportingURL: URL.random, reportingType: .automaticAndManual)
         return mock(configuration: conf)
     }
 

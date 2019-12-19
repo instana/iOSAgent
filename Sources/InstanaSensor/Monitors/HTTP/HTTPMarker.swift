@@ -27,7 +27,7 @@ protocol HTTPMarkerDelegate: class {
     private(set) var state: State = .started
     private weak var delegate: HTTPMarkerDelegate?
 
-    init(url: URL, method: String, trigger: Trigger = .automatic, delegate: HTTPMarkerDelegate?) {
+    init(url: URL, method: String, trigger: Trigger, delegate: HTTPMarkerDelegate?) {
         self.startTime = Date().millisecondsSince1970
         self.url = url
         self.method = method

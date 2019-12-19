@@ -17,9 +17,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         if !isRunningTests {
             Instana.setup(key: "<Your Key>", reportingURL: URL(string: "<Your Instana instance URL>")!)
-            Instana.propertyHandler.setMeta(value: "Value", key: "KEY")
-            Instana.propertyHandler.setMeta(value: "DEBUG", key: "Env")
-            Instana.propertyHandler.setUser(id: UUID().uuidString, email: "email@example.com", name: "Christian")
+            Instana.setMeta(value: "Value", key: "KEY")
+            Instana.setMeta(value: "DEBUG", key: "Env")
+            Instana.setUser(id: UUID().uuidString, email: "email@example.com", name: "Christian")
         }
         return true
     }

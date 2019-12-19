@@ -133,7 +133,7 @@ class InstanaURLProtocolTests: XCTestCase {
         task.stubbedResponse = response
         let metrics = MockURLSessionTaskMetrics.random
         let urlProtocol = InstanaURLProtocol()
-        let marker = HTTPMarker(url: url, method: "GET", delegate: delegate)
+        let marker = HTTPMarker(url: url, method: "GET", trigger: .automatic, delegate: delegate)
         urlProtocol.marker = marker
 
         // When
@@ -174,7 +174,7 @@ class InstanaURLProtocolTests: XCTestCase {
         response.stubbedAllHeaderFields = ["Server-Timing": "intid;desc=981d9553578fc280"]
         task.stubbedResponse = response
         let urlProtocol = InstanaURLProtocol()
-        let marker = HTTPMarker(url: url, method: "GET", delegate: delegate)
+        let marker = HTTPMarker(url: url, method: "GET", trigger: .automatic, delegate: delegate)
         urlProtocol.marker = marker
         let newRequest = URLRequest(url: URL.random)
         var expectedCompletionRequest: URLRequest?
@@ -214,7 +214,7 @@ class InstanaURLProtocolTests: XCTestCase {
         response.stubbedAllHeaderFields = ["Server-Timing": "intid;desc=981d9553578fc280"]
         task.stubbedResponse = response
         let urlProtocol = InstanaURLProtocol()
-        urlProtocol.marker = HTTPMarker(url: url, method: "GET", delegate: delegate)
+        urlProtocol.marker = HTTPMarker(url: url, method: "GET", trigger: .automatic, delegate: delegate)
         let givenError = NSError(domain: NSURLErrorDomain, code: NSURLErrorDataNotAllowed, userInfo: nil)
         var expectedError: NSError?
 
@@ -244,7 +244,7 @@ class InstanaURLProtocolTests: XCTestCase {
         let delegate = Delegate()
         let url = URL.random
         let urlProtocol = InstanaURLProtocol()
-        urlProtocol.marker = HTTPMarker(url: url, method: "GET", delegate: delegate)
+        urlProtocol.marker = HTTPMarker(url: url, method: "GET", trigger: .automatic, delegate: delegate)
 
         // When
         urlProtocol.stopLoading()
