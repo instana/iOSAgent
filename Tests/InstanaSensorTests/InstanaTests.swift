@@ -32,15 +32,34 @@ class InstanaTests: XCTestCase {
         AssertEqualAndNotNil(Instana.current?.environment.configuration, .default(key: key, reportingURL: reportingURL, reportingType: reportingType))
     }
 
+    func test_setup_and_expect_SessionProfileBeacon() {
+        // Given
+        let waitRequest = expectation(description: "test_setup_and_expect_SessionProfileBeacon")
+        var excpectedBeacon: SessionProfileBeacon?
+        let reporter = MockReporter {
+            if let beacon = $0 as? SessionProfileBeacon {
+                excpectedBeacon = beacon
+                waitRequest.fulfill()
+            }
+        }
+
+        // When
+        Instana.current = Instana(configuration: .default(key: "KEY"), monitors: Monitors(.mock, reporter: reporter))
+        wait(for: [waitRequest], timeout: 1.0)
+
+        // Then
+        AssertEqualAndNotNil(excpectedBeacon?.state, SessionProfileBeacon.State.start)
+    }
+
     func test_markHTTP_URL() {
         // Given
         let waitRequest = expectation(description: "test_markHTTP_URL")
-        var excpectedSubmittedBeacon: HTTPBeacon?
+        var excpectedBeacon: HTTPBeacon?
         let method = "GET"
         let url = URL(string: "https://www.instana.com")!
         let reporter = MockReporter {
             if let beacon = $0 as? HTTPBeacon {
-                excpectedSubmittedBeacon = beacon
+                excpectedBeacon = beacon
                 waitRequest.fulfill()
             }
         }
@@ -54,20 +73,20 @@ class InstanaTests: XCTestCase {
         // Then
         AssertEqualAndNotNil(sut.url, url)
         AssertEqualAndNotNil(sut.trigger, .manual)
-        AssertEqualAndNotNil(excpectedSubmittedBeacon?.url, url)
-        AssertEqualAndNotNil(excpectedSubmittedBeacon?.method, method)
-        AssertEqualAndNotNil(excpectedSubmittedBeacon?.responseCode, 200)
+        AssertEqualAndNotNil(excpectedBeacon?.url, url)
+        AssertEqualAndNotNil(excpectedBeacon?.method, method)
+        AssertEqualAndNotNil(excpectedBeacon?.responseCode, 200)
     }
 
     func test_markHTTP_request() {
         // Given
         let waitRequest = expectation(description: "test_markHTTP_request")
-        var excpectedSubmittedBeacon: HTTPBeacon?
+        var excpectedBeacon: HTTPBeacon?
         var request = URLRequest(url: URL(string: "https://www.instana.com")!)
         request.httpMethod = "PUT"
         let reporter = MockReporter {
             if let beacon = $0 as? HTTPBeacon {
-                excpectedSubmittedBeacon = beacon
+                excpectedBeacon = beacon
                 waitRequest.fulfill()
             }
         }
@@ -81,9 +100,9 @@ class InstanaTests: XCTestCase {
         // Then
         AssertEqualAndNotNil(sut.url, request.url)
         AssertEqualAndNotNil(sut.trigger, .manual)
-        AssertEqualAndNotNil(excpectedSubmittedBeacon?.url, request.url)
-        AssertEqualAndNotNil(excpectedSubmittedBeacon?.method, "PUT")
-        AssertEqualAndNotNil(excpectedSubmittedBeacon?.responseCode, 200)
+        AssertEqualAndNotNil(excpectedBeacon?.url, request.url)
+        AssertEqualAndNotNil(excpectedBeacon?.method, "PUT")
+        AssertEqualAndNotNil(excpectedBeacon?.responseCode, 200)
     }
 
     func test_setUser() {

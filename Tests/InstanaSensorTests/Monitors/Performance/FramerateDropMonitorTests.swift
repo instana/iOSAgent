@@ -31,7 +31,7 @@ class FramerateDropMonitorTests: XCTestCase {
         
         Thread.sleep(forTimeInterval: 0.1)
         
-        waitForExpectations(timeout: 0.15) { _ in
+        waitForExpectations(timeout: 0.25) { _ in
             guard let alert = beacon as? AlertBeacon else {
                 XCTFail("Beacon not submitted or wrong type")
                 return
