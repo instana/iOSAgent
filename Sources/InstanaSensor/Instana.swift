@@ -128,9 +128,12 @@ import Foundation
        ///     - value: An arbitrary String typed value
     ///     - key: The key (String) to store the custom meta value
     @objc static func setMeta(value: String, key: String) {
+        guard propertyHandler.validate(value: value) else { return }
         var metaData = propertyHandler.properties.metaData ?? [:]
         metaData[key] = value
-        propertyHandler.properties.metaData = metaData
+        if propertyHandler.validate(keys: Array(metaData.keys)) {
+            propertyHandler.properties.metaData = metaData
+        }
     }
 
     /// User-specific information

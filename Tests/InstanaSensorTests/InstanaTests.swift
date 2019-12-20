@@ -11,6 +11,12 @@ import XCTest
 
 class InstanaTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+
+        Instana.current = Instana.init(configuration: .default(key: "Key"))
+    }
+
     func test_setup() {
         // Given
         let key = "KEY"
@@ -116,5 +122,37 @@ class InstanaTests: XCTestCase {
 
         // Then
         AssertEqualAndNotNil(Instana.propertyHandler.properties.metaData, given)
+    }
+
+    func test_setMetaData_to_long_value() {
+        // Given
+        let valid = "\((0...255).map {_ in "A"}.joined())"
+        let invalid = "\((0...256).map {_ in "A"}.joined())"
+
+        // When
+        Instana.setMeta(value: valid, key: "valid")
+        Instana.setMeta(value: invalid, key: "invalid")
+
+        // Then
+        AssertEqualAndNotNil(Instana.propertyHandler.properties.metaData?["valid"], valid)
+        AssertTrue(Instana.propertyHandler.properties.metaData?.count == 1)
+    }
+
+    func test_setMetaData_ignore_too_many_fields() {
+        // When
+        (0...50).forEach { index in
+            Instana.setMeta(value: "V-\(index)", key: "\(index)")
+        }
+
+        // Then
+
+        let values = Array(Instana.propertyHandler.properties.metaData!.values)
+        let keys = Array(Instana.propertyHandler.properties.metaData!.keys)
+        AssertTrue(values.contains("V-0") == true)
+        AssertTrue(values.contains("V-49") == true)
+        AssertTrue(values.contains("V-50") == false)
+        AssertTrue(keys.contains("49") == true)
+        AssertTrue(keys.contains("50") == false)
+        AssertTrue(Instana.propertyHandler.properties.metaData?.count == 50)
     }
 }

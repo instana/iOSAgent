@@ -1,6 +1,7 @@
 import Foundation
 
 struct InstanaProperties: Equatable {
+
     struct User: Identifiable, Equatable {
         /// Unique identifier for the user
         var id: String
@@ -16,6 +17,10 @@ struct InstanaProperties: Equatable {
 }
 
 class InstanaPropertyHandler: NSObject {
+    struct Const {
+           static let maximumNumberOfMetaDataFields = 50
+           static let maximumLengthPerMetaDataField = 256
+       }
     private var _unsafe_properties = InstanaProperties()
     private let lock = NSLock()
     var properties: InstanaProperties {
@@ -31,5 +36,21 @@ class InstanaPropertyHandler: NSObject {
             _unsafe_properties = newValue
             lock.unlock()
         }
+    }
+
+    func validate(value: String) -> Bool {
+        if value.count > Const.maximumLengthPerMetaDataField {
+            debugAssertFailure("Instana: MetaData value reached maximum length (\(Const.maximumLengthPerMetaDataField)).")
+            return false
+        }
+        return value.count <= Const.maximumLengthPerMetaDataField
+    }
+
+    func validate(keys: [String]) -> Bool {
+        if keys.count > Const.maximumNumberOfMetaDataFields {
+            debugAssertFailure("Instana: MetaData reached maximum number (\(Const.maximumNumberOfMetaDataFields)) of valid fields.")
+            return false
+        }
+        return true
     }
 }
