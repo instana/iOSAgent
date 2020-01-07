@@ -1,6 +1,6 @@
 import UIKit
 
-// TOODO Test this
+// TODO: Test this
 extension UIViewController {
     var hiercharchyName: String {
         var name = String(describing: type(of: self))

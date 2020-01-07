@@ -40,13 +40,13 @@ import Foundation
     ///   - key: Instana key identifying your application.
     ///   - reportingURL: Optional reporting URL used for on-premises Instana backend installations.
     static func setup(key: String, reportingURL: URL? = nil, reportingType: ReportingType = .automaticAndManual) {
-        // TOODO: leave when current a session exists
+        // TODO: leave when current a session exists
         // Currently setup would be possible n times in one app lifecycle
         let config = InstanaConfiguration.default(key: key, reportingURL: reportingURL, reportingType: reportingType)
         Instana.current = Instana(configuration: config)
     }
 
-    // TOODO: Move this into a namedspace wrapper
+    // TODO: Move this into a namedspace wrapper
     /// Use this method to manually monitor remote calls that can't be tracked automatically.
     ///
     ///
