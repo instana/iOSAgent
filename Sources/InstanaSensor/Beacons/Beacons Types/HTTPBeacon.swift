@@ -21,7 +21,7 @@ class HTTPBeacon: Beacon {
         self.duration = duration
         self.method = method
         self.url = url
-        self.path = !url.path.isEmpty ? url.path : nil
+        path = !url.path.isEmpty ? url.path : nil
         self.responseCode = responseCode
         self.responseSize = responseSize
         self.result = result

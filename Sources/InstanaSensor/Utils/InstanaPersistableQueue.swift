@@ -2,7 +2,6 @@ import Foundation
 
 /// To be used in an asynchronous world (i.e. via a background dispatch queue)
 class InstanaPersistableQueue<T: Codable & Equatable> {
-
     typealias Completion = ((Result<Void, Error>) -> Void)
 
     struct Static {
@@ -21,19 +20,19 @@ class InstanaPersistableQueue<T: Codable & Equatable> {
 
     init() {
         if let deserializeItems = try? InstanaPersistableQueue<T>.deserialize() {
-            self.items = deserializeItems
+            items = deserializeItems
         } else {
-            self.items = []
+            items = []
         }
     }
 
     func write(_ completion: Completion? = nil) {
         guard let fileURL = Static.queueJSONFileURL else { return }
         do {
-            let data = try JSONEncoder().encode(self.items)
+            let data = try JSONEncoder().encode(items)
             try data.write(to: fileURL, options: .completeFileProtection)
             completion?(.success(()))
-        } catch let error {
+        } catch {
             completion?(.failure(error))
         }
     }
@@ -54,7 +53,7 @@ class InstanaPersistableQueue<T: Codable & Equatable> {
 
     func remove(_ removalItems: [T], completion: Completion? = nil) {
         removalItems.forEach { removal in
-            items.removeAll(where: {$0 == removal})
+            items.removeAll(where: { $0 == removal })
         }
         write(completion)
     }

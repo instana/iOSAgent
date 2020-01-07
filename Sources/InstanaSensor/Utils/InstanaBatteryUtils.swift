@@ -2,7 +2,6 @@ import Foundation
 import UIKit
 
 class InstanaBatteryUtils {
-
     private(set) var safeForNetworking = true
 
     init() {

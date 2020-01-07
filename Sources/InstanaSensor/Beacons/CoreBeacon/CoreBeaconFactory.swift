@@ -10,7 +10,7 @@ class CoreBeaconFactory {
     }
 
     func map(_ beacons: [Beacon]) throws -> [CoreBeacon] {
-        return try beacons.map { try map($0)}
+        return try beacons.map { try map($0) }
     }
 
     func map(_ beacon: Beacon) throws -> CoreBeacon {
@@ -34,7 +34,6 @@ class CoreBeaconFactory {
 }
 
 extension CoreBeacon {
-
     mutating func append(_ beacon: HTTPBeacon) {
         t = .httpRequest
         bt = beacon.backendTracingID
@@ -44,7 +43,7 @@ extension CoreBeacon {
         hm = beacon.method
         d = String(beacon.duration)
 
-        if 400...599 ~= beacon.responseCode {
+        if 400 ... 599 ~= beacon.responseCode {
             ec = String(1)
         }
 
@@ -71,7 +70,7 @@ extension CoreBeacon {
 
     mutating func append(_ beacon: SessionProfileBeacon) {
         if beacon.state == .start {
-            t = .sessionStart  // there is no sessionEnd yet
+            t = .sessionStart // there is no sessionEnd yet
         }
     }
 
@@ -106,13 +105,13 @@ extension CoreBeacon {
 
     static func create(from httpBody: String) throws -> CoreBeacon {
         let lines = httpBody.components(separatedBy: "\n")
-        let kvPairs = lines.reduce([String: Any](), {result, line -> [String: Any] in
+        let kvPairs = lines.reduce([String: Any]()) { result, line -> [String: Any] in
             let components = line.components(separatedBy: "\t")
             guard let key = components.first, let value = components.last else { return result }
             var newResult = result
             newResult[key] = value
             return newResult
-        })
+        }
 
         let jsonData = try JSONSerialization.data(withJSONObject: kvPairs, options: .prettyPrinted)
         let beacon = try JSONDecoder().decode(CoreBeacon.self, from: jsonData)

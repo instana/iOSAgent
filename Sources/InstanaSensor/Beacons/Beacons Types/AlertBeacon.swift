@@ -6,6 +6,7 @@ class AlertBeacon: Beacon {
         case lowMemory
         case framerateDrop(duration: Instana.Types.Seconds, averageFramerate: Float)
     }
+
     let alertType: AlertType
 
     init(alertType: AlertType) {

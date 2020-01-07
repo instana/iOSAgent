@@ -42,7 +42,6 @@ class FramerateDropMonitor {
 }
 
 private extension FramerateDropMonitor {
-
     @objc func onApplicationEnteredForeground() {
         displayLink.isPaused = false
     }

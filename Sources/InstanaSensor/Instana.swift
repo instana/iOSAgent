@@ -5,7 +5,6 @@ import Foundation
 ///
 /// - Important: Before using any of Instana's features, it is necessary to invoke one of its setup methods.
 @objc public class Instana: NSObject {
-
     /// The Container for all Instana monitors (Network, HTTP, Framedrop, ...)
     let monitors: Monitors
 
@@ -28,7 +27,6 @@ import Foundation
 
 /// Public API methods
 @objc public extension Instana {
-
     /// Optional reporting URL used for on-premises Instana backend installations.
     class var reportingURL: URL? { Instana.current?.environment.configuration.reportingURL }
 
@@ -116,12 +114,12 @@ import Foundation
         return current.environment.propertyHandler
     }
 
-     /// Meta data information that will be attached to each transmitted data (beacon).
-     /// Consider using this to track UI configuration values, settings, feature flags… any additional context that might be useful for analysis.
-     ///
-     /// - Parameters:
-     ///     - value: An arbitrary String typed value
-     ///     - key: The key (String) to store the custom meta value
+    /// Meta data information that will be attached to each transmitted data (beacon).
+    /// Consider using this to track UI configuration values, settings, feature flags… any additional context that might be useful for analysis.
+    ///
+    /// - Parameters:
+    ///     - value: An arbitrary String typed value
+    ///     - key: The key (String) to store the custom meta value
     static func setMeta(value: String, key: String) {
         guard propertyHandler.validate(value: value) else { return }
         var metaData = propertyHandler.properties.metaData ?? [:]

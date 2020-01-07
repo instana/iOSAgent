@@ -1,19 +1,20 @@
 import Foundation
 
-protocol HTTPMarkerDelegate: class {
+protocol HTTPMarkerDelegate: AnyObject {
     func finalized(marker: HTTPMarker)
 }
 
 /// Remote call markers are used to track remote calls.
 
 @objc public class HTTPMarker: NSObject {
-
     enum State {
         case started, failed(error: Error), finished(responseCode: Int), canceled
     }
+
     enum Trigger {
         case manual, automatic
     }
+
     let url: URL
     let method: String
     let trigger: Trigger
@@ -25,7 +26,7 @@ protocol HTTPMarkerDelegate: class {
     private weak var delegate: HTTPMarkerDelegate?
 
     init(url: URL, method: String, trigger: Trigger, delegate: HTTPMarkerDelegate?) {
-        self.startTime = Date().millisecondsSince1970
+        startTime = Date().millisecondsSince1970
         self.url = url
         self.method = method
         self.delegate = delegate
@@ -34,7 +35,6 @@ protocol HTTPMarkerDelegate: class {
 }
 
 extension HTTPMarker {
-
     /// Invoke this method when the reponse size has been determined.
     ///
     /// - Parameters:
@@ -114,21 +114,21 @@ extension HTTPMarker {
             result = "started"
         case .canceled:
             result = "canceled"
-        case .finished(let code):
+        case let .finished(code):
             result = "finished"
             responseCode = code
-        case .failed(let error):
+        case let .failed(error):
             result = String(describing: error)
         }
 
         return HTTPBeacon(timestamp: startTime,
-                         duration: duration,
-                         method: method,
-                         url: url,
-                         responseCode: responseCode ?? -1,
-                         responseSize: responseSize,
-                         result: result,
-                         backendTracingID: backendTracingID)
+                          duration: duration,
+                          method: method,
+                          url: url,
+                          responseCode: responseCode ?? -1,
+                          responseSize: responseSize,
+                          result: result,
+                          backendTracingID: backendTracingID)
     }
 }
 
@@ -141,38 +141,38 @@ extension HTTPMarker {
         // Need multiple init because of ObjC interop
         @objc public override init() {
             super.init()
-            self.headerBytes = nil
-            self.bodyBytes = nil
-            self.bodyBytesAfterDecoding = nil
+            headerBytes = nil
+            bodyBytes = nil
+            bodyBytesAfterDecoding = nil
         }
 
         @objc public init(header: Instana.Types.Bytes) {
             super.init()
-            self.headerBytes = header
-            self.bodyBytes = nil
-            self.bodyBytesAfterDecoding = nil
+            headerBytes = header
+            bodyBytes = nil
+            bodyBytesAfterDecoding = nil
         }
 
         @objc public init(header: Instana.Types.Bytes, body: Instana.Types.Bytes) {
             super.init()
-            self.headerBytes = header
-            self.bodyBytes = body
-            self.bodyBytesAfterDecoding = nil
+            headerBytes = header
+            bodyBytes = body
+            bodyBytesAfterDecoding = nil
         }
 
         @objc public init(header: Instana.Types.Bytes, body: Instana.Types.Bytes, bodyAfterDecoding: Instana.Types.Bytes) {
             super.init()
-            self.headerBytes = header
-            self.bodyBytes = body
-            self.bodyBytesAfterDecoding = bodyAfterDecoding
+            headerBytes = header
+            bodyBytes = body
+            bodyBytesAfterDecoding = bodyAfterDecoding
         }
 
         @objc public class func size(for response: URLResponse, transactionMetrics: [URLSessionTaskTransactionMetrics]) -> HTTPSize {
             guard #available(iOS 13.0, *) else { return size(response: response) }
             let size = HTTPSize()
-            size.headerBytes = transactionMetrics.map {$0.countOfResponseHeaderBytesReceived}.reduce(0, +)
-            size.bodyBytes = transactionMetrics.map {$0.countOfResponseBodyBytesReceived}.reduce(0, +)
-            size.bodyBytesAfterDecoding = transactionMetrics.map {$0.countOfResponseBodyBytesAfterDecoding}.reduce(0, +)
+            size.headerBytes = transactionMetrics.map { $0.countOfResponseHeaderBytesReceived }.reduce(0, +)
+            size.bodyBytes = transactionMetrics.map { $0.countOfResponseBodyBytesReceived }.reduce(0, +)
+            size.bodyBytesAfterDecoding = transactionMetrics.map { $0.countOfResponseBodyBytesAfterDecoding }.reduce(0, +)
             return size
         }
 

@@ -3,8 +3,8 @@ import Foundation
 extension CoreBeacon {
     var asString: String? {
         guard let json = asJSON else { return nil }
-        let pairs = json.sorted { $0.0 < $1.0 }.compactMap { (key, value) in
-            return formattedKVPair(key: key, value: value)
+        let pairs = json.sorted { $0.0 < $1.0 }.compactMap { key, value in
+            formattedKVPair(key: key, value: value)
         }
         return pairs.joined(separator: "\n")
     }
@@ -12,7 +12,7 @@ extension CoreBeacon {
     var asJSON: [String: Any]? {
         guard let jsonData = try? JSONEncoder().encode(self),
             let json = try? JSONSerialization.jsonObject(with: jsonData, options: .fragmentsAllowed) as? [String: Any] else {
-                return nil
+            return nil
         }
         return json
     }
@@ -45,5 +45,5 @@ extension Dictionary {
 }
 
 extension Collection where Element == CoreBeacon {
-    var asString: String { compactMap {$0.asString}.joined(separator: "\n\n") }
+    var asString: String { compactMap { $0.asString }.joined(separator: "\n\n") }
 }

@@ -8,7 +8,7 @@ extension URLResponse {
             let match = regex.firstMatch(in: servertiming, options: [], range: NSRange(location: 0, length: servertiming.utf16.count)),
             match.numberOfRanges > 1,
             let range = Range(match.range(at: 1), in: servertiming)
-            else { return nil }
+        else { return nil }
 
         return String(servertiming[range])
     }

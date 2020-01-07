@@ -2,7 +2,6 @@ import Foundation
 import WebKit
 
 class InstanaURLProtocol: URLProtocol {
-
     enum Mode {
         case enabled, disabled
     }
@@ -12,6 +11,7 @@ class InstanaURLProtocol: URLProtocol {
     private lazy var session: URLSession = {
         URLSession(configuration: sessionConfiguration, delegate: self, delegateQueue: nil)
     }()
+
     private(set) lazy var sessionConfiguration: URLSessionConfiguration = { .default }()
     var marker: HTTPMarker?
 
@@ -96,7 +96,7 @@ extension InstanaURLProtocol: URLSessionDataDelegate {
 
 extension URLSessionConfiguration {
     func registerInstanaURLProtocol() {
-        if let classes = protocolClasses, !classes.contains(where: {$0 == InstanaURLProtocol.self}) {
+        if let classes = protocolClasses, !classes.contains(where: { $0 == InstanaURLProtocol.self }) {
             protocolClasses?.insert(InstanaURLProtocol.self, at: 0)
             URLSession.store(config: self)
         }
@@ -127,6 +127,7 @@ extension URLSessionConfiguration {
             return _unsafe_allSessionConfigs
         }
     }
+
     static func store(config: URLSessionConfiguration) {
         if !allSessionConfigs.contains(config) {
             allSessionConfigs.append(config)
@@ -134,9 +135,9 @@ extension URLSessionConfiguration {
     }
 
     static func removeInstanaURLProtocol() {
-        allSessionConfigs.forEach {$0.protocolClasses?.removeAll(where: { (protocolClass) -> Bool in
+        allSessionConfigs.forEach { $0.protocolClasses?.removeAll(where: { (protocolClass) -> Bool in
             protocolClass == InstanaURLProtocol.self
-        })}
+        }) }
     }
 }
 

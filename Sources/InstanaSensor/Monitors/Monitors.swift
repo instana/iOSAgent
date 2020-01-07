@@ -1,7 +1,6 @@
 import Foundation
 
 class Monitors {
-
     var applicationNotResponding: ApplicationNotRespondingMonitor?
     var lowMemory: LowMemoryMonitor?
     var framerateDrop: FramerateDropMonitor?
@@ -19,9 +18,9 @@ class Monitors {
                 http = HTTPMonitor(environment, reporter: reporter)
             case .memoryWarning:
                 lowMemory = LowMemoryMonitor(reporter: reporter)
-            case .framerateDrop(let threshold):
+            case let .framerateDrop(threshold):
                 framerateDrop = FramerateDropMonitor(threshold: threshold, reporter: reporter)
-            case .alertApplicationNotResponding(let threshold):
+            case let .alertApplicationNotResponding(threshold):
                 applicationNotResponding = ApplicationNotRespondingMonitor(threshold: threshold, reporter: reporter)
             }
         }

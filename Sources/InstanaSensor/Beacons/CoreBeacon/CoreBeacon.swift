@@ -13,13 +13,12 @@ enum BeaconType: String, Equatable, Codable, CustomStringConvertible {
 /// We transfer a simple String (no json) to the backend via the HTTP body.
 /// That means we also loose the type information, so we need treat all fields as String
 struct CoreBeacon: Equatable, Codable {
-
     /**
-    * The max byte for each field (bytes)
-    *
-    *
-    * Default: To be discussed if it can be dynamic
-    */
+     * The max byte for each field (bytes)
+     *
+     *
+     * Default: To be discussed if it can be dynamic
+     */
     static let maxBytesPerField: Instana.Types.Bytes = 10000
 
     /**

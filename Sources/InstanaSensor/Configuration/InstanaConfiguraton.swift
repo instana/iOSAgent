@@ -12,7 +12,6 @@ import Foundation
 }
 
 struct InstanaConfiguration: Equatable {
-
     enum SuspendReporting {
         /// Reporting is suspended while the device battery is low.
         case lowBattery
@@ -63,7 +62,6 @@ struct InstanaConfiguration: Equatable {
                   monitorTypes: MonitorTypes.defaults,
                   transmissionDelay: Defaults.transmissionDelay,
                   transmissionLowBatteryDelay: Defaults.transmissionLowBatteryDelay,
-                  gzipReport: Defaults.gzipReport
-        )
+                  gzipReport: Defaults.gzipReport)
     }
 }

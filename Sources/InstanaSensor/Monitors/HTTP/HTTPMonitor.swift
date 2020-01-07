@@ -1,7 +1,6 @@
 import Foundation
 
 class HTTPMonitor {
-
     private let installer: (AnyClass) -> Bool
     private let uninstaller: (AnyClass) -> Void
     private let reporter: Reporter
@@ -38,9 +37,8 @@ class HTTPMonitor {
 }
 
 extension HTTPMonitor {
-
     func mark(_ request: URLRequest) throws -> HTTPMarker {
-        debugAssert((request.url != nil), "URLRequest URL must not be nil")
+        debugAssert(request.url != nil, "URLRequest URL must not be nil")
         guard let url = request.url, let method = request.httpMethod else {
             throw InstanaError(code: InstanaError.Code.invalidRequest, description: "Invalid URLRequest")
         }

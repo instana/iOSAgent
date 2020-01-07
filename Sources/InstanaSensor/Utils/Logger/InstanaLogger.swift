@@ -1,7 +1,6 @@
 import Foundation
 
 class InstanaLogger {
-
     enum Level: Int {
         case debug, warning, error, none
 
@@ -19,8 +18,8 @@ class InstanaLogger {
 
     func add(_ entry: String, level: Level = .debug) {
         guard level.rawValue >= self.level.rawValue else { return }
-#if DEBUG
-        print("[Instana]\(level.logTag) \(entry)")
-#endif
+        #if DEBUG
+            print("[Instana]\(level.logTag) \(entry)")
+        #endif
     }
 }

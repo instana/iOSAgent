@@ -1,6 +1,6 @@
 import Foundation
 
-protocol InstanaTimerProxiedTarget: class {
+protocol InstanaTimerProxiedTarget: AnyObject {
     func onTimer(timer: Timer)
 }
 

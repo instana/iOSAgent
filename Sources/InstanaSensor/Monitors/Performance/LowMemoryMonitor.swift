@@ -2,7 +2,6 @@ import Foundation
 import UIKit
 
 class LowMemoryMonitor {
-
     let reporter: Reporter
 
     init(reporter: Reporter) {

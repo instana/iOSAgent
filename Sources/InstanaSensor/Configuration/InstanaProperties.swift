@@ -1,7 +1,6 @@
 import Foundation
 
 struct InstanaProperties: Equatable {
-
     struct User: Identifiable, Equatable {
         /// Unique identifier for the user
         var id: String
@@ -18,9 +17,10 @@ struct InstanaProperties: Equatable {
 
 class InstanaPropertyHandler: NSObject {
     struct Const {
-           static let maximumNumberOfMetaDataFields = 50
-           static let maximumLengthPerMetaDataField = 256
-       }
+        static let maximumNumberOfMetaDataFields = 50
+        static let maximumLengthPerMetaDataField = 256
+    }
+
     private var unsafe_properties = InstanaProperties()
     private let lock = NSLock()
     var properties: InstanaProperties {

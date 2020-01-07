@@ -1,19 +1,9 @@
 # file options
 
---symlinks ignore
 --swiftversion 5
 
 --exclude Pods,Generated
 
-# rules
-
-# format options
+--stripunusedargs closure-only
 --closingparen same-line
---comments indent
-#--decimalgrouping 3,5
-#--exponentcase lowercase
-#--exponentgrouping disabled
-#--fractiongrouping disabled
-#--ifdef outdent
-#--operatorfunc no-space
-#--nospaceoperators
+--fractiongrouping disabled

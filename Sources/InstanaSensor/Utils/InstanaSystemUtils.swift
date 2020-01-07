@@ -2,7 +2,6 @@ import Foundation
 import UIKit
 
 class InstanaSystemUtils {
-
     static let battery = InstanaBatteryUtils()
 
     /// Returns device model (for ex. "iPhone10,1")

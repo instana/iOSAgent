@@ -1,7 +1,6 @@
 import Foundation
 
 class SessionProfileBeacon: Beacon {
-
     enum State {
         case start
         case end

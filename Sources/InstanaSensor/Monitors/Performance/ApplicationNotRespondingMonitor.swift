@@ -36,7 +36,7 @@ private extension ApplicationNotRespondingMonitor {
         scheduleTimer()
     }
 
-    @objc  func onApplicationEnteredBackground() {
+    @objc func onApplicationEnteredBackground() {
         timer?.invalidate()
     }
 }

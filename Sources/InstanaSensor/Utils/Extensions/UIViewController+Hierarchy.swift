@@ -13,7 +13,7 @@ extension UIViewController {
 
 extension UIWindow {
     static var viewControllerHierarchies: String? {
-        let hierarchies = UIApplication.shared.windows.compactMap {window -> String? in
+        let hierarchies = UIApplication.shared.windows.compactMap { window -> String? in
             guard let root = window.rootViewController else { return nil }
             var vcs = [UIViewController]()
             let rootName = root.hiercharchyName

@@ -1,6 +1,6 @@
+import CoreTelephony
 import Foundation
 import Network
-import CoreTelephony
 
 class NetworkUtility {
     private(set) var connectionType: ConnectionType = .undetermined {
@@ -10,8 +10,9 @@ class NetworkUtility {
             }
         }
     }
+
     private let queue = DispatchQueue(label: "NetworkUtility")
-    var connectionUpdateHandler: (ConnectionType) -> Void = {_ in }
+    var connectionUpdateHandler: (ConnectionType) -> Void = { _ in }
 
     @available(iOS 12.0, *)
     lazy var pathMonitor = NWPathMonitor()
@@ -34,8 +35,8 @@ class NetworkUtility {
     }
 
     func update(_ newType: ConnectionType) {
-        guard newType != self.connectionType else { return }
-        self.connectionType = newType
+        guard newType != connectionType else { return }
+        connectionType = newType
     }
 }
 
