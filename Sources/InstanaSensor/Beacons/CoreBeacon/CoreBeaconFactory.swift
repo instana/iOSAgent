@@ -18,9 +18,7 @@ class CoreBeaconFactory {
         switch beacon {
         case let item as HTTPBeacon:
             cbeacon.append(item)
-        case let item as AlertBeacon:
-            cbeacon.append(item)
-        case let item as CustomBeacon:
+        case let item as ViewChange:
             cbeacon.append(item)
         case let item as SessionProfileBeacon:
             cbeacon.append(item)
@@ -60,12 +58,9 @@ extension CoreBeacon {
         }
     }
 
-    mutating func append(_ beacon: AlertBeacon) {
-        t = .custom // not yet defined
-    }
-
-    mutating func append(_ beacon: CustomBeacon) {
-        t = .custom
+    mutating func append(_ beacon: ViewChange) {
+        t = .viewChange
+        v = beacon.viewName
     }
 
     mutating func append(_ beacon: SessionProfileBeacon) {

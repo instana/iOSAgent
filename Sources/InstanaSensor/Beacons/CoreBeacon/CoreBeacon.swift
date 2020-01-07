@@ -3,6 +3,7 @@ import Foundation
 enum BeaconType: String, Equatable, Codable, CustomStringConvertible {
     case sessionStart
     case httpRequest
+    case viewChange
     case crash
     case custom
     var description: String { rawValue }
@@ -34,7 +35,7 @@ struct CoreBeacon: Equatable, Codable {
     /**
      * View
      *
-     * The current visible ViewController
+     * The current visible view name
      *
      * For example: `WebView: Privacy Policy`
      *

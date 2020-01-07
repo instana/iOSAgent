@@ -183,5 +183,6 @@ import Foundation
     ///     - name: The name of the current visible view
     static func setView(name: String) {
         propertyHandler.properties.view = name
+        Instana.current?.monitors.reporter.submit(ViewChange(name))
     }
 }
