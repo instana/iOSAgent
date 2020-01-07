@@ -12,6 +12,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             Instana.setMeta(value: "Value", key: "KEY")
             Instana.setMeta(value: "DEBUG", key: "Env")
             Instana.setUser(id: UUID().uuidString, email: "email@example.com", name: "Christian")
+            Instana.ignoreURL(matching: [".*https:.*"])
         }
         return true
     }

@@ -24,6 +24,28 @@ class InstanaURLProtocolTests: XCTestCase {
         XCTAssertFalse(InstanaURLProtocol.canInit(with: makeRequest("www.a.c")))
         XCTAssertFalse(InstanaURLProtocol.canInit(with: makeRequest("ws://a")))
     }
+
+    func test_urlProtocol_shouldNotInitForIgnoredURL() {
+        // Given
+        InstanaURLProtocol.mode = .enabled
+
+        // When
+        IgnoreURLHandler.exactURLs = [URL(string: "https://www.a.b")!]
+
+        // Then
+        XCTAssertFalse(InstanaURLProtocol.canInit(with: makeRequest("https://www.a.b")))
+    }
+
+    func test_urlProtocol_shouldNotInitForIgnoredURLRegex() {
+        // Given
+        InstanaURLProtocol.mode = .enabled
+
+        // When
+        IgnoreURLHandler.regexPatterns = [".*(&|\\?)password=.*"]
+
+        // Then
+        XCTAssertFalse(InstanaURLProtocol.canInit(with: makeRequest("https://www.a.b/?password=abc")))
+    }
     
     func test_urlProtocol_shouldNotModifyCanonicalRequest() {
         // Given

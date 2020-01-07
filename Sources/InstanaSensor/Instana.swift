@@ -107,6 +107,24 @@ import Foundation
     }
 
     ///
+    /// Ignore HTTP monitoring for the given URLs
+    ///
+    /// - Parameters:
+    ///     - urls: URLs that will ignored from the Instana monitoring
+    static func ignore(urls: [URL]) {
+        IgnoreURLHandler.exactURLs = urls
+    }
+
+    ///
+    /// Ignore HTTP monitoring for a URL that matches with the given regular expressions
+    ///
+    /// - Parameters:
+    ///     - urls: URLs that match with the given regular expressions will be ignored from monitored
+    static func ignoreURL(matching regex: [String]) {
+        IgnoreURLHandler.regexPatterns = regex
+    }
+
+    ///
     /// Set the properties
     ///
     internal static var propertyHandler: InstanaPropertyHandler {

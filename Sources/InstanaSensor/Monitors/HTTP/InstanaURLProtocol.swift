@@ -7,7 +7,6 @@ class InstanaURLProtocol: URLProtocol {
     }
 
     static var mode: Mode = .disabled
-    static var ignoreURLPatterns = [String]() // Can be a full URL or Regex
 
     private lazy var session: URLSession = {
         URLSession(configuration: sessionConfiguration, delegate: self, delegateQueue: nil)
@@ -26,7 +25,7 @@ class InstanaURLProtocol: URLProtocol {
 
     override class func canInit(with request: URLRequest) -> Bool {
         guard mode == .enabled else { return false }
-        guard let url = request.url, let scheme = url.scheme else { return false }
+        guard let url = request.url, let scheme = url.scheme, !IgnoreURLHandler.shouldIgnore(url) else { return false }
         return ["http", "https"].contains(scheme)
     }
 
@@ -44,14 +43,6 @@ class InstanaURLProtocol: URLProtocol {
     override func stopLoading() {
         session.invalidateAndCancel()
         if let marker = marker, case .started = marker.state { marker.canceled() }
-    }
-
-    func shouldIgnore(_ url: URL) -> Bool {
-        let ab = ""
-        if InstanaURLProtocol.ignoreURLPatterns.contains(url.absoluteString) {
-            return true
-        }
-        return false
     }
 }
 
