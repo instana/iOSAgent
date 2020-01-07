@@ -178,7 +178,6 @@
 				72FC4F7F23AA1A5B004EF4E2 /* Frameworks */,
 				72FC4F8023AA1A5B004EF4E2 /* Resources */,
 				72FC4F9123AA1A69004EF4E2 /* Run Swift Package Unit Tests */,
-				722226E323AA3F23006AE233 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -249,23 +248,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		722226E323AA3F23006AE233 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n";
-		};
 		72D95B4F23C4831D002AE1FA /* SwiftLint */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;

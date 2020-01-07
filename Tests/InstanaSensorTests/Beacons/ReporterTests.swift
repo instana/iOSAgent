@@ -90,9 +90,8 @@ class ReporterTests: XCTestCase {
 
     func test_schedule_and_flush_once_with_multiple() {
         // Given
-        let flushDelay = 0.2
         var flushCount = 0
-        let reporter = TestReporter(environment(delay: flushDelay)) {
+        let reporter = TestReporter(environment(delay: 0.0)) {
             flushCount += 1
         }
 
@@ -103,7 +102,7 @@ class ReporterTests: XCTestCase {
         reporter.submit(AlertBeacon(alertType: .lowMemory))
         reporter.submit(AlertBeacon(alertType: .lowMemory))
         reporter.submit(AlertBeacon(alertType: .lowMemory))
-        wait(flushDelay * 3)
+        wait(0.5)
 
         // Then - Should only flush once when getting more beacons before flushing occured
         AssertTrue(flushCount == 1)
