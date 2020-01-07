@@ -174,6 +174,7 @@
 			buildConfigurationList = 72FC4F8E23AA1A5B004EF4E2 /* Build configuration list for PBXNativeTarget "DevTests" */;
 			buildPhases = (
 				9396ED818CA38202FDA4BE00 /* [CP] Check Pods Manifest.lock */,
+				72D95B5223C4C091002AE1FA /* SwiftLint */,
 				72FC4F7E23AA1A5B004EF4E2 /* Sources */,
 				72FC4F7F23AA1A5B004EF4E2 /* Frameworks */,
 				72FC4F8023AA1A5B004EF4E2 /* Resources */,
@@ -283,6 +284,24 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "${PODS_ROOT}/SwiftFormat/CommandLineTool/swiftformat ../Sources/InstanaSensor/\n";
+		};
+		72D95B5223C4C091002AE1FA /* SwiftLint */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = SwiftLint;
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if which ${PODS_ROOT}/SwiftLint/swiftlint >/dev/null; then\n  cd ../Sources/InstanaSensor && ${PODS_ROOT}/SwiftLint/swiftlint\nelse\n  echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
 		};
 		72FC4F9123AA1A69004EF4E2 /* Run Swift Package Unit Tests */ = {
 			isa = PBXShellScriptBuildPhase;

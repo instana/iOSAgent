@@ -1,3 +1,4 @@
-cd ..
-sh run-swiftpm-tests.sh
-
+if [ "$AGENT_JOBSTATUS" == "Succeeded" ]; then
+	cd ..
+	sh run-swiftpm-tests.sh
+fi
