@@ -15,7 +15,7 @@ public class Reporter {
     private let environment: InstanaEnvironment
     private var flushWorkItem: DispatchWorkItem?
     private var flushSemaphore: DispatchSemaphore?
-
+    private var wr = ""
     // MARK: Init
 
     init(_ environment: InstanaEnvironment,
