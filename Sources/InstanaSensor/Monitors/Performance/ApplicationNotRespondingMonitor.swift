@@ -1,6 +1,3 @@
-//  Created by Nikola Lajic on 1/31/19.
-//  Copyright © 2019 Nikola Lajic. All rights reserved.
-
 import Foundation
 import UIKit
 
@@ -9,9 +6,8 @@ class ApplicationNotRespondingMonitor {
     private let reporter: Reporter
     private var timer: Timer?
     private let samplingInterval: Double
-    
     private init() { fatalError() }
-    
+
     init(threshold: Instana.Types.Seconds, samplingInterval: Double = 1.0, reporter: Reporter) {
         self.reporter = reporter
         self.threshold = threshold
@@ -22,7 +18,7 @@ class ApplicationNotRespondingMonitor {
                                                name: UIApplication.didEnterBackgroundNotification, object: nil)
         scheduleTimer()
     }
-    
+
     deinit {
         timer?.invalidate()
     }
@@ -31,15 +27,15 @@ class ApplicationNotRespondingMonitor {
 private extension ApplicationNotRespondingMonitor {
     func scheduleTimer() {
         timer?.invalidate()
-        let t = InstanaTimerProxy.timer(proxied: self, timeInterval: samplingInterval, userInfo: CFAbsoluteTimeGetCurrent(), repeats: false)
-        timer = t
-        RunLoop.main.add(t, forMode: .common)
+        let aTimer = InstanaTimerProxy.timer(proxied: self, timeInterval: samplingInterval, userInfo: CFAbsoluteTimeGetCurrent(), repeats: false)
+        timer = aTimer
+        RunLoop.main.add(aTimer, forMode: .common)
     }
-    
+
     @objc func onApplicationEnteredForeground() {
         scheduleTimer()
     }
-    
+
     @objc  func onApplicationEnteredBackground() {
         timer?.invalidate()
     }
@@ -51,7 +47,7 @@ extension ApplicationNotRespondingMonitor: InstanaTimerProxiedTarget {
             scheduleTimer()
             return
         }
-        
+
         let delay = CFAbsoluteTimeGetCurrent() - start - samplingInterval
         if delay > threshold {
             reporter.submit(AlertBeacon(alertType: .anr(duration: delay)))

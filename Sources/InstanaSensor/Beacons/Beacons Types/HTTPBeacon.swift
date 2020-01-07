@@ -1,6 +1,3 @@
-//  Created by Nikola Lajic on 1/23/19.
-//  Copyright © 2019 Nikola Lajic. All rights reserved.
-
 import Foundation
 
 class HTTPBeacon: Beacon {
@@ -12,7 +9,7 @@ class HTTPBeacon: Beacon {
     let result: String
     let responseSize: Instana.Types.HTTPSize?
     var backendTracingID: String?
-    
+
     init(timestamp: Instana.Types.Milliseconds,
          duration: Instana.Types.Milliseconds = Date().millisecondsSince1970,
          method: String,

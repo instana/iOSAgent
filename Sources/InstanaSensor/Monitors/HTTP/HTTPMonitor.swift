@@ -1,6 +1,3 @@
-//  Created by Nikola Lajic on 12/12/18.
-//  Copyright © 2018 Nikola Lajic. All rights reserved.
-
 import Foundation
 
 class HTTPMonitor {
@@ -59,7 +56,7 @@ extension HTTPMonitor {
                           trigger: .automatic,
                           delegate: self)
     }
-    
+
     private func shouldReport(marker: HTTPMarker) -> Bool {
         switch environment.configuration.reportingType {
         case .automaticAndManual: return true

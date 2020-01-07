@@ -1,6 +1,3 @@
-//  Created by Nikola Lajic on 3/26/19.
-//  Copyright © 2019 Nikola Lajic. All rights reserved.
-
 import Foundation
 import Network
 import CoreTelephony
@@ -66,9 +63,17 @@ extension NetworkUtility {
                 return .none
             }
             switch radioAccessTechnology {
-            case CTRadioAccessTechnologyGPRS, CTRadioAccessTechnologyEdge, CTRadioAccessTechnologyCDMA1x:
+            case CTRadioAccessTechnologyGPRS,
+                 CTRadioAccessTechnologyEdge,
+                 CTRadioAccessTechnologyCDMA1x:
                 return .twoG
-            case CTRadioAccessTechnologyWCDMA, CTRadioAccessTechnologyHSDPA, CTRadioAccessTechnologyHSUPA, CTRadioAccessTechnologyCDMAEVDORev0, CTRadioAccessTechnologyCDMAEVDORevA, CTRadioAccessTechnologyCDMAEVDORevB, CTRadioAccessTechnologyeHRPD:
+            case CTRadioAccessTechnologyWCDMA,
+                 CTRadioAccessTechnologyHSDPA,
+                 CTRadioAccessTechnologyHSUPA,
+                 CTRadioAccessTechnologyCDMAEVDORev0,
+                 CTRadioAccessTechnologyCDMAEVDORevA,
+                 CTRadioAccessTechnologyCDMAEVDORevB,
+                 CTRadioAccessTechnologyeHRPD:
                 return .threeG
             case CTRadioAccessTechnologyLTE:
                 return .fourG
@@ -80,9 +85,7 @@ extension NetworkUtility {
 
     enum ConnectionType: String, CustomStringConvertible {
         case undetermined, none, wifi, cellular
-
         var cellular: CellularType { CellularType.current }
-
         var description: String {
             switch self {
             case .none: return "None"

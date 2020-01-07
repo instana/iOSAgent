@@ -1,6 +1,3 @@
-//  Created by Nikola Lajic on 12/26/18.
-//  Copyright © 2018 Nikola Lajic. All rights reserved.
-
 import Foundation
 
 /// Base class for Beacon.

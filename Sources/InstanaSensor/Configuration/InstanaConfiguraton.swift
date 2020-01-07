@@ -1,6 +1,3 @@
-//  Created by Nikola Lajic on 12/26/18.
-//  Copyright © 2018 Nikola Lajic. All rights reserved.
-
 import Foundation
 
 @objc public enum ReportingType: Int {
@@ -43,7 +40,6 @@ struct InstanaConfiguration: Equatable {
         static let transmissionLowBatteryDelay: Instana.Types.Seconds = 10.0
         static let gzipReport = true
     }
-
 
     var reportingURL: URL
     var key: String

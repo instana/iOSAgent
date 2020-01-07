@@ -1,11 +1,3 @@
-//
-//  DevTests.swift
-//  DevTests
-//
-//  Created by Christian Menschel on 18.12.19.
-//  Copyright © 2019 Instana Inc. All rights reserved.
-//
-
 import XCTest
 @testable import Dev
 

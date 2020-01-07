@@ -21,7 +21,7 @@ class InstanaPropertyHandler: NSObject {
            static let maximumNumberOfMetaDataFields = 50
            static let maximumLengthPerMetaDataField = 256
        }
-    private var _unsafe_properties = InstanaProperties()
+    private var unsafe_properties = InstanaProperties()
     private let lock = NSLock()
     var properties: InstanaProperties {
         get {
@@ -29,11 +29,11 @@ class InstanaPropertyHandler: NSObject {
             defer {
                 lock.unlock()
             }
-            return _unsafe_properties
+            return unsafe_properties
         }
         set {
             lock.lock()
-            _unsafe_properties = newValue
+            unsafe_properties = newValue
             lock.unlock()
         }
     }

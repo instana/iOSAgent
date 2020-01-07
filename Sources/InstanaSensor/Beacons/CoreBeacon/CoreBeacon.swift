@@ -1,10 +1,3 @@
-//
-//  Beacon.swift
-//  
-//
-//  Created by Christian Menschel on 26.11.19.
-//
-
 import Foundation
 
 enum BeaconType: String, Equatable, Codable, CustomStringConvertible {
@@ -36,6 +29,7 @@ struct CoreBeacon: Equatable, Codable {
      *
      * Default: undefined
      */
+    // swiftlint:disable:next identifier_name
     var t: BeaconType?
 
     /**
@@ -46,6 +40,7 @@ struct CoreBeacon: Equatable, Codable {
      * For example: `WebView: Privacy Policy`
      *
      */
+    // swiftlint:disable:next identifier_name
     var v: String?
 
     /**
@@ -59,8 +54,8 @@ struct CoreBeacon: Equatable, Codable {
      * Note: In this case the field should hold the value bd777df70e5e5356.
      * This allows us to build a connection between end-user (mobile monitoring) and backend activity (tracing).
      */
+    // swiftlint:disable:next identifier_name
     var bt: String?
-
 
     /**
      * App Key
@@ -68,6 +63,7 @@ struct CoreBeacon: Equatable, Codable {
      * This key is the ID under which data can be reported to Instana. This ID will be created when creating a mobile app via the UI.
      * Provided by the mobile app configuration endpoint from Groundskeeper similar to how it is done for websites.
      */
+    // swiftlint:disable:next identifier_name
     var k: String
 
     /**
@@ -75,6 +71,7 @@ struct CoreBeacon: Equatable, Codable {
      *
      * The timestamp in ms when the beacon has been created
      */
+    // swiftlint:disable:next identifier_name
     var ti: String
 
     /**
@@ -111,6 +108,7 @@ struct CoreBeacon: Equatable, Codable {
      *
      * optional
      */
+    // swiftlint:disable:next identifier_name
     var m: [String: String]?
 
     /**
@@ -120,6 +118,7 @@ struct CoreBeacon: Equatable, Codable {
      *
      * optional
      */
+    // swiftlint:disable:next identifier_name
     var ui: String?
 
     /**
@@ -127,6 +126,7 @@ struct CoreBeacon: Equatable, Codable {
      *
      * optional
      */
+    // swiftlint:disable:next identifier_name
     var un: String?
 
     /**
@@ -134,6 +134,7 @@ struct CoreBeacon: Equatable, Codable {
      *
      * optional
      */
+    // swiftlint:disable:next identifier_name
     var ue: String?
 
     /**
@@ -144,6 +145,7 @@ struct CoreBeacon: Equatable, Codable {
      *
      * optional
      */
+    // swiftlint:disable:next identifier_name
     var ul: String
 
     /**
@@ -154,6 +156,7 @@ struct CoreBeacon: Equatable, Codable {
      *
      *  For example: 1203A
      */
+    // swiftlint:disable:next identifier_name
     var ab: String
 
     /**
@@ -163,6 +166,7 @@ struct CoreBeacon: Equatable, Codable {
      *
      * For example: 1.3.1
      */
+    // swiftlint:disable:next identifier_name
     var av: String
 
     /**
@@ -197,6 +201,7 @@ struct CoreBeacon: Equatable, Codable {
      * Whether the mobile device is rooted / jailbroken. True indicates that the device is definitely rooted / jailbroken.
      * False indicates that it isn't or that we could not identify the correct it.
      */
+    // swiftlint:disable:next identifier_name
     var ro: String?
 
     /**
@@ -204,6 +209,7 @@ struct CoreBeacon: Equatable, Codable {
      *
      * For example: 2436
      */
+    // swiftlint:disable:next identifier_name
     var vw: String
 
     /**
@@ -211,6 +217,7 @@ struct CoreBeacon: Equatable, Codable {
      *
      * For example: 1125
      */
+    // swiftlint:disable:next identifier_name
     var vh: String
 
     /**
@@ -218,6 +225,7 @@ struct CoreBeacon: Equatable, Codable {
      *
      * For example: Deutsche Telekom, Sprint, Verizon
      */
+    // swiftlint:disable:next identifier_name
     var cn: String?
 
     /**
@@ -225,6 +233,7 @@ struct CoreBeacon: Equatable, Codable {
      *
      * For example: Wifi, 4G, 3G or Edge
      */
+    // swiftlint:disable:next identifier_name
     var ct: String?
 
     /**
@@ -232,6 +241,7 @@ struct CoreBeacon: Equatable, Codable {
      *
      * For example: https://stackoverflow.com/questions/4604486/how-do-i-move-an-existing-git-submodule-within-a-git-repository
      */
+    // swiftlint:disable:next identifier_name
     var hu: String?
 
     /**
@@ -241,6 +251,7 @@ struct CoreBeacon: Equatable, Codable {
      *
      * Short serialization key: hp
      */
+    // swiftlint:disable:next identifier_name
     var hp: String?
 
     /**
@@ -248,6 +259,7 @@ struct CoreBeacon: Equatable, Codable {
      *
      * For example: POST
      */
+    // swiftlint:disable:next identifier_name
     var hm: String?
 
     /**
@@ -257,6 +269,7 @@ struct CoreBeacon: Equatable, Codable {
      *
      * For example: 404
      */
+    // swiftlint:disable:next identifier_name
     var hs: String?
 
     /**
@@ -286,13 +299,14 @@ struct CoreBeacon: Equatable, Codable {
      * Duration in milliseconds
      *
      * In case of instantaneous events, use 0.
-     *
      */
+    // swiftlint:disable:next identifier_name
     var d: String?
 
     /**
      * Error count
      */
+    // swiftlint:disable:next identifier_name
     var ec: String?
 
     /**
@@ -302,6 +316,7 @@ struct CoreBeacon: Equatable, Codable {
      *
      * For example: "Error: Could not start a payment request."
      */
+    // swiftlint:disable:next identifier_name
     var em: String?
 
     /**
@@ -312,5 +327,6 @@ struct CoreBeacon: Equatable, Codable {
      *
      * For example: "NetworkError.timeout"
      */
+    // swiftlint:disable:next identifier_name
     var et: String?
 }

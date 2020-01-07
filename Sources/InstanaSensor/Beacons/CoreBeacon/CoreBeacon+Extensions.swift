@@ -1,10 +1,3 @@
-//
-//  Beacon+Factory+Extensions.swift
-//  
-//
-//  Created by Christian Menschel on 02.12.19.
-//
-
 import Foundation
 
 extension CoreBeacon {
@@ -38,7 +31,8 @@ extension CoreBeacon {
             var trimmed = stringValue.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
             trimmed = trimmed.truncated(at: Int(CoreBeacon.maxBytesPerField))
             trimmed = trimmed.replacingOccurrences(of: "\t", with: "")
-            return trimmed as! T
+            guard let result = trimmed as? T else { return entry }
+            return result
         }
         return entry
     }

@@ -1,6 +1,3 @@
-//  Created by Nikola Lajic on 12/25/18.
-//  Copyright © 2018 Nikola Lajic. All rights reserved.
-
 import Foundation
 import WebKit
 
@@ -17,7 +14,7 @@ class InstanaURLProtocol: URLProtocol {
     }()
     private(set) lazy var sessionConfiguration: URLSessionConfiguration = { .default }()
     var marker: HTTPMarker?
-    
+
     convenience init(task: URLSessionTask, cachedResponse: CachedURLResponse?, client: URLProtocolClient?) {
         self.init(request: task.originalRequest!, cachedResponse: cachedResponse, client: client)
         if let internalSession = task.internalSession() {
@@ -25,24 +22,24 @@ class InstanaURLProtocol: URLProtocol {
             sessionConfiguration.protocolClasses = sessionConfiguration.protocolClasses?.filter { $0 !== InstanaURLProtocol.self }
         }
     }
-    
+
     override class func canInit(with request: URLRequest) -> Bool {
         guard mode == .enabled else { return false }
         guard let url = request.url, let scheme = url.scheme else { return false }
         return ["http", "https"].contains(scheme)
     }
-    
+
     override class func canonicalRequest(for request: URLRequest) -> URLRequest {
         return request
     }
-    
+
     override func startLoading() {
         guard InstanaURLProtocol.mode == .enabled else { return }
         marker = try? Instana.current?.monitors.http?.mark(request)
         let task = session.dataTask(with: request)
         task.resume()
     }
-    
+
     override func stopLoading() {
         session.invalidateAndCancel()
         if let marker = marker, case .started = marker.state { marker.canceled() }
@@ -70,20 +67,27 @@ extension InstanaURLProtocol: URLSessionTaskDelegate {
 }
 
 extension InstanaURLProtocol: URLSessionDataDelegate {
-    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse, completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
+    func urlSession(_ session: URLSession,
+                    dataTask: URLSessionDataTask,
+                    didReceive response: URLResponse,
+                    completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
         completionHandler(.allow)
         client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .allowed)
     }
-    
+
     func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
         client?.urlProtocol(self, didLoad: data)
     }
 
-    func urlSession(_ session: URLSession, task: URLSessionTask, willPerformHTTPRedirection response: HTTPURLResponse, newRequest request: URLRequest, completionHandler: @escaping (URLRequest?) -> Void) {
+    func urlSession(_ session: URLSession,
+                    task: URLSessionTask,
+                    willPerformHTTPRedirection response: HTTPURLResponse,
+                    newRequest request: URLRequest,
+                    completionHandler: @escaping (URLRequest?) -> Void) {
         if let backendTracingID = response.backendTracingID {
             marker?.set(backendTracingID: backendTracingID)
         }
-        marker?.set(responseSize:Instana.Types.HTTPSize.size(response: response))
+        marker?.set(responseSize: Instana.Types.HTTPSize.size(response: response))
         marker?.finished(responseCode: response.statusCode)
         marker = try? Instana.current?.monitors.http?.mark(request)
         completionHandler(request)
@@ -92,9 +96,8 @@ extension InstanaURLProtocol: URLSessionDataDelegate {
 
 extension URLSessionConfiguration {
     func registerInstanaURLProtocol() {
-        typealias IP = InstanaURLProtocol
-        if let classes = protocolClasses, !classes.contains(where: {$0 == IP.self}) {
-            protocolClasses?.insert(IP.self, at: 0)
+        if let classes = protocolClasses, !classes.contains(where: {$0 == InstanaURLProtocol.self}) {
+            protocolClasses?.insert(InstanaURLProtocol.self, at: 0)
             URLSession.store(config: self)
         }
     }
@@ -103,7 +106,7 @@ extension URLSessionConfiguration {
 @objc extension URLSession {
     // The swizzled class func to create (NS)URLSession with the given configuration
     // We monitor all sessions implicitly
-    @objc class func instana_session(configuration: URLSessionConfiguration) -> URLSession {
+    class func instana_session(configuration: URLSessionConfiguration) -> URLSession {
         configuration.registerInstanaURLProtocol()
         return URLSession.instana_session(configuration: configuration)
     }
@@ -172,7 +175,9 @@ extension InstanaURLProtocol {
 //        let newImp = imp_implementationWithBlock(newBlock)
 
         let className = object_getClassName(URLSession.self)
-        let didAddMethod = class_addMethod(objc_getMetaClass(className) as? AnyClass, originalSelector, method_getImplementation(newMethod), method_getTypeEncoding(newMethod))
+        let didAddMethod = class_addMethod(objc_getMetaClass(className) as? AnyClass,
+                                           originalSelector, method_getImplementation(newMethod),
+                                           method_getTypeEncoding(newMethod))
         if didAddMethod {
             class_replaceMethod(URLSession.self, newSelector, method_getImplementation(originalMethod), method_getTypeEncoding(originalMethod))
         } else {

@@ -1,6 +1,3 @@
-//  Created by Nikola Lajic on 12/25/18.
-//  Copyright © 2018 Nikola Lajic. All rights reserved.
-
 import Foundation
 
 protocol HTTPMarkerDelegate: class {
@@ -76,7 +73,7 @@ extension HTTPMarker {
         endTime = Date().millisecondsSince1970
         delegate?.finalized(marker: self)
     }
-    
+
     /// Invoke this method after the request has failed to finish.
     ///
     /// - Parameters:
@@ -89,7 +86,7 @@ extension HTTPMarker {
         endTime = Date().millisecondsSince1970
         delegate?.finalized(marker: self)
     }
-    
+
     /// Invoke this method if the reuqest has been canceled before completion.
     /// Note: Make sure you don't call more methods on this HTTPMarker after you called canceled
     @objc public func canceled() {
@@ -110,16 +107,16 @@ extension HTTPMarker {
 extension HTTPMarker {
     func createBeacon() -> Beacon {
         let result: String
-        var responseCode: Int? = nil
-        
+        var responseCode: Int?
+
         switch state {
         case .started:
             result = "started"
         case .canceled:
             result = "canceled"
-        case .finished(let rc):
+        case .finished(let code):
             result = "finished"
-            responseCode = rc
+            responseCode = code
         case .failed(let error):
             result = String(describing: error)
         }
@@ -174,7 +171,7 @@ extension HTTPMarker {
             guard #available(iOS 13.0, *) else { return size(response: response) }
             let size = HTTPSize()
             size.headerBytes = transactionMetrics.map {$0.countOfResponseHeaderBytesReceived}.reduce(0, +)
-            size.bodyBytes = transactionMetrics.map{ $0.countOfResponseBodyBytesReceived}.reduce(0, +)
+            size.bodyBytes = transactionMetrics.map {$0.countOfResponseBodyBytesReceived}.reduce(0, +)
             size.bodyBytesAfterDecoding = transactionMetrics.map {$0.countOfResponseBodyBytesAfterDecoding}.reduce(0, +)
             return size
         }

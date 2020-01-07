@@ -1,11 +1,9 @@
-
 import UIKit
 
-// TODO: Test this
+// TOODO Test this
 extension UIViewController {
     var hiercharchyName: String {
-        let t = type(of: self)
-        var name = String(describing: t)
+        var name = String(describing: type(of: self))
         if let title = (title ?? restorationIdentifier ?? nibName) {
             name += " - (" + title + ")"
         }
@@ -43,4 +41,3 @@ extension UIWindow {
         return result.isEmpty ? nil : result
     }
 }
-

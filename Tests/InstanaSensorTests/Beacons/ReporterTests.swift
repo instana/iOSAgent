@@ -1,6 +1,3 @@
-//  Created by Nikola Lajic on 3/7/19.
-//  Copyright © 2019 Nikola Lajic. All rights reserved.
-
 import XCTest
 @testable import InstanaSensor
 import Network
@@ -115,19 +112,18 @@ class ReporterTests: XCTestCase {
 
     func test_schedule_and_flush_twice() {
         // Given
-        let flushDelay = 0.2
         var flushCount = 0
-        let reporter = TestReporter(environment(delay: flushDelay)) {
+        let reporter = TestReporter(environment(delay: 0.0)) {
             flushCount += 1
         }
 
         // When
         reporter.submit(AlertBeacon(alertType: .lowMemory))
         // Submit one more after delay
-        wait(flushDelay + 0.2)
+        wait(0.4)
         AssertTrue(flushCount == 1)
         reporter.submit(AlertBeacon(alertType: .lowMemory))
-        wait(flushDelay * 2)
+        wait(0.4)
 
         // Then - Should flush twice when getting more beacons after first flushing occured
         AssertTrue(flushCount == 2)

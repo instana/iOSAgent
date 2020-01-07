@@ -1,6 +1,3 @@
-//  Created by Nikola Lajic on 2/4/19.
-//  Copyright © 2019 Nikola Lajic. All rights reserved.
-
 import Foundation
 import UIKit
 
@@ -12,7 +9,7 @@ class FramerateDropMonitor {
             proxied?.onDisplayLinkUpdate()
         }
     }
-    
+
     private let reporter: Reporter
     private let threshold: UInt
     private let displayLink: CADisplayLink
@@ -22,9 +19,9 @@ class FramerateDropMonitor {
     private var dropStart: CFAbsoluteTime?
     private var runningAverage: Float = 0
     private var consecutiveFrameDrop: UInt = 0
-    
+
     private init() { fatalError() }
-    
+
     init(threshold: UInt, samplingInterval: Instana.Types.Seconds = 1, reporter: Reporter) {
         self.reporter = reporter
         self.samplingInterval = samplingInterval
@@ -38,7 +35,7 @@ class FramerateDropMonitor {
         NotificationCenter.default.addObserver(self, selector: #selector(onApplicationEnteredBackground),
                                                name: UIApplication.didEnterBackgroundNotification, object: nil)
     }
-    
+
     deinit {
         displayLink.invalidate()
     }
@@ -49,7 +46,7 @@ private extension FramerateDropMonitor {
     @objc func onApplicationEnteredForeground() {
         displayLink.isPaused = false
     }
-    
+
     @objc func onApplicationEnteredBackground() {
         displayLink.isPaused = true
         dropStart = nil
@@ -64,17 +61,17 @@ private extension FramerateDropMonitor {
             samplingStart = displayLink.timestamp
             return
         }
-        
+
         elapsedFrames += 1
         let samplingDuration = displayLink.timestamp - samplingStart
-        
+
         if samplingDuration > samplingInterval {
             handle(fps: UInt(round(Double(elapsedFrames) / samplingDuration)))
             samplingStart = 0
             elapsedFrames = 0
         }
     }
-    
+
     func handle(fps: UInt) {
         switch (fps < threshold, dropStart) {
         case (true, nil):

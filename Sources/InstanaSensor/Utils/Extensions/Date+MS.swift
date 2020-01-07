@@ -1,10 +1,3 @@
-//
-//  Date+MS.swift
-//  
-//
-//  Created by Christian Menschel on 26.11.19.
-//
-
 import Foundation
 
 public extension Date {

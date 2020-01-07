@@ -1,6 +1,3 @@
-//  Created by Nikola Lajic on 1/25/19.
-//  Copyright © 2019 Nikola Lajic. All rights reserved.
-
 import Foundation
 
 class SessionProfileBeacon: Beacon {
@@ -18,7 +15,7 @@ class SessionProfileBeacon: Beacon {
         self.state = state
         super.init(timestamp: timestamp, sessionID: sessionID)
     }
-    
+
     private override init(timestamp: Instana.Types.Milliseconds, sessionID: UUID) {
         fatalError("Wrong initializer")
     }

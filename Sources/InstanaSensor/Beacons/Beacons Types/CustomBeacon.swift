@@ -1,4 +1,3 @@
-
 import Foundation
 
 /// Use this class when submitting user beacons to the Instana backend.

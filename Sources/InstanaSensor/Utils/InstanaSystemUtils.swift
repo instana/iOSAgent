@@ -1,6 +1,3 @@
-//  Created by Nikola Lajic on 1/25/19.
-//  Copyright © 2019 Nikola Lajic. All rights reserved.
-
 import Foundation
 import UIKit
 
@@ -21,15 +18,15 @@ class InstanaSystemUtils {
     }()
 
     static var networkUtility = { NetworkUtility() }()
-    
+
     /// Returns iOS version (for ex. "12.1")
     static var systemVersion: String = { UIDevice.current.systemVersion }()
 
     static var systemName: String = { UIDevice.current.systemName }()
-    
+
     /// Returns application version (for ex. "1.1")
     static var applicationVersion: String = { Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "unknown-version" }()
-    
+
     /// Returns application build number (for ex. "123")
     static var applicationBuildNumber: String = { Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "unkown-build-number" }()
 
@@ -38,11 +35,11 @@ class InstanaSystemUtils {
 
     /// Returns the screen size in Pixel
     static var screenSize: CGSize = { UIScreen.main.nativeBounds.size }()
-    
+
     static var isDeviceJailbroken: Bool = {
         var isBroken = false
         do {
-            try "Jailbreak Test".write(toFile:"/private/.JailbreakTest.txt", atomically: true, encoding:String.Encoding.utf8)
+            try "Jailbreak Test".write(toFile: "/private/.JailbreakTest.txt", atomically: true, encoding: String.Encoding.utf8)
             isBroken = true
         } catch {}
         if FileManager.default.fileExists(atPath: "/private/var/lib/apt") {

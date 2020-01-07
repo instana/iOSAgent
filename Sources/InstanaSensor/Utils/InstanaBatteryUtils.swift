@@ -1,28 +1,31 @@
-//  Created by Nikola Lajic on 1/28/19.
-//  Copyright © 2019 Nikola Lajic. All rights reserved.
-
 import Foundation
 import UIKit
 
 class InstanaBatteryUtils {
-    
+
     private(set) var safeForNetworking = true
-    
+
     init() {
         UIDevice.current.isBatteryMonitoringEnabled = true
-        NotificationCenter.default.addObserver(self, selector: #selector(onBatteryLevelDidChange), name: UIDevice.batteryLevelDidChangeNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(onBatteryStateDidChange), name: UIDevice.batteryStateDidChangeNotification, object: nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(onBatteryLevelDidChange),
+                                               name: UIDevice.batteryLevelDidChangeNotification,
+                                               object: nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(onBatteryStateDidChange),
+                                               name: UIDevice.batteryStateDidChangeNotification,
+                                               object: nil)
         updateSafeForNetworking(0)
     }
-    
+
     @objc func onBatteryLevelDidChange() {
         updateSafeForNetworking(0)
     }
-    
+
     @objc func onBatteryStateDidChange() {
         updateSafeForNetworking(0)
     }
-    
+
     private func updateSafeForNetworking(_ retry: Int) {
         switch UIDevice.current.batteryState {
         case .charging:

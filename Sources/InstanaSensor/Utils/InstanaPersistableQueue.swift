@@ -1,13 +1,5 @@
-//
-//  File.swift
-//  
-//
-//  Created by Christian Menschel on 06.12.19.
-//
-
 import Foundation
 
-// TODO: Use Operation queue later
 /// To be used in an asynchronous world (i.e. via a background dispatch queue)
 class InstanaPersistableQueue<T: Codable & Equatable> {
 
@@ -41,7 +33,7 @@ class InstanaPersistableQueue<T: Codable & Equatable> {
             let data = try JSONEncoder().encode(self.items)
             try data.write(to: fileURL, options: .completeFileProtection)
             completion?(.success(()))
-        } catch (let error) {
+        } catch let error {
             completion?(.failure(error))
         }
     }

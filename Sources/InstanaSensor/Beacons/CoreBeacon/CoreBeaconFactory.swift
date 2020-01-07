@@ -1,4 +1,3 @@
-
 import Foundation
 
 class CoreBeaconFactory {
@@ -17,14 +16,14 @@ class CoreBeaconFactory {
     func map(_ beacon: Beacon) throws -> CoreBeacon {
         var cbeacon = CoreBeacon.createDefault(key: conf.key, timestamp: beacon.timestamp, sessionID: beacon.sessionID, id: beacon.id, properties: properties)
         switch beacon {
-        case let b as HTTPBeacon:
-            cbeacon.append(b)
-        case let b as AlertBeacon:
-            cbeacon.append(b)
-        case let b as CustomBeacon:
-            cbeacon.append(b)
-        case let b as SessionProfileBeacon:
-            cbeacon.append(b)
+        case let item as HTTPBeacon:
+            cbeacon.append(item)
+        case let item as AlertBeacon:
+            cbeacon.append(item)
+        case let item as CustomBeacon:
+            cbeacon.append(item)
+        case let item as SessionProfileBeacon:
+            cbeacon.append(item)
         default:
             let message = "Beacon <-> CoreBeacon mapping for beacon \(beacon) not defined"
             debugAssertFailure(message)

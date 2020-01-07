@@ -1,6 +1,3 @@
-//  Created by Nikola Lajic on 3/11/19.
-//  Copyright © 2019 Nikola Lajic. All rights reserved.
-
 import Foundation
 
 protocol InstanaTimerProxiedTarget: class {
@@ -10,16 +7,15 @@ protocol InstanaTimerProxiedTarget: class {
 /// The proxy is used to avoid the retain cycle caused by Timer retaining its target.
 class InstanaTimerProxy {
     private weak var target: InstanaTimerProxiedTarget?
-    
+
     @objc func onTimer(timer: Timer) {
         if let target = target {
             target.onTimer(timer: timer)
-        }
-        else {
+        } else {
             timer.invalidate()
         }
     }
-    
+
     static func timer(proxied: InstanaTimerProxiedTarget, timeInterval: TimeInterval, userInfo: Any? = nil, repeats: Bool = false) -> Timer {
         let proxy = InstanaTimerProxy()
         proxy.target = proxied

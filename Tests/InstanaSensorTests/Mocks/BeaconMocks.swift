@@ -1,10 +1,3 @@
-//
-//  File.swift
-//  
-//
-//  Created by Christian Menschel on 02.12.19.
-//
-
 import Foundation
 @testable import InstanaSensor
 

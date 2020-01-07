@@ -1,6 +1,3 @@
-//  Created by Nikola Lajic on 3/1/19.
-//  Copyright © 2019 Nikola Lajic. All rights reserved.
-
 import XCTest
 
 extension XCTestCase {

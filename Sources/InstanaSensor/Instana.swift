@@ -1,6 +1,3 @@
-//  Created by Nikola Lajic on 12/10/18.
-//  Copyright © 2018 Nikola Lajic. All rights reserved.
-
 import Foundation
 
 /// Root object for the InstanaSensor.
@@ -9,7 +6,6 @@ import Foundation
 /// - Important: Before using any of Instana's features, it is necessary to invoke one of its setup methods.
 @objc public class Instana: NSObject {
 
-    /// MARK: Framework Internal
     /// The Container for all Instana monitors (Network, HTTP, Framedrop, ...)
     let monitors: Monitors
 
@@ -33,13 +29,11 @@ import Foundation
 /// Public API methods
 @objc public extension Instana {
 
-
     /// Optional reporting URL used for on-premises Instana backend installations.
-    @objc class var reportingURL: URL? { Instana.current?.environment.configuration.reportingURL }
+    class var reportingURL: URL? { Instana.current?.environment.configuration.reportingURL }
 
     /// Instana key identifying your application.
-    @objc class var key: String? { Instana.current?.environment.configuration.key }
-
+    class var key: String? { Instana.current?.environment.configuration.key }
 
     /// Configures and sets up the Instana SDK with the default configuration.
     ///
@@ -47,14 +41,14 @@ import Foundation
     /// - Parameters:
     ///   - key: Instana key identifying your application.
     ///   - reportingURL: Optional reporting URL used for on-premises Instana backend installations.
-    @objc static func setup(key: String, reportingURL: URL? = nil, reportingType: ReportingType = .automaticAndManual) {
-        // TODO: leave when current a session exists
+    static func setup(key: String, reportingURL: URL? = nil, reportingType: ReportingType = .automaticAndManual) {
+        // TOODO: leave when current a session exists
         // Currently setup would be possible n times in one app lifecycle
-        let config = InstanaConfiguration.default(key: key, reportingURL:  reportingURL, reportingType: reportingType)
+        let config = InstanaConfiguration.default(key: key, reportingURL: reportingURL, reportingType: reportingType)
         Instana.current = Instana(configuration: config)
     }
 
-    // TODO: Move this into a namedspace wrapper
+    // TOODO: Move this into a namedspace wrapper
     /// Use this method to manually monitor remote calls that can't be tracked automatically.
     ///
     ///
@@ -80,7 +74,7 @@ import Foundation
     ///   - url: URL of the call.
     ///   - method: Method of the call.
     /// - Returns: A remote call marker which is used to notify the SDK of call results by invoking one of its completion methods.
-    @objc static func markHTTP(_ url: URL, method: String) -> HTTPMarker {
+    static func markHTTP(_ url: URL, method: String) -> HTTPMarker {
         let delegate = Instana.current?.monitors.http
         return HTTPMarker(url: url, method: method, trigger: .manual, delegate: delegate)
     }
@@ -98,7 +92,8 @@ import Foundation
     ///         }
     ///     }
     ///
-    /// You can also trace the HTTP reponse size manually once the size has been determined via the URLSessionDelegate. (Must be called before finished) For example:
+    /// You can also trace the HTTP reponse size manually once the size has been determined via the URLSessionDelegate.
+    /// (Must be called before finished) For example:
     ///
     ///       func urlSession(_ session: URLSession, task: URLSessionTask, didFinishCollecting metrics: URLSessionTaskMetrics) {
     ///            marker?.set(responseSize: Instana.Types.HTTPSize(task: task, transactionMetrics: metrics.transactionMetrics))
@@ -107,7 +102,7 @@ import Foundation
     /// - Parameters:
     ///   - request: URLRequest of the call.
     /// - Returns: A remote call marker which is used to notify the SDK of call results by invoking one of its completion methods.
-    @objc static func markHTTP(_ request: URLRequest) -> HTTPMarker {
+    static func markHTTP(_ request: URLRequest) -> HTTPMarker {
         let delegate = Instana.current?.monitors.http
         let url = request.url ?? URL(string: "http://instana-invalid")!
         return HTTPMarker(url: url, method: request.httpMethod ?? "invalid", trigger: .manual, delegate: delegate)
@@ -122,12 +117,12 @@ import Foundation
     }
 
      /// Meta data information that will be attached to each transmitted data (beacon).
-       /// Consider using this to track UI configuration values, settings, feature flags… any additional context that might be useful for analysis.
-       ///
-       /// - Parameters:
-       ///     - value: An arbitrary String typed value
-    ///     - key: The key (String) to store the custom meta value
-    @objc static func setMeta(value: String, key: String) {
+     /// Consider using this to track UI configuration values, settings, feature flags… any additional context that might be useful for analysis.
+     ///
+     /// - Parameters:
+     ///     - value: An arbitrary String typed value
+     ///     - key: The key (String) to store the custom meta value
+    static func setMeta(value: String, key: String) {
         guard propertyHandler.validate(value: value) else { return }
         var metaData = propertyHandler.properties.metaData ?? [:]
         metaData[key] = value
@@ -154,7 +149,7 @@ import Foundation
     ///     - id: Unique identifier for the user
     ///     - email: User's email address
     ///     - name: User's full name
-    @objc static func setUser(id: String, email: String?, name: String?) {
+    static func setUser(id: String, email: String?, name: String?) {
         propertyHandler.properties.user = InstanaProperties.User(id: id, email: email, name: name)
     }
 
@@ -170,7 +165,7 @@ import Foundation
     ///
     /// - Parameters:
     ///     - name: The name of the current visible view
-    @objc static func setView(name: String) {
+    static func setView(name: String) {
         propertyHandler.properties.view = name
     }
 }

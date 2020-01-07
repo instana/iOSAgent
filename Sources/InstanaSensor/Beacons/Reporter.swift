@@ -1,10 +1,9 @@
-
 import Foundation
 import Gzip
 
 /// Reporter to queue and submit the Beacons
 public class Reporter {
-    
+
     typealias Submitter = (Beacon) -> Void
     typealias NetworkLoader = (URLRequest, @escaping (InstanaNetworking.Result) -> Void) -> Void
     var completion: (BeaconResult) -> Void = {_ in}
@@ -50,7 +49,7 @@ public class Reporter {
     func scheduleFlush() {
         guard !queue.items.isEmpty else { return }
         flushWorkItem?.cancel()
-        let workItem = DispatchWorkItem() {[weak self] in
+        let workItem = DispatchWorkItem {[weak self] in
             guard let self = self else { return }
             guard let flushWorkItem = self.flushWorkItem, !flushWorkItem.isCancelled else { return }
             let start = Date()
@@ -103,7 +102,7 @@ public class Reporter {
             }
         }
     }
-    
+
     func complete(_ beacons: [CoreBeacon], _ result: BeaconResult) {
         switch result {
         case .success:
