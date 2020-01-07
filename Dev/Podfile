@@ -3,6 +3,7 @@ target 'Dev' do
   use_frameworks!
 
   pod 'SwiftLint'
+  pod 'SwiftFormat/CLI'
 
   target 'DevTests' do
     inherit! :search_paths
