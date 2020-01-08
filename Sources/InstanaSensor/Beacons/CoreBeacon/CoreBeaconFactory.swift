@@ -20,6 +20,8 @@ class CoreBeaconFactory {
             cbeacon.append(item)
         case let item as ViewChange:
             cbeacon.append(item)
+        case let item as AlertBeacon:
+        cbeacon.append(item)
         case let item as SessionProfileBeacon:
             cbeacon.append(item)
         default:
@@ -40,8 +42,9 @@ extension CoreBeacon {
         hs = String(beacon.responseCode)
         hm = beacon.method
         d = String(beacon.duration)
-
-        if 400 ... 599 ~= beacon.responseCode {
+        et = beacon.error?.rawValue
+        em = beacon.error?.description
+        if beacon.error != nil {
             ec = String(1)
         }
 
@@ -61,6 +64,11 @@ extension CoreBeacon {
     mutating func append(_ beacon: ViewChange) {
         t = .viewChange
         v = beacon.viewName
+    }
+
+    mutating func append(_ beacon: AlertBeacon) {
+        t = .alert
+        // nothing yet defined
     }
 
     mutating func append(_ beacon: SessionProfileBeacon) {

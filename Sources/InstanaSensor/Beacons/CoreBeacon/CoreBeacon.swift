@@ -5,7 +5,7 @@ enum BeaconType: String, Equatable, Codable, CustomStringConvertible {
     case httpRequest
     case viewChange
     case crash
-    case custom
+    case alert
     var description: String { rawValue }
 }
 
@@ -323,9 +323,8 @@ struct CoreBeacon: Equatable, Codable {
      * ErrorType
      *
      * Type of the error
-     * For iOS: You could use the ErrorDomain or the Swift Error enum case
      *
-     * For example: "NetworkError.timeout"
+     * For example: "Timeout"
      */
     // swiftlint:disable:next identifier_name
     var et: String?

@@ -30,10 +30,10 @@ class InstanaURLProtocolTests: XCTestCase {
         InstanaURLProtocol.mode = .enabled
 
         // When
-        IgnoreURLHandler.exactURLs = [URL(string: "https://www.a.b")!]
+        IgnoreURLHandler.exactURLs = [URL(string: "https://www.url.to/ignore")!]
 
         // Then
-        XCTAssertFalse(InstanaURLProtocol.canInit(with: makeRequest("https://www.a.b")))
+        XCTAssertFalse(InstanaURLProtocol.canInit(with: makeRequest("https://www.url.to/ignore")))
     }
 
     func test_urlProtocol_shouldNotInitForIgnoredURLRegex() {

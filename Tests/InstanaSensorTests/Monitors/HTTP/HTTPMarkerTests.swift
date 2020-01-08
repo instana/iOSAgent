@@ -190,7 +190,7 @@ class HTTPMarkerTests: XCTestCase {
         XCTAssertEqual(beacon.url, url)
         XCTAssertEqual(beacon.responseCode, 204)
         XCTAssertEqual(beacon.responseSize, responseSize)
-        XCTAssertEqual(beacon.result, "finished")
+        XCTAssertNil(beacon.error)
     }
     
     func test_failed_Marker_toBeaconConversion() {
@@ -198,7 +198,7 @@ class HTTPMarkerTests: XCTestCase {
         let url: URL = .random
         let responseSize = Instana.Types.HTTPSize.random
         let marker = HTTPMarker(url: url, method: "t", trigger: .automatic, delegate: Delegate())
-        let error = CocoaError(CocoaError.coderValueNotFound)
+        let error = NSError(domain: NSCocoaErrorDomain, code: -1, userInfo: nil)
 
         // When
         marker.set(responseSize: responseSize)
@@ -218,7 +218,7 @@ class HTTPMarkerTests: XCTestCase {
         AssertEqualAndNotNil(beacon.responseSize?.headerBytes, responseSize.headerBytes)
         AssertEqualAndNotNil(beacon.responseSize?.bodyBytes, responseSize.bodyBytes)
         AssertEqualAndNotNil(beacon.responseSize?.bodyBytesAfterDecoding, responseSize.bodyBytesAfterDecoding)
-        XCTAssertEqual(beacon.result, String(describing: error as Error))
+        XCTAssertEqual(beacon.error, HTTPError.unknown(error))
     }
     
     func test_canceled_Marker_toBeaconConversion() {
@@ -240,7 +240,7 @@ class HTTPMarkerTests: XCTestCase {
         XCTAssertEqual(beacon.url, url)
         XCTAssertEqual(beacon.responseCode, -1)
         XCTAssertNil(beacon.responseSize)
-        XCTAssertEqual(beacon.result, "canceled")
+        XCTAssertEqual(beacon.error, HTTPError.cancelled)
     }
     
     func test_started_Marker_toConversion() {
@@ -261,7 +261,7 @@ class HTTPMarkerTests: XCTestCase {
         XCTAssertEqual(beacon.url, url)
         XCTAssertEqual(beacon.responseCode, -1)
         XCTAssertNil(beacon.responseSize)
-        XCTAssertEqual(beacon.result, "started")
+        XCTAssertNil(beacon.error)
     }
 }
 

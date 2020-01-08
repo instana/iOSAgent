@@ -106,19 +106,18 @@ extension HTTPMarker {
 
 extension HTTPMarker {
     func createBeacon() -> Beacon {
-        let result: String
+        var error: Error?
         var responseCode: Int?
 
         switch state {
         case .started:
-            result = "started"
+            break
         case .canceled:
-            result = "canceled"
+            error = NSError(domain: NSURLErrorDomain, code: NSURLErrorCancelled, userInfo: nil)
         case let .finished(code):
-            result = "finished"
             responseCode = code
-        case let .failed(error):
-            result = String(describing: error)
+        case let .failed(theError):
+            error = theError
         }
 
         return HTTPBeacon(timestamp: startTime,
@@ -127,7 +126,7 @@ extension HTTPMarker {
                           url: url,
                           responseCode: responseCode ?? -1,
                           responseSize: responseSize,
-                          result: result,
+                          error: error,
                           backendTracingID: backendTracingID)
     }
 }
