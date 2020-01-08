@@ -18,7 +18,7 @@ The SDK supports iOS 10.3 and above, and is usable from Swift and Objective-C.
 ##### CocoaPods
 To add Instana as a dependency edit your `Podfile` to include the following:
 
-    pod 'Instana', :git => 'https://github.com/instana/ios-sensor'
+    pod 'Instana', :git => 'https://github.com/instana/iOSAgent.git'
     
 Don't forget to run `pod install` to download the dependencies.
 

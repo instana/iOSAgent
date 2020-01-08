@@ -1,6 +1,6 @@
 import UIKit
 import WebKit
-import InstanaSensor
+import InstanaAgent
 import Combine
 
 class WebViewController: UIViewController {

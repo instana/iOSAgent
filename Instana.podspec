@@ -15,8 +15,8 @@ Pod::Spec.new do |s|
   #  summary should be tweet-length, and the description more in depth.
   #
 
-  s.name         = "Instana"
-  s.version      = "0.0.1"
+  s.name         = "InstanaAgent"
+  s.version      = "0.1.0"
   s.summary      = "Application Performance Management (APM)."
 
   # This description is used to generate tags and improve search results.
@@ -25,7 +25,7 @@ Pod::Spec.new do |s|
   #   * Write the description between the DESC delimiters below.
   #   * Finally, don't worry about the indent, CocoaPods strips it!
   s.description  = <<-DESC
-Integrate Instana Application Performance Management into your iOS app.
+Integrate Instana Agent Application Performance Management into your iOS app.
                    DESC
 
   s.homepage     = "https://github.com/instana/iOSAgent"
@@ -75,7 +75,7 @@ Integrate Instana Application Performance Management into your iOS app.
   #  Supports git, hg, bzr, svn and HTTP.
   #
 
-  s.source       = { :git => "https://github.com/instana/iOSAgent", :branch => "development" }
+  s.source       = { :git => "https://github.com/instana/iOSAgent", :branch => "master" }
 
 
   # ――― Source Code ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
@@ -86,7 +86,7 @@ Integrate Instana Application Performance Management into your iOS app.
   #  Not including the public_header_files will make all headers public.
   #
 
-  s.source_files  = "Sources/InstanaSensor/**/*.{swift}"
+  s.source_files  = "Sources/InstanaAgent/**/*.{swift}"
   # s.exclude_files = "Classes/Exclude"
 
   # s.public_header_files = "Instana/Instana.h"

@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		27D914B0E169B580D8AE4DD6 /* Pods_Dev.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D9DC6DDA5D10B46D7449B60A /* Pods_Dev.framework */; };
 		47B887A7BB2122C925643E8D /* Pods_DevTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23EFB4947B0DF17DCD5852E7 /* Pods_DevTests.framework */; };
-		7226D65A23AA349F0010ECB4 /* InstanaSensor in Frameworks */ = {isa = PBXBuildFile; productRef = 7226D65923AA349F0010ECB4 /* InstanaSensor */; };
+		7226D65A23AA349F0010ECB4 /* InstanaAgent in Frameworks */ = {isa = PBXBuildFile; productRef = 7226D65923AA349F0010ECB4 /* InstanaAgent */; };
 		7226D65C23AA35230010ECB4 /* WebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7226D65B23AA35230010ECB4 /* WebViewController.swift */; };
 		72FC4F7023AA1A5A004EF4E2 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72FC4F6F23AA1A5A004EF4E2 /* AppDelegate.swift */; };
 		72FC4F7223AA1A5A004EF4E2 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72FC4F7123AA1A5A004EF4E2 /* SceneDelegate.swift */; };
@@ -32,7 +32,7 @@
 /* Begin PBXFileReference section */
 		23EFB4947B0DF17DCD5852E7 /* Pods_DevTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_DevTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		7226D65B23AA35230010ECB4 /* WebViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewController.swift; sourceTree = "<group>"; };
-		72CC1B9923AA347300E38E81 /* ios-sensor */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "ios-sensor"; path = ..; sourceTree = "<group>"; };
+		72CC1B9923AA347300E38E81 /* iOSAgent */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "iOSAgent"; path = ..; sourceTree = "<group>"; };
 		72FC4F6C23AA1A5A004EF4E2 /* Dev.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Dev.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		72FC4F6F23AA1A5A004EF4E2 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		72FC4F7123AA1A5A004EF4E2 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -55,7 +55,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7226D65A23AA349F0010ECB4 /* InstanaSensor in Frameworks */,
+				7226D65A23AA349F0010ECB4 /* InstanaAgent in Frameworks */,
 				27D914B0E169B580D8AE4DD6 /* Pods_Dev.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -94,7 +94,7 @@
 		72FC4F6323AA1A5A004EF4E2 = {
 			isa = PBXGroup;
 			children = (
-				72CC1B9923AA347300E38E81 /* ios-sensor */,
+				72CC1B9923AA347300E38E81 /* iOSAgent */,
 				72FC4F6E23AA1A5A004EF4E2 /* Dev */,
 				72FC4F8523AA1A5B004EF4E2 /* DevTests */,
 				72FC4F6D23AA1A5A004EF4E2 /* Products */,
@@ -163,7 +163,7 @@
 			);
 			name = Dev;
 			packageProductDependencies = (
-				7226D65923AA349F0010ECB4 /* InstanaSensor */,
+				7226D65923AA349F0010ECB4 /* InstanaAgent */,
 			);
 			productName = Dev;
 			productReference = 72FC4F6C23AA1A5A004EF4E2 /* Dev.app */;
@@ -265,7 +265,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if which ${PODS_ROOT}/SwiftLint/swiftlint >/dev/null; then\n  cd ../Sources/InstanaSensor && ${PODS_ROOT}/SwiftLint/swiftlint\nelse\n  echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
+			shellScript = "if which ${PODS_ROOT}/SwiftLint/swiftlint >/dev/null; then\n  cd ../Sources/InstanaAgent && ${PODS_ROOT}/SwiftLint/swiftlint\nelse\n  echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
 		};
 		72D95B5023C49A92002AE1FA /* SwiftFormat */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -283,7 +283,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "${PODS_ROOT}/SwiftFormat/CommandLineTool/swiftformat ../Sources/InstanaSensor/\n";
+			shellScript = "${PODS_ROOT}/SwiftFormat/CommandLineTool/swiftformat ../Sources/InstanaAgent/\n";
 		};
 		72D95B5223C4C091002AE1FA /* SwiftLint */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -301,7 +301,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if which ${PODS_ROOT}/SwiftLint/swiftlint >/dev/null; then\n  cd ../Sources/InstanaSensor && ${PODS_ROOT}/SwiftLint/swiftlint\nelse\n  echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
+			shellScript = "if which ${PODS_ROOT}/SwiftLint/swiftlint >/dev/null; then\n  cd ../Sources/InstanaAgent && ${PODS_ROOT}/SwiftLint/swiftlint\nelse\n  echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
 		};
 		72FC4F9123AA1A69004EF4E2 /* Run Swift Package Unit Tests */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -643,9 +643,9 @@
 /* End XCConfigurationList section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		7226D65923AA349F0010ECB4 /* InstanaSensor */ = {
+		7226D65923AA349F0010ECB4 /* InstanaAgent */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = InstanaSensor;
+			productName = InstanaAgent;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

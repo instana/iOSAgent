@@ -1,5 +1,5 @@
 import UIKit
-import InstanaSensor
+import InstanaAgent
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -12,7 +12,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             Instana.setMeta(value: "Value", key: "KEY")
             Instana.setMeta(value: "DEBUG", key: "Env")
             Instana.setUser(id: UUID().uuidString, email: "email@example.com", name: "Christian")
-            Instana.ignoreURL(matching: [".*https:.*"])
+            Instana.ignoreURL(matching: [".*http:.*"])
         }
         return true
     }
