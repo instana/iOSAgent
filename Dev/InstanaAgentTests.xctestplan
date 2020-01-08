@@ -1,0 +1,36 @@
+{
+  "configurations" : [
+    {
+      "id" : "09F58A0D-9318-4D77-89EB-84BE1730DE59",
+      "name" : "Configuration 1",
+      "options" : {
+        "testExecutionOrdering" : "alphabetical"
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "areLocalizationScreenshotsEnabled" : true,
+    "language" : "en",
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:",
+      "identifier" : "InstanaAgent",
+      "name" : "InstanaAgent"
+    },
+    "testExecutionOrdering" : "random"
+  },
+  "testTargets" : [
+    {
+      "skippedTests" : [
+        "BasicIntegrationServerTest",
+        "InstanaURLProtocolIntegrationTests",
+        "IntegrationTestCase"
+      ],
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "InstanaAgentTests",
+        "name" : "InstanaAgentTests"
+      }
+    }
+  ],
+  "version" : 1
+}

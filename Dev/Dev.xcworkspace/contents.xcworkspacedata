@@ -7,4 +7,10 @@
    <FileRef
       location = "group:Pods/Pods.xcodeproj">
    </FileRef>
+   <FileRef
+      location = "group:InstanaAgentTests.xctestplan">
+   </FileRef>
+   <FileRef
+      location = "group:InstanaAgentIntegrationTests.xctestplan">
+   </FileRef>
 </Workspace>
