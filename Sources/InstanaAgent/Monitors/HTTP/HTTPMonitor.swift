@@ -25,7 +25,7 @@ class HTTPMonitor {
 
     func install() {
         _ = installer(InstanaURLProtocol.self)
-        InstanaURLProtocol.install()
+        InstanaURLProtocol.install
         InstanaURLProtocol.mode = .enabled
     }
 

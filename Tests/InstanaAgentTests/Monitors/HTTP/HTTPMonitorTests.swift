@@ -31,7 +31,7 @@ class HTTPMonitorTests: XCTestCase {
         _ = URLSession(configuration: URLSessionConfiguration.default)
 
         // Then
-        let allURLProtocolClasses = URLSession.allSessionConfigs.compactMap{$0.protocolClasses}.flatMap {$0}
+        let allURLProtocolClasses = URLSessionConfiguration.all.compactMap{$0.protocolClasses}.flatMap {$0}
         AssertTrue(installed)
         AssertTrue(allURLProtocolClasses.contains {$0 == InstanaURLProtocol.self})
     }
@@ -47,14 +47,14 @@ class HTTPMonitorTests: XCTestCase {
         _ = URLSession(configuration: URLSessionConfiguration.default)
 
         // Then
-        var allURLProtocolClasses = URLSession.allSessionConfigs.compactMap{$0.protocolClasses}.flatMap {$0}
+        var allURLProtocolClasses = URLSessionConfiguration.all.compactMap{$0.protocolClasses}.flatMap {$0}
         AssertTrue(allURLProtocolClasses.contains {$0 == InstanaURLProtocol.self})
 
         // When
         monitor.deinstall()
 
         // Then
-        allURLProtocolClasses = URLSession.allSessionConfigs.compactMap{$0.protocolClasses}.flatMap {$0}
+        allURLProtocolClasses = URLSessionConfiguration.all.compactMap{$0.protocolClasses}.flatMap {$0}
         AssertTrue(deinstall)
         AssertTrue(allURLProtocolClasses.contains {$0 == InstanaURLProtocol.self} == false)
     }

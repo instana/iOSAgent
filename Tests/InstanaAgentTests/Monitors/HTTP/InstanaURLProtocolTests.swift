@@ -4,6 +4,11 @@ import XCTest
 class InstanaURLProtocolTests: XCTestCase {
     let makeRequest: (String) -> URLRequest = { URLRequest(url: URL(string: $0)!) }
 
+    override func setUp() {
+        super.setUp()
+        URLSessionConfiguration.removeInstanaURLProtocol()
+    }
+
     func test_urlProtocol_disabled() {
         // Given
         InstanaURLProtocol.mode = .disabled
@@ -87,27 +92,47 @@ class InstanaURLProtocolTests: XCTestCase {
 
     func test_swizzle_and_install_custom_urlSession_urlprotocol() {
         // Given
-        InstanaURLProtocol.install() // Start the swizzle
+        InstanaURLProtocol.install
+        let config = URLSessionConfiguration.default
 
         // When
-        let session = URLSession(configuration: URLSessionConfiguration.default) // The actual swizzling is done here
+        let session = URLSession(configuration: config) // The actual swizzling is done here
         let sessionURLProtocols = session.configuration.protocolClasses ?? []
 
         // Then
-        let allURLProtocolClasses = URLSession.allSessionConfigs.compactMap {$0.protocolClasses}.flatMap {$0}
+        let allURLProtocolClasses = URLSessionConfiguration.all.compactMap {$0.protocolClasses}.flatMap {$0}
         AssertTrue(allURLProtocolClasses.contains {$0 == InstanaURLProtocol.self})
         AssertTrue(sessionURLProtocols.contains {$0 == InstanaURLProtocol.self})
     }
 
-    func test_store_URLSessionConfiguration() {
+    func test_swizzle_and_install_custom_urlSession_urlprotocol_2() {
         // Given
+        InstanaURLProtocol.install
         let config = URLSessionConfiguration.default
 
         // When
-        URLSession.store(config: config)
+        let session = URLSession(configuration: config, delegate: nil, delegateQueue: nil)
+        let sessionURLProtocols = session.configuration.protocolClasses ?? []
 
         // Then
-        AssertTrue(URLSession.allSessionConfigs.contains {$0 == config})
+        let allURLProtocolClasses = URLSessionConfiguration.all.compactMap {$0.protocolClasses}.flatMap {$0}
+        AssertTrue(allURLProtocolClasses.contains {$0 == InstanaURLProtocol.self})
+        AssertTrue(sessionURLProtocols.contains {$0 == InstanaURLProtocol.self})
+    }
+
+    func test_do_not_swizzle_for_InstanaURLProtocol() {
+        // Given
+        InstanaURLProtocol.install
+        let delegate = InstanaURLProtocol()
+
+        // When
+        let session = URLSession(configuration: URLSessionConfiguration.default, delegate: delegate, delegateQueue: nil)
+        let sessionURLProtocols = session.configuration.protocolClasses ?? []
+
+        // Then
+        let allURLProtocolClasses = URLSessionConfiguration.all.compactMap {$0.protocolClasses}.flatMap {$0}
+        AssertTrue(allURLProtocolClasses.contains {$0 == InstanaURLProtocol.self} == false)
+        AssertTrue(sessionURLProtocols.contains {$0 == InstanaURLProtocol.self} == false)
     }
 
     // Done without the Swizzle
@@ -116,27 +141,27 @@ class InstanaURLProtocolTests: XCTestCase {
         let config = URLSessionConfiguration.default
 
         // When
-        InstanaURLProtocol.install()
+        InstanaURLProtocol.install
         config.registerInstanaURLProtocol()
 
         // Then
-        let allURLProtocolClasses = URLSession.allSessionConfigs.compactMap {$0.protocolClasses}.flatMap {$0}
+        let allURLProtocolClasses = URLSessionConfiguration.all.compactMap {$0.protocolClasses}.flatMap {$0}
         AssertTrue(allURLProtocolClasses.contains(where: {$0 == InstanaURLProtocol.self}))
-        AssertTrue(URLSession.allSessionConfigs.contains {$0 == config})
+        AssertTrue(URLSessionConfiguration.all.contains {$0 == config})
     }
 
     func test_remove_urlprotocols() {
         // Given
         let config = URLSessionConfiguration.default
-        InstanaURLProtocol.install()
+        InstanaURLProtocol.install
         config.registerInstanaURLProtocol()
 
         // When
-        URLSession.removeInstanaURLProtocol()
+        URLSessionConfiguration.removeInstanaURLProtocol()
 
         // Then
-        let allURLProtocolClasses = URLSession.allSessionConfigs.compactMap {$0.protocolClasses}.flatMap {$0}
-        AssertTrue(URLSession.allSessionConfigs.contains {$0 == config})
+        let allURLProtocolClasses = URLSessionConfiguration.all.compactMap {$0.protocolClasses}.flatMap {$0}
+        AssertTrue(URLSessionConfiguration.all.contains {$0 == config} == false)
         AssertTrue(allURLProtocolClasses.contains {$0 == InstanaURLProtocol.self} == false)
     }
 

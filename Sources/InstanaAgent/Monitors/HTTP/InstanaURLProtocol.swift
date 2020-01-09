@@ -98,22 +98,15 @@ extension URLSessionConfiguration {
     func registerInstanaURLProtocol() {
         if let classes = protocolClasses, !classes.contains(where: { $0 == InstanaURLProtocol.self }) {
             protocolClasses?.insert(InstanaURLProtocol.self, at: 0)
-            URLSession.store(config: self)
+            if !URLSessionConfiguration.all.contains(self) {
+                URLSessionConfiguration.all.append(self)
+            }
         }
-    }
-}
-
-@objc extension URLSession {
-    // The swizzled class func to create (NS)URLSession with the given configuration
-    // We monitor all sessions implicitly
-    class func instana_session(configuration: URLSessionConfiguration) -> URLSession {
-        configuration.registerInstanaURLProtocol()
-        return URLSession.instana_session(configuration: configuration)
     }
 
     private static let lock = NSLock()
     private static var _unsafe_allSessionConfigs = [URLSessionConfiguration]()
-    static var allSessionConfigs: [URLSessionConfiguration] {
+    static var all: [URLSessionConfiguration] {
         set {
             lock.lock()
             _unsafe_allSessionConfigs = newValue
@@ -128,31 +121,42 @@ extension URLSessionConfiguration {
         }
     }
 
-    static func store(config: URLSessionConfiguration) {
-        if !allSessionConfigs.contains(config) {
-            allSessionConfigs.append(config)
-        }
-    }
-
     static func removeInstanaURLProtocol() {
-        allSessionConfigs.forEach { $0.protocolClasses?.removeAll(where: { (protocolClass) -> Bool in
+        all.forEach { $0.protocolClasses?.removeAll(where: { (protocolClass) -> Bool in
             protocolClass == InstanaURLProtocol.self
         }) }
+        URLSessionConfiguration.all.removeAll()
+    }
+}
+
+@objc extension URLSession {
+    // We exchange (swi**le) the URLSessionConfiguration getter
+    // in order to monitor all configurations implicitly
+    class func instana_session(configuration: URLSessionConfiguration, delegate: URLSessionDelegate?, delegateQueue queue: OperationQueue?) -> URLSession {
+        var canRegister = true
+        if let delegate = delegate, type(of: delegate) == InstanaURLProtocol.self {
+            canRegister = false
+        }
+        if canRegister {
+            configuration.registerInstanaURLProtocol()
+        }
+        return URLSession.instana_session(configuration: configuration, delegate: delegate, delegateQueue: queue)
     }
 }
 
 extension InstanaURLProtocol {
-    // We do some swizzling to inject our InstanaURLProtocol to all custom sessions automatically
-    static func install() {
-        URLSession.allSessionConfigs.removeAll()
+    // We do some swi**ling to inject our InstanaURLProtocol to all custom sessions automatically
+    // Will be called only once by using a static let
+    static let install: () = {
         prepareWebView
         prepareURLSessions
-    }
+    }()
 
     static func deinstall() {
-        URLSession.removeInstanaURLProtocol()
+        URLSessionConfiguration.removeInstanaURLProtocol()
     }
 
+    // Will be called only once by using a static let
     static let prepareWebView: () = {
         guard let something = WKWebView().value(forKey: "browsingContextController") as? NSObject else { return }
         let selector = NSSelectorFromString("registerSchemeForCustomProtocol:")
@@ -162,25 +166,19 @@ extension InstanaURLProtocol {
         }
     }()
 
+    // Will be called only once by using a static let
     static let prepareURLSessions: () = {
-        let originalSelector = #selector(URLSession.init(configuration:))
-        let newSelector = #selector(URLSession.instana_session(configuration:))
+        let originalSelector = #selector(URLSession.init(configuration:delegate:delegateQueue:))
+        let newSelector = #selector(URLSession.instana_session(configuration:delegate:delegateQueue:))
         guard let originalMethod = class_getClassMethod(URLSession.self, originalSelector),
             let newMethod = class_getClassMethod(URLSession.self, newSelector) else { return }
-
-        // Should be prefered over the function (method)
-//        let newBlock: @convention(block) (AnyObject, Selector, URLSessionConfiguration) -> (URLSession) = {_,_,configuration in
-//            configuration.registerInstanaURLProtocol()
-//            return URLSession.instana_session(configuration: configuration)
-//        }
-//        let newImp = imp_implementationWithBlock(newBlock)
-
         let className = object_getClassName(URLSession.self)
         let didAddMethod = class_addMethod(objc_getMetaClass(className) as? AnyClass,
                                            originalSelector, method_getImplementation(newMethod),
                                            method_getTypeEncoding(newMethod))
         if didAddMethod {
             class_replaceMethod(URLSession.self, newSelector, method_getImplementation(originalMethod), method_getTypeEncoding(originalMethod))
+
         } else {
             method_exchangeImplementations(originalMethod, newMethod)
         }
