@@ -60,13 +60,6 @@ All communication to the Instana backend is done trough beacons.
 
 `suspendReporting` allows developers to decide in which cases to suspend the sending of beacons to the Instana backend. The options are: `never`, `lowBattery`, `cellularConnection`.
 
-### Custom Beacons
-If you wish to mark a specific beacon in your application, you can use a custom beacon to send it to Instana.
-
-	let beacon = CustomBeacon(name: "my-custom-Beacon", timestamp: Date().timeIntervalSince1970, duration: 2.5)
-    Instana.reporter.submit(beacon)
-    
-> `timestamp` and `duration` are optional for custom beacons.
 
 ## Remote Call Instrumentation
 The following configuration options are available: `automaticAndManual`, `automatic`, `manual`, `none`.

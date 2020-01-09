@@ -46,11 +46,4 @@ class InstanaSystemUtils {
         }
         return isBroken
     }()
-
-    /// Returns a ' > ' sepparated string of view controller class names in the app hierarchy.
-    /// This is only a superficial check, and doesn't go deeper than one level.
-    static func viewControllersHierarchy() -> String? {
-        guard Thread.current.isMainThread else { return nil }
-        return UIWindow.viewControllerHierarchies
-    }
 }

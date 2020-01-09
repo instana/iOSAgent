@@ -2,7 +2,7 @@ import Foundation
 import UIKit
 
 class InstanaBatteryUtils {
-    private(set) var safeForNetworking = true
+    private(set) var safeForNetworking = false
 
     init() {
         UIDevice.current.isBatteryMonitoringEnabled = true
@@ -25,7 +25,7 @@ class InstanaBatteryUtils {
         updateSafeForNetworking(0)
     }
 
-    private func updateSafeForNetworking(_ retry: Int) {
+    func updateSafeForNetworking(_ retry: Int) {
         switch UIDevice.current.batteryState {
         case .charging:
             safeForNetworking = UIDevice.current.batteryLevel > 0.02
