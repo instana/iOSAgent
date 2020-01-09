@@ -24,15 +24,15 @@ class HTTPMonitor {
     }
 
     func install() {
+        _ = installer(InstanaURLProtocol.self)
         InstanaURLProtocol.install()
         InstanaURLProtocol.mode = .enabled
-        _ = installer(InstanaURLProtocol.self)
     }
 
     func deinstall() {
+        uninstaller(InstanaURLProtocol.self)
         InstanaURLProtocol.deinstall()
         InstanaURLProtocol.mode = .disabled
-        uninstaller(InstanaURLProtocol.self)
     }
 }
 
