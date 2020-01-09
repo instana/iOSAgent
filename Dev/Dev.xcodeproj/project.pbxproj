@@ -32,7 +32,7 @@
 /* Begin PBXFileReference section */
 		23EFB4947B0DF17DCD5852E7 /* Pods_DevTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_DevTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		7226D65B23AA35230010ECB4 /* WebViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewController.swift; sourceTree = "<group>"; };
-		72CC1B9923AA347300E38E81 /* iOSAgent */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "iOSAgent"; path = ..; sourceTree = "<group>"; };
+		72CC1B9923AA347300E38E81 /* iOSAgent */ = {isa = PBXFileReference; lastKnownFileType = folder; name = iOSAgent; path = ..; sourceTree = "<group>"; };
 		72FC4F6C23AA1A5A004EF4E2 /* Dev.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Dev.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		72FC4F6F23AA1A5A004EF4E2 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		72FC4F7123AA1A5A004EF4E2 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -178,7 +178,6 @@
 				72FC4F7E23AA1A5B004EF4E2 /* Sources */,
 				72FC4F7F23AA1A5B004EF4E2 /* Frameworks */,
 				72FC4F8023AA1A5B004EF4E2 /* Resources */,
-				72FC4F9123AA1A69004EF4E2 /* Run Swift Package Unit Tests */,
 			);
 			buildRules = (
 			);
@@ -302,24 +301,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "if which ${PODS_ROOT}/SwiftLint/swiftlint >/dev/null; then\n  cd ../Sources/InstanaAgent && ${PODS_ROOT}/SwiftLint/swiftlint\nelse\n  echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
-		};
-		72FC4F9123AA1A69004EF4E2 /* Run Swift Package Unit Tests */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Run Swift Package Unit Tests";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "sh appcenter-post-build.sh\n";
 		};
 		9396ED818CA38202FDA4BE00 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
