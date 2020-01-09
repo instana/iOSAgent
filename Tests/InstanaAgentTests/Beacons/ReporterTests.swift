@@ -160,7 +160,7 @@ class ReporterTests: XCTestCase {
         reporter.submit(beacon) {
             submitExp.fulfill()
         }
-        wait(for: [submitExp], timeout: 0.2)
+        wait(for: [submitExp], timeout: 0.4)
 
         // Then
         AssertTrue(reporter.queue.items.count == 1)
