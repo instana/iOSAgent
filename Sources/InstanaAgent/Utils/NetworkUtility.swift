@@ -22,7 +22,7 @@ class NetworkUtility {
             self.connectionType = connectionType ?? ConnectionType.from(pathMonitor.currentPath)
 
             // Don't run during tests - it's not testable anyway
-            if !ProcessInfo.processInfo.isRunningTests {
+            if !ProcessInfo.isRunningTests {
                 pathMonitor.pathUpdateHandler = { [weak self] path in
                     guard let self = self else { return }
                     DispatchQueue.main.async {
