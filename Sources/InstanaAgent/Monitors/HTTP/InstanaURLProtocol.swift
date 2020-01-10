@@ -7,7 +7,6 @@ class InstanaURLProtocol: URLProtocol {
     }
 
     static var mode: Mode = .disabled
-
     private lazy var session: URLSession = {
         URLSession(configuration: sessionConfiguration, delegate: self, delegateQueue: nil)
     }()
@@ -17,8 +16,10 @@ class InstanaURLProtocol: URLProtocol {
 
     convenience init(task: URLSessionTask, cachedResponse: CachedURLResponse?, client: URLProtocolClient?) {
         self.init(request: task.originalRequest!, cachedResponse: cachedResponse, client: client)
-        if let internalSession = task.internalSession() {
-            sessionConfiguration = internalSession.configuration
+        if let session = task.internalSession {
+            sessionConfiguration = session.configuration
+            // Use the sessionConfiguration set by the incoming task for the forwading -
+            // Exclude "us" from the protocolClasses to avoid "monitoring the monitor"
             sessionConfiguration.protocolClasses = sessionConfiguration.protocolClasses?.filter { $0 !== InstanaURLProtocol.self }
         }
     }
@@ -129,21 +130,6 @@ extension URLSessionConfiguration {
     }
 }
 
-@objc extension URLSession {
-    // We exchange (swi**le) the URLSessionConfiguration getter
-    // in order to monitor all configurations implicitly
-    class func instana_session(configuration: URLSessionConfiguration, delegate: URLSessionDelegate?, delegateQueue queue: OperationQueue?) -> URLSession {
-        var canRegister = true
-        if let delegate = delegate, type(of: delegate) == InstanaURLProtocol.self {
-            canRegister = false
-        }
-        if canRegister {
-            configuration.registerInstanaURLProtocol()
-        }
-        return URLSession.instana_session(configuration: configuration, delegate: delegate, delegateQueue: queue)
-    }
-}
-
 extension InstanaURLProtocol {
     // We do some swi**ling to inject our InstanaURLProtocol to all custom sessions automatically
     // Will be called only once by using a static let
@@ -169,24 +155,31 @@ extension InstanaURLProtocol {
     // Will be called only once by using a static let
     static let prepareURLSessions: () = {
         let originalSelector = #selector(URLSession.init(configuration:delegate:delegateQueue:))
-        let newSelector = #selector(URLSession.instana_session(configuration:delegate:delegateQueue:))
-        guard let originalMethod = class_getClassMethod(URLSession.self, originalSelector),
-            let newMethod = class_getClassMethod(URLSession.self, newSelector) else { return }
-        let className = object_getClassName(URLSession.self)
-        let didAddMethod = class_addMethod(objc_getMetaClass(className) as? AnyClass,
-                                           originalSelector, method_getImplementation(newMethod),
-                                           method_getTypeEncoding(newMethod))
-        if didAddMethod {
-            class_replaceMethod(URLSession.self, newSelector, method_getImplementation(originalMethod), method_getTypeEncoding(originalMethod))
+        guard let originalMethod = class_getClassMethod(URLSession.self, originalSelector) else { return }
 
-        } else {
-            method_exchangeImplementations(originalMethod, newMethod)
+        // First set an empty Function to get the original IMP
+        let emptyFunction: @convention(block) () -> Void = {}
+        let originalImp = method_setImplementation(originalMethod, imp_implementationWithBlock(emptyFunction))
+
+        let newFunction: @convention(block) (AnyObject, URLSessionConfiguration, URLSessionDelegate?, OperationQueue?) -> URLSession
+        newFunction = { obj, configuration, delegate, queue in
+            var canRegister = true
+            if let delegate = delegate, type(of: delegate) == InstanaURLProtocol.self {
+                canRegister = false
+            }
+            if canRegister {
+                configuration.registerInstanaURLProtocol()
+            }
+            typealias OriginalFunction = @convention(c) (AnyObject, Selector, URLSessionConfiguration, URLSessionDelegate?, OperationQueue?) -> URLSession
+            let callback = unsafeBitCast(originalImp, to: OriginalFunction.self)
+            return callback(obj, originalSelector, configuration, delegate, queue)
         }
+        method_setImplementation(originalMethod, imp_implementationWithBlock(newFunction))
     }()
 }
 
 private extension URLSessionTask {
-    func internalSession() -> URLSession? {
+    var internalSession: URLSession? {
         let selector = NSSelectorFromString("session")
         guard responds(to: selector) else { return nil }
         guard let implementation = type(of: self).instanceMethod(for: selector) else { return nil }
