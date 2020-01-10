@@ -54,32 +54,40 @@ extension NetworkUtility {
         }
 
         var carrierName: String {
-            let networkInfo = CTTelephonyNetworkInfo()
-            let carrier = networkInfo.subscriberCellularProvider
-            return carrier?.carrierName ?? "None"
+            if ProcessInfo.isRunningDebugSimulator {
+                return "Simulator"
+            } else {
+                let networkInfo = CTTelephonyNetworkInfo()
+                let carrier = networkInfo.subscriberCellularProvider
+                return carrier?.carrierName ?? "None"
+            }
         }
 
         static var current: CellularType {
-            guard let radioAccessTechnology = CTTelephonyNetworkInfo().currentRadioAccessTechnology else {
+            if ProcessInfo.isRunningDebugSimulator {
                 return .none
-            }
-            switch radioAccessTechnology {
-            case CTRadioAccessTechnologyGPRS,
-                 CTRadioAccessTechnologyEdge,
-                 CTRadioAccessTechnologyCDMA1x:
-                return .twoG
-            case CTRadioAccessTechnologyWCDMA,
-                 CTRadioAccessTechnologyHSDPA,
-                 CTRadioAccessTechnologyHSUPA,
-                 CTRadioAccessTechnologyCDMAEVDORev0,
-                 CTRadioAccessTechnologyCDMAEVDORevA,
-                 CTRadioAccessTechnologyCDMAEVDORevB,
-                 CTRadioAccessTechnologyeHRPD:
-                return .threeG
-            case CTRadioAccessTechnologyLTE:
-                return .fourG
-            default:
-                return .unknown
+            } else {
+                guard let radioAccessTechnology = CTTelephonyNetworkInfo().currentRadioAccessTechnology else {
+                    return .none
+                }
+                switch radioAccessTechnology {
+                case CTRadioAccessTechnologyGPRS,
+                     CTRadioAccessTechnologyEdge,
+                     CTRadioAccessTechnologyCDMA1x:
+                    return .twoG
+                case CTRadioAccessTechnologyWCDMA,
+                     CTRadioAccessTechnologyHSDPA,
+                     CTRadioAccessTechnologyHSUPA,
+                     CTRadioAccessTechnologyCDMAEVDORev0,
+                     CTRadioAccessTechnologyCDMAEVDORevA,
+                     CTRadioAccessTechnologyCDMAEVDORevB,
+                     CTRadioAccessTechnologyeHRPD:
+                    return .threeG
+                case CTRadioAccessTechnologyLTE:
+                    return .fourG
+                default:
+                    return .unknown
+                }
             }
         }
     }
