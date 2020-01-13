@@ -32,6 +32,9 @@ class InstanaSystemUtils {
     /// Returns bundle identifer (for ex. "com.instana.ios.app")
     static var applicationBundleIdentifier: String = { Bundle.main.infoDictionary?["CFBundleIdentifier"] as? String ?? "unkown-bundle-id" }()
 
+    /// Returns true if app is running in foreground (visible) / Is nil if the state has not been fully determined
+    static var isAppActive: Bool?
+
     /// Returns the screen size in Pixel
     static var screenSize: CGSize = { UIScreen.main.nativeBounds.size }()
 

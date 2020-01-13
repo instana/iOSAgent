@@ -2,44 +2,21 @@ import Foundation
 import XCTest
 @testable import InstanaAgent
 
-extension UIDevice {
-    static var stubBatteryLevel: Float = 0.0
-    @objc var stubbedBatteryLevel: Float { UIDevice.stubBatteryLevel }
-
-    static var stubBatteryState: BatteryState = .unknown
-    @objc var stubbedBatteryState: BatteryState { UIDevice.stubBatteryState }
-}
-
-class InstanaBatteryUtilsTests: XCTestCase {
+class InstanaBatteryUtilsTests: InstanaTestCase {
 
     var batteryUtils: InstanaBatteryUtils!
 
     override func setUp() {
-        swizzleLevel()
-        swizzleState()
+        UIDevice.swizzleBatteryLevel()
+        UIDevice.swizzleBatteryState()
         super.setUp()
     }
 
     override func tearDown() {
-        swizzleLevel() // exchange back
-        swizzleState()
+        // exchange back
+        UIDevice.swizzleBatteryLevel()
+        UIDevice.swizzleBatteryState()
         super.tearDown()
-    }
-
-    func swizzleLevel() {
-        let originalMethod = class_getInstanceMethod(UIDevice.self, #selector(getter: UIDevice.batteryLevel))
-        let swizzledMethod = class_getInstanceMethod(UIDevice.self, #selector(getter: UIDevice.stubbedBatteryLevel))
-        if let originalMethod = originalMethod, let swizzledMethod = swizzledMethod {
-            method_exchangeImplementations(originalMethod, swizzledMethod)
-        }
-    }
-
-    func swizzleState() {
-        let originalMethod = class_getInstanceMethod(UIDevice.self, #selector(getter: UIDevice.batteryState))
-        let swizzledMethod = class_getInstanceMethod(UIDevice.self, #selector(getter: UIDevice.stubbedBatteryState))
-        if let originalMethod = originalMethod, let swizzledMethod = swizzledMethod {
-            method_exchangeImplementations(originalMethod, swizzledMethod)
-        }
     }
 
     func test_safeForNetworking_charging_not_enough_level() {

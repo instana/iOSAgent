@@ -2,7 +2,7 @@ import Foundation
 import XCTest
 @testable import InstanaAgent
 
-class HTTPErrorTests: XCTestCase {
+class HTTPErrorTests: InstanaTestCase {
 
     func test_offline() {
         // Given

@@ -6,6 +6,7 @@ class InstanaError: NSError {
 
     enum Code: Int {
         case invalidRequest
+        case invalidURL
         case invalidResponse
         case notAuthenticated
         case bufferOverwrite
@@ -13,6 +14,7 @@ class InstanaError: NSError {
         case noWifiAvailable
         case offline
         case lowBattery
+        case instanaInstanceNotFound
     }
 
     init(code: Code, description: String) {

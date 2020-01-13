@@ -1,26 +1,103 @@
 import Foundation
 import XCTest
+import UIKit
 @testable import InstanaAgent
 
-class CoreBeaconFactoryTests: XCTestCase {
+class CoreBeaconFactoryTests: InstanaTestCase {
 
-    var config: InstanaConfiguration!
-
-    override func setUp() {
-        super.setUp()
-        config = InstanaConfiguration.default(key: "KEY")
-    }
+    var randomViewName: String { "Details \((0...9999).randomElement() ?? 1)" }
 
     func test_undefined_beacon_type() {
         // Given
         let beacon = Beacon()
-        let mapper = CoreBeaconFactory(InstanaEnvironment.mock)
+        let factory = CoreBeaconFactory(InstanaEnvironment.mock)
 
         // When
-        XCTAssertThrowsError(try mapper.map(beacon)) {error in
+        XCTAssertThrowsError(try factory.map(beacon)) {error in
             // Then
             XCTAssertEqual((error as? InstanaError)?.code, InstanaError.Code.unknownType.rawValue)
         }
+    }
+
+    func test_map_beacon() {
+        // Given
+        let sessionID = UUID()
+        let timestamp = Date().millisecondsSince1970
+        let viewName = randomViewName
+        let beacon = ViewChange(timestamp: timestamp, sessionID: sessionID, viewName: viewName)
+        let factory = CoreBeaconFactory(.mock)
+
+        // When
+        guard let sut = try? factory.map(beacon) else {
+            XCTFail("Could not map Beacon to CoreBeacon")
+            return
+        }
+
+        // Then
+        AssertEqualAndNotNil(sut.t, .viewChange)
+        AssertEqualAndNotNil(sut.v, viewName)
+        AssertEqualAndNotNil(sut.k, key)
+        AssertEqualAndNotNil(sut.ti, "\(beacon.timestamp)")
+        AssertEqualAndNotNil(sut.sid, "\(beacon.sessionID)")
+        AssertEqualAndNotNil(sut.bid, "\(beacon.id)")
+        AssertEqualAndNotNil(sut.buid, "\(InstanaSystemUtils.applicationBundleIdentifier)")
+        AssertEqualAndNotNil(sut.ul, "en")
+        AssertEqualAndNotNil(sut.ab, "\(InstanaSystemUtils.applicationBuildNumber)")
+        AssertEqualAndNotNil(sut.av, "\(InstanaSystemUtils.applicationVersion)")
+        AssertEqualAndNotNil(sut.osn, "\(InstanaSystemUtils.systemName)")
+        AssertEqualAndNotNil(sut.osv, "\(InstanaSystemUtils.systemVersion)")
+        AssertEqualAndNotNil(sut.dma, "Apple")
+        AssertEqualAndNotNil(sut.dmo, "\(InstanaSystemUtils.deviceModel)")
+        AssertEqualAndNotNil(sut.ro, "false")
+        AssertEqualAndNotNil(sut.vw, "\(Int(InstanaSystemUtils.screenSize.width))")
+        AssertEqualAndNotNil(sut.vh, "\(Int(InstanaSystemUtils.screenSize.height))")
+        AssertEqualAndNotNil(sut.cn, "\(InstanaSystemUtils.networkUtility.connectionType.cellular.carrierName)")
+        AssertEqualAndNotNil(sut.ct, "\(InstanaSystemUtils.networkUtility.connectionType.description)")
+
+        AssertTrue(sut.ec == nil)
+        AssertTrue(sut.et == nil)
+        AssertTrue(sut.em == nil)
+
+        let values = Mirror(reflecting: sut).nonNilChildren
+        XCTAssertEqual(values.count, 19)
+    }
+
+    func test_map_beacon_implicit_values() {
+        // Given
+        let viewName = randomViewName
+        Instana.setup(key: key)
+        Instana.current?.environment.propertyHandler.properties.view = viewName
+        let beacon = ViewChange()
+        let factory = CoreBeaconFactory(.mock)
+
+        // When
+        guard let sut = try? factory.map(beacon) else {
+            XCTFail("Could not map Beacon to CoreBeacon")
+            return
+        }
+
+        // Then
+        AssertEqualAndNotNil(sut.v, viewName)
+        AssertEqualAndNotNil(sut.ti, "\(beacon.timestamp)")
+        AssertEqualAndNotNil(sut.bid, "\(beacon.id)")
+    }
+
+    func test_map_http_in_background_overriding_viewName() {
+        // Given
+        NotificationCenter.default.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
+        let viewName = randomViewName
+        let timestamp = Date().millisecondsSince1970
+        let beacon = ViewChange(timestamp: timestamp, sessionID: UUID(), viewName: viewName)
+        let factory = CoreBeaconFactory(.mock)
+
+        // When
+        guard let sut = try? factory.map(beacon) else {
+            XCTFail("Could not map Beacon to CoreBeacon")
+            return
+        }
+
+        // Then
+        AssertEqualAndNotNil(sut.v, "Background")
     }
 
     func test_create_from_string() {

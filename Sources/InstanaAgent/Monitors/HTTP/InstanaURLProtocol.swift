@@ -43,7 +43,7 @@ class InstanaURLProtocol: URLProtocol {
 
     override func stopLoading() {
         session.invalidateAndCancel()
-        if let marker = marker, case .started = marker.state { marker.canceled() }
+        if let marker = marker, case .started = marker.state { marker.cancel() }
     }
 }
 
@@ -55,10 +55,10 @@ extension InstanaURLProtocol: URLSessionTaskDelegate {
         }
         if let error = error {
             client?.urlProtocol(self, didFailWithError: error)
-            marker?.finished(error: error)
+            marker?.finish(error: error)
         } else {
             client?.urlProtocolDidFinishLoading(self)
-            marker?.finished(responseCode: response?.statusCode ?? 0)
+            marker?.finish(responseCode: response?.statusCode ?? 0)
         }
     }
 
@@ -89,7 +89,7 @@ extension InstanaURLProtocol: URLSessionDataDelegate {
             marker?.set(backendTracingID: backendTracingID)
         }
         marker?.set(responseSize: Instana.Types.HTTPSize.size(response: response))
-        marker?.finished(responseCode: response.statusCode)
+        marker?.finish(responseCode: response.statusCode)
         marker = try? Instana.current?.monitors.http?.mark(request)
         completionHandler(request)
     }

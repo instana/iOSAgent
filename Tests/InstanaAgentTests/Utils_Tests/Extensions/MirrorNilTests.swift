@@ -2,7 +2,7 @@ import Foundation
 import XCTest
 @testable import InstanaAgent
 
-class MirrorNilTests: XCTestCase {
+class MirrorNilTests: InstanaTestCase {
 
     func test_nonNilChildren() {
         // Given

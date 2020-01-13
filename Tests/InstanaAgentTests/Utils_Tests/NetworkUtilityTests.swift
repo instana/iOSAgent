@@ -4,29 +4,16 @@ import CoreTelephony
 import Network
 @testable import InstanaAgent
 
-extension CTTelephonyNetworkInfo {
-    static var stubRadioAccessTechnology: String? = "Some"
-    @objc var stubbedRadioAccessTechnology: String? { CTTelephonyNetworkInfo.stubRadioAccessTechnology }
-}
-
-class NetworkUtilityTests: XCTestCase {
+class NetworkUtilityTests: InstanaTestCase {
 
     override func setUp() {
-        swizzle()
+        CTTelephonyNetworkInfo.swizzleRadioAccessTechnology()
         super.setUp()
     }
 
     override func tearDown() {
-        swizzle() // exchange back
+        CTTelephonyNetworkInfo.swizzleRadioAccessTechnology() // exchange back
         super.tearDown()
-    }
-
-    func swizzle() {
-        let originalMethod = class_getInstanceMethod(CTTelephonyNetworkInfo.self, #selector(getter: CTTelephonyNetworkInfo.currentRadioAccessTechnology))
-        let swizzledMethod = class_getInstanceMethod(CTTelephonyNetworkInfo.self, #selector(getter: CTTelephonyNetworkInfo.stubbedRadioAccessTechnology))
-        if let originalMethod = originalMethod, let swizzledMethod = swizzledMethod {
-            method_exchangeImplementations(originalMethod, swizzledMethod)
-        }
     }
 
     func test_CellularType() {

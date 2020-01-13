@@ -2,7 +2,7 @@ import XCTest
 @testable import InstanaAgent
 import Network
 
-class ReporterTests: XCTestCase {
+class ReporterTests: InstanaTestCase {
 
     var env: InstanaEnvironment!
     var reporter: Reporter!
@@ -555,7 +555,7 @@ class ReporterTests: XCTestCase {
             exp.fulfill()
         }
         reporter.submit(AlertBeacon(alertType: .lowMemory))
-        waitForExpectations(timeout: 0.3, handler: nil)
+        waitForExpectations(timeout: 0.5, handler: nil)
 
         // Then
         AssertTrue(sendNotCalled)

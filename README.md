@@ -84,11 +84,11 @@ While starting a request you should also create a marker:
     
 Once the request finishes or fails, use one of the markers completion methods:
 
-	marker.finished(responseCode: 200)
+	marker.finish(responseCode: 200)
 	// or
-	marker.finished(error: error)
+	marker.finish(error: error)
 	// or
-	marker.canceled()
+	marker.cancel()
 	
 ## Crash reporting
 Crash reporting is enabled by default. In case you are using a different crash reporting solution, or don't want crash reporting, it can only be disabled via a configuration file.

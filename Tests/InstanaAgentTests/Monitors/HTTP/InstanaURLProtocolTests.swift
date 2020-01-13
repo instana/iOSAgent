@@ -1,7 +1,7 @@
 import XCTest
 @testable import InstanaAgent
 
-class InstanaURLProtocolTests: XCTestCase {
+class InstanaURLProtocolTests: InstanaTestCase {
     let makeRequest: (String) -> URLRequest = { URLRequest(url: URL(string: $0)!) }
 
     override func setUp() {
@@ -305,8 +305,6 @@ class InstanaURLProtocolTests: XCTestCase {
     // MARK: Helper
     class Delegate: HTTPMarkerDelegate {
         var calledFinalized = false
-        func finalized(marker: HTTPMarker) {
-            calledFinalized = true
-        }
+        func httpMarkerDidFinish(_ marker: HTTPMarker) { calledFinalized = true }
     }
 }

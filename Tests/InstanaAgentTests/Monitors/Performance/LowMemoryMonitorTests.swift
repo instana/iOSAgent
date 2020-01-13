@@ -1,7 +1,7 @@
 import XCTest
 @testable import InstanaAgent
 
-class LowMemoryMonitorTests: XCTestCase {
+class LowMemoryMonitorTests: InstanaTestCase {
     
     var monitor: LowMemoryMonitor?
     

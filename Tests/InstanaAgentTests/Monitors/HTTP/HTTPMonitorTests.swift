@@ -1,21 +1,18 @@
 import XCTest
 @testable import InstanaAgent
 
-class HTTPMonitorTests: XCTestCase {
+class HTTPMonitorTests: InstanaTestCase {
 
     var env: InstanaEnvironment!
-    var instana: Instana!
 
     override func setUp() {
         super.setUp()
-        Instana.setup(key: "KEY123")
-        instana = Instana.current
-        env = instana.environment
+        env = InstanaEnvironment.mock
     }
 
     override func tearDown() {
         super.tearDown()
-        self.instana = nil
+        self.env = nil
     }
 
     func test_installing_shouldAddCustomProtocol() {
@@ -72,25 +69,12 @@ class HTTPMonitorTests: XCTestCase {
         sessionConfig.protocolClasses?.insert(InstanaURLProtocol.self, at: 0)
         XCTAssertTrue(sessionConfig.protocolClasses?.contains { $0 == InstanaURLProtocol.self } ?? false)
     }
-    
-    func test_markingURL() {
-        // Given
-        let url: URL = .random
-        let monitor = HTTPMonitor(env, reporter: instana.monitors.reporter)
-        let size = Instana.Types.HTTPSize(header: 1, body: 2)
 
-        // When
-        let marker = try! monitor.mark(url, method: "method", size: size)
-
-        // Then
-        XCTAssertEqual(marker.url, url)
-        XCTAssertEqual(marker.method, "method")
-        XCTAssertEqual(marker.trigger, .automatic)
-    }
-    
     func test_markingRequest() {
         // Given
         let url: URL = .random
+        let viewName = "\((1...99).randomElement() ?? 1)"
+        env.propertyHandler.properties.view = viewName
         let monitor = HTTPMonitor(env, reporter: instana.monitors.reporter)
         var request = URLRequest(url: url)
         request.httpMethod = "m"
@@ -103,6 +87,7 @@ class HTTPMonitorTests: XCTestCase {
         XCTAssertEqual(marker.url, url)
         XCTAssertEqual(marker.method, "m")
         XCTAssertEqual(marker.trigger, .automatic)
+        XCTAssertEqual(marker.viewName, viewName)
     }
     
     func test_invalid_request() {
@@ -127,41 +112,41 @@ class HTTPMonitorTests: XCTestCase {
 
         // Automatic
         // When
-        config.reportingType = .automatic
+        config.httpCaptureConfig = .automatic
         var monitor = HTTPMonitor(.mock(configuration: config), reporter: MockReporter { _ in
             count += 1
         })
-        monitor.finalized(marker: Random.marker(monitor, trigger: .automatic))
+        monitor.httpMarkerDidFinish(Random.marker(monitor, trigger: .automatic))
         // Then
         XCTAssertEqual(count, 1)
 
         // Automatic And manual
         // When
-        config.reportingType = .automaticAndManual
+        config.httpCaptureConfig = .automatic
         monitor = HTTPMonitor(.mock(configuration: config), reporter: MockReporter { _ in
             count += 1
         })
-        monitor.finalized(marker: Random.marker(monitor, trigger: .automatic))
+        monitor.httpMarkerDidFinish(Random.marker(monitor, trigger: .automatic))
         // Then
         XCTAssertEqual(count, 2)
 
         // Manual
         // When
-        config.reportingType = .manual
+        config.httpCaptureConfig = .manual
         monitor = HTTPMonitor(.mock(configuration: config), reporter: MockReporter { _ in
             count += 1
         })
-        monitor.finalized(marker: Random.marker(monitor, trigger: .automatic))
+        monitor.httpMarkerDidFinish(Random.marker(monitor, trigger: .automatic))
         // Then
         XCTAssertEqual(count, 2)
 
         // None
         // When
-        config.reportingType = .none
+        config.httpCaptureConfig = .none
         monitor = HTTPMonitor(.mock(configuration: config), reporter: MockReporter { _ in
             count += 1
         })
-        monitor.finalized(marker: Random.marker(monitor, trigger: .automatic))
+        monitor.httpMarkerDidFinish(Random.marker(monitor, trigger: .automatic))
         // Then
         XCTAssertEqual(count, 2)
     }
@@ -173,43 +158,33 @@ class HTTPMonitorTests: XCTestCase {
 
         // Automatic
         // When
-        config.reportingType = .automatic
+        config.httpCaptureConfig = .automatic
         var monitor = HTTPMonitor(.mock(configuration: config), reporter: MockReporter { _ in
             count += 1
         })
-        monitor.finalized(marker: Random.marker(monitor, trigger: .manual))
+        monitor.httpMarkerDidFinish(Random.marker(monitor, trigger: .manual))
         // Then
         XCTAssertEqual(count, 0)
 
-        // Automatic And manual
+        // Manual
         // When
-        config.reportingType = .automaticAndManual
+        config.httpCaptureConfig = .manual
         monitor = HTTPMonitor(.mock(configuration: config), reporter: MockReporter { _ in
             count += 1
         })
-        monitor.finalized(marker: Random.marker(monitor, trigger: .manual))
+        monitor.httpMarkerDidFinish(Random.marker(monitor, trigger: .manual))
         // Then
         XCTAssertEqual(count, 1)
 
-        // Manual
-        // When
-        config.reportingType = .manual
-        monitor = HTTPMonitor(.mock(configuration: config), reporter: MockReporter { _ in
-            count += 1
-        })
-        monitor.finalized(marker: Random.marker(monitor, trigger: .manual))
-        // Then
-        XCTAssertEqual(count, 2)
-
         // None
         // When
-        config.reportingType = .none
+        config.httpCaptureConfig = .none
         monitor = HTTPMonitor(.mock(configuration: config), reporter: MockReporter { _ in
             count += 1
         })
-        monitor.finalized(marker: Random.marker(monitor, trigger: .manual))
+        monitor.httpMarkerDidFinish(Random.marker(monitor, trigger: .manual))
         // Then
-        XCTAssertEqual(count, 2)
+        XCTAssertEqual(count, 1)
     }
 
     struct Random {

@@ -2,21 +2,23 @@ import XCTest
 @testable import InstanaAgent
 
 
-class HTTPMarkerTests: XCTestCase {
+class HTTPMarkerTests: InstanaTestCase {
 
     func test_marker_defaultValues() {
         // Given
         let url: URL = .random
         let start = Date().millisecondsSince1970
+        let viewName = URL.random.absoluteString
 
         // When
-        let marker = HTTPMarker(url: url, method: "GET", trigger: .automatic, delegate: Delegate())
+        let marker = HTTPMarker(url: url, method: "GET", trigger: .automatic, delegate: Delegate(), viewName: viewName)
 
         // Then
         XCTAssertEqual(marker.url, url)
         XCTAssertEqual(marker.method, "GET")
         XCTAssertEqual(marker.trigger, .automatic)
         XCTAssertTrue(marker.startTime >= start)
+        XCTAssertEqual(marker.viewName, viewName)
     }
 
     func test_set_HTTP_Sizes_for_task_and_transactionMetrics() {
@@ -104,9 +106,9 @@ class HTTPMarkerTests: XCTestCase {
         // When
         wait(0.1)
         marker.set(responseSize: responseSize)
-        marker.finished(responseCode: 200)
-        marker.finished(responseCode: 300)
-        marker.canceled()
+        marker.finish(responseCode: 200)
+        marker.finish(responseCode: 300)
+        marker.cancel()
 
         // Then
         XCTAssertEqual(delegate.finaliedCount, 1)
@@ -131,9 +133,9 @@ class HTTPMarkerTests: XCTestCase {
         // When
         wait(0.1)
         marker.set(responseSize: responseSize)
-        marker.finished(error: error)
-        marker.finished(error: CocoaError(CocoaError.coderInvalidValue))
-        marker.finished(responseCode: 300)
+        marker.finish(error: error)
+        marker.finish(error: CocoaError(CocoaError.coderInvalidValue))
+        marker.finish(responseCode: 300)
 
         // Then
         XCTAssertEqual(delegate.finaliedCount, 1)
@@ -156,9 +158,9 @@ class HTTPMarkerTests: XCTestCase {
         // When
         wait(0.1)
         marker.set(responseSize: responseSize)
-        marker.canceled()
-        marker.canceled()
-        marker.finished(responseCode: 300)
+        marker.cancel()
+        marker.cancel()
+        marker.finish(responseCode: 300)
 
         // Then
         XCTAssertEqual(delegate.finaliedCount, 1)
@@ -168,21 +170,48 @@ class HTTPMarkerTests: XCTestCase {
             XCTFail("Wrong marker state: \(marker.state)")
         }
     }
-    
-    func test_finished_Marker_toBeaconConversion() {
+
+    // MARK: CreateBeacon
+    func test_createBeacon_freshMarker() {
         // Given
+        Instana.setup(key: "KEY")
+        Instana.current?.environment.propertyHandler.properties.view = "Some View"
         let url: URL = .random
-        let responseSize = Instana.Types.HTTPSize.random
-        let marker = HTTPMarker(url: url, method: "m", trigger: .automatic, delegate: Delegate())
+        let marker = HTTPMarker(url: url, method: "c", trigger: .automatic, delegate: Delegate())
 
         // When
-        marker.set(responseSize: responseSize)
-        marker.finished(responseCode: 204)
         guard let beacon = marker.createBeacon() as? HTTPBeacon else {
             XCTFail("Beacon type missmatch"); return
         }
 
         // Then
+        XCTAssertTrue(beacon.id.uuidString.count > 0)
+        XCTAssertEqual(beacon.viewName, "Some View")
+        XCTAssertEqual(beacon.timestamp, marker.startTime)
+        XCTAssertEqual(beacon.duration, 0)
+        XCTAssertEqual(beacon.method, "c")
+        XCTAssertEqual(beacon.url, url)
+        XCTAssertEqual(beacon.responseCode, -1)
+        XCTAssertNil(beacon.responseSize)
+        XCTAssertNil(beacon.error)
+    }
+
+    func test_createBeacon_finishedMarker() {
+        // Given
+        let url: URL = .random
+        let viewName = URL.random.absoluteString
+        let responseSize = Instana.Types.HTTPSize.random
+        let marker = HTTPMarker(url: url, method: "m", trigger: .automatic, delegate: Delegate(), viewName: viewName)
+
+        // When
+        marker.set(responseSize: responseSize)
+        marker.finish(responseCode: 204)
+        guard let beacon = marker.createBeacon() as? HTTPBeacon else {
+            XCTFail("Beacon type missmatch"); return
+        }
+
+        // Then
+        XCTAssertEqual(beacon.viewName, viewName)
         XCTAssertTrue(beacon.id.uuidString.count > 0)
         XCTAssertEqual(beacon.timestamp, marker.startTime)
         XCTAssertEqual(beacon.duration, marker.duration)
@@ -193,7 +222,7 @@ class HTTPMarkerTests: XCTestCase {
         XCTAssertNil(beacon.error)
     }
     
-    func test_failed_Marker_toBeaconConversion() {
+    func test_createBeacon_failedMarker() {
         // Given
         let url: URL = .random
         let responseSize = Instana.Types.HTTPSize.random
@@ -202,7 +231,7 @@ class HTTPMarkerTests: XCTestCase {
 
         // When
         marker.set(responseSize: responseSize)
-        marker.finished(error: error)
+        marker.finish(error: error)
         guard let beacon = marker.createBeacon() as? HTTPBeacon else {
             XCTFail("Beacon type missmatch"); return
         }
@@ -221,11 +250,11 @@ class HTTPMarkerTests: XCTestCase {
         XCTAssertEqual(beacon.error, HTTPError.unknown(error))
     }
     
-    func test_canceled_Marker_toBeaconConversion() {
+    func test_createBeacon_canceledMarker() {
         // Given
         let url: URL = .random
         let marker = HTTPMarker(url: url, method: "c", trigger: .automatic, delegate: Delegate())
-        marker.canceled()
+        marker.cancel()
 
         // When
         guard let beacon = marker.createBeacon() as? HTTPBeacon else {
@@ -242,33 +271,12 @@ class HTTPMarkerTests: XCTestCase {
         XCTAssertNil(beacon.responseSize)
         XCTAssertEqual(beacon.error, HTTPError.cancelled)
     }
-    
-    func test_started_Marker_toConversion() {
-        // Given
-        let url: URL = .random
-        let marker = HTTPMarker(url: url, method: "c", trigger: .automatic, delegate: Delegate())
-
-        // When
-        guard let beacon = marker.createBeacon() as? HTTPBeacon else {
-            XCTFail("Beacon type missmatch"); return
-        }
-
-        // Then
-        XCTAssertTrue(beacon.id.uuidString.count > 0)
-        XCTAssertEqual(beacon.timestamp, marker.startTime)
-        XCTAssertEqual(beacon.duration, 0)
-        XCTAssertEqual(beacon.method, "c")
-        XCTAssertEqual(beacon.url, url)
-        XCTAssertEqual(beacon.responseCode, -1)
-        XCTAssertNil(beacon.responseSize)
-        XCTAssertNil(beacon.error)
-    }
 }
 
 extension HTTPMarkerTests {
     class Delegate: HTTPMarkerDelegate {
         var finaliedCount: Int = 0
-        func finalized(marker: HTTPMarker) {
+        func httpMarkerDidFinish(_ marker: HTTPMarker) {
             finaliedCount += 1
         }
     }

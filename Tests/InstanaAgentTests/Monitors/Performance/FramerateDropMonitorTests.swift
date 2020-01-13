@@ -1,7 +1,7 @@
 import XCTest
 @testable import InstanaAgent
 
-class FramerateDropMonitorTests: XCTestCase {
+class FramerateDropMonitorTests: InstanaTestCase {
 
     var monitor: FramerateDropMonitor?
     

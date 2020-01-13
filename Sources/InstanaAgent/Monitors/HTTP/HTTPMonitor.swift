@@ -15,8 +15,8 @@ class HTTPMonitor {
         self.uninstaller = uninstaller
         self.reporter = reporter
 
-        switch environment.configuration.reportingType {
-        case .automaticAndManual, .automatic:
+        switch environment.configuration.httpCaptureConfig {
+        case .automatic:
             install()
         case .manual, .none:
             deinstall()
@@ -42,22 +42,12 @@ extension HTTPMonitor {
         guard let url = request.url, let method = request.httpMethod else {
             throw InstanaError(code: InstanaError.Code.invalidRequest, description: "Invalid URLRequest")
         }
-        return HTTPMarker(url: url,
-                          method: method,
-                          trigger: .automatic,
-                          delegate: self)
-    }
-
-    func mark(_ url: URL, method: String, size: Instana.Types.HTTPSize) throws -> HTTPMarker {
-        return HTTPMarker(url: url,
-                          method: method,
-                          trigger: .automatic,
-                          delegate: self)
+        let viewName = environment.propertyHandler.properties.view
+        return HTTPMarker(url: url, method: method, trigger: .automatic, delegate: self, viewName: viewName)
     }
 
     private func shouldReport(marker: HTTPMarker) -> Bool {
-        switch environment.configuration.reportingType {
-        case .automaticAndManual: return true
+        switch environment.configuration.httpCaptureConfig {
         case .automatic: return marker.trigger == .automatic
         case .manual: return marker.trigger == .manual
         case .none: return false
@@ -66,7 +56,7 @@ extension HTTPMonitor {
 }
 
 extension HTTPMonitor: HTTPMarkerDelegate {
-    func finalized(marker: HTTPMarker) {
+    func httpMarkerDidFinish(_ marker: HTTPMarker) {
         guard shouldReport(marker: marker) else { return }
         reporter.submit(marker.createBeacon())
     }

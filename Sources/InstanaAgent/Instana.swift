@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 
 /// Root object for the InstanaAgent.
 ///
@@ -19,9 +20,21 @@ import Foundation
         self.monitors = monitors ?? Monitors(environment)
         super.init()
         assert(!configuration.reportingURL.absoluteString.isEmpty, "Instana Reporting URL must not be empty")
+
         if configuration.isValid {
             self.monitors.reporter.submit(SessionProfileBeacon(state: .start, sessionID: environment.sessionID))
         }
+        _ = NotificationCenter.default.addObserver(forName: UIApplication.didBecomeActiveNotification, object: nil, queue: nil) { _ in
+            InstanaSystemUtils.isAppActive = true
+        }
+        _ = NotificationCenter.default.addObserver(forName: UIApplication.didEnterBackgroundNotification, object: nil, queue: nil) { _ in
+            InstanaSystemUtils.isAppActive = false
+        }
+    }
+
+    internal static var propertyHandler: InstanaPropertyHandler {
+        guard let current = Instana.current else { fatalError("Instana Config error: There is no active & valid instana setup") }
+        return current.environment.propertyHandler
     }
 }
 
@@ -33,35 +46,45 @@ import Foundation
     /// Instana key identifying your application.
     class var key: String? { Instana.current?.environment.configuration.key }
 
-    /// Configures and sets up the Instana SDK with the default configuration.
+    /// Configures and sets up the Instana Agent with the default configuration.
     ///
-    /// - Note: Should be called only once, as soon as posible. Preferablly in `application(_:, didFinishLaunchingWithOptions:)`
+    /// - Note: Should be called only once, as soon as posible. Preferably in `application(_:, didFinishLaunchingWithOptions:)`
     /// - Parameters:
-    ///   - key: Instana key identifying your application.
+    ///   - key: Instana key to identify your application.
     ///   - reportingURL: Optional reporting URL used for on-premises Instana backend installations.
-    static func setup(key: String, reportingURL: URL? = nil, reportingType: ReportingType = .automaticAndManual) {
-        // TODO: leave when current a session exists
-        // Currently setup would be possible n times in one app lifecycle
-        let config = InstanaConfiguration.default(key: key, reportingURL: reportingURL, reportingType: reportingType)
+    ///   - httpCaptureConfig: Optional configuration to set the capture behavior for the outgoing http requests
+    static func setup(key: String, reportingURL: URL? = nil, httpCaptureConfig: HTTPCaptureConfig = .automatic) {
+        let config = InstanaConfiguration.default(key: key, reportingURL: reportingURL, httpCaptureConfig: httpCaptureConfig)
         Instana.current = Instana(configuration: config)
     }
 
-    // TODO: Move this into a namedspace wrapper
-    /// Use this method to manually monitor remote calls that can't be tracked automatically.
+    /// Use this method to manually monitor http requests.
     ///
+    /// Start the capture of the http session before using the URLRequest in a URLSession (you can set a viewName optionally):
     ///
-    /// Monitor the response of this request like this:
+    ///     try? Instana.startCapture(urlRequest)
     ///
-    ///     let marker = Instana.markHTTPCall(url, method: "GET")
-    ///     URLSession.shared.dataTask(with: url) { data, response, error in
+    /// Finish the marker with the status code or an error when the request has been completed
+    ///
+    ///     marker?.finish(responseCode: code)
+    /// or with an error
+    ///
+    ///     marker?.finish(error: error)
+    ///
+    /// Full example:
+    ///
+    ///     let marker = try? Instana.startCapture(request)
+    ///     URLSession.shared.dataTask(with: request) { data, response, error in
     ///         if let error = error {
-    ///             marker.finished(error: error)
+    ///             marker?.finish(error: error)
     ///         } else {
-    ///             marker.finished(responseCode: (response as? HTTPURLResponse)?.statusCode ?? 200)
+    ///             let code = (response as? HTTPURLResponse)?.statusCode ?? 200
+    ///             marker?.finish(responseCode: code)
     ///         }
-    ///     }
+    ///     }.resume()
     ///
-    /// You can also trace the HTTP reponse size manually once the size has been determined via the URLSessionDelegate. For example:
+    ///
+    /// You can also capture the HTTP response size manually once the size has been determined via the URLSessionDelegate. Like the following:
     ///
     ///       func urlSession(_ session: URLSession, task: URLSessionTask, didFinishCollecting metrics: URLSessionTaskMetrics) {
     ///            marker?.set(responseSize: Instana.Types.HTTPSize(task: task, transactionMetrics: metrics.transactionMetrics))
@@ -69,41 +92,19 @@ import Foundation
     ///
     ///
     /// - Parameters:
-    ///   - url: URL of the call.
-    ///   - method: Method of the call.
-    /// - Returns: A remote call marker which is used to notify the SDK of call results by invoking one of its completion methods.
-    static func markHTTP(_ url: URL, method: String) -> HTTPMarker {
-        let delegate = Instana.current?.monitors.http
-        return HTTPMarker(url: url, method: method, trigger: .manual, delegate: delegate)
-    }
-
-    /// Use this method to manually monitor remote calls that can't be tracked automatically.
+    ///   - request: URLRequest to capture.
+    ///   - viewName: Optional name of the visible view that belongs to this http request
     ///
-    /// Monitor the response of this request like this::
-    ///
-    ///     let marker = Instana.markHTTP(urlRequest)
-    ///     URLSession.shared.dataTask(with: url) { data, response, error in
-    ///         if let error = error {
-    ///             marker.finished(error: error)
-    ///         } else {
-    ///             marker.finished(responseCode: (response as? HTTPURLResponse)?.statusCode ?? 200)
-    ///         }
-    ///     }
-    ///
-    /// You can also trace the HTTP reponse size manually once the size has been determined via the URLSessionDelegate.
-    /// (Must be called before finished) For example:
-    ///
-    ///       func urlSession(_ session: URLSession, task: URLSessionTask, didFinishCollecting metrics: URLSessionTaskMetrics) {
-    ///            marker?.set(responseSize: Instana.Types.HTTPSize(task: task, transactionMetrics: metrics.transactionMetrics))
-    ///       }
-    ///
-    /// - Parameters:
-    ///   - request: URLRequest of the call.
-    /// - Returns: A remote call marker which is used to notify the SDK of call results by invoking one of its completion methods.
-    static func markHTTP(_ request: URLRequest) -> HTTPMarker {
-        let delegate = Instana.current?.monitors.http
-        let url = request.url ?? URL(string: "http://instana-invalid")!
-        return HTTPMarker(url: url, method: request.httpMethod ?? "invalid", trigger: .manual, delegate: delegate)
+    ///   - Returns: HTTP marker to set the response size, finish state or error when the request has been completed.
+    static func startCapture(_ request: URLRequest, viewName: String? = nil) throws -> HTTPMarker {
+        guard let delegate = Instana.current?.monitors.http else {
+            throw InstanaError(code: .instanaInstanceNotFound, description: "No valid Instance instance found. Please call setup to create instance first!")
+        }
+        guard let url = request.url else {
+            throw InstanaError(code: .invalidURL, description: "URL is invalid.")
+        }
+        let method = request.httpMethod ?? "GET"
+        return HTTPMarker(url: url, method: method, trigger: .manual, delegate: delegate, viewName: viewName)
     }
 
     ///
@@ -122,14 +123,6 @@ import Foundation
     ///     - urls: URLs that match with the given regular expressions will be ignored from monitored
     static func ignoreURL(matching regex: [String]) {
         IgnoreURLHandler.regexPatterns = regex
-    }
-
-    ///
-    /// Set the properties
-    ///
-    internal static var propertyHandler: InstanaPropertyHandler {
-        guard let current = Instana.current else { fatalError("Instana Config error: There is no active & valid instana setup") }
-        return current.environment.propertyHandler
     }
 
     /// Meta data information that will be attached to each transmitted data (beacon).
@@ -169,7 +162,7 @@ import Foundation
         propertyHandler.properties.user = InstanaProperties.User(id: id, email: email, name: name)
     }
 
-    /// Set the current visible view / window represented by a custom name.
+    /// Set the current visible view represented by a custom name.
     ///
     /// This name will be attached to all monitored events until you call `setView` again with another name
     /// The name should be unique and not too technical or generic (not just like `WebViewController`)
@@ -183,6 +176,6 @@ import Foundation
     ///     - name: The name of the current visible view
     static func setView(name: String) {
         propertyHandler.properties.view = name
-        Instana.current?.monitors.reporter.submit(ViewChange(name))
+        Instana.current?.monitors.reporter.submit(ViewChange(viewName: name))
     }
 }

@@ -2,18 +2,18 @@ import Foundation
 import XCTest
 @testable import InstanaAgent
 
-class BeaconPerformanceTests: XCTestCase {
+class BeaconPerformanceTests: InstanaTestCase {
 
     var reporter: Reporter!
 
     func testCreateCoreBeacon() {
         // Given
         let beacon = createHTTPBeacon()
-        let mapper = CoreBeaconFactory(.mock)
+        let factory = CoreBeaconFactory(.mock)
 
         self.measure {
             // When
-            guard let sut = try? mapper.map(beacon) else {
+            guard let sut = try? factory.map(beacon) else {
                 XCTFail("Could not map Beacon to CoreBeacon")
                 return
             }

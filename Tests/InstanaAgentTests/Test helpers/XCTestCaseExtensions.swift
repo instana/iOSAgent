@@ -1,6 +1,6 @@
 import XCTest
 
-extension XCTestCase {
+extension InstanaTestCase {
     func selfCleaningTempFileURL(name: String, file: StaticString = #file, line: UInt = #line) -> URL {
         let url = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(name)
         
@@ -43,7 +43,7 @@ func AssertEqualAndNotZero<T: Numeric & Comparable>(_ expression1: @autoclosure 
     XCTAssertEqual(try expression1(), try expression2(), message(), file: file, line: line)
 }
 
-extension XCTestCase {
+extension InstanaTestCase {
     enum ComparisonType {
         case shouldBeNil
         case nonEmptyString

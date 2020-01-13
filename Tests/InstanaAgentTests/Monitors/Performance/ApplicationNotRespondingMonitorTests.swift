@@ -1,19 +1,11 @@
 import XCTest
 @testable import InstanaAgent
 
-class ApplicationNotRespondingMonitorTests: XCTestCase {
+class ApplicationNotRespondingMonitorTests: InstanaTestCase {
 
     var monitor: ApplicationNotRespondingMonitor?
-    var instana: Instana!
-
-    override func setUp() {
-        super.setUp()
-        Instana.setup(key: "KEY")
-        self.instana = Instana.current
-    }
 
     override func tearDown() {
-        instana = nil
         monitor = nil
     }
     
@@ -62,28 +54,5 @@ class ApplicationNotRespondingMonitorTests: XCTestCase {
         Thread.sleep(forTimeInterval: 0.12)
         
         waitForExpectations(timeout: 0.14)
-    }
-    
-    func test_foregrounding_shouldResumeMonitoring() {
-        var beacon: Beacon?
-        var count = 0
-        let exp = expectation(description: "ANR beacon trigger")
-        monitor = ApplicationNotRespondingMonitor(threshold: 0.01, samplingInterval: 0.1, reporter: MockReporter {
-            beacon = $0
-            count += 1
-        })
-        // fulfill expectation after a timer to catch mutliple beacons
-        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(120)) {
-            exp.fulfill()
-        }
-        
-        NotificationCenter.default.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
-        NotificationCenter.default.post(name: UIApplication.didBecomeActiveNotification, object: nil)
-        Thread.sleep(forTimeInterval: 0.12)
-        
-        waitForExpectations(timeout: 0.14) { _ in
-            XCTAssertNotNil(beacon as? AlertBeacon)
-            XCTAssertEqual(count, 1)
-        }
     }
 }

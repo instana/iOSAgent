@@ -1,7 +1,7 @@
 import XCTest
 @testable import InstanaAgent
 
-class InstanaNetworkingTests: XCTestCase {
+class InstanaNetworkingTests: InstanaTestCase {
     
     let testURL = URL(string: "www.a.a")!
 

@@ -2,7 +2,7 @@ import Foundation
 import XCTest
 @testable import InstanaAgent
 
-class StringExtensionTests: XCTestCase {
+class StringExtensionTests: InstanaTestCase {
 
     func test_truncate() {
         // Given

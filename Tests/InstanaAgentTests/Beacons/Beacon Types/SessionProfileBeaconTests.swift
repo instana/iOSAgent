@@ -2,30 +2,17 @@
 import XCTest
 @testable import InstanaAgent
 
-class SessionProfileBeaconTests: XCTestCase {
-
-    var sessionID: UUID!
-    var key: String!
-    var config: InstanaConfiguration!
-    var env: InstanaEnvironment!
-
-    override func setUp() {
-        super.setUp()
-        sessionID = UUID()
-        key = "KEY123"
-        env = InstanaEnvironment.mock(configuration: .default(key: key), sessionID: sessionID)
-        config = env.configuration
-    }
+class SessionProfileBeaconTests: InstanaTestCase {
 
     func test_map_session() {
         // Given
         let sessionID = UUID()
         let timestamp = Date().millisecondsSince1970
         let beacon = SessionProfileBeacon(state: .start, timestamp: timestamp, sessionID: sessionID)
-        let mapper = CoreBeaconFactory(InstanaEnvironment.mock)
+        let factory = CoreBeaconFactory(InstanaEnvironment.mock)
 
         // When
-        guard let sut = try? mapper.map(beacon) else {
+        guard let sut = try? factory.map(beacon) else {
             XCTFail("Could not map Beacon to CoreBeacon")
             return
         }
@@ -40,9 +27,10 @@ class SessionProfileBeaconTests: XCTestCase {
     func test_asString() {
         // Given
         let session = SessionProfileBeacon(state: .start, sessionID: sessionID)
+        let factory = CoreBeaconFactory(InstanaEnvironment.mock)
         var beacon: CoreBeacon!
         do {
-            beacon = try CoreBeaconFactory(env).map(session)
+            beacon = try factory.map(session)
         } catch {
             XCTFail("Could not create CoreBeacon")
         }
@@ -58,9 +46,10 @@ class SessionProfileBeaconTests: XCTestCase {
     func test_asJSON() {
         // Given
         let session = SessionProfileBeacon(state: .start, sessionID: sessionID)
+        let factory = CoreBeaconFactory(InstanaEnvironment.mock)
         var beacon: CoreBeacon!
         do {
-            beacon = try CoreBeaconFactory(env).map(session)
+            beacon = try factory.map(session)
         } catch {
             XCTFail("Could not create CoreBeacon")
         }

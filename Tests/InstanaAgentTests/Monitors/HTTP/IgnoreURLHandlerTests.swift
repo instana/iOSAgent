@@ -1,7 +1,7 @@
 import XCTest
 @testable import InstanaAgent
 
-class IgnoreURLHandlerTests: XCTestCase {
+class IgnoreURLHandlerTests: InstanaTestCase {
 
     func test_ignore_exact_URL() {
         // Given

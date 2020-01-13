@@ -2,10 +2,7 @@ import XCTest
 import Foundation
 @testable import InstanaAgent
 
-//extension InstanaProperties.User: Equatable {}
-//extension InstanaProperties: Equatable {}
-
-class InstanaPropertyHandlerTests: XCTestCase {
+class InstanaPropertyHandlerTests: InstanaTestCase {
 
     func test_locking() {
         // Given

@@ -2,7 +2,7 @@ import XCTest
 import Foundation
 @testable import InstanaAgent
 
-class URLResponseHeaderFieldsTests: XCTestCase {
+class URLResponseHeaderFieldsTests: InstanaTestCase {
 
     func test_backendTracingID_happy_path() {
         // Given

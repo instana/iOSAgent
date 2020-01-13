@@ -4,7 +4,7 @@ import UIKit
 class ApplicationNotRespondingMonitor {
     var threshold: Instana.Types.Seconds
     private let reporter: Reporter
-    private var timer: Timer?
+    var timer: Timer?
     private let samplingInterval: Double
     private init() { fatalError() }
 

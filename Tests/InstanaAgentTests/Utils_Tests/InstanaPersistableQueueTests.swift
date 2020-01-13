@@ -3,7 +3,7 @@ import Foundation
 import XCTest
 @testable import InstanaAgent
 
-class InstanaPersistableQueueTests: XCTestCase {
+class InstanaPersistableQueueTests: InstanaTestCase {
 
     func test_add_read_Queue_single() {
         // Given

@@ -1,13 +1,11 @@
 import Foundation
 
-@objc public enum ReportingType: Int {
-    /// Both automatic and manual calls will be reported
-    case automaticAndManual
-    /// Only automatic calls will be reported
+@objc public enum HTTPCaptureConfig: Int {
+    /// HTTP requestes & responses will be captured automatically (Default configuration)
     case automatic
-    /// Only manual calls will be reported
+    /// HTTP requestes & responses must be captured manually via ```Instana.startCapture(request)```
     case manual
-    /// Ignore all calls
+    /// Don't capture any http requests or responses
     case none
 }
 
@@ -42,7 +40,7 @@ struct InstanaConfiguration: Equatable {
 
     var reportingURL: URL
     var key: String
-    var reportingType: ReportingType
+    var httpCaptureConfig: HTTPCaptureConfig
     var suspendReporting: Set<SuspendReporting>
     var monitorTypes: Set<MonitorTypes>
     var transmissionDelay: Instana.Types.Seconds
@@ -51,13 +49,13 @@ struct InstanaConfiguration: Equatable {
     var isValid: Bool { !key.isEmpty && !reportingURL.absoluteString.isEmpty }
 
     static var empty: InstanaConfiguration {
-        .default(key: "", reportingURL: nil, reportingType: .none)
+        .default(key: "", reportingURL: nil, httpCaptureConfig: .none)
     }
 
-    static func `default`(key: String, reportingURL: URL? = nil, reportingType: ReportingType = .automaticAndManual) -> InstanaConfiguration {
+    static func `default`(key: String, reportingURL: URL? = nil, httpCaptureConfig: HTTPCaptureConfig = .automatic) -> InstanaConfiguration {
         self.init(reportingURL: reportingURL ?? Defaults.reporterURL,
                   key: key,
-                  reportingType: reportingType,
+                  httpCaptureConfig: httpCaptureConfig,
                   suspendReporting: SuspendReporting.defaults,
                   monitorTypes: MonitorTypes.defaults,
                   transmissionDelay: Defaults.transmissionDelay,

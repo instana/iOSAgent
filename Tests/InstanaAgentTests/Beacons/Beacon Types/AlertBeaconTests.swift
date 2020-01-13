@@ -1,16 +1,16 @@
 import XCTest
 @testable import InstanaAgent
 
-class AlertBeaconTests: XCTestCase {
+class AlertBeaconTests: InstanaTestCase {
 
     func test_lowMemory_init() {
         // Given
         let alertType = AlertBeacon.AlertType.lowMemory
         let alert = AlertBeacon(alertType: alertType)
-        let mapper = CoreBeaconFactory(.mock)
+        let factory = CoreBeaconFactory(.mock)
 
         // When
-        guard let sut = try? mapper.map(alert) else {
+        guard let sut = try? factory.map(alert) else {
             XCTFail("Could not map Beacon to CoreBeacon")
             return
         }

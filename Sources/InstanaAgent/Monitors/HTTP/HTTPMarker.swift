@@ -1,7 +1,7 @@
 import Foundation
 
 protocol HTTPMarkerDelegate: AnyObject {
-    func finalized(marker: HTTPMarker)
+    func httpMarkerDidFinish(_ marker: HTTPMarker)
 }
 
 /// Remote call markers are used to track remote calls.
@@ -19,18 +19,20 @@ protocol HTTPMarkerDelegate: AnyObject {
     let method: String
     let trigger: Trigger
     let startTime: Instana.Types.Milliseconds
+    let viewName: String?
     private(set) var backendTracingID: String?
     private(set) var responseSize: Instana.Types.HTTPSize?
     private var endTime: Instana.Types.Milliseconds?
     private(set) var state: State = .started
     private weak var delegate: HTTPMarkerDelegate?
 
-    init(url: URL, method: String, trigger: Trigger, delegate: HTTPMarkerDelegate?) {
+    init(url: URL, method: String, trigger: Trigger, delegate: HTTPMarkerDelegate?, viewName: String? = nil) {
         startTime = Date().millisecondsSince1970
         self.url = url
         self.method = method
         self.delegate = delegate
         self.trigger = trigger
+        self.viewName = viewName
     }
 }
 
@@ -40,7 +42,7 @@ extension HTTPMarker {
     /// - Parameters:
     ///   - responseSize: Size of the response.
     ///
-    /// Note: You must make sure to trigger `set(responseSize:` before calling the finished or canceled method
+    /// Note: You must make sure to trigger `set(responseSize:` before calling the finish or cancel method
     @objc public func set(responseSize: Instana.Types.HTTPSize) {
         guard case .started = state else { return }
         self.responseSize = responseSize
@@ -55,23 +57,23 @@ extension HTTPMarker {
     /// The Backend Tracing ID will be sent by the server via the HTTP header field
     /// This ID will be set automatically if you choose automatic HTTP monitoring.
     ///
-    /// Note: You must make sure to trigger `set(backendTracingID:` before calling the finished or canceled method
+    /// Note: You must make sure to trigger `set(backendTracingID:` before calling the finish or canceled method
     @objc public func set(backendTracingID: String) {
         guard case .started = state else { return }
         self.backendTracingID = backendTracingID
     }
 
-    /// Invoke this method after the request has successfuly finished.
+    /// Invoke this method after the request has successfuly finish.
     ///
     /// - Parameters:
     ///   - responseCode: Usually a HTTP status code.
     ///
     /// Note: Make sure you don't call any methods on this HTTPMarker after you called finish
-    @objc public func finished(responseCode: Int) {
+    @objc public func finish(responseCode: Int) {
         guard case .started = state else { return }
         state = .finished(responseCode: responseCode)
         endTime = Date().millisecondsSince1970
-        delegate?.finalized(marker: self)
+        delegate?.httpMarkerDidFinish(self)
     }
 
     /// Invoke this method after the request has failed to finish.
@@ -80,20 +82,20 @@ extension HTTPMarker {
     ///   - error: Error that explains what happened.
     ///
     /// Note: Make sure you don't call any methods on this HTTPMarker after you called finish
-    @objc public func finished(error: Error) {
+    @objc public func finish(error: Error) {
         guard case .started = state else { return }
         state = .failed(error: error)
         endTime = Date().millisecondsSince1970
-        delegate?.finalized(marker: self)
+        delegate?.httpMarkerDidFinish(self)
     }
 
     /// Invoke this method if the reuqest has been canceled before completion.
     /// Note: Make sure you don't call more methods on this HTTPMarker after you called canceled
-    @objc public func canceled() {
+    @objc public func cancel() {
         guard case .started = state else { return }
         state = .canceled
         endTime = Date().millisecondsSince1970
-        delegate?.finalized(marker: self)
+        delegate?.httpMarkerDidFinish(self)
     }
 
     ///
@@ -127,7 +129,8 @@ extension HTTPMarker {
                           responseCode: responseCode ?? -1,
                           responseSize: responseSize,
                           error: error,
-                          backendTracingID: backendTracingID)
+                          backendTracingID: backendTracingID,
+                          viewName: viewName)
     }
 }
 

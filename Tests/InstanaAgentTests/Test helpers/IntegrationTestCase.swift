@@ -8,7 +8,7 @@ enum IntegrationTestCaseError: Error {
 }
 
 @available(iOS 12.0, *)
-class IntegrationTestCase: XCTestCase {
+class IntegrationTestCase: InstanaTestCase {
     struct Defaults {
         static let serverPort: Int = 9999
         static let baseURL = URL(string: "http://localhost:\(serverPort)")!
