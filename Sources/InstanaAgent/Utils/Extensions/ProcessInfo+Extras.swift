@@ -9,7 +9,7 @@ extension ProcessInfo {
         return ProcessInfo.processInfo.environment["UITestsActive"] == "true"
     }
 
-    static var isRunningDebugSimulator: Bool {
+    static var isRunningDebugSessionSimulator: Bool {
         if isRunningTests || isRunningUITests {
             return false
         }

@@ -54,7 +54,7 @@ extension NetworkUtility {
         }
 
         var carrierName: String {
-            if ProcessInfo.isRunningDebugSimulator {
+            if ProcessInfo.isRunningDebugSessionSimulator {
                 return "Simulator"
             } else {
                 let networkInfo = CTTelephonyNetworkInfo()
@@ -64,7 +64,7 @@ extension NetworkUtility {
         }
 
         static var current: CellularType {
-            if ProcessInfo.isRunningDebugSimulator {
+            if ProcessInfo.isRunningDebugSessionSimulator {
                 return .none
             } else {
                 guard let radioAccessTechnology = CTTelephonyNetworkInfo().currentRadioAccessTechnology else {

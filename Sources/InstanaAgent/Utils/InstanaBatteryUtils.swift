@@ -42,7 +42,7 @@ class InstanaBatteryUtils {
         @unknown default:
             break
         }
-        if ProcessInfo.isRunningDebugSimulator {
+        if ProcessInfo.isRunningDebugSessionSimulator {
             safeForNetworking = true
         }
     }
