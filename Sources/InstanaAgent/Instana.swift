@@ -7,14 +7,14 @@ import UIKit
 /// - Important: Before using any of Instana's features, it is necessary to invoke one of its setup methods.
 @objc public class Instana: NSObject {
     /// The Container for all Instana monitors (Network, HTTP, Framedrop, ...)
-    let monitors: Monitors
+    internal let monitors: Monitors
 
     /// The current Instana environment that holds the configuration, session information, custom properties and more
-    let environment: InstanaEnvironment
+    internal let environment: InstanaEnvironment
 
-    static var current: Instana?
+    internal static var current: Instana?
 
-    init(configuration: InstanaConfiguration, monitors: Monitors? = nil) {
+    internal init(configuration: InstanaConfiguration, monitors: Monitors? = nil) {
         let environment = InstanaEnvironment(configuration: configuration, propertyHandler: InstanaPropertyHandler())
         self.environment = environment
         self.monitors = monitors ?? Monitors(environment)
@@ -32,7 +32,7 @@ import UIKit
         }
     }
 
-    internal static var propertyHandler: InstanaPropertyHandler {
+    private static var propertyHandler: InstanaPropertyHandler {
         guard let current = Instana.current else { fatalError("Instana Config error: There is no active & valid instana setup") }
         return current.environment.propertyHandler
     }
