@@ -31,7 +31,7 @@ class InstanaURLProtocolIntegrationTests: IntegrationTestCase {
 
         // When
         URLSession.shared.dataTask(with: givenURL) {_, _, _ in}.resume()
-        wait(for: [didReportWait], timeout: 1.4)
+        wait(for: [didReportWait], timeout: 10)
 
         // Then
         AssertEqualAndNotNil(expectedBeacon?.url, givenURL)
@@ -53,7 +53,7 @@ class InstanaURLProtocolIntegrationTests: IntegrationTestCase {
 
         // When
         session.dataTask(with: givenURL) {_, _, _ in}.resume()
-        wait(for: [didReportWait], timeout: 1.4)
+        wait(for: [didReportWait], timeout: 10)
 
         // Then
         AssertEqualAndNotNil(expectedBeacon?.url, givenURL)
@@ -75,7 +75,7 @@ class InstanaURLProtocolIntegrationTests: IntegrationTestCase {
 
         // When
         webView.load(URLRequest(url: givenURL))
-        wait(for: [didReportWait], timeout: 1.4)
+        wait(for: [didReportWait], timeout: 10)
 
         // Then
         AssertEqualAndNotNil(expectedBeacon?.url, givenURL)

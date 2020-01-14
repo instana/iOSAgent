@@ -12,6 +12,12 @@ class ReporterTests: InstanaTestCase {
         env = InstanaEnvironment.mock
     }
 
+    override func tearDown() {
+        reporter = nil
+        env = nil
+        super.tearDown()
+    }
+
     func test_submit() {
         // Given
         var didSchedule = false
@@ -119,10 +125,10 @@ class ReporterTests: InstanaTestCase {
         // When
         reporter.submit(AlertBeacon(alertType: .lowMemory))
         // Submit one more after delay
-        wait(0.4)
+        wait(0.6)
         AssertTrue(flushCount == 1)
         reporter.submit(AlertBeacon(alertType: .lowMemory))
-        wait(0.4)
+        wait(0.6)
 
         // Then - Should flush twice when getting more beacons after first flushing occured
         AssertTrue(flushCount == 2)
@@ -383,7 +389,7 @@ class ReporterTests: InstanaTestCase {
             exp.fulfill()
         }
         reporter.submit(AlertBeacon(alertType: .lowMemory))
-        waitForExpectations(timeout: 0.3, handler: nil)
+        waitForExpectations(timeout: 0.5, handler: nil)
 
         // Then
         AssertTrue(sendNotCalled)
@@ -610,7 +616,7 @@ class ReporterTests: InstanaTestCase {
 
         // When
         reporter.submit(AlertBeacon(alertType: .lowMemory))
-        waitForExpectations(timeout: 0.3, handler: nil)
+        waitForExpectations(timeout: 0.5, handler: nil)
 
         // Then
         AssertTrue(didSendReport)
@@ -688,7 +694,7 @@ class ReporterTests: InstanaTestCase {
 
         // When
         reporter.submit(AlertBeacon(alertType: .lowMemory))
-        waitForExpectations(timeout: 0.3, handler: nil)
+        waitForExpectations(timeout: 0.5, handler: nil)
 
         // Then
         AssertTrue(didSendReport)

@@ -91,8 +91,6 @@ class InstanaTests: InstanaTestCase {
         // Given
         var request = URLRequest(url: URL(string: "https://www.example.com")!)
         request.httpMethod = nil
-        let reporter = MockReporter {_ in }
-        Instana.current = Instana(configuration: .default(key: "KEY"), monitors: Monitors(.mock, reporter: reporter))
 
         // When
         let sut = try? Instana.startCapture(request)
@@ -111,9 +109,9 @@ class InstanaTests: InstanaTestCase {
         Instana.setUser(id: id, email: email, name: name)
 
         // Then
-        AssertEqualAndNotNil(Instana.propertyHandler.properties.user?.id, id)
-        AssertEqualAndNotNil(Instana.propertyHandler.properties.user?.email, email)
-        AssertEqualAndNotNil(Instana.propertyHandler.properties.user?.name, name)
+        AssertEqualAndNotNil(Instana.current?.environment.propertyHandler.properties.user?.id, id)
+        AssertEqualAndNotNil(Instana.current?.environment.propertyHandler.properties.user?.email, email)
+        AssertEqualAndNotNil(Instana.current?.environment.propertyHandler.properties.user?.name, name)
     }
 
     func test_setViewName() {
@@ -124,7 +122,7 @@ class InstanaTests: InstanaTestCase {
         Instana.setView(name: viewName)
 
         // Then
-        AssertEqualAndNotNil(Instana.propertyHandler.properties.view, viewName)
+        AssertEqualAndNotNil(Instana.current?.environment.propertyHandler.properties.view, viewName)
     }
 
     func test_setMetaData() {
@@ -136,7 +134,7 @@ class InstanaTests: InstanaTestCase {
         Instana.setMeta(value: given["Key2"]!, key: "Key2")
 
         // Then
-        AssertEqualAndNotNil(Instana.propertyHandler.properties.metaData, given)
+        AssertEqualAndNotNil(Instana.current?.environment.propertyHandler.properties.metaData, given)
     }
 
     func test_setMetaData_to_long_value() {
@@ -149,8 +147,8 @@ class InstanaTests: InstanaTestCase {
         Instana.setMeta(value: invalid, key: "invalid")
 
         // Then
-        AssertEqualAndNotNil(Instana.propertyHandler.properties.metaData?["valid"], valid)
-        AssertTrue(Instana.propertyHandler.properties.metaData?.count == 1)
+        AssertEqualAndNotNil(Instana.current?.environment.propertyHandler.properties.metaData?["valid"], valid)
+        AssertTrue(Instana.current?.environment.propertyHandler.properties.metaData?.count == 1)
     }
 
     func test_setMetaData_ignore_too_many_fields() {
@@ -161,13 +159,13 @@ class InstanaTests: InstanaTestCase {
 
         // Then
 
-        let values = Array(Instana.propertyHandler.properties.metaData!.values)
-        let keys = Array(Instana.propertyHandler.properties.metaData!.keys)
+        let values = Array(Instana.current!.environment.propertyHandler.properties.metaData!.values)
+        let keys = Array(Instana.current!.environment.propertyHandler.properties.metaData!.keys)
         AssertTrue(values.contains("V-0") == true)
         AssertTrue(values.contains("V-49") == true)
         AssertTrue(values.contains("V-50") == false)
         AssertTrue(keys.contains("49") == true)
         AssertTrue(keys.contains("50") == false)
-        AssertTrue(Instana.propertyHandler.properties.metaData?.count == 50)
+        AssertTrue(Instana.current!.environment.propertyHandler.properties.metaData?.count == 50)
     }
 }
