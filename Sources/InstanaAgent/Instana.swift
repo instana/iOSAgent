@@ -120,10 +120,10 @@ import UIKit
     }
 
     ///
-    /// Ignore HTTP monitoring for a URL that matches with the given regular expressions
+    /// Ignore HTTP monitoring for URLs that match with the given regular expressions
     ///
     /// - Parameters:
-    ///     - urls: URLs that match with the given regular expressions will be ignored from monitored
+    ///     - regex: URLs that match with the given regular expressions will be ignored from monitoring
     static func setIgnoreURLs(matching regex: [NSRegularExpression]) {
         IgnoreURLHandler.regex = regex
     }
