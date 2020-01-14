@@ -157,9 +157,7 @@ extension InstanaURLProtocol {
         let originalSelector = #selector(URLSession.init(configuration:delegate:delegateQueue:))
         guard let originalMethod = class_getClassMethod(URLSession.self, originalSelector) else { return }
 
-        // First set an empty Function to get the original IMP
-        let emptyFunction: @convention(block) () -> Void = {}
-        let originalImp = method_setImplementation(originalMethod, imp_implementationWithBlock(emptyFunction))
+        let originalImp = method_getImplementation(originalMethod)
 
         let newFunction: @convention(block) (AnyObject, URLSessionConfiguration, URLSessionDelegate?, OperationQueue?) -> URLSession
         newFunction = { obj, configuration, delegate, queue in
