@@ -28,12 +28,17 @@ class InstanaTestCase: XCTestCase {
         if Instana.current == nil || InstanaTestCase.sharedInstana != Instana.current {
             Instana.current = InstanaTestCase.sharedInstana
         }
+        cleanUp()
     }
 
     override func tearDown() {
         InstanaSystemUtils.isAppActive = false
-        // Do some clean up
-        Instana.current?.environment.propertyHandler.properties = InstanaProperties()
+        cleanUp()
         super.tearDown()
+    }
+
+    func cleanUp() {
+        Instana.current?.environment.propertyHandler.properties = InstanaProperties()
+        Instana.current?.monitors.reporter.queue.removeAll()
     }
 }
