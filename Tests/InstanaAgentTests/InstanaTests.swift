@@ -58,36 +58,17 @@ class InstanaTests: InstanaTestCase {
         Instana.current = Instana(configuration: config, monitors: Monitors(env, reporter: reporter))
 
         // When
-        let sut = try? Instana.startCapture(request, viewName: "DetailView")
-        sut?.finish(responseCode: 200)
+        let sut = Instana.startCapture(request, viewName: "DetailView")
+        sut.finish(responseCode: 200)
         wait(for: [waitRequest], timeout: 1.0)
 
         // Then
-        AssertEqualAndNotNil(sut?.url, request.url)
-        AssertEqualAndNotNil(sut?.trigger, .manual)
+        AssertEqualAndNotNil(sut.url, request.url)
+        AssertEqualAndNotNil(sut.trigger, .manual)
         AssertEqualAndNotNil(excpectedBeacon?.url, request.url)
         AssertEqualAndNotNil(excpectedBeacon?.method, "PUT")
         AssertEqualAndNotNil(excpectedBeacon?.responseCode, 200)
         AssertEqualAndNotNil(excpectedBeacon?.viewName, "DetailView")
-    }
-
-    func test_captureHTTP_request_missing_instance() {
-        // Given
-        let waitRequest = expectation(description: "test_captureHTTP_request_missing_instance")
-        let request = URLRequest(url: URL(string: "https://www.example.com")!)
-        var expectedError: Error?
-        Instana.current = nil
-
-        // When
-        XCTAssertThrowsError(try Instana.startCapture(request)) {error in
-            // Then
-            expectedError = error
-            waitRequest.fulfill()
-        }
-        wait(for: [waitRequest], timeout: 1.0)
-
-        // Then
-        AssertEqualAndNotNil((expectedError as? InstanaError)?.code, InstanaError.Code.instanaInstanceNotFound.rawValue)
     }
 
     func test_captureHTTP_request_missing_method_should_fall_to_default_GET() {
@@ -96,10 +77,10 @@ class InstanaTests: InstanaTestCase {
         request.httpMethod = nil
 
         // When
-        let sut = try? Instana.startCapture(request)
+        let sut = Instana.startCapture(request)
 
         // Then
-        AssertEqualAndNotNil(sut?.method, "GET")
+        AssertEqualAndNotNil(sut.method, "GET")
     }
 
     func test_setUser() {

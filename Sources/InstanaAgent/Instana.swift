@@ -99,15 +99,16 @@ import UIKit
     ///   - viewName: Optional name of the visible view that belongs to this http request
     ///
     ///   - Returns: HTTP marker to set the response size, finish state or error when the request has been completed.
-    static func startCapture(_ request: URLRequest, viewName: String? = nil) throws -> HTTPMarker {
-        guard let delegate = Instana.current?.monitors.http else {
-            throw InstanaError(code: .instanaInstanceNotFound, description: "No valid Instance instance found. Please call setup to create instance first!")
-        }
-        guard let url = request.url else {
-            throw InstanaError(code: .invalidURL, description: "URL is invalid.")
-        }
+    static func startCapture(_ request: URLRequest, viewName: String? = nil) -> HTTPMarker {
+        let delegate = Instana.current?.monitors.http
         let method = request.httpMethod ?? "GET"
-        return HTTPMarker(url: url, method: method, trigger: .manual, delegate: delegate, viewName: viewName)
+        if request.url == nil {
+            assertionFailure("URL must not be nil!")
+        }
+        if delegate == nil {
+            assertionFailure("No valid Instance instance found. Please call setup to create an instance first!")
+        }
+        return HTTPMarker(url: request.url!, method: method, trigger: .manual, delegate: delegate, viewName: viewName)
     }
 
     ///
