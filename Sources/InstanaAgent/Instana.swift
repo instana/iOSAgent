@@ -46,6 +46,9 @@ import UIKit
     /// Instana key identifying your application.
     class var key: String? { Instana.current?.environment.configuration.key }
 
+    /// The current session id of this active Instana Agent.
+    class var sessionID: String? { Instana.current?.environment.sessionID.uuidString }
+
     /// Configures and sets up the Instana Agent with the default configuration.
     ///
     /// - Note: Should be called only once, as soon as posible. Preferably in `application(_:, didFinishLaunchingWithOptions:)`

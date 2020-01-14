@@ -15,7 +15,9 @@ class InstanaTests: InstanaTestCase {
 
         // Then
         AssertEqualAndNotNil(Instana.key, key)
+        AssertEqualAndNotNil(Instana.sessionID, Instana.current?.environment.sessionID.uuidString)
         AssertEqualAndNotNil(Instana.reportingURL, reportingURL)
+        AssertEqualAndNotNil(Instana.current?.environment.configuration.httpCaptureConfig, .manual)
         AssertEqualAndNotNil(Instana.current?.environment.configuration, .default(key: key, reportingURL: reportingURL, httpCaptureConfig: httpCaptureConfig))
     }
 
