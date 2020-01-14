@@ -209,7 +209,6 @@ class InstanaURLProtocolTests: InstanaTestCase {
 
     func test_finish_success_with_http_forward_301() {
         // Given
-        Instana.setup(key: "KEY")
         let delegate = Delegate()
         let backendTracingID = "981d9553578fc280"
         let url = URL.random

@@ -126,7 +126,6 @@ class HTTPBeaconTests: InstanaTestCase {
     func test_asString() {
         // Given
         let url: URL = .random
-        let key = "K1234"
         let method = "POST"
         let responseCode = 200
         let responseSize = Instana.Types.HTTPSize.random
@@ -137,7 +136,7 @@ class HTTPBeaconTests: InstanaTestCase {
         let http = HTTPBeacon(timestamp: timestamp, duration: duration, method: method, url: url, responseCode: responseCode, responseSize: responseSize, error: timeout, backendTracingID: backendTracingID, viewName: viewName)
         var beacon: CoreBeacon!
         do {
-            beacon = try CoreBeaconFactory(.mock(configuration: .default(key: key))).map(http)
+            beacon = try CoreBeaconFactory(.mock(configuration: .mock)).map(http)
         } catch {
             XCTFail("Could not create CoreBeacon")
         }
@@ -152,7 +151,6 @@ class HTTPBeaconTests: InstanaTestCase {
 
     func test_asJSON() {
         // Given
-        let key = "KEY"
         let responseSize = Instana.Types.HTTPSize.random
         let backendTracingID = "BackendTID"
         let http = HTTPBeacon(timestamp: 1000, duration: 10, method: "M", url: URL.random, responseCode: 200, responseSize: responseSize, error: timeout, backendTracingID: backendTracingID)
@@ -160,7 +158,7 @@ class HTTPBeaconTests: InstanaTestCase {
         // When
         var beacon: CoreBeacon!
         do {
-             beacon = try CoreBeaconFactory(.mock(configuration: .default(key: key))).map(http)
+             beacon = try CoreBeaconFactory(.mock(configuration: .mock)).map(http)
         } catch {
             XCTFail("Could not create CoreBeacon")
         }

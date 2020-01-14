@@ -832,7 +832,7 @@ extension ReporterTests {
 
     func test_createBatchRequest_invalid_key() {
         // Given
-        let invalidConfig = InstanaConfiguration.default(key: "")
+        let invalidConfig = InstanaConfiguration.mock(key: "")
         env = InstanaEnvironment.mock(configuration: invalidConfig)
         let reporter = Reporter(env) { _, _ in}
         let beacons = [HTTPBeacon.createMock(), HTTPBeacon.createMock()]
@@ -849,7 +849,7 @@ extension ReporterTests {
 extension ReporterTests {
 
     func environment(delay: Instana.Types.Seconds, suspend: Set<InstanaConfiguration.SuspendReporting> = []) -> InstanaEnvironment {
-        var config = InstanaConfiguration.default(key: "KEY")
+        var config = InstanaConfiguration.mock
         config.transmissionDelay = delay
         config.transmissionLowBatteryDelay = delay
         config.suspendReporting = suspend
@@ -879,7 +879,7 @@ extension ReporterTests {
     }
 
     func mockBeaconSubmission(_ loadResult: InstanaNetworking.Result, resultCallback: @escaping (BeaconResult) -> Void) {
-        var config = InstanaConfiguration.default(key: "KEY")
+        var config = InstanaConfiguration.mock
         config.transmissionDelay = 0.0
         config.transmissionLowBatteryDelay = 0.0
         reporter = Reporter(.mock(configuration: config),

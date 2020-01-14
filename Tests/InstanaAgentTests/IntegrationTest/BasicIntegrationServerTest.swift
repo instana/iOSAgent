@@ -12,7 +12,7 @@ class BasicIntegrationServerTest: IntegrationTestCase {
 
     override func setUp() {
         super.setUp()
-        var config = InstanaConfiguration.default(key: "KEY")
+        var config = InstanaConfiguration.mock(key: "KEY")
         config.reportingURL = Defaults.baseURL
         config.transmissionDelay = 0.0
         config.transmissionLowBatteryDelay = 0.0

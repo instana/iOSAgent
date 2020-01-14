@@ -27,7 +27,7 @@ class BeaconPerformanceTests: InstanaTestCase {
         var done = false
         let waitFor = expectation(description: "testSubmitCoreBeacons_1_time")
         // Given
-        reporter = Reporter(.mock(configuration: .default(key: "KEY")), batterySafeForNetworking: { true }) { _, _ in
+        reporter = Reporter(.mock(configuration: .mock), batterySafeForNetworking: { true }) { _, _ in
             done = true
             waitFor.fulfill()
         }
@@ -47,7 +47,7 @@ class BeaconPerformanceTests: InstanaTestCase {
         let waitFor = expectation(description: "testSubmitCoreBeacons_10_times")
 
         // Given
-        reporter = Reporter(.mock(configuration: .default(key: "KEY")), batterySafeForNetworking: { true }) { _, _ in
+        reporter = Reporter(.mock(configuration: .mock), batterySafeForNetworking: { true }) { _, _ in
             done = true
             waitFor.fulfill()
         }

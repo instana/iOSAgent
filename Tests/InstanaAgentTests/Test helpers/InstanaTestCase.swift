@@ -6,7 +6,7 @@ class InstanaTestCase: XCTestCase {
 
     private static let sid = UUID()
     private static let sharedInstana: Instana = {
-        let config = InstanaConfiguration.default(key: "KEY", reportingURL: .random, httpCaptureConfig: .automatic)
+        let config = InstanaConfiguration.mock(key: "KEY", reportingURL: .random, httpCaptureConfig: .automatic)
         let instana = Instana(configuration: config)
         Instana.current = instana
         return instana

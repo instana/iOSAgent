@@ -107,7 +107,7 @@ class HTTPMonitorTests: InstanaTestCase {
     
     func test_automaticTriggerMarker_shouldBeReportedOnlyForAutomatedReporting() {
         // Given
-        var config = InstanaConfiguration.default(key: "KEY")
+        var config = InstanaConfiguration.mock(key: "KEY")
         var count = 0
 
         // Automatic
@@ -153,7 +153,7 @@ class HTTPMonitorTests: InstanaTestCase {
     
     func test_manualTriggerMarker_shouldBeReportedOnlyForManualReporting() {
         // Given
-        var config = InstanaConfiguration.default(key: "KEY")
+        var config = InstanaConfiguration.mock(key: "KEY")
         var count = 0
 
         // Automatic

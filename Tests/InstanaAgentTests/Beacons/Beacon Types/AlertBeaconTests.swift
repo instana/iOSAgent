@@ -27,12 +27,11 @@ class AlertBeaconTests: InstanaTestCase {
 
     func test_asString() {
         // Given
-        let key = "KEY1234"
         let alertType = AlertBeacon.AlertType.lowMemory
         let alert = AlertBeacon(alertType: alertType)
         var beacon: CoreBeacon!
         do {
-            beacon = try CoreBeaconFactory(.mock(configuration: .default(key: key))).map(alert)
+            beacon = try CoreBeaconFactory(.mock(configuration: .mock)).map(alert)
         } catch {
             XCTFail("Could not create CoreBeacon")
         }
@@ -47,14 +46,13 @@ class AlertBeaconTests: InstanaTestCase {
 
     func test_asJSON() {
         // Given
-        let key = "KEY1234"
         let alertType = AlertBeacon.AlertType.lowMemory
         let alert = AlertBeacon(alertType: alertType)
 
         // When
         var beacon: CoreBeacon!
         do {
-            beacon = try CoreBeaconFactory(.mock(configuration: .default(key: key))).map(alert)
+            beacon = try CoreBeaconFactory(.mock(configuration: .mock)).map(alert)
         } catch {
             XCTFail("Could not create CoreBeacon")
         }

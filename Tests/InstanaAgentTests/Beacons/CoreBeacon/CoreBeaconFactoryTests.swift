@@ -65,7 +65,6 @@ class CoreBeaconFactoryTests: InstanaTestCase {
     func test_map_beacon_implicit_values() {
         // Given
         let viewName = randomViewName
-        Instana.setup(key: key)
         Instana.current?.environment.propertyHandler.properties.view = viewName
         let beacon = ViewChange()
         let factory = CoreBeaconFactory(.mock)

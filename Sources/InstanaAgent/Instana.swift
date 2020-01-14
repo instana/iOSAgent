@@ -54,9 +54,9 @@ import UIKit
     /// - Note: Should be called only once, as soon as posible. Preferably in `application(_:, didFinishLaunchingWithOptions:)`
     /// - Parameters:
     ///   - key: Instana key to identify your application.
-    ///   - reportingURL: Optional reporting URL used for on-premises Instana backend installations.
+    ///   - reportingURL: Reporting URL for the Instana backend.
     ///   - httpCaptureConfig: Optional configuration to set the capture behavior for the outgoing http requests
-    static func setup(key: String, reportingURL: URL? = nil, httpCaptureConfig: HTTPCaptureConfig = .automatic) {
+    static func setup(key: String, reportingURL: URL, httpCaptureConfig: HTTPCaptureConfig = .automatic) {
         let config = InstanaConfiguration.default(key: key, reportingURL: reportingURL, httpCaptureConfig: httpCaptureConfig)
         Instana.current = Instana(configuration: config)
     }

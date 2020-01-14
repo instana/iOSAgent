@@ -4,7 +4,7 @@ import XCTest
 class InstanaConfigurationTests: InstanaTestCase {
     
     func test_defaultValues() {
-        let config = InstanaConfiguration.default(key: "a", reportingURL: nil)
+        let config = InstanaConfiguration.default(key: "a", reportingURL: URL(string: "http://localhost:3000")!)
         AssertEqualAndNotNil(config.key, "a")
         AssertEqualAndNotNil(config.reportingURL, URL(string: "http://localhost:3000")!)
         AssertEqualAndNotNil(config.httpCaptureConfig, .automatic)

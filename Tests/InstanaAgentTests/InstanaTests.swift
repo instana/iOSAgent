@@ -17,6 +17,7 @@ class InstanaTests: InstanaTestCase {
         AssertEqualAndNotNil(Instana.key, key)
         AssertEqualAndNotNil(Instana.sessionID, Instana.current?.environment.sessionID.uuidString)
         AssertEqualAndNotNil(Instana.reportingURL, reportingURL)
+        AssertEqualAndNotNil(Instana.current?.environment.configuration.reportingURL, reportingURL)
         AssertEqualAndNotNil(Instana.current?.environment.configuration.httpCaptureConfig, .manual)
         AssertEqualAndNotNil(Instana.current?.environment.configuration, .default(key: key, reportingURL: reportingURL, httpCaptureConfig: httpCaptureConfig))
     }
@@ -33,7 +34,7 @@ class InstanaTests: InstanaTestCase {
         }
 
         // When
-        Instana.current = Instana(configuration: .default(key: "KEY"), monitors: Monitors(.mock, reporter: reporter))
+        Instana.current = Instana(configuration: .default(key: "KEY", reportingURL: .random), monitors: Monitors(.mock, reporter: reporter))
         wait(for: [waitRequest], timeout: 1.0)
 
         // Then

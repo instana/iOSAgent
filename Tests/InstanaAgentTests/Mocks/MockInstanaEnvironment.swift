@@ -3,12 +3,9 @@ import XCTest
 @testable import InstanaAgent
 
 extension InstanaEnvironment {
-    static var mock: InstanaEnvironment {
-        let conf = InstanaConfiguration.default(key: "KEY", reportingURL: URL.random, httpCaptureConfig: .automatic)
-        return mock(configuration: conf)
-    }
+    static var mock: InstanaEnvironment { mock(configuration: InstanaConfiguration.mock) }
 
-    static func mock(configuration: InstanaConfiguration = .default(key: "KEY"),
+    static func mock(configuration: InstanaConfiguration = .mock,
                      sessionID: UUID? = nil,
                      metaData: [String: String]? = nil,
                      user: InstanaProperties.User? = nil,

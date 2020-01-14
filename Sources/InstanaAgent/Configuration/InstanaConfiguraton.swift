@@ -32,7 +32,6 @@ struct InstanaConfiguration: Equatable {
     }
 
     struct Defaults {
-        static let reporterURL = URL(string: "http://localhost:3000")!
         static let transmissionDelay: Instana.Types.Seconds = 1.0
         static let transmissionLowBatteryDelay: Instana.Types.Seconds = 10.0
         static let gzipReport = true
@@ -49,11 +48,11 @@ struct InstanaConfiguration: Equatable {
     var isValid: Bool { !key.isEmpty && !reportingURL.absoluteString.isEmpty }
 
     static var empty: InstanaConfiguration {
-        .default(key: "", reportingURL: nil, httpCaptureConfig: .none)
+        .default(key: "", reportingURL: URL(string: "https://www.instana.com")!, httpCaptureConfig: .none)
     }
 
-    static func `default`(key: String, reportingURL: URL? = nil, httpCaptureConfig: HTTPCaptureConfig = .automatic) -> InstanaConfiguration {
-        self.init(reportingURL: reportingURL ?? Defaults.reporterURL,
+    static func `default`(key: String, reportingURL: URL, httpCaptureConfig: HTTPCaptureConfig = .automatic) -> InstanaConfiguration {
+        self.init(reportingURL: reportingURL,
                   key: key,
                   httpCaptureConfig: httpCaptureConfig,
                   suspendReporting: SuspendReporting.defaults,
