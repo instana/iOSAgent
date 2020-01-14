@@ -46,7 +46,8 @@ class InstanaURLProtocolTests: InstanaTestCase {
         InstanaURLProtocol.mode = .enabled
 
         // When
-        IgnoreURLHandler.regexPatterns = [".*(&|\\?)password=.*"]
+        let regex = try! NSRegularExpression(pattern: ".*(&|\\?)password=.*")
+        IgnoreURLHandler.regex = [regex]
 
         // Then
         XCTAssertFalse(InstanaURLProtocol.canInit(with: makeRequest("https://www.a.b/?password=abc")))

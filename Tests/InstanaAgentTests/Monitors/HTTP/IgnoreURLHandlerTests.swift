@@ -27,7 +27,7 @@ class IgnoreURLHandlerTests: InstanaTestCase {
 
     func test_empty_ignore() {
         // Given
-        IgnoreURLHandler.regexPatterns = []
+        IgnoreURLHandler.regex = []
         IgnoreURLHandler.exactURLs = []
 
         // When
@@ -50,7 +50,8 @@ class IgnoreURLHandlerTests: InstanaTestCase {
 
     func test_ignore_regex_pattern() {
         // Given
-        IgnoreURLHandler.regexPatterns = [".*(&|\\?)password=.*"]
+        let regex = try! NSRegularExpression(pattern: ".*(&|\\?)password=.*")
+        IgnoreURLHandler.regex = [regex]
 
         // When
         let sut = IgnoreURLHandler.shouldIgnore(URL(string: "http://www.example.com/?password=Key")!)
