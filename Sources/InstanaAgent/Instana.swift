@@ -168,7 +168,7 @@ import UIKit
 
     /// Set the current visible view represented by a custom name.
     ///
-    /// This name will be attached to all monitored events until you call `setView` again with another name
+    /// This name will be attached to all monitored beacons until you call `setView` again with another name
     /// The name should be unique and not too technical or generic (not just like `WebViewController`)
     /// Consider something like: `WebView: Privacy policy`
     ///

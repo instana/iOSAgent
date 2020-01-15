@@ -1,133 +1,146 @@
-# Instana iOS SDK
-Instana iOS SDK offers the following features:  
+# Instana iOSAgent
 
-- Crash monitoring and reporting
-- Performance alerts
-- Remote call instrumentation
+**[Changelog](CHANGELOG.md)** |
+**[Contributing](CONTRIBUTING.md)** |
 
-The SDK supports iOS 10.3 and above, and is usable from Swift and Objective-C.
+---
 
-## Setup
+iOS agent to use Instana for your iOS app. The monitoring currently supports:
 
-### Installation
+- Session Start
+- Capture  HTTP sessions automatically or manually
+- Automatic delivery of device & app information (like bundle identifer, version, language, iOS device information)
+
+Optionally:
+
+- Ignore full URLs by regex or full URLs
+- Set global meta data (key/value)
+- Set user specific data (like id, name and email)
+- Set the current visible view to match with the HTTP sessions  
+
+
+## Installation 
+
 #### Swift Package Manager
 1. Just go into Xcode.
 2 .Choose File -> Swift Packages -> Add Package Dependency -> Select your Xcode project
 3. Enter this repository URL 
 
-##### CocoaPods
-To add Instana as a dependency edit your `Podfile` to include the following:
+#### CocoaPods
+Edit your `Podfile` to include the following:
 
-    pod 'Instana', :git => 'https://github.com/instana/iOSAgent.git'
-    
+    pod 'Instana'    
 Don't forget to run `pod install` to download the dependencies.
 
-### Initialization
+The iOSAgent uses the following sub-dependencies:
+- [GzipSwift](https://github.com/1024jp/GzipSwift) to zip the http body
+- [swift-nio](https://github.com/apple/swift-nio) for unit and integration tests
 
-The recommended way to initialize the SDK is to create and download a configuration file from [TODO](). Move the configuration to the root of your project and add it in the correct targets.
 
-`Instana.setup()` will search for `InstanaConfiguration.plist` in the project root.
+See [installation page](https://docs.instana.io/ecosystem/node-js/installation/).
 
-	import Instana
+#### Usage
 
-	func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
-		Instana.setup()
-		return true
-	}
+##### Setup
+Just initialize the Instana iOS agent with the following setup. Make sure to call setup very early in `didFinishLaunchingWithOptions`
+
+```
+import Instana
+
+func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
 	
-> To capture the most data, the initialization method should be called as early as possible, preferably in `application(_:, didFinishLaunchingWithOptions:)`.
-
-If you would like to have different configurations (for example, debug and production) or use a different configuration name, you can use `Instana.setup()` to provide a custom absolute path.
-
-	#if DEBUG
-		Instana.setup(// path to debug configuration)
-	#else
-		Instana.setup()
-	#endif
-
-If you don't want to use a configuration file you can use `Instana.setup(withKey:reportingUrl:)` and programmatically configure the SDK. 
-
-    Instana.setup("your-key")
-    
->`reportingUrl` is optional and should only be used for on-premisses Instana installations.
-
-## Beacons
-All communication to the Instana backend is done trough beacons. 
-
-> Other than custom beacons, there is no way for the end user to send beacons, even so some configuration options are exposed.
-
-`beaconReporterQueueSize` represents the size of the ring buffer in which beacons are stored. Beacons can be overwritten if too many are triggered before a buffer flush. If you expect a large volume of beacons you can increase the buffer size.
-
-`suspendReporting` allows developers to decide in which cases to suspend the sending of beacons to the Instana backend. The options are: `never`, `lowBattery`, `cellularConnection`.
-
-
-## Remote Call Instrumentation
-The following configuration options are available: `automaticAndManual`, `automatic`, `manual`, `none`.
-
-	Instana.remoteCallInstrumentation.reporting = .automaticAndManual
-
-### Automatic 
-If automatic remote call instrumentation is enabled, calls made with the shared `URLSession` will automatically be tracked. 
-
-Automatic instrumentation can be enabled for a custom `URLSession` by calling:
-
-    Instana.remoteCallInstrumentation.install(in: sessionConfiguration)
-    
-> A session's configuration can't be changed after initialization, so make sure to call this before creating a session.
-
-### Manual
-In case you you are not using `URLSession` or want to customize the results, it is possible to manually instrument remote calls.
-
-While starting a request you should also create a marker:
-
-    let marker = Instana.remoteCallInstrumentation.mark("your-url", method: "GET")
-    
-Once the request finishes or fails, use one of the markers completion methods:
-
-	marker.finish(responseCode: 200)
-	// or
-	marker.finish(error: error)
-	// or
-	marker.cancel()
+	Instana.setup(key: <Your Instana Key>, reportingURL: <Your Instana instance URL>)
 	
-## Crash reporting
-Crash reporting is enabled by default. In case you are using a different crash reporting solution, or don't want crash reporting, it can only be disabled via a configuration file.
+	.... 
+	return true
+}
+```
 
-### Crash report symbolication
-The easiest way to upload dSYM files to Instana for crash report symbolication, is by using [Fastlane](https://fastlane.tools/) and the [Instana plugin](https://github.com/instana/instana-fastlane-plugin).
+##### Manual HTTP monitoring
+To capture HTTP sessions manually you must setup with the following
 
-Alternatively you can manually upload dSYM files to the Instana backend. // TODO
+```
+Instana.setup(key: <Your Instana Key>, reportingURL: <Your Instana instance URL>, httpCaptureConfig: .manual)
+```
 
-### Breadcrumbs
-To assist you in determining the casue of a crash you can leave breadcrumbs in your app.
+You can also set `httpCaptureConfig: .none` to completely disable HTTP session monitoring. 
+To capture HTTP sessions manually you have to do the following: 
+Start the capture of the http session before using the URLRequest in a URLSession (you can set a viewName optionally):
 
-	Instana.crashReporting.leave(breadcrumb: "User logged in")
-	
-The total number of breadcrumbs is limited to 100, after that newer breadcrumbs will overwrite older ones.
-> Breadcrumbs will be truncated to 140 characters.
+```
+let marker = Instana.startCapture(request)
+URLSession.shared.dataTask(with: request) { data, response, error in
+    if let error = error {
+    	marker.finish(error: error)
+    } else {
+    	let code = (response as? HTTPURLResponse)?.statusCode ?? 200
+    	marker.finish(responseCode: code)
+    }
+}.resume()
+```
 
-## Performance Alerts
-Performance alerts can be individually disabled/enabled and configured.
+You can also set the HTTP response size manually via the URLSessionDelegate. Like the following:
 
-### Memory Warning
-Low memory alerts will get reported on the standard low memory system beacon which triggers the `UIApplication.didReceiveMemoryWarningNotification` notification.
+```
+func urlSession(_ session: URLSession, task: URLSessionTask, didFinishCollecting metrics: URLSessionTaskMetrics) {
+	marker.set(responseSize: Instana.Types.HTTPSize(task: task, transactionMetrics: metrics.transactionMetrics))
+}
+```
 
-### Application Not Responding (ANR)
-ANR beacons will get reported after the main thread is blocked for more than the duration specified in the configuration. It can also be adjusted at runtime, for example:
+##### Ignore specific HTTP requests
+You ignore URLs that match with the given regular expressions
 
-	Instana.alerts.applicationNotRespondingThreshold = 1
-	
-will trigger an ANR alert after the main thread has been blocked for more than one second.
+```
+let regex = try! NSRegularExpression(pattern: ".*http:.*")
+Instana.setIgnoreURLs(matching: [regex])
+```
+With a regular expression (i.e. `/.*(&|\?)password=.*/i`) you can ignore all HTTP requests that contain any sensitive data like a password
+You can also ignore full URLs like: 
 
-To disable ANR alerts set the threshold to `nil`.
+```
+Instana.setIgnore(urls: [URL(string: "https://www.example.com")!])
+``` 
 
-Depending on the threshold settings, an ANR alert might overlap with a frame rate drop alert.
+##### Meta data information
+Optionally you can set some global meta data after the setup: 
 
-### Framerate Drop
-If the application framerate drops below the configured threshold, a framerate drop alert will be triggered. For example:
+```
+Instana.setMeta(value: "Value", key: "KEY")
+Instana.setMeta(value: "DEBUG", key: "Env")
+```
 
-	Instana.alerts.framerateDropThreshold = 20
+Meta data information that will be attached to each transmitted data (beacon). Consider using this to track UI configuration values, settings, feature flags… any additional context that might be useful for analysis.
 
-will trigger an alert if the framerate drops below 20 frames per second.
 
-To disable framerate drop alerts set the threshold to `nil`.
+##### User information
+This information can optionally be sent with data transmitted to Instana. It can then be used to unlock additional capabilities such as: calculate the number of users affected by errors, to filter data for specific users and to see which user initiated a page load.
+
+```
+Instana.setUser(id: UUID().uuidString, email: "john@example.com", name: "John")
+```
+
+Note: By default, Instana will not associate any user-identifiable information to beacons. Please be aware of the respective data protection laws when choosing to do so. We generally recommend identification of users via a user ID. For Instana this is a completely transparent string that is only used to calculate certain metrics. Name and email can also be used to have access to more filters and a more pleasant presentation of user information.
+
+##### View name
+Set the current visible view represented by a custom name. For example:
+
+```
+Instana.setView(name: "UserDetails")
+```
+This name will be attached to all monitored beacons while your app is running in foreground. Any beacon created in background will be assigned to the view name "Background".
+The name should be unique and not too technical or generic (not just like `WebViewController`) Consider something like: `WebView: Privacy policy`
+Note: This must be handled manually since an iOS app can have multiple `UIWindow` or `UIViewController` showing at the same time.
+You should call this method in `viewDidAppear`.
+
+
+
+See [usage section](https://docs.instana.io/ecosystem/node-js/installation/#native-extensions).
+
+### How it works
+Once you started this agent via the setup method a start session will submitted to Instana. 
+By default HTTP sessions will be be captured automatically. The agent uses Foundation's `NSURLProtocol` to monitor http requests and responses. In order to observe all `NSURLSession ` (also custom created) this agent does some method swizzling in the `NSURLSession`.
+To opt-out automatic HTTP session monitoring you must capture every request & response manually ([Manual HTTP monitoring](#manual-http-monitoring)) .  
+
+### API
+
+See [API page](https://docs.instana.io/ecosystem/node-js/api/).
