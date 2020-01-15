@@ -54,17 +54,16 @@ class BasicIntegrationServerTest: IntegrationTestCase {
         reporter.submit(beacon) {
             waitAddQueue.fulfill()
         }
-        wait(for: [waitAddQueue], timeout: 1.0)
-        // Queue should have one item now!
-        AssertTrue(reporter.queue.items.count == 1)
-
         reporter.completion = {result in
             expectedResult = result
             waitFirstFlush.fulfill()
         }
+        wait(for: [waitAddQueue], timeout: 2.0)
+        // Queue should have one item now!
+        AssertTrue(reporter.queue.items.count == 1)
 
         // Then - Expect an error due no network connection
-        wait(for: [waitFirstFlush], timeout: 10.0)
+        wait(for: [waitFirstFlush], timeout: 20.0)
         guard let expectedError = expectedResult?.error as? InstanaError else {
             XCTFail("Expected InstanaError not found")
             return
@@ -85,7 +84,7 @@ class BasicIntegrationServerTest: IntegrationTestCase {
         networkUtil.update(.wifi)
 
         // Then - expect a successful flush
-        wait(for: [waitSecondFlush], timeout: 15.0)
+        wait(for: [waitSecondFlush], timeout: 35.0)
         print(reporter.queue.items)
         AssertTrue(reporter.queue.items.count == 0)
 
