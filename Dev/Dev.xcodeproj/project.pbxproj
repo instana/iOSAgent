@@ -150,12 +150,14 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 72FC4F8B23AA1A5B004EF4E2 /* Build configuration list for PBXNativeTarget "Dev" */;
 			buildPhases = (
+				7289404023CF20BE006E11A6 /* Load Environment vars into info.plist */,
 				F31D9916F64DC8FB38E056C3 /* [CP] Check Pods Manifest.lock */,
 				72D95B4F23C4831D002AE1FA /* SwiftLint */,
 				72D95B5023C49A92002AE1FA /* SwiftFormat */,
 				72FC4F6823AA1A5A004EF4E2 /* Sources */,
 				72FC4F6923AA1A5A004EF4E2 /* Frameworks */,
 				72FC4F6A23AA1A5A004EF4E2 /* Resources */,
+				7289404123CF2DDF006E11A6 /* Clean up environment variables from info plist */,
 			);
 			buildRules = (
 			);
@@ -248,6 +250,42 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		7289404023CF20BE006E11A6 /* Load Environment vars into info.plist */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Load Environment vars into info.plist";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if [ -f .env-vars ]\nthen\n    echo \"Import secure variables\"\n    source .env-vars\n    /usr/libexec/PlistBuddy -c \"Set :INSTANA_REPORTING_URL ${INSTANA_REPORTING_URL}\" ${INFOPLIST_FILE}\n    /usr/libexec/PlistBuddy -c \"Set :INSTANA_REPORTING_KEY ${INSTANA_REPORTING_KEY}\" ${INFOPLIST_FILE}\nfi\n";
+		};
+		7289404123CF2DDF006E11A6 /* Clean up environment variables from info plist */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Clean up environment variables from info plist";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if [ -f .env-vars ]\nthen\n    echo \"Clean up secure variables\"\n    source .env-vars\n    /usr/libexec/PlistBuddy -c \"Set :INSTANA_REPORTING_URL \" ${INFOPLIST_FILE}\n    /usr/libexec/PlistBuddy -c \"Set :INSTANA_REPORTING_KEY \" ${INFOPLIST_FILE}\nfi\n";
+		};
 		72D95B4F23C4831D002AE1FA /* SwiftLint */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;

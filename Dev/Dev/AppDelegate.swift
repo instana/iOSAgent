@@ -7,8 +7,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         if !isRunningTests {
-            let url = URL(string: "<Your Instana instance URL>")!
-            Instana.setup(key: "<Your Key>", reportingURL: url)
+            Instana.setup(key: InstanaKey, reportingURL: InstanaURL)
             Instana.setMeta(value: "Value", key: "KEY")
             Instana.setMeta(value: "DEBUG", key: "Env")
             Instana.setUser(id: UUID().uuidString, email: "email@example.com", name: "Christian")
@@ -33,4 +32,18 @@ var isRunningTests: Bool {
 
 var isRunningUITests: Bool {
     return ProcessInfo.processInfo.environment["UITestsActive"] == "true"
+}
+
+var InstanaKey: String {
+    /// Will be added via a hidden (git ignored) environment variables - see build phase "Load Environment vars into info.plist"
+    /// Make sure to have the .env-vars in your local Dev folder and ignore it in git
+    /// Containing the two values like
+    /// export INSTANA_REPORTING_URL=https://<YOUR URL>
+    /// export INSTANA_REPORTING_KEY=<YOUR KEY>
+    return Bundle.main.infoDictionary?["INSTANA_REPORTING_KEY"] as? String ?? ""
+}
+
+var InstanaURL: URL {
+    let value = Bundle.main.infoDictionary?["INSTANA_REPORTING_URL"] as? String ?? ""
+    return URL(string: value)!
 }
