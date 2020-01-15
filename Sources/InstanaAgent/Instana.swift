@@ -65,32 +65,32 @@ import UIKit
     ///
     /// Start the capture of the http session before using the URLRequest in a URLSession (you can set a viewName optionally):
     ///
-    ///     try? Instana.startCapture(urlRequest)
+    ///     let marker = Instana.startCapture(urlRequest)
     ///
     /// Finish the marker with the status code or an error when the request has been completed
     ///
-    ///     marker?.finish(responseCode: code)
+    ///     marker.finish(responseCode: code)
     /// or with an error
     ///
-    ///     marker?.finish(error: error)
+    ///     marker.finish(error: error)
     ///
     /// Full example:
     ///
-    ///     let marker = try? Instana.startCapture(request)
+    ///     let marker = Instana.startCapture(request)
     ///     URLSession.shared.dataTask(with: request) { data, response, error in
     ///         if let error = error {
-    ///             marker?.finish(error: error)
+    ///             marker.finish(error: error)
     ///         } else {
     ///             let code = (response as? HTTPURLResponse)?.statusCode ?? 200
-    ///             marker?.finish(responseCode: code)
+    ///             marker.finish(responseCode: code)
     ///         }
     ///     }.resume()
     ///
     ///
-    /// You can also capture the HTTP response size manually once the size has been determined via the URLSessionDelegate. Like the following:
+    /// You can also capture the HTTP response size manually via the URLSessionDelegate. Like the following:
     ///
     ///       func urlSession(_ session: URLSession, task: URLSessionTask, didFinishCollecting metrics: URLSessionTaskMetrics) {
-    ///            marker?.set(responseSize: Instana.Types.HTTPSize(task: task, transactionMetrics: metrics.transactionMetrics))
+    ///            marker.set(responseSize: Instana.Types.HTTPSize(task: task, transactionMetrics: metrics.transactionMetrics))
     ///       }
     ///
     ///
@@ -150,13 +150,13 @@ import UIKit
     /// It can then be used to unlock additional capabilities such as:
     /// calculate the number of users affected by errors,
     /// to filter data for specific users and
-    /// to see which user initiated a page load / AJAX call.
+    /// to see which user initiated a page load.
     ///
     /// Note: By default, Instana will not associate any user-identifiable information to beacons.
     /// Please be aware of the respective data protection laws when choosing to do so.
     /// We generally recommend identification of users via a user ID.
     /// For Instana this is a completely transparent string that is only used to calculate certain metrics.
-    /// UserName and userEmail can also be used to have access to more filters and a more pleasant presentation of user information.
+    /// Name and email can also be used to have access to more filters and a more pleasant presentation of user information.
     ///
     /// - Parameters:
     ///     - id: Unique identifier for the user
