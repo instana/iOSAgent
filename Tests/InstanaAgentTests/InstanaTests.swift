@@ -75,7 +75,7 @@ class InstanaTests: InstanaTestCase {
 
         // When
         let sut = Instana.startCapture(request, viewName: "DetailView")
-        sut.finish(responseCode: 200)
+        sut.finish(response: HTTPURLResponse(url: .random, statusCode: 200, httpVersion: nil, headerFields: nil)!, error: nil)
         wait(for: [waitRequest], timeout: 1.0)
 
         // Then

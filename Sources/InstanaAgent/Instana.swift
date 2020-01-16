@@ -75,27 +75,19 @@ import UIKit
 
     /// Use this method to manually monitor http requests.
     ///
-    /// Start the capture of the http session before using the URLRequest in a URLSession (you can set a viewName optionally):
+    /// Start the capture of the http session before using the URLRequest in a URLSession (you can pass a viewName optionally as a second):
     ///
     ///     let marker = Instana.startCapture(urlRequest)
     ///
-    /// Finish the marker with the status code or an error when the request has been completed
+    /// Finish the marker with the URLResponse and an optional error when the request has been completed
     ///
-    ///     marker.finish(responseCode: code)
-    /// or with an error
-    ///
-    ///     marker.finish(error: error)
+    ///     marker.finish(response: response, error: error)
     ///
     /// Full example:
     ///
     ///     let marker = Instana.startCapture(request)
     ///     URLSession.shared.dataTask(with: request) { data, response, error in
-    ///         if let error = error {
-    ///             marker.finish(error: error)
-    ///         } else {
-    ///             let code = (response as? HTTPURLResponse)?.statusCode ?? 200
-    ///             marker.finish(responseCode: code)
-    ///         }
+    ///         marker.finish(response: response, error: error)
     ///     }.resume()
     ///
     ///
@@ -108,7 +100,7 @@ import UIKit
     ///
     /// - Parameters:
     ///   - request: URLRequest to capture.
-    ///   - viewName: Optional name of the visible view that belongs to this http request
+    ///   - viewName: Optional name of the visible view related to this request
     ///
     ///   - Returns: HTTP marker to set the response size, finish state or error when the request has been completed.
     static func startCapture(_ request: URLRequest, viewName: String? = nil) -> HTTPMarker {
@@ -183,8 +175,6 @@ import UIKit
     /// This name will be attached to all monitored beacons until you call `setView` again with another name
     /// The name should be unique and not too technical or generic (not just like `WebViewController`)
     /// Consider something like: `WebView: Privacy policy`
-    ///
-    /// Note: This must be handled manually since an iOS app can have multiple windows or `UIViewController` showing at the same time
     ///
     /// You should call this method in `viewDidAppear`
     ///

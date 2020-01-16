@@ -49,17 +49,12 @@ class InstanaURLProtocol: URLProtocol {
 
 extension InstanaURLProtocol: URLSessionTaskDelegate {
     func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
-        let response = task.response as? HTTPURLResponse
-        if let backendTracingID = task.response?.backendTracingID {
-            marker?.set(backendTracingID: backendTracingID)
-        }
         if let error = error {
             client?.urlProtocol(self, didFailWithError: error)
-            marker?.finish(error: error)
         } else {
             client?.urlProtocolDidFinishLoading(self)
-            marker?.finish(responseCode: response?.statusCode ?? 0)
         }
+        marker?.finish(response: task.response, error: error)
     }
 
     func urlSession(_ session: URLSession, task: URLSessionTask, didFinishCollecting metrics: URLSessionTaskMetrics) {
@@ -85,11 +80,8 @@ extension InstanaURLProtocol: URLSessionDataDelegate {
                     willPerformHTTPRedirection response: HTTPURLResponse,
                     newRequest request: URLRequest,
                     completionHandler: @escaping (URLRequest?) -> Void) {
-        if let backendTracingID = response.backendTracingID {
-            marker?.set(backendTracingID: backendTracingID)
-        }
         marker?.set(responseSize: Instana.Types.HTTPSize.size(response: response))
-        marker?.finish(responseCode: response.statusCode)
+        marker?.finish(response: response, error: nil)
         marker = try? Instana.current?.monitors.http?.mark(request)
         completionHandler(request)
     }

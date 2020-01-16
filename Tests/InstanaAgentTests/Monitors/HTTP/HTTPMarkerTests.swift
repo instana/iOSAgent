@@ -43,39 +43,42 @@ class HTTPMarkerTests: InstanaTestCase {
 
     func test_set_HTTP_Sizes_for_task() {
         // Given
-        let response = MockHTTPURLResponse(url: URL.random, mimeType: "text/plain", expectedContentLength: 1024, textEncodingName: "txt")
-        response.stubbedAllHeaderFields = ["KEY": "VALUE"]
-        let marker = HTTPMarker(url: URL.random, method: "GET", trigger: .automatic, delegate: Delegate())
+        let url = URL(string: "https://www.some.com")!
+        let response = HTTPURLResponse(url: url, statusCode: 200, httpVersion: nil, headerFields: ["KEY": "VALUE"])!
+        let marker = HTTPMarker(url: url, method: "GET", trigger: .automatic, delegate: Delegate())
         let responseSize = Instana.Types.HTTPSize.size(response: response)
-        let excpectedHeaderSize = Instana.Types.Bytes(NSKeyedArchiver.archivedData(withRootObject: response.stubbedAllHeaderFields).count)
+        let excpectedHeaderSize = Instana.Types.Bytes(NSKeyedArchiver.archivedData(withRootObject: response.allHeaderFields).count)
 
         // When
         marker.set(responseSize: responseSize)
 
         // Then
-        AssertTrue(excpectedHeaderSize > 0)
+        AssertEqualAndNotZero(excpectedHeaderSize, 273)
         AssertEqualAndNotZero(marker.responseSize?.headerBytes ?? 0, excpectedHeaderSize)
-        AssertEqualAndNotZero(marker.responseSize?.bodyBytes ?? 0, response.expectedContentLength)
-        XCTAssertNil(marker.responseSize?.bodyBytesAfterDecoding)
     }
 
-    func test_set_BackendTracingID() {
+    func test_finish_200() {
         // Given
         let backendTracingID = "d2f7aebc1ee0813c"
-        let task = MockURLSessionTask()
-        let response = MockHTTPURLResponse(url: URL.random, mimeType: "text/plain", expectedContentLength: 1024, textEncodingName: "txt")
-        response.stubbedAllHeaderFields = ["Server-Timing": "intid;desc=\(backendTracingID)"]
-        task.stubbedResponse = response
-
-        let marker = HTTPMarker(url: URL.random, method: "GET", trigger: .automatic, delegate: Delegate())
+        let delegate = Delegate()
+        let response = HTTPURLResponse(url: .random, statusCode: 200, httpVersion: nil, headerFields: ["Server-Timing": "intid;desc=\(backendTracingID)"])
+        let marker = HTTPMarker(url: .random, method: "GET", trigger: .automatic, delegate: delegate, viewName: "SomeView")
 
         // When
-        marker.set(backendTracingID: response.backendTracingID ?? "")
+        marker.finish(response: response, error: nil)
 
         // Then
+        XCTAssertEqual(marker.viewName, "SomeView")
+        XCTAssertEqual(marker.trigger, .automatic)
+        XCTAssertEqual(delegate.didFinishCount, 1)
         XCTAssertEqual(marker.backendTracingID, backendTracingID)
+        if case let .finished(responseCode) = marker.state {
+            XCTAssertEqual(responseCode, 200)
+        } else {
+            XCTFail("Wrong marker state: \(marker.state)")
+        }
     }
-    
+
     func test_marker_shouldNotRetainDelegate() {
         // Given
         let url: URL = .random
@@ -106,18 +109,17 @@ class HTTPMarkerTests: InstanaTestCase {
         // When
         wait(0.1)
         marker.set(responseSize: responseSize)
-        marker.finish(responseCode: 200)
-        marker.finish(responseCode: 300)
+        marker.finish(response: createMockResponse(200), error: nil)
+        marker.finish(response: createMockResponse(200), error: nil)
         marker.cancel()
 
         // Then
-        XCTAssertEqual(delegate.finaliedCount, 1)
+        XCTAssertEqual(delegate.didFinishCount, 1)
         XCTAssertEqual(marker.responseSize, responseSize)
         XCTAssertTrue(marker.duration > 0)
         if case let .finished(responseCode) = marker.state {
             XCTAssertEqual(responseCode, 200)
-        }
-        else {
+        } else {
             XCTFail("Wrong marker state: \(marker.state)")
         }
     }
@@ -133,18 +135,17 @@ class HTTPMarkerTests: InstanaTestCase {
         // When
         wait(0.1)
         marker.set(responseSize: responseSize)
-        marker.finish(error: error)
-        marker.finish(error: CocoaError(CocoaError.coderInvalidValue))
-        marker.finish(responseCode: 300)
+        marker.finish(response: createMockResponse(200), error: error)
+        marker.finish(response: createMockResponse(200), error: CocoaError(CocoaError.coderInvalidValue))
+        marker.finish(response: createMockResponse(300), error: nil)
 
         // Then
-        XCTAssertEqual(delegate.finaliedCount, 1)
+        XCTAssertEqual(delegate.didFinishCount, 1)
         XCTAssertEqual(marker.responseSize, responseSize)
         XCTAssertTrue(marker.duration > 0)
         if case let .failed(e) = marker.state {
             XCTAssertEqual(e as? CocoaError, error)
-        }
-        else {
+        } else {
             XCTFail("Wrong marker state: \(marker.state)")
         }
     }
@@ -160,10 +161,10 @@ class HTTPMarkerTests: InstanaTestCase {
         marker.set(responseSize: responseSize)
         marker.cancel()
         marker.cancel()
-        marker.finish(responseCode: 300)
+        marker.finish(response: createMockResponse(300), error: nil)
 
         // Then
-        XCTAssertEqual(delegate.finaliedCount, 1)
+        XCTAssertEqual(delegate.didFinishCount, 1)
         XCTAssertEqual(marker.responseSize, responseSize)
         XCTAssertTrue(marker.duration > 0)
         if case .canceled = marker.state {} else {
@@ -204,7 +205,7 @@ class HTTPMarkerTests: InstanaTestCase {
 
         // When
         marker.set(responseSize: responseSize)
-        marker.finish(responseCode: 204)
+        marker.finish(response: createMockResponse(204), error: nil)
         guard let beacon = marker.createBeacon() as? HTTPBeacon else {
             XCTFail("Beacon type missmatch"); return
         }
@@ -230,7 +231,7 @@ class HTTPMarkerTests: InstanaTestCase {
 
         // When
         marker.set(responseSize: responseSize)
-        marker.finish(error: error)
+        marker.finish(response: createMockResponse(409), error: error)
         guard let beacon = marker.createBeacon() as? HTTPBeacon else {
             XCTFail("Beacon type missmatch"); return
         }
@@ -270,13 +271,18 @@ class HTTPMarkerTests: InstanaTestCase {
         XCTAssertNil(beacon.responseSize)
         XCTAssertEqual(beacon.error, HTTPError.cancelled)
     }
+
+    // MARK: Helper
+    func createMockResponse(_ statusCode: Int) -> HTTPURLResponse {
+        HTTPURLResponse(url: .random, statusCode: statusCode, httpVersion: nil, headerFields: nil)!
+    }
 }
 
 extension HTTPMarkerTests {
     class Delegate: HTTPMarkerDelegate {
-        var finaliedCount: Int = 0
+        var didFinishCount: Int = 0
         func httpMarkerDidFinish(_ marker: HTTPMarker) {
-            finaliedCount += 1
+            didFinishCount += 1
         }
     }
 }

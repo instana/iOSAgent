@@ -34,9 +34,7 @@ protocol HTTPMarkerDelegate: AnyObject {
         self.trigger = trigger
         self.viewName = viewName
     }
-}
 
-extension HTTPMarker {
     /// Invoke this method when the reponse size has been determined.
     ///
     /// - Parameters:
@@ -48,48 +46,31 @@ extension HTTPMarker {
         self.responseSize = responseSize
     }
 
-    /// Set the Backend Tracing ID
+    /// Invoke this method after the request has been completed.
     ///
     /// - Parameters:
-    ///   - backendTracingID: Backend Tracing ID.
-    ///
-    /// Set the Backend Tracing ID to map the response received by client with the sending server.
-    /// The Backend Tracing ID will be sent by the server via the HTTP header field
-    /// This ID will be set automatically if you choose automatic HTTP monitoring.
-    ///
-    /// Note: You must make sure to trigger `set(backendTracingID:` before calling the finish or canceled method
-    @objc public func set(backendTracingID: String) {
-        guard case .started = state else { return }
-        self.backendTracingID = backendTracingID
-    }
-
-    /// Invoke this method after the request has successfuly finish.
-    ///
-    /// - Parameters:
-    ///   - responseCode: Usually a HTTP status code.
+    ///   - response: Optional URLResponse when the request has been completed.
+    ///   - error: Optional Error
     ///
     /// Note: Make sure you don't call any methods on this HTTPMarker after you called finish
-    @objc public func finish(responseCode: Int) {
+    @objc public func finish(response: URLResponse?, error: Error?) {
         guard case .started = state else { return }
-        state = .finished(responseCode: responseCode)
+        if let error = error {
+            state = .failed(error: error)
+        } else if let response = response {
+            let code = (response as? HTTPURLResponse)?.statusCode ?? 200
+            state = .finished(responseCode: code)
+        } else {
+            state = .failed(error: NSError(domain: NSURLErrorDomain, code: NSURLErrorCannotParseResponse, userInfo: nil))
+        }
         endTime = Date().millisecondsSince1970
+        if let bid = response?.backendTracingID {
+            backendTracingID = bid
+        }
         delegate?.httpMarkerDidFinish(self)
     }
 
-    /// Invoke this method after the request has failed to finish.
-    ///
-    /// - Parameters:
-    ///   - error: Error that explains what happened.
-    ///
-    /// Note: Make sure you don't call any methods on this HTTPMarker after you called finish
-    @objc public func finish(error: Error) {
-        guard case .started = state else { return }
-        state = .failed(error: error)
-        endTime = Date().millisecondsSince1970
-        delegate?.httpMarkerDidFinish(self)
-    }
-
-    /// Invoke this method if the reuqest has been canceled before completion.
+    /// Invoke this method if the request has been canceled before completion.
     /// Note: Make sure you don't call more methods on this HTTPMarker after you called canceled
     @objc public func cancel() {
         guard case .started = state else { return }
