@@ -8,6 +8,22 @@ class InstanaTests: InstanaTestCase {
         // Given
         let key = "KEY"
         let reportingURL = URL(string: "http://www.instana.com")!
+
+        Instana.setup(key: key, reportingURL: reportingURL)
+
+        // Then
+        AssertEqualAndNotNil(Instana.key, key)
+        AssertEqualAndNotNil(Instana.sessionID, Instana.current?.environment.sessionID.uuidString)
+        AssertEqualAndNotNil(Instana.reportingURL, reportingURL)
+        AssertEqualAndNotNil(Instana.current?.environment.configuration.reportingURL, reportingURL)
+        AssertEqualAndNotNil(Instana.current?.environment.configuration.httpCaptureConfig, .automatic)
+        AssertEqualAndNotNil(Instana.current?.environment.configuration, .default(key: key, reportingURL: reportingURL))
+    }
+
+    func test_setup_manual_http_capture() {
+        // Given
+        let key = "KEY"
+        let reportingURL = URL(string: "http://www.instana.com")!
         let httpCaptureConfig: HTTPCaptureConfig = .manual
 
         // When

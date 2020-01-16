@@ -32,7 +32,7 @@ Edit your `Podfile` to include the following:
     pod 'Instana'    
 Don't forget to run `pod install` to download the dependencies.
 
-The iOSAgent uses the following sub-dependencies:
+The iOS Instana agent uses the following sub-dependencies:
 - [GzipSwift](https://github.com/1024jp/GzipSwift) to zip the http body
 - [swift-nio](https://github.com/apple/swift-nio) for unit and integration tests
 

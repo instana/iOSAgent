@@ -5,7 +5,7 @@ class InstanaEnvironment {
     let configuration: InstanaConfiguration
 
     /// Instana global property handler that will attach the custom properties to each monitored event. (beacon)
-    /// Those values can be changed any time by the InstanaAgent consumer (i.e. iOS app).
+    /// Those values can be changed any time by the Instana agent consumer (i.e. iOS app).
     /// This class is thread-safe
 
     let propertyHandler: InstanaPropertyHandler

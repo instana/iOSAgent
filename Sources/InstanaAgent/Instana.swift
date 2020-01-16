@@ -1,7 +1,7 @@
 import Foundation
 import UIKit
 
-/// Root object for the InstanaAgent.
+/// Root object for the Instana agent.
 ///
 ///
 /// - Important: Before using any of Instana's features, it is necessary to invoke one of its setup methods.
@@ -46,16 +46,28 @@ import UIKit
     /// Instana key identifying your application.
     class var key: String? { Instana.current?.environment.configuration.key }
 
-    /// The current session id of this active Instana Agent.
+    /// The current session id of this active Instana agent.
     class var sessionID: String? { Instana.current?.environment.sessionID.uuidString }
 
-    /// Configures and sets up the Instana Agent with the default configuration.
+    /// Configures and sets up the Instana agent with the default configuration.
+    /// - HTTP sessions will be captured automatically by default
     ///
     /// - Note: Should be called only once, as soon as posible. Preferably in `application(_:, didFinishLaunchingWithOptions:)`
     /// - Parameters:
     ///   - key: Instana key to identify your application.
     ///   - reportingURL: Reporting URL for the Instana backend.
-    ///   - httpCaptureConfig: Optional configuration to set the capture behavior for the outgoing http requests
+    static func setup(key: String, reportingURL: URL) {
+        let config = InstanaConfiguration.default(key: key, reportingURL: reportingURL, httpCaptureConfig: .automatic)
+        Instana.current = Instana(configuration: config)
+    }
+
+    /// Configures and sets up the Instana agent with a custom HTTP capture configuration.
+    ///
+    /// - Note: Should be called only once, as soon as posible. Preferably in `application(_:, didFinishLaunchingWithOptions:)`
+    /// - Parameters:
+    ///   - key: Instana key to identify your application.
+    ///   - reportingURL: Reporting URL for the Instana backend.
+    ///   - httpCaptureConfig: HTTP monitoring configuration to set the capture behavior (automatic, manual or none) http requests & responses
     static func setup(key: String, reportingURL: URL, httpCaptureConfig: HTTPCaptureConfig = .automatic) {
         let config = InstanaConfiguration.default(key: key, reportingURL: reportingURL, httpCaptureConfig: httpCaptureConfig)
         Instana.current = Instana(configuration: config)
