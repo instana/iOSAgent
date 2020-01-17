@@ -59,8 +59,8 @@ class MockURLSessionTaskTransactionMetrics: URLSessionTaskTransactionMetrics {
     }
 }
 
-extension HTTPMarker.HTTPSize {
-    static var random: HTTPMarker.HTTPSize { Instana.Types.HTTPSize(header: (0...1000).randomElement() ?? 1,
-                                                                    body: (0...1000).randomElement() ?? 1,
-                                                                    bodyAfterDecoding: (0...1000).randomElement() ?? 1) }
+extension HTTPMarker.Size {
+    static var random: HTTPMarker.Size { HTTPMarker.Size(header: (0...1000).randomElement() ?? 1,
+                                                         body: (0...1000).randomElement() ?? 1,
+                                                         bodyAfterDecoding: (0...1000).randomElement() ?? 1) }
 }

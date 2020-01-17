@@ -6,7 +6,7 @@ class HTTPBeacon: Beacon {
     let url: URL
     let path: String?
     let responseCode: Int
-    let responseSize: Instana.Types.HTTPSize?
+    let responseSize: HTTPMarker.Size?
     var backendTracingID: String?
     var error: HTTPError?
 
@@ -15,7 +15,7 @@ class HTTPBeacon: Beacon {
          method: String,
          url: URL,
          responseCode: Int,
-         responseSize: Instana.Types.HTTPSize? = nil,
+         responseSize: HTTPMarker.Size? = nil,
          error: Error? = nil,
          backendTracingID: String? = nil,
          viewName: String? = nil) {

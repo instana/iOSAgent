@@ -70,7 +70,7 @@ class BeaconPerformanceTests: InstanaTestCase {
                    method: "POST",
                    url: URL.random,
                    responseCode: 0,
-                   responseSize: Instana.Types.HTTPSize(header: 4, body: 5, bodyAfterDecoding: 6),
+                   responseSize: HTTPMarker.Size(header: 4, body: 5, bodyAfterDecoding: 6),
                    error: nil,
                    backendTracingID: "BackendTID")
     }

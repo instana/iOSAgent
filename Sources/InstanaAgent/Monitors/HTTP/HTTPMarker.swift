@@ -21,7 +21,7 @@ protocol HTTPMarkerDelegate: AnyObject {
     let startTime: Instana.Types.Milliseconds
     let viewName: String?
     private(set) var backendTracingID: String?
-    private(set) var responseSize: Instana.Types.HTTPSize?
+    private(set) var responseSize: HTTPMarker.Size?
     private var endTime: Instana.Types.Milliseconds?
     private(set) var state: State = .started
     private weak var delegate: HTTPMarkerDelegate?
@@ -41,7 +41,7 @@ protocol HTTPMarkerDelegate: AnyObject {
     ///   - responseSize: Size of the response.
     ///
     /// Note: You must make sure to trigger `set(responseSize:` before calling the finish or cancel method
-    @objc public func set(responseSize: Instana.Types.HTTPSize) {
+    @objc public func set(responseSize: HTTPMarker.Size) {
         guard case .started = state else { return }
         self.responseSize = responseSize
     }
@@ -116,56 +116,49 @@ extension HTTPMarker {
 }
 
 extension HTTPMarker {
-    @objc public class HTTPSize: NSObject {
+    @objc public class Size: NSObject {
         var headerBytes: Instana.Types.Bytes?
         var bodyBytes: Instana.Types.Bytes?
         var bodyBytesAfterDecoding: Instana.Types.Bytes?
 
-        // Need multiple init because of ObjC interop
-        @objc public override init() {
-            super.init()
-            headerBytes = nil
-            bodyBytes = nil
-            bodyBytesAfterDecoding = nil
-        }
-
-        @objc public init(header: Instana.Types.Bytes) {
-            super.init()
-            headerBytes = header
-            bodyBytes = nil
-            bodyBytesAfterDecoding = nil
-        }
-
-        @objc public init(header: Instana.Types.Bytes, body: Instana.Types.Bytes) {
-            super.init()
-            headerBytes = header
-            bodyBytes = body
-            bodyBytesAfterDecoding = nil
-        }
-
         @objc public init(header: Instana.Types.Bytes, body: Instana.Types.Bytes, bodyAfterDecoding: Instana.Types.Bytes) {
             super.init()
-            headerBytes = header
-            bodyBytes = body
-            bodyBytesAfterDecoding = bodyAfterDecoding
+            headerBytes = header > 0 ? header : nil
+            bodyBytes = body > 0 ? body : nil
+            bodyBytesAfterDecoding = bodyAfterDecoding > 0 ? bodyAfterDecoding : nil
         }
 
-        @objc public class func size(for response: URLResponse, transactionMetrics: [URLSessionTaskTransactionMetrics]) -> HTTPSize {
-            guard #available(iOS 13.0, *) else { return size(response: response) }
-            let size = HTTPSize()
-            size.headerBytes = transactionMetrics.map { $0.countOfResponseHeaderBytesReceived }.reduce(0, +)
-            size.bodyBytes = transactionMetrics.map { $0.countOfResponseBodyBytesReceived }.reduce(0, +)
-            size.bodyBytesAfterDecoding = transactionMetrics.map { $0.countOfResponseBodyBytesAfterDecoding }.reduce(0, +)
-            return size
-        }
-
-        @objc public class func size(response: URLResponse) -> HTTPSize {
-            let size = HTTPSize()
-            if let headerFields = (response as? HTTPURLResponse)?.allHeaderFields {
-                size.headerBytes = Instana.Types.Bytes(NSKeyedArchiver.archivedData(withRootObject: headerFields).count)
+        @objc public convenience init(response: URLResponse, transactionMetrics: [URLSessionTaskTransactionMetrics]?) {
+            guard #available(iOS 13.0, *) else {
+                self.init(response)
+                return
             }
-            size.bodyBytes = response.expectedContentLength
-            return size
+            guard let metrics = transactionMetrics else {
+                self.init(response)
+                return
+            }
+            if metrics.isEmpty {
+                self.init(response)
+                return
+            }
+            let headerBytes = metrics.map { $0.countOfResponseHeaderBytesReceived }.reduce(0, +)
+            let bodyBytes = metrics.map { $0.countOfResponseBodyBytesReceived }.reduce(0, +)
+            let bodyBytesAfterDecoding = metrics.map { $0.countOfResponseBodyBytesAfterDecoding }.reduce(0, +)
+            self.init(header: headerBytes, body: bodyBytes, bodyAfterDecoding: bodyBytesAfterDecoding)
+        }
+
+        internal override init() {
+            headerBytes = 0
+            bodyBytes = 0
+            bodyBytesAfterDecoding = 0
+        }
+
+        internal convenience init(_ response: URLResponse) {
+            var headerBytes: Instana.Types.Bytes = 0
+            if let headerFields = (response as? HTTPURLResponse)?.allHeaderFields {
+                headerBytes = Instana.Types.Bytes(NSKeyedArchiver.archivedData(withRootObject: headerFields).count)
+            }
+            self.init(header: headerBytes, body: response.expectedContentLength, bodyAfterDecoding: 0)
         }
     }
 }

@@ -11,7 +11,7 @@ extension HTTPBeacon {
                             method: method,
                             url: url,
                             responseCode: 200,
-                            responseSize:  Instana.Types.HTTPSize(),
+                            responseSize:  HTTPMarker.Size(),
                             error: error,
                             backendTracingID: "BackendTracingID")
        }

@@ -6,7 +6,7 @@ class HTTPBeaconTests: InstanaTestCase {
 
     func test_map_http_no_error() {
         // Given
-        let responseSize = Instana.Types.HTTPSize(header: 4, body: 5, bodyAfterDecoding: 6)
+        let responseSize = HTTPMarker.Size(header: 4, body: 5, bodyAfterDecoding: 6)
         let url = URL.random
         let method = "POST"
         let backendTracingID = "BackendTID"
@@ -52,7 +52,7 @@ class HTTPBeaconTests: InstanaTestCase {
                                 method: "POST",
                                 url: URL.random,
                                 responseCode: 0,
-                                responseSize: Instana.Types.HTTPSize(header: 4, body: 5, bodyAfterDecoding: 6),
+                                responseSize: HTTPMarker.Size(header: 4, body: 5, bodyAfterDecoding: 6),
                                 error: timeout,
                                 backendTracingID: "BackendTID",
                                 viewName: "View")
@@ -80,7 +80,7 @@ class HTTPBeaconTests: InstanaTestCase {
                                 method: "POST",
                                 url: URL.random,
                                 responseCode: responseCode,
-                                responseSize: Instana.Types.HTTPSize.random)
+                                responseSize: HTTPMarker.Size.random)
         let factory = CoreBeaconFactory(.mock)
 
         // When
@@ -104,7 +104,7 @@ class HTTPBeaconTests: InstanaTestCase {
                                   method: "POST",
                                   url: URL.random,
                                   responseCode: code,
-                                  responseSize: Instana.Types.HTTPSize.random,
+                                  responseSize: HTTPMarker.Size.random,
                                   error: timeout)
             let factory = CoreBeaconFactory(.mock)
 
@@ -128,7 +128,7 @@ class HTTPBeaconTests: InstanaTestCase {
         let url: URL = .random
         let method = "POST"
         let responseCode = 200
-        let responseSize = Instana.Types.HTTPSize.random
+        let responseSize = HTTPMarker.Size.random
         let timestamp: Instana.Types.Milliseconds = 1000
         let duration: Instana.Types.Milliseconds = 1
         let backendTracingID = "BackendTID"
@@ -151,7 +151,7 @@ class HTTPBeaconTests: InstanaTestCase {
 
     func test_asJSON() {
         // Given
-        let responseSize = Instana.Types.HTTPSize.random
+        let responseSize = HTTPMarker.Size.random
         let backendTracingID = "BackendTID"
         let http = HTTPBeacon(timestamp: 1000, duration: 10, method: "M", url: URL.random, responseCode: 200, responseSize: responseSize, error: timeout, backendTracingID: backendTracingID)
 

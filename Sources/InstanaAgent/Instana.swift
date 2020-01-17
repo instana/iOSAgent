@@ -94,7 +94,8 @@ import UIKit
     /// You can also capture the HTTP response size manually via the URLSessionDelegate. Like the following:
     ///
     ///       func urlSession(_ session: URLSession, task: URLSessionTask, didFinishCollecting metrics: URLSessionTaskMetrics) {
-    ///            marker.set(responseSize: Instana.Types.HTTPSize(task: task, transactionMetrics: metrics.transactionMetrics))
+    ///             guard let response = task.response else { return }
+    ///             marker.set(responseSize: HTTPMarker.Size(response: response, transactionMetrics: metrics.transactionMetrics))
     ///       }
     ///
     ///
