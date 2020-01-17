@@ -57,11 +57,6 @@ func application(_ application: UIApplication, didFinishLaunchingWithOptions lau
 ```
 
 
-### How it works
-Once you started this agent via the setup method a start session will submitted to Instana. 
-By default HTTP sessions will be be captured automatically. The agent uses Foundation's `NSURLProtocol` to monitor http requests and responses. In order to observe all `NSURLSession ` (also custom created) this agent does some method swizzling in the `NSURLSession`.
-To opt-out automatic HTTP session monitoring you must capture every request & response manually ([Manual HTTP monitoring](#manual-http-monitoring)) .  
-
 ### API
 
 See [API page](https://docs.instana.io/ecosystem/node-js/api/).
