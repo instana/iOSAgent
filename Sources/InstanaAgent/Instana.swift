@@ -103,7 +103,7 @@ import UIKit
     ///   - request: URLRequest to capture.
     ///   - viewName: Optional name of the visible view related to this request
     ///
-    ///   - Returns: HTTP marker to set the response size, finish state or error when the request has been completed.
+    /// - Returns: HTTP marker to set the response size, finish state or error when the request has been completed.
     static func startCapture(_ request: URLRequest, viewName: String? = nil) -> HTTPMarker {
         let delegate = Instana.current?.monitors.http
         let method = request.httpMethod ?? "GET"
