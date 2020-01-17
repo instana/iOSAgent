@@ -182,6 +182,7 @@ import UIKit
     /// - Parameters:
     ///     - name: The name of the current visible view
     static func setView(name: String) {
+        guard propertyHandler.properties.view != name else { return }
         propertyHandler.properties.view = name
         Instana.current?.monitors.reporter.submit(ViewChange(viewName: name))
     }

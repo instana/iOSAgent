@@ -117,12 +117,38 @@ class InstanaTests: InstanaTestCase {
     func test_setViewName() {
         // Given
         let viewName = "Some View"
+        let env = InstanaEnvironment.mock(configuration: config)
+        var didReport = false
+        let reporter = MockReporter {beacon in
+            didReport = (beacon is ViewChange) && beacon.viewName == viewName
+        }
+        Instana.current = Instana(configuration: config, monitors: Monitors(env, reporter: reporter))
+        Instana.current?.environment.propertyHandler.properties.view = "Old View"
 
         // When
         Instana.setView(name: viewName)
 
         // Then
+        AssertTrue(didReport)
         AssertEqualAndNotNil(Instana.current?.environment.propertyHandler.properties.view, viewName)
+    }
+
+    func test_setViewName_shouldnotreport_if_view_not_changed() {
+        // Given
+        let viewName = "Some View"
+        let env = InstanaEnvironment.mock(configuration: config)
+        var didReport = false
+        let reporter = MockReporter {beacon in
+            didReport = (beacon is ViewChange) && beacon.viewName == viewName
+        }
+        Instana.current = Instana(configuration: config, monitors: Monitors(env, reporter: reporter))
+        Instana.current?.environment.propertyHandler.properties.view = viewName
+
+        // When
+        Instana.setView(name: viewName)
+
+        // Then
+        AssertTrue(didReport == false)
     }
 
     func test_setMetaData() {
