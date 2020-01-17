@@ -39,9 +39,7 @@ The iOS Instana agent uses the following sub-dependencies:
 
 See [installation page](https://docs.instana.io/ecosystem/node-js/installation/).
 
-#### Usage
-
-##### Setup
+#### Setup
 Just initialize the Instana iOS agent with the following setup. Make sure to call setup very early in `didFinishLaunchingWithOptions`
 
 ```
