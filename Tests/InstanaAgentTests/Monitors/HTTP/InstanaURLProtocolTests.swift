@@ -63,7 +63,51 @@ class InstanaURLProtocolTests: InstanaTestCase {
         // Then
         XCTAssertEqual(request, cannonialRequest)
     }
-    
+
+    func test_startLoading_enabled() {
+        // Given
+        let url = "http://www.a.c"
+        InstanaURLProtocol.mode = .enabled
+        let task = URLSession(configuration: .default).dataTask(with: makeRequest(url))
+        let urlProtocol = InstanaURLProtocol(task: task, cachedResponse: nil, client: nil)
+
+        // When
+        urlProtocol.startLoading()
+
+        // Then
+        AssertEqualAndNotNil(urlProtocol.marker?.url, URL(string: url))
+    }
+
+    func test_startLoading_disabled() {
+        // Given
+        let url = "http://www.a.c"
+        InstanaURLProtocol.mode = .disabled
+        let task = URLSession(configuration: .default).dataTask(with: makeRequest(url))
+        let urlProtocol = InstanaURLProtocol(task: task, cachedResponse: nil, client: nil)
+
+        // When
+        urlProtocol.startLoading()
+
+        // Then
+        AssertTrue(urlProtocol.marker == nil)
+    }
+
+    func test_startLoading_enabled_but_session_is_ignored() {
+        // Given
+        let url = "http://www.a.c"
+        InstanaURLProtocol.mode = .enabled
+        let session = URLSession(configuration: .default)
+        let task = session.dataTask(with: makeRequest(url))
+        let urlProtocol = InstanaURLProtocol(task: task, cachedResponse: nil, client: nil)
+
+        // When
+        IgnoreURLHandler.urlSessions.insert(session)
+        urlProtocol.startLoading()
+
+        // Then
+        AssertTrue(urlProtocol.marker == nil)
+    }
+
     func test_urlProtocol_shouldExtractInternalTaskSessionConfiguration() {
         // Given
         let configuration = URLSessionConfiguration.default

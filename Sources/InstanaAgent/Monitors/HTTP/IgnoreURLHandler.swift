@@ -2,10 +2,13 @@ import Foundation
 
 struct IgnoreURLHandler {
     /// Monitor ignores URLs that match the given regular expressions
-    static var regex = [NSRegularExpression]()
+    static var regex = Set<NSRegularExpression>()
 
     /// Monitor ignores the exact URLs given in this collection
-    static var exactURLs = [URL]()
+    static var exactURLs = Set<URL>()
+
+    /// All sessions will be ignored from HTTP monitoring
+    static var urlSessions = Set<URLSession>()
 
     static func shouldIgnore(_ url: URL) -> Bool {
         if exactURLs.contains(url) {

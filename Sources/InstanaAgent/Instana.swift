@@ -123,7 +123,7 @@ import UIKit
     /// - Parameters:
     ///     - urls: URLs that will ignored from the Instana monitoring
     static func setIgnore(urls: [URL]) {
-        IgnoreURLHandler.exactURLs = urls
+        IgnoreURLHandler.exactURLs = IgnoreURLHandler.exactURLs.union(urls)
     }
 
     ///
@@ -132,7 +132,17 @@ import UIKit
     /// - Parameters:
     ///     - regex: URLs that match with the given regular expressions will be ignored from monitoring
     static func setIgnoreURLs(matching regex: [NSRegularExpression]) {
-        IgnoreURLHandler.regex = regex
+        IgnoreURLHandler.regex = IgnoreURLHandler.regex.union(regex)
+    }
+
+    ///
+    /// Ignore HTTP monitoring for given URLSession
+    ///
+    /// - Parameters:
+    ///     - session: URLSession to ignore from HTTP monitoring
+    static func ignore(_ session: URLSession) {
+        IgnoreURLHandler.urlSessions.insert(session)
+        session.configuration.removeInstanaURLProtocol()
     }
 
     /// Meta data information that will be attached to each transmitted data (beacon).

@@ -13,10 +13,13 @@ class InstanaURLProtocol: URLProtocol {
 
     private(set) lazy var sessionConfiguration: URLSessionConfiguration = { .default }()
     var marker: HTTPMarker?
+    private var incomingTask: URLSessionTask?
 
     convenience init(task: URLSessionTask, cachedResponse: CachedURLResponse?, client: URLProtocolClient?) {
-        self.init(request: task.originalRequest!, cachedResponse: cachedResponse, client: client)
+        guard let request = task.originalRequest else { self.init(); return }
+        self.init(request: request, cachedResponse: cachedResponse, client: client)
         if let session = task.internalSession {
+            incomingTask = task
             sessionConfiguration = session.configuration
             // Use the sessionConfiguration set by the incoming task for the forwading -
             // Exclude "us" from the protocolClasses to avoid "monitoring the monitor"
@@ -30,13 +33,19 @@ class InstanaURLProtocol: URLProtocol {
         return ["http", "https"].contains(scheme)
     }
 
+    private var canMark: Bool {
+        guard let session = incomingTask?.internalSession else { return true }
+        return !IgnoreURLHandler.urlSessions.contains(session)
+    }
+
     override class func canonicalRequest(for request: URLRequest) -> URLRequest {
         return request
     }
 
     override func startLoading() {
-        guard InstanaURLProtocol.mode == .enabled else { return }
-        marker = try? Instana.current?.monitors.http?.mark(request)
+        if InstanaURLProtocol.mode == .enabled, canMark {
+            marker = try? Instana.current?.monitors.http?.mark(request)
+        }
         let task = session.dataTask(with: request)
         task.resume()
     }

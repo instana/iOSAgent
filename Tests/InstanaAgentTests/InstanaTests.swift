@@ -194,4 +194,67 @@ class InstanaTests: InstanaTestCase {
         AssertTrue(keys.contains("50") == false)
         AssertTrue(Instana.current!.session.propertyHandler.properties.metaData?.count == 50)
     }
+
+    func test_setIgnoreURLs() {
+        // Given
+        let urlToIgnore = URL.random
+        let secondURLToIgnore = URL.random
+
+        // When
+        Instana.setIgnore(urls: [urlToIgnore])
+
+        // Then
+        AssertTrue(IgnoreURLHandler.exactURLs.contains(urlToIgnore))
+        AssertEqualAndNotZero(IgnoreURLHandler.exactURLs.count, 1)
+
+        // When
+        Instana.setIgnore(urls: [secondURLToIgnore])
+
+        // Then
+        AssertTrue(IgnoreURLHandler.exactURLs.contains(urlToIgnore))
+        AssertTrue(IgnoreURLHandler.exactURLs.contains(secondURLToIgnore))
+        AssertEqualAndNotZero(IgnoreURLHandler.exactURLs.count, 2)
+    }
+
+    func test_setIgnoreMatchingRegex() {
+        // Given
+        let regex = try! NSRegularExpression(pattern: ".*(&|\\?)password=.*")
+        let anotherRegex = try! NSRegularExpression(pattern: ".*http:.*")
+
+        // When
+        Instana.setIgnoreURLs(matching: [regex])
+
+        // Then
+        AssertTrue(IgnoreURLHandler.regex.contains(regex))
+        AssertEqualAndNotZero(IgnoreURLHandler.regex.count, 1)
+
+        // When
+        Instana.setIgnoreURLs(matching: [anotherRegex])
+
+        // Then
+        AssertTrue(IgnoreURLHandler.regex.contains(regex))
+        AssertTrue(IgnoreURLHandler.regex.contains(anotherRegex))
+        AssertEqualAndNotZero(IgnoreURLHandler.regex.count, 2)
+    }
+
+    func test_ignoreURLSession() {
+        // Given
+        let session = URLSession(configuration: .default)
+        let anotherSession = URLSession(configuration: .default)
+
+        // When
+        Instana.ignore(session)
+
+        // Then
+        AssertTrue(IgnoreURLHandler.urlSessions.contains(session))
+        AssertEqualAndNotZero(IgnoreURLHandler.urlSessions.count, 1)
+
+        // When
+        Instana.ignore(anotherSession)
+
+        // Then
+        AssertTrue(IgnoreURLHandler.urlSessions.contains(session))
+        AssertTrue(IgnoreURLHandler.urlSessions.contains(anotherSession))
+        AssertEqualAndNotZero(IgnoreURLHandler.urlSessions.count, 2)
+    }
 }

@@ -40,5 +40,8 @@ class InstanaTestCase: XCTestCase {
     func cleanUp() {
         Instana.current?.session.propertyHandler.properties = InstanaProperties()
         Instana.current?.monitors.reporter.queue.removeAll()
+        IgnoreURLHandler.exactURLs.removeAll()
+        IgnoreURLHandler.regex.removeAll()
+        IgnoreURLHandler.urlSessions.removeAll()
     }
 }
