@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		27D914B0E169B580D8AE4DD6 /* Pods_Dev.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D9DC6DDA5D10B46D7449B60A /* Pods_Dev.framework */; };
 		47B887A7BB2122C925643E8D /* Pods_DevTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23EFB4947B0DF17DCD5852E7 /* Pods_DevTests.framework */; };
+		720AB95223D5EABD00826CB6 /* CustomProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 720AB95123D5EABD00826CB6 /* CustomProtocol.swift */; };
 		7226D65A23AA349F0010ECB4 /* InstanaAgent in Frameworks */ = {isa = PBXBuildFile; productRef = 7226D65923AA349F0010ECB4 /* InstanaAgent */; };
 		7226D65C23AA35230010ECB4 /* WebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7226D65B23AA35230010ECB4 /* WebViewController.swift */; };
 		72FC4F7023AA1A5A004EF4E2 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72FC4F6F23AA1A5A004EF4E2 /* AppDelegate.swift */; };
@@ -31,6 +32,7 @@
 
 /* Begin PBXFileReference section */
 		23EFB4947B0DF17DCD5852E7 /* Pods_DevTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_DevTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		720AB95123D5EABD00826CB6 /* CustomProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomProtocol.swift; sourceTree = "<group>"; };
 		7226D65B23AA35230010ECB4 /* WebViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewController.swift; sourceTree = "<group>"; };
 		72CC1B9923AA347300E38E81 /* iOSAgent */ = {isa = PBXFileReference; lastKnownFileType = folder; name = iOSAgent; path = ..; sourceTree = "<group>"; };
 		72FC4F6C23AA1A5A004EF4E2 /* Dev.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Dev.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -122,6 +124,7 @@
 				72FC4F7A23AA1A5B004EF4E2 /* LaunchScreen.storyboard */,
 				72FC4F7D23AA1A5B004EF4E2 /* Info.plist */,
 				72FC4F7723AA1A5B004EF4E2 /* Preview Content */,
+				720AB95123D5EABD00826CB6 /* CustomProtocol.swift */,
 			);
 			path = Dev;
 			sourceTree = "<group>";
@@ -372,6 +375,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				720AB95223D5EABD00826CB6 /* CustomProtocol.swift in Sources */,
 				72FC4F7023AA1A5A004EF4E2 /* AppDelegate.swift in Sources */,
 				7226D65C23AA35230010ECB4 /* WebViewController.swift in Sources */,
 				72FC4F7223AA1A5A004EF4E2 /* SceneDelegate.swift in Sources */,

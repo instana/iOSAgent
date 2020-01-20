@@ -25,10 +25,10 @@ class WebViewController: UIViewController {
     }
 
     func loadLotsOfRequests() {
-        (0...99).forEach {_ in
-            let sessi = URLSession(configuration: URLSessionConfiguration.default)
-            sessi.dataTask(with: URL(string: "https://www.spiegel.de")!) { (_, _, _) in
-            }.resume()
-        }
+        let conf = URLSessionConfiguration.default
+        conf.protocolClasses?.insert(CustomProtocol.self, at: 0)
+        let session = URLSession(configuration: conf)
+        session.dataTask(with: URL(string: "https://www.spiegel.de")!) { (_, _, _ ) in
+        }.resume()
     }
 }
