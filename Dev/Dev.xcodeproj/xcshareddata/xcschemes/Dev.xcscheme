@@ -65,7 +65,7 @@
          <EnvironmentVariable
             key = "INSTANA_DEBUG_LOGLEVEL"
             value = "0"
-            isEnabled = "NO">
+            isEnabled = "YES">
          </EnvironmentVariable>
       </EnvironmentVariables>
    </LaunchAction>
