@@ -114,11 +114,16 @@ extension URLSessionConfiguration {
         }
     }
 
-    static func removeInstanaURLProtocol() {
+    static func removeAllInstanaURLProtocol() {
         all.forEach { $0.protocolClasses?.removeAll(where: { (protocolClass) -> Bool in
             protocolClass == InstanaURLProtocol.self
         }) }
         URLSessionConfiguration.all.removeAll()
+    }
+
+    func removeInstanaURLProtocol() {
+        protocolClasses = protocolClasses?.filter { $0 !== InstanaURLProtocol.self }
+        URLSessionConfiguration.all.removeAll(where: { $0 == self })
     }
 }
 
@@ -131,7 +136,7 @@ extension InstanaURLProtocol {
     }()
 
     static func deinstall() {
-        URLSessionConfiguration.removeInstanaURLProtocol()
+        URLSessionConfiguration.removeAllInstanaURLProtocol()
     }
 
     // Will be called only once by using a static let

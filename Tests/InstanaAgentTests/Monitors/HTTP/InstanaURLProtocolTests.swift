@@ -6,7 +6,7 @@ class InstanaURLProtocolTests: InstanaTestCase {
 
     override func setUp() {
         super.setUp()
-        URLSessionConfiguration.removeInstanaURLProtocol()
+        URLSessionConfiguration.removeAllInstanaURLProtocol()
     }
 
     func test_urlProtocol_disabled() {
@@ -152,19 +152,33 @@ class InstanaURLProtocolTests: InstanaTestCase {
         AssertTrue(URLSessionConfiguration.all.contains {$0 == config})
     }
 
-    func test_remove_urlprotocols() {
+    func test_remove_all_urlprotocols() {
         // Given
         let config = URLSessionConfiguration.default
         InstanaURLProtocol.install
         config.registerInstanaURLProtocol()
 
         // When
-        URLSessionConfiguration.removeInstanaURLProtocol()
+        URLSessionConfiguration.removeAllInstanaURLProtocol()
 
         // Then
         let allURLProtocolClasses = URLSessionConfiguration.all.compactMap {$0.protocolClasses}.flatMap {$0}
         AssertTrue(URLSessionConfiguration.all.contains {$0 == config} == false)
         AssertTrue(allURLProtocolClasses.contains {$0 == InstanaURLProtocol.self} == false)
+    }
+
+    func test_remove_one_urlprotocols() {
+        // Given
+        let config = URLSessionConfiguration.default
+        InstanaURLProtocol.install
+        config.registerInstanaURLProtocol()
+
+        // When
+        config.removeInstanaURLProtocol()
+
+        // Then
+        AssertTrue(URLSessionConfiguration.all.contains {$0 == config} == false)
+        AssertTrue(config.protocolClasses?.contains {$0 == InstanaURLProtocol.self} == false)
     }
 
     // Integration Tests
