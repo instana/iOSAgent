@@ -154,7 +154,7 @@ extension InstanaURLProtocol {
         let newFunction: @convention(block) (AnyObject, URLSessionConfiguration, URLSessionDelegate?, OperationQueue?) -> URLSession
         newFunction = { obj, configuration, delegate, queue in
             var canRegister = true
-            if let delegate = delegate, type(of: delegate) == InstanaURLProtocol.self {
+            if let delegate = delegate, delegate is URLProtocol {
                 canRegister = false
             }
             if canRegister {

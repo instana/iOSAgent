@@ -121,10 +121,11 @@ class InstanaURLProtocolTests: InstanaTestCase {
         AssertTrue(sessionURLProtocols.contains {$0 == InstanaURLProtocol.self})
     }
 
-    func test_do_not_swizzle_for_InstanaURLProtocol() {
+    func test_do_not_swizzle_for_any_URLProtocol_as_delegate() {
         // Given
+        class CustomURLProtocol: URLProtocol, URLSessionDelegate {}
         InstanaURLProtocol.install
-        let delegate = InstanaURLProtocol()
+        let delegate = CustomURLProtocol()
 
         // When
         let session = URLSession(configuration: URLSessionConfiguration.default, delegate: delegate, delegateQueue: nil)
@@ -132,8 +133,8 @@ class InstanaURLProtocolTests: InstanaTestCase {
 
         // Then
         let allURLProtocolClasses = URLSessionConfiguration.all.compactMap {$0.protocolClasses}.flatMap {$0}
-        AssertTrue(allURLProtocolClasses.contains {$0 == InstanaURLProtocol.self} == false)
-        AssertTrue(sessionURLProtocols.contains {$0 == InstanaURLProtocol.self} == false)
+        AssertTrue(allURLProtocolClasses.contains {$0 == CustomURLProtocol.self} == false)
+        AssertTrue(sessionURLProtocols.contains {$0 == CustomURLProtocol.self} == false)
     }
 
     // Done without the Swizzle
