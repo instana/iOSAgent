@@ -19,6 +19,6 @@ class InstanaSession {
     init(configuration: InstanaConfiguration, propertyHandler: InstanaPropertyHandler, sessionID: UUID = UUID()) {
         self.configuration = configuration
         self.propertyHandler = propertyHandler
-        self.id = sessionID
+        id = sessionID
     }
 }

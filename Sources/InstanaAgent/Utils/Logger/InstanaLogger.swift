@@ -1,9 +1,8 @@
 import Foundation
 
 class InstanaLogger {
-    enum Level: Int {
+    enum Level: Int, RawRepresentable {
         case debug, warning, error, none
-
         fileprivate var logTag: String {
             switch self {
             case .debug: return "[Debug]"
@@ -14,7 +13,11 @@ class InstanaLogger {
         }
     }
 
-    var level: Level = .debug
+    let level: Level
+    init() {
+        let envLogLevel = Int(ProcessInfo.processInfo.environment["INSTANA_DEBUG_LOGLEVEL"] ?? "")
+        level = Level(rawValue: envLogLevel ?? Level.none.rawValue) ?? .none
+    }
 
     func add(_ entry: String, level: Level = .debug) {
         guard level.rawValue >= self.level.rawValue else { return }
