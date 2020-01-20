@@ -14,7 +14,7 @@ class InstanaTestCase: XCTestCase {
 
     var httpCaptureConfig: HTTPCaptureConfig!
     var monitorTypes: Set<InstanaConfiguration.MonitorTypes>!
-    var config: InstanaConfiguration { instana.environment.configuration }
+    var config: InstanaConfiguration { instana.session.configuration }
     var key: String { config.key }
     var sessionID: UUID { InstanaTestCase.sid }
     var instana: Instana { InstanaTestCase.sharedInstana }
@@ -38,7 +38,7 @@ class InstanaTestCase: XCTestCase {
     }
 
     func cleanUp() {
-        Instana.current?.environment.propertyHandler.properties = InstanaProperties()
+        Instana.current?.session.propertyHandler.properties = InstanaProperties()
         Instana.current?.monitors.reporter.queue.removeAll()
     }
 }

@@ -6,16 +6,16 @@ class Monitors {
     var framerateDrop: FramerateDropMonitor?
     var http: HTTPMonitor?
     let reporter: Reporter
-    private let environment: InstanaEnvironment
+    private let session: InstanaSession
 
-    init(_ environment: InstanaEnvironment, reporter: Reporter? = nil) {
-        self.environment = environment
-        let reporter = reporter ?? Reporter(environment)
+    init(_ session: InstanaSession, reporter: Reporter? = nil) {
+        self.session = session
+        let reporter = reporter ?? Reporter(session)
         self.reporter = reporter
-        environment.configuration.monitorTypes.forEach { type in
+        session.configuration.monitorTypes.forEach { type in
             switch type {
             case .http:
-                http = HTTPMonitor(environment, reporter: reporter)
+                http = HTTPMonitor(session, reporter: reporter)
             case .memoryWarning:
                 lowMemory = LowMemoryMonitor(reporter: reporter)
             case let .framerateDrop(threshold):

@@ -9,7 +9,7 @@ class SessionProfileBeaconTests: InstanaTestCase {
         let sessionID = UUID()
         let timestamp = Date().millisecondsSince1970
         let beacon = SessionProfileBeacon(state: .start, timestamp: timestamp, sessionID: sessionID)
-        let factory = CoreBeaconFactory(InstanaEnvironment.mock)
+        let factory = CoreBeaconFactory(InstanaSession.mock)
 
         // When
         guard let sut = try? factory.map(beacon) else {
@@ -27,7 +27,7 @@ class SessionProfileBeaconTests: InstanaTestCase {
     func test_asString() {
         // Given
         let session = SessionProfileBeacon(state: .start, sessionID: sessionID)
-        let factory = CoreBeaconFactory(InstanaEnvironment.mock)
+        let factory = CoreBeaconFactory(InstanaSession.mock)
         var beacon: CoreBeacon!
         do {
             beacon = try factory.map(session)
@@ -46,7 +46,7 @@ class SessionProfileBeaconTests: InstanaTestCase {
     func test_asJSON() {
         // Given
         let session = SessionProfileBeacon(state: .start, sessionID: sessionID)
-        let factory = CoreBeaconFactory(InstanaEnvironment.mock)
+        let factory = CoreBeaconFactory(InstanaSession.mock)
         var beacon: CoreBeacon!
         do {
             beacon = try factory.map(session)

@@ -1,12 +1,12 @@
 import Foundation
 
 class CoreBeaconFactory {
-    private let environment: InstanaEnvironment
-    private var conf: InstanaConfiguration { environment.configuration }
-    private var properties: InstanaProperties { environment.propertyHandler.properties }
+    private let session: InstanaSession
+    private var conf: InstanaConfiguration { session.configuration }
+    private var properties: InstanaProperties { session.propertyHandler.properties }
 
-    init(_ environment: InstanaEnvironment) {
-        self.environment = environment
+    init(_ session: InstanaSession) {
+        self.session = session
     }
 
     func map(_ beacons: [Beacon]) throws -> [CoreBeacon] {

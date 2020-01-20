@@ -4,18 +4,18 @@ class HTTPMonitor {
     private let installer: (AnyClass) -> Bool
     private let uninstaller: (AnyClass) -> Void
     private let reporter: Reporter
-    private let environment: InstanaEnvironment
+    private let session: InstanaSession
 
-    init(_ environment: InstanaEnvironment,
+    init(_ session: InstanaSession,
          installer: @escaping (AnyClass) -> Bool = URLProtocol.registerClass,
          uninstaller: @escaping (AnyClass) -> Void = URLProtocol.unregisterClass,
          reporter: Reporter) {
-        self.environment = environment
+        self.session = session
         self.installer = installer
         self.uninstaller = uninstaller
         self.reporter = reporter
 
-        switch environment.configuration.httpCaptureConfig {
+        switch session.configuration.httpCaptureConfig {
         case .automatic:
             install()
         case .manual, .none:
@@ -42,12 +42,12 @@ extension HTTPMonitor {
         guard let url = request.url, let method = request.httpMethod else {
             throw InstanaError(code: InstanaError.Code.invalidRequest, description: "Invalid URLRequest")
         }
-        let viewName = environment.propertyHandler.properties.view
+        let viewName = session.propertyHandler.properties.view
         return HTTPMarker(url: url, method: method, trigger: .automatic, delegate: self, viewName: viewName)
     }
 
     private func shouldReport(marker: HTTPMarker) -> Bool {
-        switch environment.configuration.httpCaptureConfig {
+        switch session.configuration.httpCaptureConfig {
         case .automatic: return marker.trigger == .automatic
         case .manual: return marker.trigger == .manual
         case .none: return false

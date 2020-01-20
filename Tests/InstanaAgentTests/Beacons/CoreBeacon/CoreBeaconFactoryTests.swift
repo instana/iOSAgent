@@ -10,7 +10,7 @@ class CoreBeaconFactoryTests: InstanaTestCase {
     func test_undefined_beacon_type() {
         // Given
         let beacon = Beacon()
-        let factory = CoreBeaconFactory(InstanaEnvironment.mock)
+        let factory = CoreBeaconFactory(InstanaSession.mock)
 
         // When
         XCTAssertThrowsError(try factory.map(beacon)) {error in
@@ -65,7 +65,7 @@ class CoreBeaconFactoryTests: InstanaTestCase {
     func test_map_beacon_implicit_values() {
         // Given
         let viewName = randomViewName
-        Instana.current?.environment.propertyHandler.properties.view = viewName
+        Instana.current?.session.propertyHandler.properties.view = viewName
         let beacon = ViewChange()
         let factory = CoreBeaconFactory(.mock)
 

@@ -5,7 +5,7 @@ import XCTest
 @available(iOS 12.0, *)
 class BasicIntegrationServerTest: IntegrationTestCase {
 
-    var env: InstanaEnvironment!
+    var env: InstanaSession!
     var networkUtil: NetworkUtility!
     var beacon: HTTPBeacon!
     var reporter: Reporter!
@@ -17,7 +17,7 @@ class BasicIntegrationServerTest: IntegrationTestCase {
         config.transmissionDelay = 0.0
         config.transmissionLowBatteryDelay = 0.0
         config.gzipReport = false
-        env = InstanaEnvironment.mock(configuration: config)
+        env = InstanaSession.mock(configuration: config)
 
         networkUtil = NetworkUtility.none
         beacon = HTTPBeacon.createMock()

@@ -8,14 +8,14 @@ class Beacon: Identifiable {
     var id: UUID
 
     init(timestamp: Instana.Types.Milliseconds = Date().millisecondsSince1970,
-         sessionID: UUID = Instana.current?.environment.sessionID ?? UUID(),
+         sessionID: UUID = Instana.current?.session.id ?? UUID(),
          viewName: String? = nil) {
         id = UUID()
         self.sessionID = sessionID
         self.timestamp = timestamp
 
         if let stateActive = InstanaSystemUtils.isAppActive {
-            let name = viewName ?? Instana.current?.environment.propertyHandler.properties.view
+            let name = viewName ?? Instana.current?.session.propertyHandler.properties.view
             self.viewName = stateActive ? name : "Background"
         } else {
             self.viewName = nil

@@ -9,10 +9,10 @@ class InstanaEnvironmentTests: InstanaTestCase {
         let propertyHandler = InstanaPropertyHandler()
 
         // When
-        let sut = InstanaEnvironment(configuration: config, propertyHandler: propertyHandler)
+        let sut = InstanaSession(configuration: config, propertyHandler: propertyHandler)
 
         // Then
-        AssertTrue(!sut.sessionID.uuidString.isEmpty)
+        AssertTrue(!sut.id.uuidString.isEmpty)
         AssertEqualAndNotNil(sut.propertyHandler, propertyHandler)
         AssertEqualAndNotNil(sut.configuration, config)
     }

@@ -175,7 +175,7 @@ class HTTPMarkerTests: InstanaTestCase {
     // MARK: CreateBeacon
     func test_createBeacon_freshMarker() {
         // Given
-        Instana.current?.environment.propertyHandler.properties.view = "Some View"
+        Instana.current?.session.propertyHandler.properties.view = "Some View"
         let url: URL = .random
         let marker = HTTPMarker(url: url, method: "c", trigger: .automatic, delegate: Delegate())
 

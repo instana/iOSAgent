@@ -3,11 +3,11 @@ import XCTest
 
 class HTTPMonitorTests: InstanaTestCase {
 
-    var env: InstanaEnvironment!
+    var env: InstanaSession!
 
     override func setUp() {
         super.setUp()
-        env = InstanaEnvironment.mock
+        env = InstanaSession.mock
     }
 
     override func tearDown() {

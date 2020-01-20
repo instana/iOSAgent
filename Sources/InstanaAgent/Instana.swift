@@ -9,19 +9,19 @@ import UIKit
     /// The Container for all Instana monitors (Network, HTTP, Framedrop, ...)
     internal let monitors: Monitors
 
-    /// The current Instana environment that holds the configuration, session information, custom properties and more
-    internal let environment: InstanaEnvironment
+    /// The current Instana session that holds the configuration, session information, custom properties and more
+    internal let session: InstanaSession
 
     internal static var current: Instana?
 
     internal init(configuration: InstanaConfiguration, monitors: Monitors? = nil) {
-        let environment = InstanaEnvironment(configuration: configuration, propertyHandler: InstanaPropertyHandler())
-        self.environment = environment
-        self.monitors = monitors ?? Monitors(environment)
+        let session = InstanaSession(configuration: configuration, propertyHandler: InstanaPropertyHandler())
+        self.session = session
+        self.monitors = monitors ?? Monitors(session)
         super.init()
 
         if configuration.isValid {
-            self.monitors.reporter.submit(SessionProfileBeacon(state: .start, sessionID: environment.sessionID))
+            self.monitors.reporter.submit(SessionProfileBeacon(state: .start, sessionID: session.id))
         } else {
             assertionFailure("Instana setup is invalid. URL and key must not be empty")
         }
@@ -35,20 +35,20 @@ import UIKit
 
     private static var propertyHandler: InstanaPropertyHandler {
         guard let current = Instana.current else { fatalError("Instana Config error: There is no active & valid instana setup") }
-        return current.environment.propertyHandler
+        return current.session.propertyHandler
     }
 }
 
 /// Public API methods
 @objc public extension Instana {
     /// Optional reporting URL used for on-premises Instana backend installations.
-    class var reportingURL: URL? { Instana.current?.environment.configuration.reportingURL }
+    class var reportingURL: URL? { Instana.current?.session.configuration.reportingURL }
 
     /// Instana key identifying your application.
-    class var key: String? { Instana.current?.environment.configuration.key }
+    class var key: String? { Instana.current?.session.configuration.key }
 
     /// The current session id of this active Instana agent.
-    class var sessionID: String? { Instana.current?.environment.sessionID.uuidString }
+    class var sessionID: String? { Instana.current?.session.id.uuidString }
 
     /// Configures and sets up the Instana agent with the default configuration.
     /// - HTTP sessions will be captured automatically by default

@@ -1,6 +1,6 @@
 import Foundation
 
-class InstanaEnvironment {
+class InstanaSession {
     /// The current Instana configuration
     let configuration: InstanaConfiguration
 
@@ -11,7 +11,7 @@ class InstanaEnvironment {
     let propertyHandler: InstanaPropertyHandler
 
     /// The Session ID created on each app launch
-    let sessionID: UUID
+    let id: UUID
 
     /// A debugging console logger using levels
     let logger = InstanaLogger()
@@ -19,6 +19,6 @@ class InstanaEnvironment {
     init(configuration: InstanaConfiguration, propertyHandler: InstanaPropertyHandler, sessionID: UUID = UUID()) {
         self.configuration = configuration
         self.propertyHandler = propertyHandler
-        self.sessionID = sessionID
+        self.id = sessionID
     }
 }

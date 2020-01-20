@@ -7,12 +7,12 @@ import WebKit
 @available(iOS 12.0, *)
 class InstanaURLProtocolIntegrationTests: IntegrationTestCase {
 
-    var env: InstanaEnvironment!
+    var env: InstanaSession!
     var givenURL: URL!
 
     override func setUp() {
         super.setUp()
-        env = InstanaEnvironment.mock
+        env = InstanaSession.mock
         givenURL = Defaults.someURL
     }
 

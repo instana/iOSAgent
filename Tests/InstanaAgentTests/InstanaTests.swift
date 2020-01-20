@@ -13,11 +13,11 @@ class InstanaTests: InstanaTestCase {
 
         // Then
         AssertEqualAndNotNil(Instana.key, key)
-        AssertEqualAndNotNil(Instana.sessionID, Instana.current?.environment.sessionID.uuidString)
+        AssertEqualAndNotNil(Instana.sessionID, Instana.current?.session.id.uuidString)
         AssertEqualAndNotNil(Instana.reportingURL, reportingURL)
-        AssertEqualAndNotNil(Instana.current?.environment.configuration.reportingURL, reportingURL)
-        AssertEqualAndNotNil(Instana.current?.environment.configuration.httpCaptureConfig, .automatic)
-        AssertEqualAndNotNil(Instana.current?.environment.configuration, .default(key: key, reportingURL: reportingURL))
+        AssertEqualAndNotNil(Instana.current?.session.configuration.reportingURL, reportingURL)
+        AssertEqualAndNotNil(Instana.current?.session.configuration.httpCaptureConfig, .automatic)
+        AssertEqualAndNotNil(Instana.current?.session.configuration, .default(key: key, reportingURL: reportingURL))
     }
 
     func test_setup_manual_http_capture() {
@@ -31,11 +31,11 @@ class InstanaTests: InstanaTestCase {
 
         // Then
         AssertEqualAndNotNil(Instana.key, key)
-        AssertEqualAndNotNil(Instana.sessionID, Instana.current?.environment.sessionID.uuidString)
+        AssertEqualAndNotNil(Instana.sessionID, Instana.current?.session.id.uuidString)
         AssertEqualAndNotNil(Instana.reportingURL, reportingURL)
-        AssertEqualAndNotNil(Instana.current?.environment.configuration.reportingURL, reportingURL)
-        AssertEqualAndNotNil(Instana.current?.environment.configuration.httpCaptureConfig, .manual)
-        AssertEqualAndNotNil(Instana.current?.environment.configuration, .default(key: key, reportingURL: reportingURL, httpCaptureConfig: httpCaptureConfig))
+        AssertEqualAndNotNil(Instana.current?.session.configuration.reportingURL, reportingURL)
+        AssertEqualAndNotNil(Instana.current?.session.configuration.httpCaptureConfig, .manual)
+        AssertEqualAndNotNil(Instana.current?.session.configuration, .default(key: key, reportingURL: reportingURL, httpCaptureConfig: httpCaptureConfig))
     }
 
     func test_setup_and_expect_SessionProfileBeacon() {
@@ -60,7 +60,7 @@ class InstanaTests: InstanaTestCase {
     func test_captureHTTP_request() {
         // Given
         let config = InstanaConfiguration.default(key: "KEY", reportingURL: .random, httpCaptureConfig: .manual)
-        let env = InstanaEnvironment.mock(configuration: config)
+        let env = InstanaSession.mock(configuration: config)
         let waitRequest = expectation(description: "test_captureHTTP_request")
         var excpectedBeacon: HTTPBeacon?
         var request = URLRequest(url: URL(string: "https://www.instana.com")!)
@@ -109,40 +109,40 @@ class InstanaTests: InstanaTestCase {
         Instana.setUser(id: id, email: email, name: name)
 
         // Then
-        AssertEqualAndNotNil(Instana.current?.environment.propertyHandler.properties.user?.id, id)
-        AssertEqualAndNotNil(Instana.current?.environment.propertyHandler.properties.user?.email, email)
-        AssertEqualAndNotNil(Instana.current?.environment.propertyHandler.properties.user?.name, name)
+        AssertEqualAndNotNil(Instana.current?.session.propertyHandler.properties.user?.id, id)
+        AssertEqualAndNotNil(Instana.current?.session.propertyHandler.properties.user?.email, email)
+        AssertEqualAndNotNil(Instana.current?.session.propertyHandler.properties.user?.name, name)
     }
 
     func test_setViewName() {
         // Given
         let viewName = "Some View"
-        let env = InstanaEnvironment.mock(configuration: config)
+        let env = InstanaSession.mock(configuration: config)
         var didReport = false
         let reporter = MockReporter {beacon in
             didReport = (beacon is ViewChange) && beacon.viewName == viewName
         }
         Instana.current = Instana(configuration: config, monitors: Monitors(env, reporter: reporter))
-        Instana.current?.environment.propertyHandler.properties.view = "Old View"
+        Instana.current?.session.propertyHandler.properties.view = "Old View"
 
         // When
         Instana.setView(name: viewName)
 
         // Then
         AssertTrue(didReport)
-        AssertEqualAndNotNil(Instana.current?.environment.propertyHandler.properties.view, viewName)
+        AssertEqualAndNotNil(Instana.current?.session.propertyHandler.properties.view, viewName)
     }
 
     func test_setViewName_shouldnotreport_if_view_not_changed() {
         // Given
         let viewName = "Some View"
-        let env = InstanaEnvironment.mock(configuration: config)
+        let env = InstanaSession.mock(configuration: config)
         var didReport = false
         let reporter = MockReporter {beacon in
             didReport = (beacon is ViewChange) && beacon.viewName == viewName
         }
         Instana.current = Instana(configuration: config, monitors: Monitors(env, reporter: reporter))
-        Instana.current?.environment.propertyHandler.properties.view = viewName
+        Instana.current?.session.propertyHandler.properties.view = viewName
 
         // When
         Instana.setView(name: viewName)
@@ -160,7 +160,7 @@ class InstanaTests: InstanaTestCase {
         Instana.setMeta(value: given["Key2"]!, key: "Key2")
 
         // Then
-        AssertEqualAndNotNil(Instana.current?.environment.propertyHandler.properties.metaData, given)
+        AssertEqualAndNotNil(Instana.current?.session.propertyHandler.properties.metaData, given)
     }
 
     func test_setMetaData_to_long_value() {
@@ -173,8 +173,8 @@ class InstanaTests: InstanaTestCase {
         Instana.setMeta(value: invalid, key: "invalid")
 
         // Then
-        AssertEqualAndNotNil(Instana.current?.environment.propertyHandler.properties.metaData?["valid"], valid)
-        AssertTrue(Instana.current?.environment.propertyHandler.properties.metaData?.count == 1)
+        AssertEqualAndNotNil(Instana.current?.session.propertyHandler.properties.metaData?["valid"], valid)
+        AssertTrue(Instana.current?.session.propertyHandler.properties.metaData?.count == 1)
     }
 
     func test_setMetaData_ignore_too_many_fields() {
@@ -185,13 +185,13 @@ class InstanaTests: InstanaTestCase {
 
         // Then
 
-        let values = Array(Instana.current!.environment.propertyHandler.properties.metaData!.values)
-        let keys = Array(Instana.current!.environment.propertyHandler.properties.metaData!.keys)
+        let values = Array(Instana.current!.session.propertyHandler.properties.metaData!.values)
+        let keys = Array(Instana.current!.session.propertyHandler.properties.metaData!.keys)
         AssertTrue(values.contains("V-0") == true)
         AssertTrue(values.contains("V-49") == true)
         AssertTrue(values.contains("V-50") == false)
         AssertTrue(keys.contains("49") == true)
         AssertTrue(keys.contains("50") == false)
-        AssertTrue(Instana.current!.environment.propertyHandler.properties.metaData?.count == 50)
+        AssertTrue(Instana.current!.session.propertyHandler.properties.metaData?.count == 50)
     }
 }
