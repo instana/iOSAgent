@@ -19,10 +19,11 @@ import UIKit
         self.environment = environment
         self.monitors = monitors ?? Monitors(environment)
         super.init()
-        assert(!configuration.reportingURL.absoluteString.isEmpty, "Instana Reporting URL must not be empty")
 
         if configuration.isValid {
             self.monitors.reporter.submit(SessionProfileBeacon(state: .start, sessionID: environment.sessionID))
+        } else {
+            assertionFailure("Instana setup is invalid. URL and key must not be empty")
         }
         _ = NotificationCenter.default.addObserver(forName: UIApplication.didBecomeActiveNotification, object: nil, queue: nil) { _ in
             InstanaSystemUtils.isAppActive = true
