@@ -98,7 +98,7 @@ extension CoreBeacon {
                    ui: properties.user?.id,
                    un: properties.user?.name,
                    ue: properties.user?.email,
-                   ul: Locale.current.languageCode ?? "na",
+                   ul: Locale.current.languageCode,
                    ab: InstanaSystemUtils.applicationBuildNumber,
                    av: InstanaSystemUtils.applicationVersion,
                    osn: InstanaSystemUtils.systemName,

@@ -146,7 +146,7 @@ struct CoreBeacon: Equatable, Codable {
      * optional
      */
     // swiftlint:disable:next identifier_name
-    var ul: String
+    var ul: String?
 
     /**
      * Build version
