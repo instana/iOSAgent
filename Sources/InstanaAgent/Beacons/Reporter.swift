@@ -36,6 +36,10 @@ public class Reporter {
 
     func submit(_ beacon: Beacon, _ completion: (() -> Void)? = nil) {
         backgroundQueue.async(qos: .background) {
+            guard !self.queue.isFull else {
+                self.session.logger.add("Queue is full - Beacon will be discarded", level: .warning)
+                return
+            }
             let start = Date()
             guard let coreBeacon = try? CoreBeaconFactory(self.session).map(beacon) else { return }
             self.queue.add(coreBeacon)
@@ -49,7 +53,7 @@ public class Reporter {
     func scheduleFlush() {
         guard !queue.items.isEmpty else { return }
         flushWorkItem?.cancel()
-        let workItem = DispatchWorkItem { [weak self] in
+        let workItem = DispatchWorkItem {[weak self] in
             guard let self = self else { return }
             guard let flushWorkItem = self.flushWorkItem, !flushWorkItem.isCancelled else { return }
             let start = Date()
@@ -61,7 +65,8 @@ public class Reporter {
             self.flushSemaphore = nil
         }
         flushWorkItem = workItem
-        let interval = batterySafeForNetworking() ? session.configuration.transmissionDelay : session.configuration.transmissionLowBatteryDelay
+        var interval = batterySafeForNetworking() ? session.configuration.transmissionDelay : session.configuration.transmissionLowBatteryDelay
+        interval = queue.isFull ? 0.0 : interval
         backgroundQueue.asyncAfter(deadline: .now() + interval, execute: workItem)
     }
 
@@ -104,16 +109,18 @@ public class Reporter {
     }
 
     func complete(_ beacons: [CoreBeacon], _ result: BeaconResult) {
+        let finish = completion
         switch result {
         case .success:
             session.logger.add("Did successfully send beacons")
-            queue.remove(beacons) { [weak self] _ in
-                guard let self = self else { return }
-                self.completion(result)
-            }
+            queue.remove(beacons) {_ in finish(result) }
         case let .failure(error):
             session.logger.add("Failed to send Beacon batch: \(error)", level: .warning)
-            completion(result)
+            if queue.isFull {
+                queue.remove(beacons) {_ in finish(result) }
+            } else {
+                finish(result)
+            }
         }
         flushSemaphore?.signal()
     }

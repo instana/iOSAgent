@@ -280,16 +280,16 @@ class InstanaURLProtocolTests: InstanaTestCase {
         let marker = HTTPMarker(url: url, method: "GET", trigger: .automatic, delegate: delegate)
         urlProtocol.marker = marker
         let newRequest = URLRequest(url: URL.random)
-        var expectedCompletionRequest: URLRequest?
+        var resultCompletionRequest: URLRequest?
 
         // When perfom the HTTP Forward
         urlProtocol.urlSession(URLSession.shared, task: task, willPerformHTTPRedirection: response, newRequest: newRequest) { comingRequest in
-            expectedCompletionRequest = comingRequest
+            resultCompletionRequest = comingRequest
         }
 
         // Then
         AssertEqualAndNotNil(marker.backendTracingID, backendTracingID)
-        AssertEqualAndNotNil(expectedCompletionRequest, newRequest)
+        AssertEqualAndNotNil(resultCompletionRequest, newRequest)
         AssertTrue(delegate.calledFinalized)
         if case let .finished(responseCode) = marker.state {
             AssertTrue(responseCode == 301)
@@ -319,7 +319,7 @@ class InstanaURLProtocolTests: InstanaTestCase {
         let urlProtocol = InstanaURLProtocol()
         urlProtocol.marker = HTTPMarker(url: url, method: "GET", trigger: .automatic, delegate: delegate)
         let givenError = NSError(domain: NSURLErrorDomain, code: NSURLErrorDataNotAllowed, userInfo: nil)
-        var expectedError: NSError?
+        var resultError: NSError?
 
         // When
         urlProtocol.urlSession(URLSession.shared, task: task, didFinishCollecting: MockURLSessionTaskMetrics.random)
@@ -329,12 +329,12 @@ class InstanaURLProtocolTests: InstanaTestCase {
         AssertEqualAndNotNil(urlProtocol.marker?.backendTracingID, backendTracingID)
         AssertTrue(delegate.calledFinalized)
         if case let .failed(error) = urlProtocol.marker?.state {
-            expectedError = error as NSError
+            resultError = error as NSError
         } else {
             XCTFail("Wrong state for marker")
         }
 
-        AssertEqualAndNotNil(expectedError, givenError)
+        AssertEqualAndNotNil(resultError, givenError)
 
         if #available(iOS 13.0, *) {
             AssertTrue(urlProtocol.marker?.responseSize?.headerBytes ?? 0 > 0)

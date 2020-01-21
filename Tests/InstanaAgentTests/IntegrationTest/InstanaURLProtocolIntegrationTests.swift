@@ -19,10 +19,10 @@ class InstanaURLProtocolIntegrationTests: IntegrationTestCase {
     func test_urlprotocol_with_shared_URLSession_mock_report() {
         // Given
         let didReportWait = expectation(description: "didFinish")
-        var expectedBeacon: HTTPBeacon?
+        var resultBeacon: HTTPBeacon?
         let mockReporter = MockReporter { submittedBeacon in
             if let httpBeacon = submittedBeacon as? HTTPBeacon {
-                expectedBeacon = httpBeacon
+                resultBeacon = httpBeacon
                 didReportWait.fulfill()
             }
         }
@@ -34,16 +34,16 @@ class InstanaURLProtocolIntegrationTests: IntegrationTestCase {
         wait(for: [didReportWait], timeout: 10)
 
         // Then
-        AssertEqualAndNotNil(expectedBeacon?.url, givenURL)
+        AssertEqualAndNotNil(resultBeacon?.url, givenURL)
     }
 
     func test_urlprotocol_with_custom_URLSession_mock_report() {
         // Given
         let didReportWait = expectation(description: "didFinish")
-        var expectedBeacon: HTTPBeacon?
+        var resultBeacon: HTTPBeacon?
         let mockReporter = MockReporter { submittedBeacon in
             if let httpBeacon = submittedBeacon as? HTTPBeacon {
-                expectedBeacon = httpBeacon
+                resultBeacon = httpBeacon
                 didReportWait.fulfill()
             }
         }
@@ -56,16 +56,16 @@ class InstanaURLProtocolIntegrationTests: IntegrationTestCase {
         wait(for: [didReportWait], timeout: 10)
 
         // Then
-        AssertEqualAndNotNil(expectedBeacon?.url, givenURL)
+        AssertEqualAndNotNil(resultBeacon?.url, givenURL)
     }
 
     func test_urlprotocol_with_Webview_mock_report() {
         // Given
         let didReportWait = expectation(description: "didFinish")
-        var expectedBeacon: HTTPBeacon?
+        var resultBeacon: HTTPBeacon?
         let mockReporter = MockReporter { submittedBeacon in
             if let httpBeacon = submittedBeacon as? HTTPBeacon {
-                expectedBeacon = httpBeacon
+                resultBeacon = httpBeacon
                 didReportWait.fulfill()
             }
         }
@@ -78,6 +78,6 @@ class InstanaURLProtocolIntegrationTests: IntegrationTestCase {
         wait(for: [didReportWait], timeout: 10)
 
         // Then
-        AssertEqualAndNotNil(expectedBeacon?.url, givenURL)
+        AssertEqualAndNotNil(resultBeacon?.url, givenURL)
     }
 }

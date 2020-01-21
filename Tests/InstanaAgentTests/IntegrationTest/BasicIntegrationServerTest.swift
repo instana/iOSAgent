@@ -50,12 +50,12 @@ class BasicIntegrationServerTest: IntegrationTestCase {
         let waitSecondFlush = expectation(description: "expect_second_flush")
 
         // When
-        var expectedResult: BeaconResult?
+        var result: BeaconResult?
         reporter.submit(beacon) {
             waitAddQueue.fulfill()
         }
-        reporter.completion = {result in
-            expectedResult = result
+        reporter.completion = {res in
+            result = res
             waitFirstFlush.fulfill()
         }
         wait(for: [waitAddQueue], timeout: 2.0)
@@ -64,11 +64,11 @@ class BasicIntegrationServerTest: IntegrationTestCase {
 
         // Then - Expect an error due no network connection
         wait(for: [waitFirstFlush], timeout: 20.0)
-        guard let expectedError = expectedResult?.error as? InstanaError else {
+        guard let resultError = result?.error as? InstanaError else {
             XCTFail("Expected InstanaError not found")
             return
         }
-        AssertTrue(expectedError.code == InstanaError.Code.offline.rawValue)
+        AssertTrue(resultError.code == InstanaError.Code.offline.rawValue)
         AssertTrue(reporter.queue.items.count == 1)
 
         // When creating a new instance of the reporter
