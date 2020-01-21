@@ -35,7 +35,7 @@ public class Reporter {
                 self.scheduleFlush()
             }
         }
-        InstanaApplicationStateHandler.shared.listen {[weak self] state in
+        InstanaApplicationStateHandler.shared.listen { [weak self] state in
             guard let self = self else { return }
             if state == .background {
                 self.runBackgroundFlush()

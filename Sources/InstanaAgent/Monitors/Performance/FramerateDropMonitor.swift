@@ -31,7 +31,7 @@ class FramerateDropMonitor {
         proxy.proxied = self
         displayLink.add(to: RunLoop.main, forMode: .common)
 
-        InstanaApplicationStateHandler.shared.listen {[weak self] state in
+        InstanaApplicationStateHandler.shared.listen { [weak self] state in
             guard let self = self else { return }
             if state == .active {
                 self.start()
