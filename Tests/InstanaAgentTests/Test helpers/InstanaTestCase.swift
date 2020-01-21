@@ -22,22 +22,22 @@ class InstanaTestCase: XCTestCase {
     override func setUp() {
         super.setUp()
 
-        InstanaSystemUtils.isAppActive = true
         // Testing a sinlgeton is actually a nogo. But here we have to deal with it
         // Cache the instana instance to improve the performance of our tests. re-creating Instana for every tests is expensive
         if Instana.current == nil || InstanaTestCase.sharedInstana != Instana.current {
             Instana.current = InstanaTestCase.sharedInstana
         }
         cleanUp()
+        InstanaApplicationStateHandler.shared.state = .active
     }
 
     override func tearDown() {
-        InstanaSystemUtils.isAppActive = false
         cleanUp()
         super.tearDown()
     }
 
     func cleanUp() {
+        InstanaApplicationStateHandler.shared.removeAllListener()
         Instana.current?.session.propertyHandler.properties = InstanaProperties()
         Instana.current?.monitors.reporter.queue.removeAll()
         IgnoreURLHandler.exactURLs.removeAll()

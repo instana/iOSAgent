@@ -30,27 +30,30 @@ class FramerateDropMonitor {
         displayLink = CADisplayLink(target: proxy, selector: #selector(proxy.onDisplayLinkUpdate))
         proxy.proxied = self
         displayLink.add(to: RunLoop.main, forMode: .common)
-        NotificationCenter.default.addObserver(self, selector: #selector(onApplicationEnteredForeground),
-                                               name: UIApplication.didBecomeActiveNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(onApplicationEnteredBackground),
-                                               name: UIApplication.didEnterBackgroundNotification, object: nil)
+
+        InstanaApplicationStateHandler.shared.listen {[weak self] state in
+            guard let self = self else { return }
+            if state == .active {
+                self.start()
+            } else {
+                self.pause()
+            }
+        }
     }
 
-    deinit {
-        displayLink.invalidate()
-    }
-}
-
-private extension FramerateDropMonitor {
-    @objc func onApplicationEnteredForeground() {
+    private func start() {
         displayLink.isPaused = false
     }
 
-    @objc func onApplicationEnteredBackground() {
+    private func pause() {
         displayLink.isPaused = true
         dropStart = nil
         samplingStart = 0
         elapsedFrames = 0
+    }
+
+    deinit {
+        displayLink.invalidate()
     }
 }
 

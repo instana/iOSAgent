@@ -54,7 +54,7 @@ class BasicIntegrationServerTest: IntegrationTestCase {
         reporter.submit(beacon) {
             waitAddQueue.fulfill()
         }
-        reporter.completion = {res in
+        reporter.completionHandler.append {res in
             result = res
             waitFirstFlush.fulfill()
         }
@@ -73,7 +73,7 @@ class BasicIntegrationServerTest: IntegrationTestCase {
 
         // When creating a new instance of the reporter
         reporter = Reporter(env, networkUtility: networkUtil)
-        reporter.completion = {_ in
+        reporter.completionHandler.append {_ in
             waitSecondFlush.fulfill()
         }
 

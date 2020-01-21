@@ -14,6 +14,8 @@ import UIKit
 
     internal static var current: Instana?
 
+    internal let appStateHandler = InstanaApplicationStateHandler.shared
+
     internal init(configuration: InstanaConfiguration, monitors: Monitors? = nil) {
         let session = InstanaSession(configuration: configuration, propertyHandler: InstanaPropertyHandler())
         self.session = session
@@ -24,12 +26,6 @@ import UIKit
             self.monitors.reporter.submit(SessionProfileBeacon(state: .start, sessionID: session.id))
         } else {
             assertionFailure("Instana setup is invalid. URL and key must not be empty")
-        }
-        _ = NotificationCenter.default.addObserver(forName: UIApplication.didBecomeActiveNotification, object: nil, queue: nil) { _ in
-            InstanaSystemUtils.isAppActive = true
-        }
-        _ = NotificationCenter.default.addObserver(forName: UIApplication.didEnterBackgroundNotification, object: nil, queue: nil) { _ in
-            InstanaSystemUtils.isAppActive = false
         }
     }
 

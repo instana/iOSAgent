@@ -12,32 +12,28 @@ class ApplicationNotRespondingMonitor {
         self.reporter = reporter
         self.threshold = threshold
         self.samplingInterval = samplingInterval
-        NotificationCenter.default.addObserver(self, selector: #selector(onApplicationEnteredForeground),
-                                               name: UIApplication.didBecomeActiveNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(onApplicationEnteredBackground),
-                                               name: UIApplication.didEnterBackgroundNotification, object: nil)
+
+        InstanaApplicationStateHandler.shared.listen {[weak self] state in
+            guard let self = self else { return }
+            if state == .active {
+                self.scheduleTimer()
+            } else {
+                self.timer?.invalidate()
+            }
+        }
+
         scheduleTimer()
     }
 
     deinit {
         timer?.invalidate()
     }
-}
 
-private extension ApplicationNotRespondingMonitor {
     func scheduleTimer() {
         timer?.invalidate()
         let aTimer = InstanaTimerProxy.timer(proxied: self, timeInterval: samplingInterval, userInfo: CFAbsoluteTimeGetCurrent(), repeats: false)
         timer = aTimer
         RunLoop.main.add(aTimer, forMode: .common)
-    }
-
-    @objc func onApplicationEnteredForeground() {
-        scheduleTimer()
-    }
-
-    @objc func onApplicationEnteredBackground() {
-        timer?.invalidate()
     }
 }
 

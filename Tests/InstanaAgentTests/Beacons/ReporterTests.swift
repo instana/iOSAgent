@@ -231,7 +231,7 @@ class ReporterTests: InstanaTestCase {
         })
 
         // When Offline
-        reporter.completion = {result in
+        reporter.completionHandler.append {result in
             resultError = result.error as? InstanaError
             exp.fulfill()
         }
@@ -265,7 +265,7 @@ class ReporterTests: InstanaTestCase {
         })
 
         // When Offline
-        reporter.completion = {result in
+        reporter.completionHandler.append {result in
             resultError = result.error as? InstanaError
             resultError != nil ? firstStep.fulfill() : ()
         }
@@ -305,7 +305,7 @@ class ReporterTests: InstanaTestCase {
         })
 
         // When
-        reporter.completion = {result in
+        reporter.completionHandler.append {result in
             resultError = result.error as? InstanaError
             exp.fulfill()
         }
@@ -385,7 +385,7 @@ class ReporterTests: InstanaTestCase {
         })
 
         // When
-        reporter.completion = {result in
+        reporter.completionHandler.append {result in
             resultError = result.error as? InstanaError
             exp.fulfill()
         }
@@ -416,7 +416,7 @@ class ReporterTests: InstanaTestCase {
         })
 
         // When
-        reporter.completion = {result in
+        reporter.completionHandler.append {result in
             resultError = result.error as? InstanaError
             exp.fulfill()
         }
@@ -496,7 +496,7 @@ class ReporterTests: InstanaTestCase {
         })
 
         // When
-        reporter.completion = {result in
+        reporter.completionHandler.append {result in
             resultError = result.error as? InstanaError
             exp.fulfill()
         }
@@ -527,7 +527,7 @@ class ReporterTests: InstanaTestCase {
         })
 
         // When
-        reporter.completion = {result in
+        reporter.completionHandler.append {result in
             resultError = result.error as? InstanaError
             exp.fulfill()
         }
@@ -556,7 +556,7 @@ class ReporterTests: InstanaTestCase {
         })
 
         // When
-        reporter.completion = {result in
+        reporter.completionHandler.append {result in
             resultError = result.error as? InstanaError
             waitForCompletion.fulfill()
         }
@@ -585,7 +585,7 @@ class ReporterTests: InstanaTestCase {
         })
 
         // When
-        reporter.completion = {result in
+        reporter.completionHandler.append {result in
             resultError = result.error as? InstanaError
             waitForCompletion.fulfill()
         }
@@ -754,12 +754,12 @@ class ReporterTests: InstanaTestCase {
     }
 
     /// Criteria:
-     ///
-     ///  - Suspend Sending when: never
-     ///  - Battery: Good
-     ///  - WIFI: YES
-     ///
-     /// Expected Result - No more items should be allowed when queue is full. Items will be discarded
+    ///
+    ///  - Suspend Sending when: never
+    ///  - Battery: Good
+    ///  - WIFI: YES
+    ///
+    /// Expected Result - No more items should be allowed when queue is full. Items will be discarded
     func test_full_queue_discards_new_beacons() {
         // Given
         var shouldNotSend = true
@@ -781,6 +781,30 @@ class ReporterTests: InstanaTestCase {
         AssertEqualAndNotZero(reporter.queue.maxItems, 100)
     }
 
+    func test_flush_queue_when_going_into_background() {
+        // Given
+        var didSend = false
+        let waitForSend = expectation(description: "Wait for send")
+        let reporter = Reporter(session(delay: 0.0),
+                            batterySafeForNetworking: { true }, networkUtility: .wifi,
+                            send: { _, completion in
+                                completion(.success(statusCode: 200))
+        })
+        reporter.completionHandler.append {_ in
+            didSend = true
+            waitForSend.fulfill()
+        }
+
+        // When
+        reporter.submit(HTTPBeacon.createMock())
+        NotificationCenter.default.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
+        wait(for: [waitForSend], timeout: 2.0)
+
+        // Then
+        AssertTrue(didSend)
+        AssertTrue(reporter.queue.items.isEmpty)
+    }
+
     // MARK: Test Result Code and Errors
     func test_send_Failure() {
         // Given
@@ -795,7 +819,7 @@ class ReporterTests: InstanaTestCase {
         })
 
         // When
-        reporter.completion = {result in
+        reporter.completionHandler.append {result in
             guard case let .failure(e) = result else { XCTFail("Invalid result"); return }
             guard let error = e as? CocoaError else { XCTFail("Error type missmatch"); return }
             resultError = error
@@ -819,7 +843,7 @@ class ReporterTests: InstanaTestCase {
         })
 
         // When
-        reporter.completion = {_ in
+        reporter.completionHandler.append {_ in
             shouldNotSend = false
         }
         reporter.submit(Beacon(timestamp: 1000000, sessionID: UUID()))
@@ -882,7 +906,7 @@ class ReporterTests: InstanaTestCase {
         var reporter: Reporter? = Reporter(session(delay: 0.0)) { _, completion in
             completion(.success(statusCode: 200))
         }
-        reporter?.completion = {result in
+        reporter?.completionHandler.append {result in
             waitForCompletion.fulfill()
         }
         weak var weakReporter = reporter
@@ -907,7 +931,7 @@ class ReporterTests: InstanaTestCase {
                                     completion(.success(statusCode: 200))
         })
         reporter.queue.add(corebeacons)
-        reporter.completion = {_ in
+        reporter.completionHandler.append {_ in
             shouldCallCompletion = true
         }
         let nextBeacon = HTTPBeacon.createMock()
@@ -936,7 +960,7 @@ class ReporterTests: InstanaTestCase {
         let beacons: [HTTPBeacon] = (0..<reporter.queue.maxItems).map { _ in HTTPBeacon.createMock() }
         let corebeacons = try! CoreBeaconFactory(env).map(beacons)
         reporter.queue.add(corebeacons)
-        reporter.completion = {_ in
+        reporter.completionHandler.append {_ in
             shouldCallCompletion = true
         }
 
@@ -1032,7 +1056,7 @@ extension ReporterTests {
                             networkUtility: .wifi,
                             send: { _, callback in callback(loadResult) })
         reporter.queue.removeAll()
-        reporter.completion = resultCallback
+        reporter.completionHandler.append(resultCallback)
         reporter.submit(AlertBeacon(alertType: .lowMemory))
         reporterRetainer.append(reporter)
     }

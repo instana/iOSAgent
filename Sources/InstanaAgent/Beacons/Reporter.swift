@@ -1,11 +1,13 @@
 import Foundation
 import Gzip
+import UIKit
 
 /// Reporter to queue and submit the Beacons
 public class Reporter {
     typealias Submitter = (Beacon) -> Void
+    typealias Completion = (BeaconResult) -> Void
     typealias NetworkLoader = (URLRequest, @escaping (InstanaNetworking.Result) -> Void) -> Void
-    var completion: (BeaconResult) -> Void = { _ in }
+    var completionHandler = [Completion]()
     let queue = InstanaPersistableQueue<CoreBeacon>()
     private let backgroundQueue = DispatchQueue(label: "com.instana.ios.agent.background", qos: .background)
     private let send: NetworkLoader
@@ -15,6 +17,7 @@ public class Reporter {
     private let session: InstanaSession
     private var flushWorkItem: DispatchWorkItem?
     private var flushSemaphore: DispatchSemaphore?
+    private var backgroundTaskID: UIBackgroundTaskIdentifier?
 
     // MARK: Init
 
@@ -30,6 +33,12 @@ public class Reporter {
             guard let self = self else { return }
             if connectionType != .none {
                 self.scheduleFlush()
+            }
+        }
+        InstanaApplicationStateHandler.shared.listen {[weak self] state in
+            guard let self = self else { return }
+            if state == .background {
+                self.runBackgroundFlush()
             }
         }
     }
@@ -53,7 +62,7 @@ public class Reporter {
     func scheduleFlush() {
         guard !queue.items.isEmpty else { return }
         flushWorkItem?.cancel()
-        let workItem = DispatchWorkItem {[weak self] in
+        let workItem = DispatchWorkItem { [weak self] in
             guard let self = self else { return }
             guard let flushWorkItem = self.flushWorkItem, !flushWorkItem.isCancelled else { return }
             let start = Date()
@@ -108,21 +117,41 @@ public class Reporter {
         }
     }
 
+    func runBackgroundFlush() {
+        guard !queue.items.isEmpty else { return }
+
+        backgroundTaskID = UIApplication.shared.beginBackgroundTask(withName: "Finish Instana Reporting Tasks") {
+            // End the task if time expires.
+            guard let task = self.backgroundTaskID else { return }
+            UIApplication.shared.endBackgroundTask(task)
+            self.backgroundTaskID = UIBackgroundTaskIdentifier.invalid
+        }
+
+        flushQueue()
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+            guard let task = self.backgroundTaskID else { return }
+            UIApplication.shared.endBackgroundTask(task)
+            self.backgroundTaskID = UIBackgroundTaskIdentifier.invalid
+        }
+    }
+
     func complete(_ beacons: [CoreBeacon], _ result: BeaconResult) {
-        let finish = completion
+        let beaconsToBeRemoved: [CoreBeacon]
         switch result {
         case .success:
             session.logger.add("Did successfully send beacons")
-            queue.remove(beacons) {_ in finish(result) }
+            beaconsToBeRemoved = beacons
         case let .failure(error):
             session.logger.add("Failed to send Beacon batch: \(error)", level: .warning)
-            if queue.isFull {
-                queue.remove(beacons) {_ in finish(result) }
-            } else {
-                finish(result)
-            }
+            // Beacons will be removed here if queue is full, otherwise the beacons will be kept for the next flush
+            beaconsToBeRemoved = queue.isFull ? beacons : []
         }
-        flushSemaphore?.signal()
+        queue.remove(beaconsToBeRemoved) { [weak self] _ in
+            guard let self = self else { return }
+            self.completionHandler.forEach { $0(result) }
+            self.flushSemaphore?.signal()
+        }
     }
 }
 

@@ -13,11 +13,14 @@ class Beacon: Identifiable {
         id = UUID()
         self.sessionID = sessionID
         self.timestamp = timestamp
-
-        if let stateActive = InstanaSystemUtils.isAppActive {
-            let name = viewName ?? Instana.current?.session.propertyHandler.properties.view
-            self.viewName = stateActive ? name : "Background"
-        } else {
+        switch InstanaApplicationStateHandler.shared.state {
+        case .active:
+            self.viewName = viewName ?? Instana.current?.session.propertyHandler.properties.view
+        case .background:
+            self.viewName = "Background"
+        case .inactive:
+            self.viewName = "Inactive"
+        case .undefined:
             self.viewName = nil
         }
     }
