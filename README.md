@@ -1,7 +1,6 @@
 # Instana iOSAgent
 
-**[Changelog](CHANGELOG.md)** |
-**[Contributing](CONTRIBUTING.md)** |
+**[Changelog](Changelog.md)** |
 
 ---
 
