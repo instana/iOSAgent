@@ -3,7 +3,7 @@ import Foundation
 /// To be used in an asynchronous world (i.e. via a background dispatch queue)
 class InstanaPersistableQueue<T: Codable & Equatable> {
     typealias Completion = ((Result<Void, Error>) -> Void)
-    let maxItems: Int = 100
+    let maxItems: Int
     static var queueJSONFileURL: URL? {
         guard let cacheDirectory = FileManager.default.urls(for: .cachesDirectory, in: .allDomainsMask).first else {
             debugAssertFailure("No Cache directory found")
@@ -17,7 +17,8 @@ class InstanaPersistableQueue<T: Codable & Equatable> {
     var items: [T]
     var isFull: Bool { items.count >= maxItems }
 
-    init() {
+    init(maxItems: Int) {
+        self.maxItems = maxItems
         if let deserializeItems = try? InstanaPersistableQueue<T>.deserialize() {
             items = deserializeItems
         } else {

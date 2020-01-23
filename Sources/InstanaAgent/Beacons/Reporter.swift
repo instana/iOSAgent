@@ -8,7 +8,7 @@ public class Reporter {
     typealias Completion = (BeaconResult) -> Void
     typealias NetworkLoader = (URLRequest, @escaping (InstanaNetworking.Result) -> Void) -> Void
     var completionHandler = [Completion]()
-    let queue = InstanaPersistableQueue<CoreBeacon>()
+    let queue: InstanaPersistableQueue<CoreBeacon>
     private let backgroundQueue = DispatchQueue(label: "com.instana.ios.agent.background", qos: .background)
     private let send: NetworkLoader
     private let batterySafeForNetworking: () -> Bool
@@ -29,6 +29,7 @@ public class Reporter {
         self.session = session
         self.batterySafeForNetworking = batterySafeForNetworking
         self.send = send
+        self.queue = InstanaPersistableQueue<CoreBeacon>(maxItems: session.configuration.maxBeaconsPerRequest)
         networkUtility.connectionUpdateHandler = { [weak self] connectionType in
             guard let self = self else { return }
             if connectionType != .none {

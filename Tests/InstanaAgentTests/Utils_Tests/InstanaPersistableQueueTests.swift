@@ -9,7 +9,7 @@ class InstanaPersistableQueueTests: InstanaTestCase {
         // Given
         let exp = expectation(description: "test_add_read_Queue_single")
         let corebeacons = createCoreBeacons()
-        let queueHandler = InstanaPersistableQueue<CoreBeacon>()
+        let queueHandler = InstanaPersistableQueue<CoreBeacon>(maxItems: 100)
         let singleBeacon = corebeacons.first!
         queueHandler.removeAll()
 
@@ -31,7 +31,7 @@ class InstanaPersistableQueueTests: InstanaTestCase {
         // Given
         let exp = expectation(description: "test_add_read_Queue_multiple")
         let corebeacons = createCoreBeacons()
-        let queueHandler = InstanaPersistableQueue<CoreBeacon>()
+        let queueHandler = InstanaPersistableQueue<CoreBeacon>(maxItems: 100)
         queueHandler.removeAll()
 
         // When
@@ -55,7 +55,7 @@ class InstanaPersistableQueueTests: InstanaTestCase {
         let firstExp = expectation(description: "test_add_read_Queue_adding_persisted_beacons_at_init_1")
         let secondExp = expectation(description: "test_add_read_Queue_adding_persisted_beacons_at_init_2")
         let corebeacons = createCoreBeacons()
-        var queueHandler = InstanaPersistableQueue<CoreBeacon>()
+        var queueHandler = InstanaPersistableQueue<CoreBeacon>(maxItems: 100)
         queueHandler.removeAll()
         queueHandler.add(corebeacons) {_ in
             firstExp.fulfill()
@@ -63,7 +63,7 @@ class InstanaPersistableQueueTests: InstanaTestCase {
         wait(for: [firstExp], timeout: 0.5)
 
         // When
-        queueHandler = InstanaPersistableQueue<CoreBeacon>()
+        queueHandler = InstanaPersistableQueue<CoreBeacon>(maxItems: 100)
         queueHandler.add(corebeacons) {result in
             AssertTrue(result.error == nil)
             secondExp.fulfill()
@@ -79,7 +79,7 @@ class InstanaPersistableQueueTests: InstanaTestCase {
         // Given
         let exp = expectation(description: "test_removeAll")
         let corebeacons = createCoreBeacons()
-        var queueHandler = InstanaPersistableQueue<CoreBeacon>()
+        var queueHandler = InstanaPersistableQueue<CoreBeacon>(maxItems: 100)
         queueHandler.add(corebeacons)
 
         // When
@@ -95,7 +95,7 @@ class InstanaPersistableQueueTests: InstanaTestCase {
 
         // The removal should also be persisted
         // When creating a new instance
-        queueHandler = InstanaPersistableQueue<CoreBeacon>()
+        queueHandler = InstanaPersistableQueue<CoreBeacon>(maxItems: 100)
 
         // Then
         storedBeacons = readStoredCoreBeacons()
@@ -106,7 +106,7 @@ class InstanaPersistableQueueTests: InstanaTestCase {
         // Given
         let exp = expectation(description: "test_remove_last")
         let corebeacons = createCoreBeacons()
-        var queueHandler = InstanaPersistableQueue<CoreBeacon>()
+        var queueHandler = InstanaPersistableQueue<CoreBeacon>(maxItems: 100)
         queueHandler.removeAll()
         queueHandler.add(corebeacons)
 
@@ -124,7 +124,7 @@ class InstanaPersistableQueueTests: InstanaTestCase {
 
         // The removal should also be persisted
         // When creating a new instance
-        queueHandler = InstanaPersistableQueue<CoreBeacon>()
+        queueHandler = InstanaPersistableQueue<CoreBeacon>(maxItems: 100)
 
         // Then
         storedBeacons = readStoredCoreBeacons()

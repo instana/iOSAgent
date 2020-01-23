@@ -35,6 +35,7 @@ struct InstanaConfiguration: Equatable {
         static let transmissionDelay: Instana.Types.Seconds = 1.0
         static let transmissionLowBatteryDelay: Instana.Types.Seconds = 10.0
         static let gzipReport = true
+        static let maxBeaconsPerRequest = 100
     }
 
     var reportingURL: URL
@@ -45,6 +46,7 @@ struct InstanaConfiguration: Equatable {
     var transmissionDelay: Instana.Types.Seconds
     var transmissionLowBatteryDelay: Instana.Types.Seconds
     var gzipReport: Bool
+    var maxBeaconsPerRequest: Int
     var isValid: Bool { !key.isEmpty && !reportingURL.absoluteString.isEmpty }
 
     static var empty: InstanaConfiguration {
@@ -59,6 +61,7 @@ struct InstanaConfiguration: Equatable {
                   monitorTypes: MonitorTypes.defaults,
                   transmissionDelay: Defaults.transmissionDelay,
                   transmissionLowBatteryDelay: Defaults.transmissionLowBatteryDelay,
-                  gzipReport: Defaults.gzipReport)
+                  gzipReport: Defaults.gzipReport,
+                  maxBeaconsPerRequest: Defaults.maxBeaconsPerRequest)
     }
 }

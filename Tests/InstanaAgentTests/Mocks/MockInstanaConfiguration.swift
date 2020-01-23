@@ -19,6 +19,7 @@ extension InstanaConfiguration {
                                             .framerateDrop(frameThreshold: 20),
                                             .alertApplicationNotResponding(threshold: 2.0)],
                              transmissionDelay: 0.0, transmissionLowBatteryDelay: 0.0,
-                             gzipReport: true)
+                             gzipReport: true,
+                             maxBeaconsPerRequest: 100)
     }
 }
