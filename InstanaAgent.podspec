@@ -59,14 +59,7 @@ Integrate Instana Agent Application Performance Management into your iOS app.
   #  the deployment target. You can optionally include the target after the platform.
   #
 
-  # s.platform     = :ios
   s.platform     = :ios, "11.0"
-
-  #  When using multiple platforms
-  # s.ios.deployment_target = "5.0"
-  # s.osx.deployment_target = "10.7"
-  # s.watchos.deployment_target = "2.0"
-  # s.tvos.deployment_target = "9.0"
 
 
   # ――― Source Location ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
@@ -75,7 +68,7 @@ Integrate Instana Agent Application Performance Management into your iOS app.
   #  Supports git, hg, bzr, svn and HTTP.
   #
 
-  s.source       = { :git => "https://github.com/instana/iOSAgent", :branch => "master" }
+  s.source       = { :git => "https://github.com/instana/iOSAgent.git", :tag => "0.1.0" }
 
 
   # ――― Source Code ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
@@ -87,23 +80,7 @@ Integrate Instana Agent Application Performance Management into your iOS app.
   #
 
   s.source_files  = "Sources/InstanaAgent/**/*.{swift}"
-  # s.exclude_files = "Classes/Exclude"
-
-  # s.public_header_files = "Instana/Instana.h"
-
-
-  # ――― Resources ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
-  #
-  #  A list of resources included with the Pod. These are copied into the
-  #  target bundle with a build phase script. Anything else will be cleaned.
-  #  You can preserve files from being cleaned, please don't preserve
-  #  non-essential files like tests, examples and documentation.
-  #
-
-  # s.resource  = "icon.png"
-  # s.resources = "Resources/*.png"
-
-  # s.preserve_paths = "FilesToSave", "MoreFilesToSave"
+  s.exclude_files = "Dev"
 
 
   # ――― Project Linking ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
@@ -111,10 +88,6 @@ Integrate Instana Agent Application Performance Management into your iOS app.
   #  Link your library with frameworks, or libraries. Libraries do not include
   #  the lib prefix of their name.
   #
-  # s.frameworks = "SomeFramework", "AnotherFramework"
-
-  # s.library   = "iconv"
-  # s.libraries = "iconv", "xml2"
 
   s.dependency "GzipSwift"
 
@@ -125,9 +98,6 @@ Integrate Instana Agent Application Performance Management into your iOS app.
   #  you can include multiple dependencies to ensure it works.
 
   s.requires_arc = true
-
-  # s.xcconfig = { "HEADER_SEARCH_PATHS" => "$(SDKROOT)/usr/include/libxml2" }
-
   s.swift_version = "5.1"
 
 end
