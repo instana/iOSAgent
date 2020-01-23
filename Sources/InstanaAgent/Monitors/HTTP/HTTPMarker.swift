@@ -116,7 +116,7 @@ extension HTTPMarker {
 }
 
 extension HTTPMarker {
-    @objc public class Size: NSObject {
+    @objc(HTTPSize) public class Size: NSObject {
         var headerBytes: Instana.Types.Bytes?
         var bodyBytes: Instana.Types.Bytes?
         var bodyBytesAfterDecoding: Instana.Types.Bytes?
