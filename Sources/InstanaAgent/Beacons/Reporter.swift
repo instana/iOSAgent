@@ -29,7 +29,7 @@ public class Reporter {
         self.session = session
         self.batterySafeForNetworking = batterySafeForNetworking
         self.send = send
-        self.queue = InstanaPersistableQueue<CoreBeacon>(maxItems: session.configuration.maxBeaconsPerRequest)
+        queue = InstanaPersistableQueue<CoreBeacon>(maxItems: session.configuration.maxBeaconsPerRequest)
         networkUtility.connectionUpdateHandler = { [weak self] connectionType in
             guard let self = self else { return }
             if connectionType != .none {
