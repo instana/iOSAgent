@@ -17,7 +17,7 @@ Pod::Spec.new do |s|
 
   s.name         = "InstanaAgent"
   s.version      = "0.1.0"
-  s.summary      = "Application Performance Management (APM)."
+  s.summary      = "iOS agent to use Instana for your iOS app. Application Performance Management (APM)."
 
   # This description is used to generate tags and improve search results.
   #   * Think: What does it do? Why did you write it? What is the focus?
@@ -25,7 +25,7 @@ Pod::Spec.new do |s|
   #   * Write the description between the DESC delimiters below.
   #   * Finally, don't worry about the indent, CocoaPods strips it!
   s.description  = <<-DESC
-Integrate Instana Agent Application Performance Management into your iOS app.
+		   Integrate Instana Agent Application Performance Management into your iOS app.
                    DESC
 
   s.homepage     = "https://github.com/instana/iOSAgent"
