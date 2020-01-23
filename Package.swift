@@ -21,9 +21,11 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages which this package depends on.
         .target(
             name: "InstanaAgent",
-            dependencies: ["Gzip"]),
+            dependencies: ["Gzip"],
+            exclude: ["Dev"]),
         .testTarget(
             name: "InstanaAgentTests",
-            dependencies: ["InstanaAgent", "NIO", "NIOHTTP1"]),
+            dependencies: ["InstanaAgent", "NIO", "NIOHTTP1"],
+            exclude: ["Dev"]),
     ]
 )
