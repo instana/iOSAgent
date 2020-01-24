@@ -1,0 +1,28 @@
+version: 2.1
+
+jobs:
+  build:
+
+    macos:
+      xcode: 11.3.1 # Specify the Xcode version to use
+
+    steps:
+      - checkout
+      - run: scripts/lint.sh
+      - run: scripts/run-swiftpm-tests.sh --ios=13 --test=unit
+      - run: scripts/run-swiftpm-tests.sh --ios=12 --test=unit
+      - run: scripts/run-swiftpm-tests.sh --ios=11 --test=unit
+
+      - run: scripts/run-swiftpm-tests.sh --ios=13 --test=integration
+      - run: scripts/run-swiftpm-tests.sh --ios=12 --test=integration
+      - run: scripts/run-swiftpm-tests.sh --ios=11 --test=integration
+      # UnitTest with iOS 11
+      #- run: ./run-swiftpm-tests.sh --ios=11 --test=unit
+
+      # Collect XML test results data to show in the UI, and save the same XML
+      # files under test-results folder in the Artifacts tab
+      #- store_test_results:
+      #      path: test_output
+      #- store_artifacts:
+      #    path: test_output
+      #    destination: scan-output
