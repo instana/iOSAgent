@@ -1,6 +1,5 @@
 import CoreTelephony
 import Foundation
-import Network
 
 class NetworkUtility {
     private(set) var connectionType: ConnectionType = .undetermined {
@@ -11,27 +10,22 @@ class NetworkUtility {
         }
     }
 
-    private let queue = DispatchQueue(label: "NetworkUtility")
     var connectionUpdateHandler: (ConnectionType) -> Void = { _ in }
+    private let reachability: Reachability?
 
-    @available(iOS 12.0, *)
-    lazy var pathMonitor = NWPathMonitor()
+    init(reachability: Reachability? = nil) {
+        self.reachability = reachability ?? (try? Reachability())
 
-    init(connectionType: ConnectionType? = nil) {
-        if #available(iOS 12.0, *) {
-            self.connectionType = connectionType ?? ConnectionType.from(pathMonitor.currentPath)
-
-            // Don't run during tests - it's not testable anyway
-            if !ProcessInfo.isRunningTests {
-                pathMonitor.pathUpdateHandler = { [weak self] path in
-                    guard let self = self else { return }
-                    DispatchQueue.main.async {
-                        self.update(ConnectionType.from(path))
-                    }
-                }
-                pathMonitor.start(queue: queue)
-            }
+        // Remove when dropping iOS 11 and NWPath (see git history)
+        reachability?.whenReachable = { [weak self] reachability in
+            guard let self = self else { return }
+            self.update(reachability.connection == .wifi ? .wifi : .cellular)
         }
+        reachability?.whenUnreachable = { [weak self] _ in
+            guard let self = self else { return }
+            self.update(.none)
+        }
+        try? reachability?.startNotifier()
     }
 
     func update(_ newType: ConnectionType) {
@@ -102,19 +96,6 @@ extension NetworkUtility {
             case .cellular: return CellularType.current.rawValue
             case .undetermined: return "Unknown"
             }
-        }
-
-        @available(iOS 12.0, *)
-        static func from(_ path: NWPath) -> ConnectionType {
-            guard path.status == .satisfied else {
-                return .undetermined
-            }
-            if path.usesInterfaceType(.cellular) {
-                return .cellular
-            } else if path.usesInterfaceType(.wifi) {
-                return .wifi
-            }
-            return .undetermined
         }
     }
 }

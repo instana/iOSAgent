@@ -1068,11 +1068,7 @@ extension NetworkUtility {
     static var none: NetworkUtility { utility(connectionType: .none) }
 
     static func utility(connectionType: NetworkUtility.ConnectionType) -> NetworkUtility {
-        let util = NetworkUtility(connectionType: connectionType)
-        if #available(iOS 12.0, *) {
-            // We disable the monitor updater to have more control in our tests
-            util.pathMonitor.cancel()
-        }
-        return util
+        let reach = try? MockReachability(connection: connectionType)
+        return NetworkUtility(reachability: reach)
     }
 }
