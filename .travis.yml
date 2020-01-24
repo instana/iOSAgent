@@ -1,0 +1,29 @@
+os: osx
+osx_image: xcode11.3
+language: swift
+git:
+  depth: 1
+
+jobs:
+  include:
+    - name: Run Validations (SwiftLint)
+      script: scripts/lint.sh
+
+    - stage: Unit Tests iOS 13
+      script: scripts/run-swiftpm-tests.sh --ios=13 --test=unit
+
+    - stage: Unit Tests iOS 12
+      script: scripts/run-swiftpm-tests.sh --ios=12 --test=unit
+
+    - stage: Unit Tests iOS 11
+      script: scripts/run-swiftpm-tests.sh --ios=11 --test=unit
+
+#     - stage: Integration Tests iOS 13
+#       script: scripts/run-swiftpm-tests.sh --ios=13 --test=integration
+#    - stage: Integration Tests iOS 12
+#      script: scripts/run-swiftpm-tests.sh --ios=12 --test=integration
+#    - stage: Integration Tests iOS 11
+#      script: scripts/run-swiftpm-tests.sh --ios=11 --test=integration
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
