@@ -6,6 +6,7 @@ class ReporterTests: InstanaTestCase {
 
     var env: InstanaSession!
     var reporterRetainer: [Reporter]!
+    var sendCount: Int = 0
 
     override func setUp() {
         super.setUp()
@@ -22,38 +23,29 @@ class ReporterTests: InstanaTestCase {
 
     func test_submit() {
         // Given
-        var didSchedule = false
         var didSubmit = false
         let submittedToQueue = expectation(description: "Submitted To Queue")
-        let reporter = TestReporter(session(delay: 0.2)) {}
-        reporter.didSchedule = {
-            didSchedule = true
-        }
+        let reporter = ReporterDefaultWifi()
 
         // When
         reporter.submit(AlertBeacon(alertType: .lowMemory)) {
             didSubmit = true
             submittedToQueue.fulfill()
         }
-        wait(for: [submittedToQueue], timeout: 0.2)
+        wait(for: [submittedToQueue], timeout: 3.0)
 
         // Then
-        AssertTrue(didSchedule)
         AssertTrue(didSubmit)
         AssertTrue(reporter.queue.items.count == 1)
     }
 
     func test_submit_multiple_must_be_delayed() {
         // Given
-        var didSchedule = false
         var didSubmitFirst = false
         var didSubmitSecond = false
         let firstSubmittedToQueue = expectation(description: "Submitted To Queue")
         let secondSubmittedToQueue = expectation(description: "Submitted To Queue")
-        let reporter = TestReporter(session(delay: 0.2)) {}
-        reporter.didSchedule = {
-            didSchedule = true
-        }
+        let reporter = ReporterDefaultWifi()
 
         // When
         reporter.submit(AlertBeacon(alertType: .lowMemory)) {
@@ -64,44 +56,36 @@ class ReporterTests: InstanaTestCase {
             didSubmitSecond = true
             secondSubmittedToQueue.fulfill()
         }
-        wait(for: [firstSubmittedToQueue], timeout: 0.2)
+        wait(for: [firstSubmittedToQueue], timeout: 2.0)
 
         // Then
-        AssertTrue(didSchedule)
         AssertTrue(didSubmitFirst)
         AssertTrue(didSubmitSecond == false)
         AssertTrue(reporter.queue.items.count == 1)
 
         // Wait more
-        wait(for: [secondSubmittedToQueue], timeout: 0.2)
+        wait(for: [secondSubmittedToQueue], timeout: 3.0)
         AssertTrue(didSubmitSecond)
         AssertTrue(reporter.queue.items.count == 2)
     }
 
     func test_schedule_and_flush_once() {
         // Given
-        var didFlush = false
         let expectflush = expectation(description: "Submitted To Queue")
-        let reporter = TestReporter(session(delay: 0.0)) {
-            didFlush = true
-            expectflush.fulfill()
-        }
+        let reporter = ReporterDefaultWifi([expectflush])
 
         // When
         reporter.submit(AlertBeacon(alertType: .lowMemory))
-        wait(for: [expectflush], timeout: 0.6)
+        wait(for: [expectflush], timeout: 3)
 
         // Then
-        AssertTrue(didFlush)
         AssertTrue(reporter.queue.items.count == 0)
     }
 
     func test_schedule_and_flush_once_with_multiple() {
         // Given
-        var flushCount = 0
-        let reporter = TestReporter(session(delay: 0.0)) {
-            flushCount += 1
-        }
+        let expectflush = expectation(description: "Wait for")
+        let reporter = ReporterDefaultWifi([expectflush])
 
         // When
         reporter.submit(AlertBeacon(alertType: .lowMemory))
@@ -110,30 +94,28 @@ class ReporterTests: InstanaTestCase {
         reporter.submit(AlertBeacon(alertType: .lowMemory))
         reporter.submit(AlertBeacon(alertType: .lowMemory))
         reporter.submit(AlertBeacon(alertType: .lowMemory))
-        wait(0.5)
+        wait(for: [expectflush], timeout: 2.0)
 
         // Then - Should only flush once when getting more beacons before flushing occured
-        AssertTrue(flushCount == 1)
+        AssertTrue(sendCount == 1)
         AssertTrue(reporter.queue.items.count == 0)
     }
 
     func test_schedule_and_flush_twice() {
         // Given
-        var flushCount = 0
-        let reporter = TestReporter(session(delay: 0.0)) {
-            flushCount += 1
-        }
+        let waitForFirst = expectation(description: "Wait For 1st")
+        let waitForSecond = expectation(description: "Wait For 2nd")
+        let reporter = ReporterDefaultWifi([waitForFirst, waitForSecond])
 
         // When
         reporter.submit(AlertBeacon(alertType: .lowMemory))
-        // Submit one more after delay
-        wait(0.6)
-        AssertTrue(flushCount == 1)
+        wait(for: [waitForFirst], timeout: 2.0)
+        AssertTrue(sendCount == 1)
         reporter.submit(AlertBeacon(alertType: .lowMemory))
-        wait(0.6)
+        wait(for: [waitForSecond], timeout: 4.0)
 
         // Then - Should flush twice when getting more beacons after first flushing occured
-        AssertTrue(flushCount == 2)
+        AssertTrue(sendCount == 2)
         AssertTrue(reporter.queue.items.count == 0)
     }
 
@@ -156,30 +138,27 @@ class ReporterTests: InstanaTestCase {
         let givenBeacon = AlertBeacon(alertType: .lowMemory)
 
         let start = Date()
-        var flushCount = 0
         var didSend: Date?
-        let reporter = TestReporter(session(delay: delay)) {
-            flushCount += 1
+        let reporter = ReporterDefaultWifi(delay: delay, [finalExp]) {
             didSend = Date()
-            finalExp.fulfill()
         }
 
         // When
         reporter.submit(givenBeacon) {
             submitExp.fulfill()
         }
-        wait(for: [submitExp], timeout: 0.4)
+        wait(for: [submitExp], timeout: 3.0)
 
         // Then
         AssertTrue(reporter.queue.items.count == 1)
-        AssertTrue(flushCount == 0)
+        AssertTrue(sendCount == 0)
         AssertEqualAndNotNil(reporter.queue.items.last?.bid, givenBeacon.id.uuidString)
 
         // Wait for final flush
-        wait(for: [finalExp], timeout: delay * 2)
+        wait(for: [finalExp], timeout: 5.0)
 
         // Then
-        AssertTrue(flushCount == 1)
+        AssertTrue(sendCount == 1)
         AssertTrue(didSend?.timeIntervalSince(start) ?? 0.0 >= delay)
         AssertTrue(reporter.queue.items.count == 0)
     }
@@ -222,7 +201,7 @@ class ReporterTests: InstanaTestCase {
     /// Expected Result - Report should NOT be sent (because we are offline)
     func test_dont_send_when_offline() {
         // Given
-        let exp = expectation(description: "Dont_send_offline")
+        let waitFor = expectation(description: "Dont_send_offline")
         var resultError: InstanaError?
         var sendNotCalled = true
         let reporter = Reporter(session(delay: 0.0), batterySafeForNetworking: { true }, networkUtility: .none,
@@ -233,10 +212,10 @@ class ReporterTests: InstanaTestCase {
         // When Offline
         reporter.completionHandler.append {result in
             resultError = result.error as? InstanaError
-            exp.fulfill()
+            waitFor.fulfill()
         }
         reporter.submit(AlertBeacon(alertType: .lowMemory))
-        waitForExpectations(timeout: 0.2, handler: nil)
+        wait(for: [waitFor], timeout: 2.0)
 
         // Then
         AssertTrue(sendNotCalled)
@@ -310,7 +289,7 @@ class ReporterTests: InstanaTestCase {
             exp.fulfill()
         }
         reporter.submit(AlertBeacon(alertType: .lowMemory))
-        waitForExpectations(timeout: 0.5, handler: nil)
+        waitForExpectations(timeout: 2.0, handler: nil)
 
         // Then
         AssertTrue(sendNotCalled)
@@ -325,18 +304,18 @@ class ReporterTests: InstanaTestCase {
     /// Expected Result - Report should be sent
     func test_submiting_cellularConnection_lowBattery_wifi() {
         // Given
-        let exp = expectation(description: "Delayed sending")
+        let waitFor = expectation(description: "Delayed sending")
         var didSendReport = false
         let reporter = Reporter(session(delay: 0.0, suspend: [.cellularConnection]),
                                 batterySafeForNetworking: { false }, networkUtility: .wifi,
                                       send: { _, _ in
                                         didSendReport = true
-                                        exp.fulfill()
+                                        waitFor.fulfill()
         })
 
         // When
         reporter.submit(AlertBeacon(alertType: .lowMemory))
-        waitForExpectations(timeout: 0.3, handler: nil)
+        wait(for: [waitFor], timeout: 2.0)
 
         // Then
         AssertTrue(didSendReport)
@@ -350,18 +329,18 @@ class ReporterTests: InstanaTestCase {
     /// Expected Result - Report should be sent
     func test_submiting_cellularConnection_goodBattery_wifi() {
         // Given
-        let exp = expectation(description: "Delayed sending")
+        let waitFor = expectation(description: "Delayed sending")
         var didSendReport = false
         let reporter = Reporter(session(delay: 0.0, suspend: [.cellularConnection]),
                                 batterySafeForNetworking: { true }, networkUtility: .wifi,
                                       send: { _, _ in
                                         didSendReport = true
-                                        exp.fulfill()
+                                        waitFor.fulfill()
         })
 
         // When
         reporter.submit(AlertBeacon(alertType: .lowMemory))
-        waitForExpectations(timeout: 0.3, handler: nil)
+        wait(for: [waitFor], timeout: 2.0)
 
         // Then
         AssertTrue(didSendReport)
@@ -390,7 +369,7 @@ class ReporterTests: InstanaTestCase {
             exp.fulfill()
         }
         reporter.submit(AlertBeacon(alertType: .lowMemory))
-        waitForExpectations(timeout: 0.5, handler: nil)
+        waitForExpectations(timeout: 2.0, handler: nil)
 
         // Then
         AssertTrue(sendNotCalled)
@@ -406,7 +385,7 @@ class ReporterTests: InstanaTestCase {
     /// Expected Result - Report with beacons should NOT be sent
     func test_suspendLowBattery_lowBattery_noWifi() {
         // Given
-        let exp = expectation(description: "Delayed sending")
+        let waitFor = expectation(description: "Delayed sending")
         var resultError: InstanaError?
         var sendNotCalled = true
         let reporter = Reporter(session(delay: 0.0, suspend: [.lowBattery]),
@@ -418,10 +397,10 @@ class ReporterTests: InstanaTestCase {
         // When
         reporter.completionHandler.append {result in
             resultError = result.error as? InstanaError
-            exp.fulfill()
+            waitFor.fulfill()
         }
         reporter.submit(AlertBeacon(alertType: .lowMemory))
-        waitForExpectations(timeout: 0.3, handler: nil)
+        wait(for: [waitFor], timeout: 2.0)
 
         // Then
         AssertTrue(sendNotCalled)
@@ -436,18 +415,18 @@ class ReporterTests: InstanaTestCase {
     /// Expected Result - Report should be sent
     func test_suspendLowBattery_goodBattery_Wifi() {
         // Given
-        let exp = expectation(description: "Delayed sending")
+        let waitFor = expectation(description: "Delayed sending")
         var didSendReport = false
         let reporter = Reporter(session(delay: 0.0, suspend: [.lowBattery]),
                                 batterySafeForNetworking: { true }, networkUtility: .wifi,
                                       send: { _, _ in
                                         didSendReport = true
-                                        exp.fulfill()
+                                        waitFor.fulfill()
         })
 
         // When
         reporter.submit(AlertBeacon(alertType: .lowMemory))
-        waitForExpectations(timeout: 0.3, handler: nil)
+        wait(for: [waitFor], timeout: 2.0)
 
         // Then
         AssertTrue(didSendReport)
@@ -461,18 +440,18 @@ class ReporterTests: InstanaTestCase {
     /// Expected Result - Report should be sent
     func test_suspendLowBattery_goodBattery_noWifi() {
         // Given
-        let exp = expectation(description: "Delayed sending")
+        let waitFor = expectation(description: "Delayed sending")
         var didSendReport = false
         let reporter = Reporter(session(delay: 0.0, suspend: [.lowBattery]),
                                 batterySafeForNetworking: { true }, networkUtility: .cell,
                                       send: { _, _ in
                                         didSendReport = true
-                                        exp.fulfill()
+                                        waitFor.fulfill()
         })
 
         // When
         reporter.submit(AlertBeacon(alertType: .lowMemory))
-        waitForExpectations(timeout: 0.3, handler: nil)
+        wait(for: [waitFor], timeout: 2.0)
 
         // Then
         AssertTrue(didSendReport)
@@ -486,7 +465,7 @@ class ReporterTests: InstanaTestCase {
     /// Expected Result - Report should NOT be sent
     func test_suspendLowBattery_lowBattery_WIFI() {
         // Given
-        let exp = expectation(description: "Delayed sending")
+        let waitFor = expectation(description: "Delayed sending")
         var resultError: InstanaError?
         var didNOTSendReport = true
         let reporter = Reporter(session(delay: 0.0, suspend: [.lowBattery]),
@@ -498,10 +477,10 @@ class ReporterTests: InstanaTestCase {
         // When
         reporter.completionHandler.append {result in
             resultError = result.error as? InstanaError
-            exp.fulfill()
+            waitFor.fulfill()
         }
         reporter.submit(AlertBeacon(alertType: .lowMemory))
-        waitForExpectations(timeout: 0.3, handler: nil)
+        wait(for: [waitFor], timeout: 2.0)
 
         // Then
         AssertTrue(didNOTSendReport)
@@ -517,7 +496,7 @@ class ReporterTests: InstanaTestCase {
     ///
     /// Expected Result - Report with beacons should NOT be sent
     func test_suspend_all_lowBattery_noWIFI() {
-        let exp = expectation(description: "Delayed sending")
+        let waitFor = expectation(description: "Delayed sending")
         var resultError: InstanaError?
         var sendNotCalled = true
         let reporter = Reporter(session(delay: 0.0, suspend: [.lowBattery, .cellularConnection]),
@@ -529,10 +508,10 @@ class ReporterTests: InstanaTestCase {
         // When
         reporter.completionHandler.append {result in
             resultError = result.error as? InstanaError
-            exp.fulfill()
+            waitFor.fulfill()
         }
         reporter.submit(AlertBeacon(alertType: .lowMemory))
-        waitForExpectations(timeout: 0.3, handler: nil)
+        wait(for: [waitFor], timeout: 2.0)
 
         // Then
         AssertTrue(sendNotCalled)
@@ -733,14 +712,11 @@ class ReporterTests: InstanaTestCase {
     /// Expected Result - One more item should be allowed when queue is almost full (-1)
     func test_almost_full_queue_allows_one_new_beacon() {
         // Given
-        let waitForSend = expectation(description: "Delayed sending")
         var didSend = false
-        let reporter = Reporter(session(delay: 0.0),
-                                batterySafeForNetworking: { true }, networkUtility: .wifi,
-                                send: { _, _ in
-                                    didSend = true
-                                    waitForSend.fulfill()
-        })
+        let waitForSend = expectation(description: "Delayed sending")
+        let reporter = ReporterDefaultWifi([waitForSend]) {
+            didSend = true
+        }
         let beacons: [HTTPBeacon] = (0..<reporter.queue.maxItems - 1).map { _ in HTTPBeacon.createMock() }
         let corebeacons = try! CoreBeaconFactory(env).map(beacons)
         reporter.queue.add(corebeacons)
@@ -894,7 +870,7 @@ class ReporterTests: InstanaTestCase {
         mockBeaconSubmission(.success(statusCode: 300), resultCallback: verifyResult)
         mockBeaconSubmission(.success(statusCode: 400), resultCallback: verifyResult)
         mockBeaconSubmission(.success(statusCode: 500), resultCallback: verifyResult)
-        wait(for: [waitForSend], timeout: 2.0)
+        wait(for: [waitForSend], timeout: 4.0)
 
         // Then
         AssertEqualAndNotZero(resultError?.code ?? 0, InstanaError.Code.invalidResponse.rawValue)
@@ -917,37 +893,8 @@ class ReporterTests: InstanaTestCase {
         reporter = nil
 
         // Then
+        wait(0.2)
         XCTAssertNil(weakReporter)
-    }
-
-    func test_queue_should_remove_sent_items_on_success() {
-        let waitForSubmitNextBeacon = expectation(description: "Wait for Submit")
-        var shouldCallCompletion = false
-        let beacons: [HTTPBeacon] = (0...10).map { _ in HTTPBeacon.createMock() }
-        let corebeacons = try! CoreBeaconFactory(env).map(beacons)
-        let reporter = Reporter(session(delay: 0.0),
-                                batterySafeForNetworking: { true }, networkUtility: .wifi,
-                                send: { _, completion in
-                                    completion(.success(statusCode: 200))
-        })
-        reporter.queue.add(corebeacons)
-        reporter.completionHandler.append {_ in
-            shouldCallCompletion = true
-        }
-        let nextBeacon = HTTPBeacon.createMock()
-
-        // When
-        reporter.submit(nextBeacon) {
-            waitForSubmitNextBeacon.fulfill()
-        }
-        reporter.flushQueue()
-        wait(for: [waitForSubmitNextBeacon], timeout: 3.0)
-
-        // Then
-        // The nextBeacon comes too late and is not part of the flushed beacons
-        AssertTrue(shouldCallCompletion)
-        AssertTrue(reporter.queue.items.count == 1)
-        AssertEqualAndNotNil(reporter.queue.items.last?.bid, nextBeacon.id.uuidString)
     }
 
     func test_queue_should_be_cleared_after_flush_when_full_even_for_error() {
@@ -1025,26 +972,16 @@ extension ReporterTests {
         return InstanaSession.mock(configuration: config)
     }
 
-    class TestReporter: Reporter {
-        var didFlushQueue: () -> Void
-        var didSchedule: (() -> Void)?
-        init(_ env: InstanaSession, _ didFlushQueue: @escaping () -> Void) {
-            self.didFlushQueue = didFlushQueue
-            super.init(env)
-            self.queue.items.removeAll()
-        }
-        override func flushQueue() {
-            queue.items.removeAll()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                self.didFlushQueue()
-            }
-            super.flushQueue()
-        }
-
-        override func scheduleFlush() {
-            didSchedule?()
-            super.scheduleFlush()
-        }
+    func ReporterDefaultWifi(delay: TimeInterval = 0.0, _ expectations: [XCTestExpectation] = [], _ sent: (() -> Void)? = nil) -> Reporter {
+        Reporter(session(delay: delay), batterySafeForNetworking: { true }, networkUtility: .wifi,
+                                send: { _, callback in
+                                    callback(.success(statusCode: 200))
+                                    if expectations.count > self.sendCount {
+                                        expectations[self.sendCount].fulfill()
+                                    }
+                                    self.sendCount += 1
+                                    sent?()
+        })
     }
 
     func mockBeaconSubmission(_ loadResult: InstanaNetworking.Result, resultCallback: @escaping (BeaconResult) -> Void) {
@@ -1054,7 +991,10 @@ extension ReporterTests {
         let reporter = Reporter(.mock(configuration: config),
                             batterySafeForNetworking: { true },
                             networkUtility: .wifi,
-                            send: { _, callback in callback(loadResult) })
+                            send: { _, callback in
+                                self.sendCount += 1
+                                callback(loadResult)
+        })
         reporter.queue.removeAll()
         reporter.completionHandler.append(resultCallback)
         reporter.submit(AlertBeacon(alertType: .lowMemory))

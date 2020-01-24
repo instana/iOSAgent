@@ -25,7 +25,7 @@ esac
 
 echo "Running..."
 case "$ios_version" in
-    11)       xcodebuild test -destination 'name=iPhone X,OS=11.4' -scheme ''${scheme}'' | xcpretty;;
+    11)       xcodebuild test -destination 'name=iPhone X,OS=11.1' -scheme ''${scheme}'' | xcpretty;;
     12)       xcodebuild test -destination 'name=iPhone Xs Max,OS=12.4' -scheme ''${scheme}'' | xcpretty;;
     13)       xcodebuild test -destination 'name=iPhone 11 Pro Max,OS=13.3' -scheme ''${scheme}'' | xcpretty;;
 esac

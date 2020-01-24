@@ -60,7 +60,7 @@ class InstanaPersistableQueueTests: InstanaTestCase {
         queueHandler.add(corebeacons) {_ in
             firstExp.fulfill()
         }
-        wait(for: [firstExp], timeout: 0.5)
+        wait(for: [firstExp], timeout: 2.0)
 
         // When
         queueHandler = InstanaPersistableQueue<CoreBeacon>(maxItems: 100)
@@ -68,7 +68,7 @@ class InstanaPersistableQueueTests: InstanaTestCase {
             AssertTrue(result.error == nil)
             secondExp.fulfill()
         }
-        wait(for: [secondExp], timeout: 1.0)
+        wait(for: [secondExp], timeout: 3.0)
 
         // Then
         let storedBeacons = readStoredCoreBeacons()
