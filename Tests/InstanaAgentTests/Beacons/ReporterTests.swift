@@ -759,7 +759,7 @@ class ReporterTests: InstanaTestCase {
     ///  - Battery: Good
     ///  - WIFI: YES
     ///
-    /// Expected Result - No more items should be allowed when queue is full. Items will be discarded
+    /// Expected Result - No more items should be allowed when queue is full. Items will be discarded (100 items limit reached)
     func test_full_queue_discards_new_beacons() {
         // Given
         var shouldNotSend = true

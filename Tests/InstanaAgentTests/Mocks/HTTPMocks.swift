@@ -23,7 +23,9 @@ class MockURLSessionTaskMetrics: URLSessionTaskMetrics {
     override var transactionMetrics: [URLSessionTaskTransactionMetrics] { stubbedTransactionMetrics }
     static var random: MockURLSessionTaskMetrics {
         let sessionTaskMetrics = MockURLSessionTaskMetrics()
-        sessionTaskMetrics.stubbedTransactionMetrics = [MockURLSessionTaskTransactionMetrics.random]
+        if #available(iOS 13.0, *) {
+            sessionTaskMetrics.stubbedTransactionMetrics = [MockURLSessionTaskTransactionMetrics.random]
+        }
         return sessionTaskMetrics
     }
 }

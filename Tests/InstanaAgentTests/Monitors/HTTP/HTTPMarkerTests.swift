@@ -36,9 +36,12 @@ class HTTPMarkerTests: InstanaTestCase {
         marker.set(responseSize: responseSize)
 
         // Then
-        XCTAssertEqual(marker.responseSize?.headerBytes, 512)
+
         XCTAssertEqual(marker.responseSize?.bodyBytes, 1024)
-        XCTAssertEqual(marker.responseSize?.bodyBytesAfterDecoding, 2000)
+        if #available(iOS 13.0, *) {
+            XCTAssertEqual(marker.responseSize?.headerBytes, 512)
+            XCTAssertEqual(marker.responseSize?.bodyBytesAfterDecoding, 2000)
+        }
     }
 
     func test_set_HTTP_Sizes_for_task() {
@@ -99,7 +102,7 @@ class HTTPMarkerTests: InstanaTestCase {
         // Then
         XCTAssertEqual(sut.duration, 0)
     }
-    
+
     func test_finish_Marker_withSuccess_shouldRetainOriginalValues() {
         // Given
         let delegate = Delegate()
@@ -123,7 +126,7 @@ class HTTPMarkerTests: InstanaTestCase {
             XCTFail("Wrong marker state: \(marker.state)")
         }
     }
-    
+
     func test_finishing_Marker_withError_shouldRetainOriginalValues() {
         // Given
 
@@ -149,7 +152,7 @@ class HTTPMarkerTests: InstanaTestCase {
             XCTFail("Wrong marker state: \(marker.state)")
         }
     }
-    
+
     func test_finishing_Marker_withCancel_shouldRetainOriginalValues() {
         // Given
         let delegate = Delegate()
@@ -221,7 +224,7 @@ class HTTPMarkerTests: InstanaTestCase {
         XCTAssertEqual(beacon.responseSize, responseSize)
         XCTAssertNil(beacon.error)
     }
-    
+
     func test_createBeacon_failedMarker() {
         // Given
         let url: URL = .random
@@ -249,7 +252,7 @@ class HTTPMarkerTests: InstanaTestCase {
         AssertEqualAndNotNil(beacon.responseSize?.bodyBytesAfterDecoding, responseSize.bodyBytesAfterDecoding)
         XCTAssertEqual(beacon.error, HTTPError.unknown(error))
     }
-    
+
     func test_createBeacon_canceledMarker() {
         // Given
         let url: URL = .random
