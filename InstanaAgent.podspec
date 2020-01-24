@@ -16,8 +16,8 @@ Pod::Spec.new do |s|
   #
 
   s.name         = "InstanaAgent"
-  s.version      = "0.1.0"
-  s.summary      = "iOS agent to use Instana for your iOS app. Application Performance Management (APM)."
+  s.version      = "1.0.0"
+  s.summary      = "Instana iOS agent."
 
   # This description is used to generate tags and improve search results.
   #   * Think: What does it do? Why did you write it? What is the focus?
@@ -68,7 +68,7 @@ Pod::Spec.new do |s|
   #  Supports git, hg, bzr, svn and HTTP.
   #
 
-  s.source       = { :git => "https://github.com/instana/iOSAgent.git", :tag => "0.1.0" }
+  s.source       = { :git => "https://github.com/instana/iOSAgent.git", :tag => "1.0.0" }
 
 
   # ――― Source Code ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
