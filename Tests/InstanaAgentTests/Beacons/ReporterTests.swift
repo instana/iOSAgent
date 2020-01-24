@@ -844,7 +844,7 @@ class ReporterTests: InstanaTestCase {
         mockBeaconSubmission(.success(statusCode: 200), resultCallback: verifyResult)
         mockBeaconSubmission(.success(statusCode: 204), resultCallback: verifyResult)
         mockBeaconSubmission(.success(statusCode: 299), resultCallback: verifyResult)
-        wait(for: [waitForSend], timeout: 4.0)
+        wait(for: [waitForSend], timeout: 10.0)
 
         // Then
         AssertTrue(resultSuccess == 3)
@@ -870,7 +870,7 @@ class ReporterTests: InstanaTestCase {
         mockBeaconSubmission(.success(statusCode: 300), resultCallback: verifyResult)
         mockBeaconSubmission(.success(statusCode: 400), resultCallback: verifyResult)
         mockBeaconSubmission(.success(statusCode: 500), resultCallback: verifyResult)
-        wait(for: [waitForSend], timeout: 4.0)
+        wait(for: [waitForSend], timeout: 10.0)
 
         // Then
         AssertEqualAndNotZero(resultError?.code ?? 0, InstanaError.Code.invalidResponse.rawValue)
