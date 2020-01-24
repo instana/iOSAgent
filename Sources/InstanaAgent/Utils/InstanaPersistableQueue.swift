@@ -14,6 +14,16 @@ class InstanaPersistableQueue<T: Codable & Equatable> {
         return cacheDirectory.appendingPathComponent(filename)
     }
 
+    static func reset() {
+        guard let fileURL = InstanaPersistableQueue.queueJSONFileURL else { return }
+        let fileManager = FileManager()
+        do {
+            try fileManager.removeItem(at: fileURL)
+        } catch {
+            print("Could not reset queue at \(fileURL)")
+        }
+    }
+
     var items: [T]
     var isFull: Bool { items.count >= maxItems }
 

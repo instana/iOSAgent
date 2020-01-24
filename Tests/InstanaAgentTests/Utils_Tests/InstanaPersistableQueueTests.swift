@@ -115,7 +115,7 @@ class InstanaPersistableQueueTests: InstanaTestCase {
             AssertTrue(result.error == nil)
             exp.fulfill()
         }
-        wait(for: [exp], timeout: 0.4)
+        wait(for: [exp], timeout: 4)
 
         // Then
         var storedBeacons = readStoredCoreBeacons()
