@@ -5,6 +5,11 @@ else
   cd tools
 fi
 
-git clone --depth 1 https://github.com/nicklockwood/SwiftFormat
-cd SwiftFormat
+mkdir SwiftFormat
+git clone --depth 1 https://github.com/nicklockwood/SwiftFormat SwiftFormat-src
+cd SwiftFormat-src
 swift build -c release
+cp CommandLineTool/swiftformat ../SwiftFormat
+cd ..
+rm -rf SwiftFormat-src
+
