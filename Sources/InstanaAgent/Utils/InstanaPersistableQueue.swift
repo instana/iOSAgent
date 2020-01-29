@@ -9,7 +9,7 @@ class InstanaPersistableQueue<T: Codable & Equatable> {
             debugAssertFailure("No Cache directory found")
             return nil
         }
-        let typeName = type(of: self)
+        let typeName = String(describing: self)
         let filename = ".instana_\(typeName)_queue.json"
         return cacheDirectory.appendingPathComponent(filename)
     }
