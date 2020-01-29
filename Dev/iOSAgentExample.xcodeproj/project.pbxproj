@@ -250,7 +250,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if [ -f ../.env-vars ]\nthen\n    echo \"Import secure variables\"\n    source ../.env-vars\n    /usr/libexec/PlistBuddy -c \"Set :INSTANA_REPORTING_URL ${INSTANA_REPORTING_URL}\" ${INFOPLIST_FILE}\n    /usr/libexec/PlistBuddy -c \"Set :INSTANA_REPORTING_KEY ${INSTANA_REPORTING_KEY}\" ${INFOPLIST_FILE}\nfi\n";
+			shellScript = "if [ -f ../../.env-vars ]\nthen\n    echo \"Import secure variables\"\n    source ../../.env-vars\n    /usr/libexec/PlistBuddy -c \"Set :INSTANA_REPORTING_URL ${INSTANA_REPORTING_URL}\" ${INFOPLIST_FILE}\n    /usr/libexec/PlistBuddy -c \"Set :INSTANA_REPORTING_KEY ${INSTANA_REPORTING_KEY}\" ${INFOPLIST_FILE}\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
