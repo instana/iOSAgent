@@ -2,8 +2,8 @@ import Foundation
 import XCTest
 @testable import InstanaAgent
 
-@available(iOS 12.0, *)
-class BasicIntegrationServerTest: IntegrationTestCase {
+
+class ReporterIntegrationTests: InstanaTestCase {
 
     var session: InstanaSession!
     var networkUtil: NetworkUtility!
@@ -12,7 +12,7 @@ class BasicIntegrationServerTest: IntegrationTestCase {
     override func setUp() {
         super.setUp()
         var config = InstanaConfiguration.mock(key: "KEY")
-        config.reportingURL = Defaults.baseURL
+        config.reportingURL = .random
         config.transmissionDelay = 0.0
         config.transmissionLowBatteryDelay = 0.0
         config.gzipReport = false
@@ -21,12 +21,16 @@ class BasicIntegrationServerTest: IntegrationTestCase {
 
     ////
     /// Simple test to flushing queue and verify transmitted beacons to webserver
-    func test_send() {
+    func test_send_happy_path() {
         // Given
         let submittingBeacon = HTTPBeacon.createMock()
         let waitFor = expectation(description: "Wait For")
+        var sentBeaconData: Data?
         networkUtil = NetworkUtility.wifi
-        reporter = Reporter(session, networkUtility: networkUtil)
+        reporter = Reporter(session, networkUtility: networkUtil) {request, completion   in
+            sentBeaconData = request.httpBody
+            completion(.success(statusCode: 200))
+        }
 
         // When
         reporter.submit(submittingBeacon)
@@ -40,9 +44,8 @@ class BasicIntegrationServerTest: IntegrationTestCase {
         wait(for: [waitFor], timeout: 5.0)
         AssertTrue(reporter.queue.items.isEmpty)
 
-
-        // Then Verify the server response - server must received same as we sent
-        let serverReceivedHTTP = String(data: serverReceivedBody.last ?? Data(), encoding: .utf8)
+        // Then verify the sent beacon body in the URLRequest going out to the server
+        let serverReceivedHTTP = String(data: sentBeaconData ?? Data(), encoding: .utf8)
         do {
             let serverBeacon = try CoreBeacon.create(from: serverReceivedHTTP ?? "")
             let expectedBeacon = try CoreBeaconFactory(session).map(submittingBeacon)
@@ -56,12 +59,16 @@ class BasicIntegrationServerTest: IntegrationTestCase {
     func test_be_offline_and_online() {
         // Given
         var flushCount = 0
+        var sentBeaconData: Data?
         let submittingBeacon = HTTPBeacon.createMock()
         let waitForFirstFlushTry = expectation(description: "Wait For First Flush")
         let waitForSecondFlushTry = expectation(description: "Wait For Second Flush")
         var resultError: InstanaError?
         networkUtil = NetworkUtility.none
-        reporter = Reporter(session, networkUtility: networkUtil)
+        reporter = Reporter(session, networkUtility: networkUtil) {request, completion   in
+            sentBeaconData = request.httpBody
+            completion(.success(statusCode: 200))
+        }
 
         // When
         reporter.submit(submittingBeacon)
@@ -89,8 +96,8 @@ class BasicIntegrationServerTest: IntegrationTestCase {
         wait(for: [waitForSecondFlushTry], timeout: 10.0)
         AssertTrue(reporter.queue.items.isEmpty)
 
-        // Then Verify the server response - must be the same as we sent
-        let serverReceivedHTTP = String(data: serverReceivedBody.last ?? Data(), encoding: .utf8)
+        // Then verify the sent beacon body in the URLRequest going out to the server
+        let serverReceivedHTTP = String(data: sentBeaconData ?? Data(), encoding: .utf8)
         do {
             let serverBeacon = try CoreBeacon.create(from: serverReceivedHTTP ?? "")
             let expectedBeacon = try CoreBeaconFactory(session).map(submittingBeacon)

@@ -13,12 +13,16 @@ import Network
 /// Responds with the same body which has been received in the request
 @available(iOS 12.0, *)
 public class Webserver {
+    enum StubState {
+        case online, error
+    }
     private let queue = DispatchQueue.global()
     private let port: NWEndpoint.Port
     private let listener: NWListener
     private var connectionsByID: [Int: Connection] = [:]
     var connections: [Connection] { connectionsByID.map {$0.value} }
     var removeConnectionAtEnd = false
+    var stubbedState: StubState = .online
 
     public init(port: UInt16) {
         let tcpprotocol = NWProtocolTCP.Options()
@@ -61,7 +65,12 @@ public class Webserver {
         connection.didStopCallback = { _ in
             self.connectionDidStop(connection)
         }
-        connection.start()
+        if stubbedState == .online {
+            connection.start()
+        } else {
+            connection.respond(data: Data()) // Send HTTP Error
+        }
+
         print("server did open connection \(connection.id)")
     }
 
@@ -85,7 +94,7 @@ public class Webserver {
         }
     }
 
-    func verify(key: String, value: String) -> Bool {
+    func verifyBeaconReceived(key: String, value: String) -> Bool {
         let keyValuePair = "\(key)\t\(value)"
         let result = connections.compactMap {$0.receivedData}.map {String(data: $0, encoding: .utf8)}.filter { (receivedBody) -> Bool in
             guard let body = receivedBody else { return false }

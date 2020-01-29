@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		7295C15C23E1D6AC00837380 /* Webserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7295C15B23E1D6AC00837380 /* Webserver.swift */; };
+		7247F62623E200970064CA8D /* Webserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7247F62523E200970064CA8D /* Webserver.swift */; };
 		72C7A9E523E049FF00041782 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72C7A9D723E049FF00041782 /* ViewController.swift */; };
 		72C7A9E623E049FF00041782 /* JSONViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72C7A9D823E049FF00041782 /* JSONViewController.swift */; };
 		72C7A9E723E049FF00041782 /* Icon.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 72C7A9D923E049FF00041782 /* Icon.xcassets */; };
@@ -35,8 +35,8 @@
 
 /* Begin PBXFileReference section */
 		72109EBF23E178EC00441D87 /* iosAgent */ = {isa = PBXFileReference; lastKnownFileType = folder; name = iosAgent; path = ..; sourceTree = "<group>"; };
+		7247F62523E200970064CA8D /* Webserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Webserver.swift; path = ../../tools/Webserver/Webserver.swift; sourceTree = "<group>"; };
 		728CF9DB2387F01200BEE2F9 /* iOSAgentExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iOSAgentExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		7295C15B23E1D6AC00837380 /* Webserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Webserver.swift; path = ../../Tests/InstanaAgentTests/Utils_Tests/Networking/Webserver.swift; sourceTree = "<group>"; };
 		72C7A9D723E049FF00041782 /* ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		72C7A9D823E049FF00041782 /* JSONViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JSONViewController.swift; sourceTree = "<group>"; };
 		72C7A9D923E049FF00041782 /* Icon.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Icon.xcassets; sourceTree = "<group>"; };
@@ -122,7 +122,7 @@
 		72C7A9F823E04D6300041782 /* iOSAgentExampleUITests */ = {
 			isa = PBXGroup;
 			children = (
-				7295C15B23E1D6AC00837380 /* Webserver.swift */,
+				7247F62523E200970064CA8D /* Webserver.swift */,
 				72C7A9F923E04D6300041782 /* iOSAgentExampleUITests.swift */,
 				72C7A9FB23E04D6300041782 /* Info.plist */,
 			);
@@ -274,7 +274,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				72C7A9FA23E04D6300041782 /* iOSAgentExampleUITests.swift in Sources */,
-				7295C15C23E1D6AC00837380 /* Webserver.swift in Sources */,
+				7247F62623E200970064CA8D /* Webserver.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

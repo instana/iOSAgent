@@ -43,16 +43,20 @@ class iOSAgentExampleUITests: XCTestCase {
             // Then
             let expected = app.textViews.staticTexts["{\"message\":\"api.mygigs.tapwork.de\"}"]
             verify(expected)
-            verify(webserver, key: "hu", value: "https://api.mygigs.tapwork.de")
+            verifyBeaconReceived(key: "t", value: "httpRequest")
+            verifyBeaconReceived(key: "hu", value: "https://api.mygigs.tapwork.de")
         }
     }
 }
 
-func verify(_ webserver: Webserver, key: String, value: String, file: StaticString = #file, line: UInt = #line) {
-    if !webserver.verify(key: key, value: value) {
-        XCTFail("Did not find transmitted beacon containing key: \(key) and value: \(value)", file: file, line: line)
+extension iOSAgentExampleUITests {
+    func verifyBeaconReceived(key: String, value: String, file: StaticString = #file, line: UInt = #line) {
+        if !webserver.verifyBeaconReceived(key: key, value: value) {
+            XCTFail("Did not find transmitted beacon containing key: \(key) and value: \(value)", file: file, line: line)
+        }
     }
 }
+
 
 func verify(_ element: XCUIElement, file: StaticString = #file, line: UInt = #line) {
     if !element.waitForExistence(timeout: 5) {
