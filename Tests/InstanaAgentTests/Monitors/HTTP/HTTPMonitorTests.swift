@@ -3,21 +3,21 @@ import XCTest
 
 class HTTPMonitorTests: InstanaTestCase {
 
-    var env: InstanaSession!
+    var session: InstanaSession!
 
     override func setUp() {
         super.setUp()
-        env = InstanaSession.mock
+        session = InstanaSession.mock
     }
 
     override func tearDown() {
         super.tearDown()
-        self.env = nil
+        self.session = nil
     }
 
     func test_installing_shouldAddCustomProtocol() {
         var installed = false
-        let monitor = HTTPMonitor(env, installer: {
+        let monitor = HTTPMonitor(session, installer: {
             AssertTrue($0 == InstanaURLProtocol.self)
             installed = true
             return true
@@ -35,7 +35,7 @@ class HTTPMonitorTests: InstanaTestCase {
     
     func test_uninstalling_shouldRemoveCustomProtocol() {
         var deinstall = false
-        let monitor = HTTPMonitor(env, uninstaller: {
+        let monitor = HTTPMonitor(session, uninstaller: {
             AssertTrue($0 == InstanaURLProtocol.self)
             deinstall = true
         }, reporter: instana.monitors.reporter)
@@ -58,7 +58,7 @@ class HTTPMonitorTests: InstanaTestCase {
 
     func test_installingInConfiguration_shouldAddCustomProtocol() {
         // Given
-        let monitor = HTTPMonitor(env, reporter: instana.monitors.reporter)
+        let monitor = HTTPMonitor(session, reporter: instana.monitors.reporter)
         let sessionConfig = URLSessionConfiguration.default
 
         // When
@@ -74,8 +74,8 @@ class HTTPMonitorTests: InstanaTestCase {
         // Given
         let url: URL = .random
         let viewName = "\((1...99).randomElement() ?? 1)"
-        env.propertyHandler.properties.view = viewName
-        let monitor = HTTPMonitor(env, reporter: instana.monitors.reporter)
+        session.propertyHandler.properties.view = viewName
+        let monitor = HTTPMonitor(session, reporter: instana.monitors.reporter)
         var request = URLRequest(url: url)
         request.httpMethod = "m"
         request.httpBody = "11".data(using: .utf8)
@@ -93,7 +93,7 @@ class HTTPMonitorTests: InstanaTestCase {
     func test_invalid_request() {
         // Given
         let url: URL = .random
-        let monitor = HTTPMonitor(env, reporter: instana.monitors.reporter)
+        let monitor = HTTPMonitor(session, reporter: instana.monitors.reporter)
         var request = URLRequest(url: url)
         request.url = nil
         request.httpMethod = nil

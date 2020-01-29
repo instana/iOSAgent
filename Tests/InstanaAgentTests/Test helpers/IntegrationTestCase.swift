@@ -10,27 +10,27 @@ enum IntegrationTestCaseError: Error {
 @available(iOS 12.0, *)
 class IntegrationTestCase: InstanaTestCase {
     struct Defaults {
-        static let serverPort: Int = 9999
+        static let serverPort: UInt16 = 9999
         static let baseURL = URL(string: "http://localhost:\(serverPort)")!
         static let someURL = URL(string: "http://localhost:\(serverPort)/some")!
     }
 
     var expectation: XCTestExpectation!
-    var session: URLSession!
+    var urlSession: URLSession!
     var task: URLSessionTask!
-    var mockserver: EchoWebServer!
+    var mockserver: Webserver!
 
     override func setUp() {
         super.setUp()
 
-        mockserver = EchoWebServer(port: Defaults.serverPort)
-        try! mockserver.start()
+        mockserver = Webserver(port: Defaults.serverPort)
+        mockserver.start()
         let config = URLSessionConfiguration.default
-        session = URLSession(configuration: config)
+        urlSession = URLSession(configuration: config)
     }
 
     override func tearDown() {
-        try! mockserver.stop()
+        mockserver.stop()
         mockserver = nil
         super.tearDown()
     }
@@ -43,11 +43,11 @@ class IntegrationTestCase: InstanaTestCase {
         request.setValue("\(request.httpBody?.count ?? 0)", forHTTPHeaderField: "Content-Length")
         request.httpMethod = "POST"
         request.timeoutInterval = 60.0
-        task = session.dataTask(with: request) { (data, response, error) in
+        task = urlSession.dataTask(with: request) { (data, response, error) in
             if let error = error {
-                completion(Result.failure(error))
+                completion(.failure(error))
             } else if let data = data {
-                completion(Result.success(data))
+                completion(.success(data))
             } else {
                 completion(Result.failure(IntegrationTestCaseError.empty))
             }
@@ -59,7 +59,7 @@ class IntegrationTestCase: InstanaTestCase {
     }
 
     var serverReceivedBody: [Data] {
-        EchoWebServer.requestStorage.receivedRequests.compactMap {$0.body}
+        mockserver.connections.compactMap {$0.receivedData}
     }
 
     func fulfilled() {

@@ -7,7 +7,7 @@ class CoreBeaconTests: InstanaTestCase {
     var user: InstanaProperties.User!
     var metaData: [String: String]!
     var viewName: String!
-    var env: InstanaSession!
+    var session: InstanaSession!
     var props: InstanaProperties!
     var coreBeacon: CoreBeacon!
     var wifiCoreBeacon: CoreBeacon!
@@ -22,12 +22,12 @@ class CoreBeaconTests: InstanaTestCase {
         user = InstanaProperties.User(id: sessionID.uuidString , email: "ex@example.com", name: "John Appleseed")
         viewName = "SomeView"
         metaData = ["MetaKey": "MetaValue"]
-        env = InstanaSession.mock(configuration: config,
+        session = InstanaSession.mock(configuration: config,
                                       sessionID: sessionID,
                                       metaData: metaData,
                                       user: user,
                                       currentView: viewName)
-        props = env.propertyHandler.properties
+        props = session.propertyHandler.properties
         coreBeacon = CoreBeacon.createDefault(viewName: viewName, key: key, timestamp: timestamp, sessionID: sessionID, id: beaconID, properties: props)
         wifiCoreBeacon = CoreBeacon.createDefault(viewName: viewName, key: key, sessionID: sessionID, connectionType: .wifi, properties: props)
     }

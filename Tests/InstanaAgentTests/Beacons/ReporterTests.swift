@@ -4,18 +4,18 @@ import Network
 
 class ReporterTests: InstanaTestCase {
 
-    var env: InstanaSession!
+    var session: InstanaSession!
     var reporterRetainer: [Reporter]!
 
     override func setUp() {
         super.setUp()
-        env = InstanaSession.mock
+        session = InstanaSession.mock
         // Need to retain the reporter otherwise the lifetime is not guranteed with all delays
         reporterRetainer = [Reporter]()
     }
 
     override func tearDown() {
-        env = nil
+        session = nil
         reporterRetainer = nil
         super.tearDown()
     }
@@ -722,7 +722,7 @@ class ReporterTests: InstanaTestCase {
             sendCount = $0
         }
         let beacons: [HTTPBeacon] = (0..<reporter.queue.maxItems - 1).map { _ in HTTPBeacon.createMock() }
-        let corebeacons = try! CoreBeaconFactory(env).map(beacons)
+        let corebeacons = try! CoreBeaconFactory(session).map(beacons)
         reporter.queue.add(corebeacons)
 
         // When
@@ -745,7 +745,7 @@ class ReporterTests: InstanaTestCase {
         var shouldNotSend = true
         let reporter = ReporterDefaultWifi()
         let beacons: [HTTPBeacon] = (0..<reporter.queue.maxItems).map { _ in HTTPBeacon.createMock() }
-        let corebeacons = try! CoreBeaconFactory(env).map(beacons)
+        let corebeacons = try! CoreBeaconFactory(session).map(beacons)
         reporter.queue.add(corebeacons)
 
         // When
@@ -894,7 +894,7 @@ class ReporterTests: InstanaTestCase {
             }
         }
         let beacons: [HTTPBeacon] = (0..<reporter.queue.maxItems).map { _ in HTTPBeacon.createMock() }
-        let corebeacons = try! CoreBeaconFactory(env).map(beacons)
+        let corebeacons = try! CoreBeaconFactory(session).map(beacons)
         reporter.queue.add(corebeacons)
         reporter.completionHandler.append {_ in
             shouldCallCompletion = true
@@ -918,10 +918,10 @@ extension ReporterTests {
 
     func test_createBatchRequest() {
         // Given
-        env = session()
-        let reporter = Reporter(env) { _, _ in}
+        session = session()
+        let reporter = Reporter(session) { _, _ in}
         let beacons = [HTTPBeacon.createMock(), HTTPBeacon.createMock()]
-        let cbeacons = try! CoreBeaconFactory(env).map(beacons)
+        let cbeacons = try! CoreBeaconFactory(session).map(beacons)
         let data = cbeacons.asString.data(using: .utf8)
         let gzippedData = try? data?.gzipped(level: .bestCompression)
 
@@ -933,17 +933,17 @@ extension ReporterTests {
         AssertEqualAndNotNil(sut?.allHTTPHeaderFields?["Content-Type"], "text/plain")
         AssertEqualAndNotNil(sut?.allHTTPHeaderFields?["Content-Encoding"], "gzip")
         AssertEqualAndNotNil(sut?.allHTTPHeaderFields?["Content-Length"], "\(gzippedData?.count ?? 0)")
-        AssertEqualAndNotNil(sut?.url, env.configuration.reportingURL)
+        AssertEqualAndNotNil(sut?.url, session.configuration.reportingURL)
         AssertEqualAndNotNil(sut?.httpBody, gzippedData)
     }
 
     func test_createBatchRequest_invalid_key() {
         // Given
         let invalidConfig = InstanaConfiguration.mock(key: "")
-        env = InstanaSession.mock(configuration: invalidConfig)
-        let reporter = Reporter(env) { _, _ in}
+        session = InstanaSession.mock(configuration: invalidConfig)
+        let reporter = Reporter(session) { _, _ in}
         let beacons = [HTTPBeacon.createMock(), HTTPBeacon.createMock()]
-        let corebeacons = try! CoreBeaconFactory(env).map(beacons)
+        let corebeacons = try! CoreBeaconFactory(session).map(beacons)
 
         // When
         XCTAssertThrowsError(try reporter.createBatchRequest(from: corebeacons.asString)) {error in
