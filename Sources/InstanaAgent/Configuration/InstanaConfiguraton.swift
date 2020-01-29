@@ -34,7 +34,7 @@ struct InstanaConfiguration: Equatable {
     struct Defaults {
         static let transmissionDelay: Instana.Types.Seconds = 1.0
         static let transmissionLowBatteryDelay: Instana.Types.Seconds = 10.0
-        static let gzipReport = true
+        static let gzipReport = ProcessInfo.ignoreZIPReporting ? false : true
         static let maxBeaconsPerRequest = 100
     }
 
