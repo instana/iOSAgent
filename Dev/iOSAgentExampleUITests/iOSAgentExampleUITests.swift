@@ -66,7 +66,7 @@ class iOSAgentExampleUITests: XCTestCase {
         // Check if the first beacon has been transmitted now
         webserver.verifyBeaconReceived(key: "hu", value: "https://api.mygigs.tapwork.de")
         // And verify the new beacon
-        webserver.verifyBeaconReceived(key: "hu", value: "https://www.instana.com")
+        webserver.verifyBeaconReceived(key: "hu", value: "https://www.instana.com/")
     }
 
     // MARK: Helper
