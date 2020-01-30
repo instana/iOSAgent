@@ -7,38 +7,64 @@
 
 import Foundation
 import Network
+import XCTest
 
 // Inspired by https://forums.swift.org/t/socket-api/19971/10
 
 /// Responds with the same body which has been received in the request
 @available(iOS 12.0, *)
 public class Webserver {
-    enum StubState {
-        case online, error
+    public struct HTTPStatusCode: ExpressibleByIntegerLiteral, RawRepresentable {
+        let code: Int
+        public init(rawValue value: Int) {
+            self.code = value
+        }
+        public init(integerLiteral value: Int) {
+            self.code = value
+        }
+        public var rawValue: Int { code }
+        var response: Data { .response(statusCode: code) }
+        var canReceive: Bool { 100 ... 399 ~= code }
+        static var `default`: HTTPStatusCode { 200 }
     }
     private let queue = DispatchQueue.global()
-    private let port: NWEndpoint.Port
     private let listener: NWListener
+    private var stubbedCode: HTTPStatusCode = .default
     private var connectionsByID: [Int: Connection] = [:]
     var connections: [Connection] { connectionsByID.map {$0.value} }
     var removeConnectionAtEnd = false
-    var stubbedState: StubState = .online
 
-    public init(port: UInt16) {
+    init(port: UInt16) {
         let tcpprotocol = NWProtocolTCP.Options()
         tcpprotocol.enableKeepalive = true
         tcpprotocol.connectionTimeout = 60
         tcpprotocol.keepaliveIdle = 5
         tcpprotocol.enableFastOpen = true
-        self.port = NWEndpoint.Port(rawValue: port)!
-        listener = try! NWListener(using: NWParameters(tls: nil, tcp: tcpprotocol), on: self.port)
+        listener = try! NWListener(using: NWParameters(tls: nil, tcp: tcpprotocol), on: NWEndpoint.Port(rawValue: port)!)
     }
 
-    public func start() {
-        self.listener.stateUpdateHandler = stateDidChange(to:)
-        self.listener.newConnectionHandler = didAccept(nwConnection:)
-        self.listener.start(queue: .main)
-        print("Signaling server started listening on port \(port)")
+    func start() {
+        listener.stateUpdateHandler = stateDidChange(to:)
+        listener.newConnectionHandler = didAccept(nwConnection:)
+        listener.start(queue: .main)
+        print("Signaling server started listening on port \(listener.port!)")
+    }
+
+    public func stop() {
+        listener.stateUpdateHandler = nil
+        listener.newConnectionHandler = nil
+        listener.cancel()
+        for connection in connectionsByID.values {
+            connection.stop()
+            connection.didStopCallback = nil
+        }
+        if removeConnectionAtEnd {
+            connectionsByID.removeAll()
+        }
+    }
+
+    func stub(httpStatusResponse: HTTPStatusCode) {
+        stubbedCode = httpStatusResponse
     }
 
     func stateDidChange(to newState: NWListener.State) {
@@ -60,17 +86,12 @@ public class Webserver {
     }
 
     private func didAccept(nwConnection: NWConnection) {
-        let connection = Connection(nwConnection: nwConnection)
+        let connection = Connection(nwConnection: nwConnection, stubbedCode: stubbedCode)
         connectionsByID[connection.id] = connection
         connection.didStopCallback = { _ in
             self.connectionDidStop(connection)
         }
-        if stubbedState == .online {
-            connection.start()
-        } else {
-            connection.respond(data: Data()) // Send HTTP Error
-        }
-
+        connection.start()
         print("server did open connection \(connection.id)")
     }
 
@@ -81,26 +102,24 @@ public class Webserver {
         }
     }
 
-    public func stop() {
-        listener.stateUpdateHandler = nil
-        listener.newConnectionHandler = nil
-        listener.cancel()
-        for connection in connectionsByID.values {
-            connection.stop()
-            connection.didStopCallback = nil
+    @discardableResult
+    func verifyBeaconReceived(key: String, value: String, file: StaticString = #file, line: UInt = #line) -> Bool {
+        let keyValuePair = "\(key)\t\(value)"
+        let hasValue = connections.flatMap {$0.received}.first(where: { $0.contains(keyValuePair) }) != nil
+        if !hasValue {
+            XCTFail("Could not find value: \(value) for key: \(key)", file: file, line: line)
         }
-        if removeConnectionAtEnd {
-            connectionsByID.removeAll()
-        }
+        return hasValue
     }
 
-    func verifyBeaconReceived(key: String, value: String) -> Bool {
+    @discardableResult
+    func verifyBeaconNotReceived(key: String, value: String, file: StaticString = #file, line: UInt = #line) -> Bool {
         let keyValuePair = "\(key)\t\(value)"
-        let result = connections.compactMap {$0.receivedData}.map {String(data: $0, encoding: .utf8)}.filter { (receivedBody) -> Bool in
-            guard let body = receivedBody else { return false }
-            return body.contains(keyValuePair)
+        let hasValue = connections.flatMap {$0.received}.first(where: { $0.contains(keyValuePair) }) != nil
+        if hasValue {
+            XCTFail("Did find value: \(value) for key: \(key)", file: file, line: line)
         }
-        return result.count > 0
+        return !hasValue
     }
 }
 
@@ -111,12 +130,14 @@ public class Connection {
     let nwConnection: NWConnection
     var didStopCallback: ((Error?) -> Void)? = nil
     let id: Int
-    var receivedData: Data?
+    var received = [String]()
     let MTU = 65536
+    let stubbedCode: Webserver.HTTPStatusCode
 
-    init(nwConnection: NWConnection) {
+    init(nwConnection: NWConnection, stubbedCode: Webserver.HTTPStatusCode = .default) {
         self.nwConnection = nwConnection
         self.id = Connection.nextID
+        self.stubbedCode = stubbedCode
         Connection.nextID += 1
     }
 
@@ -137,14 +158,14 @@ public class Connection {
         }
     }
 
-    func respond(data: Data) {
-        nwConnection.send(content: data, completion: .contentProcessed( {[weak self] error in
+    func respond() {
+        nwConnection.send(content: stubbedCode.response, completion: .contentProcessed( {[weak self] error in
             guard let self = self else { return }
             if let error = error {
                 self.connectionDidFail(error: error)
                 return
             }
-            print("Connection \(self.id) did send, data: \(String(describing: String(data: data, encoding:.utf8)))")
+            print("Connection \(self.id) did send, data: \(String(describing: String(data: self.stubbedCode.response, encoding:.utf8)))")
             self.connectionDidEnd()
         }))
     }
@@ -181,12 +202,12 @@ public class Connection {
     private func setupReceive() {
         nwConnection.receive(minimumIncompleteLength: 1, maximumLength: MTU) {[weak self] (data, _, isComplete, error) in
             guard let self = self else { return }
-            if let data = data, !data.isEmpty {
-                print("EchoWebServer connection \(self.id) did receive: \(String(data: data, encoding: .utf8) ?? "")")
-                self.receivedData = data
+            if self.stubbedCode.canReceive, let data = data, let received = String(data: data, encoding:.utf8) {
+                print("EchoWebServer connection \(self.id) did receive: \(received)")
+                self.received.append(received)
             }
-            if let responseData = self.receivedData?.response {
-                self.respond(data: responseData)
+            if data?.body != nil {
+                self.respond()
             }
             if isComplete {
                 self.connectionDidEnd()
@@ -200,33 +221,48 @@ public class Connection {
 }
 
 extension Data {
-    var response: Data? {
-        let data = self
-        guard let http = String(data: data, encoding:.utf8) else {
+
+    var body: String? {
+        guard let http = String(data: self, encoding:.utf8),
+            let body = http.components(separatedBy: "\r\n").last,
+            body.contains("\t") else {
             return nil
         }
-        let lines = http.components(separatedBy: "\n")
-        let kvPairs = lines.reduce([String: Any](), {result, line -> [String: Any] in
-            let components = line.components(separatedBy: ":")
-            guard let key = components.first, let value = components.last else { return result }
-            var newResult = result
-            newResult[key] = value
-            return newResult
-        })
+        return body
+    }
 
-        var response = ""
-        response.append("HTTP/1.1 200 OK\r\n")
-        response.append("Connection: close")
-        let contentType = kvPairs["Content-Type"] ?? "text/plain"
-        if let body = http.components(separatedBy: "\r\n").last, let data = body.data(using: .utf8), body.count > 0 {
-            response.append("Content-Length: \(data.count)\r\n")
-            response.append("Content-Type: \(contentType)")
-
-            response.append("\r\n")
-            response.append("\r\n")
-            response.append(body)
+    static func response(statusCode: Int) -> Data {
+        let message: String
+        switch statusCode {
+        case 200: message = "OK"
+        case 400: message = "Bad Request"
+        case 403: message = "Forbidden"
+        case 404: message = "Not Found"
+        case 503: message = "Server Error"
+        case 200...299: message = "OK"
+        case 300...399: message = ""
+        case 400...499: message = "Client Error"
+        case 500...599: message = "Server Error"
+        default: message = ""
         }
+        let dateString = DateFormatter.http.string(from: Date())
+        let value = """
+        HTTP/1.1 \(statusCode) \(message)\r\n
+        Date: \(dateString)\r\n
+        Server: Apache/2.4.25 (Debian)\r\n
+        Cache-Control: no-cache, private\r\n
+        Access-Control-Allow-Origin: *\r\n
+        Content-Type: text/html; charset=UTF-8\n
+        Connection: close
+        """
+        return value.data(using: .utf8) ?? Data()
+    }
+}
 
-        return response.data(using: .utf8) ?? Data()
+extension DateFormatter {
+    static var http: DateFormatter {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "EEE',' dd' 'MMM' 'yyyy HH':'mm':'ss zzz"
+        return dateFormatter
     }
 }

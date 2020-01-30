@@ -17,12 +17,13 @@ class iOSAgentExampleUITests: XCTestCase {
     override func setUp() {
         cleanCache()
         continueAfterFailure = false
-        webserver = Webserver(port: 9999)
+        let port: UInt16 = 9999
+        webserver = Webserver(port: port)
         webserver.start()
         app = XCUIApplication()
-        app.launchArguments = ["-reportingURL", "http://127.0.0.1:9999", "-key", "empty", "-IgnoreZIPReporting", "true"]
+        app.launchArguments = ["-reportingURL", "http://127.0.0.1:\(port)", "-key", "empty", "-IgnoreZIPReporting", "true"]
         app.launch()
-   }
+    }
 
     override func tearDown() {
         app = nil
@@ -34,29 +35,43 @@ class iOSAgentExampleUITests: XCTestCase {
         // When
         app.tabBars.buttons["JSON"].tap()
         let urlTextField = app.textFields["URL"]
-               urlTextField.tap()
-               urlTextField.typeText("https://api.mygigs.tapwork.de")
+        urlTextField.tap()
+        urlTextField.typeText("https://api.mygigs.tapwork.de")
+        app.buttons["     GO     "].tap()
 
-        (0...1).forEach {_ in
-            app.buttons["     GO     "].tap()
+        // Then
+        verify(app.textViews.staticTexts["{\"message\":\"api.mygigs.tapwork.de\"}"])
+        delay(2.0)
+        webserver.verifyBeaconReceived(key: "t", value: "httpRequest")
+        webserver.verifyBeaconReceived(key: "hu", value: "https://api.mygigs.tapwork.de")
+    }
 
-            // Then
-            let expected = app.textViews.staticTexts["{\"message\":\"api.mygigs.tapwork.de\"}"]
-            verify(expected)
-            verifyBeaconReceived(key: "t", value: "httpRequest")
-            verifyBeaconReceived(key: "hu", value: "https://api.mygigs.tapwork.de")
-        }
+    func test_flush_after_error() {
+        // When
+        webserver.stub(httpStatusResponse: 404)
+        app.tabBars.buttons["JSON"].tap()
+        let urlTextField = app.textFields["URL"]
+        urlTextField.tap()
+        urlTextField.typeText("https://api.mygigs.tapwork.de")
+        app.buttons["     GO     "].tap()
+
+        // Then
+        webserver.verifyBeaconNotReceived(key: "t", value: "httpRequest")
+
+        // When
+        webserver.stub(httpStatusResponse: 200)
+
+        // Then
+        app.buttons["     GO     "].tap()
+        verify(app.textViews.staticTexts["{\"message\":\"api.mygigs.tapwork.de\"}"])
+        delay(2.0)
+        webserver.verifyBeaconReceived(key: "t", value: "httpRequest")
     }
 }
 
-extension iOSAgentExampleUITests {
-    func verifyBeaconReceived(key: String, value: String, file: StaticString = #file, line: UInt = #line) {
-        if !webserver.verifyBeaconReceived(key: key, value: value) {
-            XCTFail("Did not find transmitted beacon containing key: \(key) and value: \(value)", file: file, line: line)
-        }
-    }
+func delay(_ duration: TimeInterval) {
+    RunLoop.current.run(until: Date().addingTimeInterval(duration))
 }
-
 
 func verify(_ element: XCUIElement, file: StaticString = #file, line: UInt = #line) {
     if !element.waitForExistence(timeout: 5) {
