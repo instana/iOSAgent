@@ -34,10 +34,7 @@ class iOSAgentExampleUITests: XCTestCase {
     func test_Launch_and_enter_url() {
         // When
         app.tabBars.buttons["JSON"].tap()
-        let urlTextField = app.textFields["URL"]
-        urlTextField.tap()
-        urlTextField.typeText("https://api.mygigs.tapwork.de")
-        app.buttons["     GO     "].tap()
+        load("https://api.mygigs.tapwork.de")
 
         // Then
         verify(app.textViews.staticTexts["{\"message\":\"api.mygigs.tapwork.de\"}"])
@@ -47,25 +44,33 @@ class iOSAgentExampleUITests: XCTestCase {
     }
 
     func test_flush_after_error() {
-        // When
+        // When (Server not found)
         webserver.stub(httpStatusResponse: 404)
         app.tabBars.buttons["JSON"].tap()
-        let urlTextField = app.textFields["URL"]
-        urlTextField.tap()
-        urlTextField.typeText("https://api.mygigs.tapwork.de")
-        app.buttons["     GO     "].tap()
+        load("https://api.mygigs.tapwork.de/search/Hergenrath?page=1&entity=venue")
 
-        // Then
-        webserver.verifyBeaconNotReceived(key: "t", value: "httpRequest")
+        // Then (Beacon should not be transmitted)
+        webserver.verifyBeaconNotReceived(key: "hp", value: "/search/Hergenrath")
 
         // When
         webserver.stub(httpStatusResponse: 200)
+        app.tabBars.buttons["Web"].tap()
 
         // Then
-        app.buttons["     GO     "].tap()
-        verify(app.textViews.staticTexts["{\"message\":\"api.mygigs.tapwork.de\"}"])
+        verify(app.webViews.firstMatch)
         delay(2.0)
         webserver.verifyBeaconReceived(key: "t", value: "httpRequest")
+        webserver.verifyBeaconReceived(key: "hp", value: "/search/Hergenrath")
+        webserver.verifyBeaconReceived(key: "hu", value: "https://www.instana.com")
+    }
+
+
+    // MARK: Helper
+    func load(_ url: String) {
+        let urlTextField = app.textFields["URL"]
+        urlTextField.tap()
+        urlTextField.typeText(url)
+        app.buttons["     GO     "].tap()
     }
 }
 
