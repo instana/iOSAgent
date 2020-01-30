@@ -203,7 +203,7 @@ public class Connection {
         nwConnection.receive(minimumIncompleteLength: 1, maximumLength: MTU) {[weak self] (data, _, isComplete, error) in
             guard let self = self else { return }
             if self.stubbedCode.canReceive, let data = data, let received = String(data: data, encoding:.utf8) {
-                print("EchoWebServer connection \(self.id) did receive: \(received)")
+                print("MockWebServer connection \(self.id) did receive: \(received)")
                 self.received.append(received)
             }
             if data?.body != nil {
