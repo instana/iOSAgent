@@ -5,7 +5,7 @@
 //  Created by Christian Menschel on 28.01.20.
 //  Copyright © 2020 Instana Inc. All rights reserved.
 //
-
+import Foundation
 import XCTest
 @testable import iOSAgentExample
 
@@ -13,16 +13,11 @@ class iOSAgentExampleUITests: XCTestCase {
 
     var app: XCUIApplication!
     var webserver: Webserver!
+    let port: UInt16 = 9999
 
     override func setUp() {
         cleanCache()
         continueAfterFailure = false
-        let port: UInt16 = 9999
-        webserver = Webserver(port: port)
-        webserver.start()
-        app = XCUIApplication()
-        app.launchArguments = ["-reportingURL", "http://127.0.0.1:\(port)", "-key", "empty", "-IgnoreZIPReporting", "true"]
-        app.launch()
     }
 
     override func tearDown() {
@@ -32,8 +27,12 @@ class iOSAgentExampleUITests: XCTestCase {
     }
 
     func test_Launch_and_enter_url() {
-        // When
+        // Given
+        launchServer()
+        launchApp()
         app.tabBars.buttons["JSON"].tap()
+
+        // When
         load("https://api.mygigs.tapwork.de")
 
         // Then
@@ -44,9 +43,12 @@ class iOSAgentExampleUITests: XCTestCase {
     }
 
     func test_flush_after_error() {
-        // When (Server not found)
-        webserver.stub(httpStatusResponse: 404)
+        // Given
+        launchServer(stubbedHTTPResponse: 404)
+        launchApp()
         app.tabBars.buttons["JSON"].tap()
+
+        // When (Server not found)
         load("https://api.mygigs.tapwork.de/search/Hergenrath?page=1&entity=venue")
 
         // Then (Beacon should not be transmitted)
@@ -54,11 +56,12 @@ class iOSAgentExampleUITests: XCTestCase {
 
         // When
         webserver.stub(httpStatusResponse: 200)
+        delay(3.0)
         app.tabBars.buttons["Web"].tap()
 
         // Then
         verify(app.webViews.firstMatch)
-        delay(2.0)
+        delay(3.0)
         webserver.verifyBeaconReceived(key: "t", value: "httpRequest")
         webserver.verifyBeaconReceived(key: "hp", value: "/search/Hergenrath")
         webserver.verifyBeaconReceived(key: "hu", value: "https://www.instana.com")
@@ -66,11 +69,24 @@ class iOSAgentExampleUITests: XCTestCase {
 
 
     // MARK: Helper
+    func launchServer(stubbedHTTPResponse: Webserver.HTTPStatusCode = .default) {
+        webserver = Webserver(port: port)
+        webserver.start()
+        webserver.stub(httpStatusResponse: stubbedHTTPResponse)
+    }
+
+    func launchApp() {
+        app = XCUIApplication()
+        app.launchArguments = ["-reportingURL", "http://127.0.0.1:\(port)", "-key", "empty", "-IgnoreZIPReporting", "true"]
+        app.launch()
+    }
+
     func load(_ url: String) {
         let urlTextField = app.textFields["URL"]
         urlTextField.tap()
         urlTextField.typeText(url)
         app.buttons["     GO     "].tap()
+        delay(2.0)
     }
 }
 
