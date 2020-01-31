@@ -107,9 +107,9 @@ class iOSAgentExampleUITests: XCTestCase {
 
         // When creating a new a new server app instance
         app.terminate()
-        launchApp(ignoreQueuePersistence: false)
         launchServer()
-        delay(3.0)
+        launchApp(ignoreQueuePersistence: false)
+        delay(6.0)
         load("https://www.google.com")
 
         // Then we expect both beacons (1st & 2nd app launch)
