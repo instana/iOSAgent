@@ -135,11 +135,12 @@ class iOSAgentExampleUITests: XCTestCase {
     }
 
     func load(_ url: String) {
+        delay(8.0)
         let urlTextField = app.textFields["URL"]
         urlTextField.tap()
         urlTextField.typeText(url)
         app.buttons["     GO     "].tap()
-        delay(5.0)
+        delay(8.0)
     }
 }
 
