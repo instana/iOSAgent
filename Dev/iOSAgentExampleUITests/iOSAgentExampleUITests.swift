@@ -124,7 +124,7 @@ class iOSAgentExampleUITests: XCTestCase {
         webserver.stub(httpStatusResponse: stubbedHTTPResponse)
     }
 
-    func launchApp(ignoreQueuePersistence: Bool = false) {
+    func launchApp(ignoreQueuePersistence: Bool = true) {
         app = XCUIApplication()
         app.launchArguments = ["-reportingURL", "http://127.0.0.1:\(port)",
                                 "-key", instanaKey,
