@@ -57,16 +57,17 @@ class iOSAgentExampleUITests: XCTestCase {
 
         // When
         webserver.stub(httpStatusResponse: 200)
-        delay(5.0)
-        app.tabBars.buttons["Web"].tap()
+        delay(1.0)
+        app.tabBars.buttons["Top Rated"].tap()
 
         // Then
-        verify(app.webViews.firstMatch)
-        delay(5.0)
+        delay(1.0)
+        verify(app.images.firstMatch)
+        delay(2.0)
         // Check if the first beacon has been transmitted now
         webserver.verifyBeaconReceived(key: "hu", value: "https://api.mygigs.tapwork.de")
         // And verify the new beacon
-        webserver.verifyBeaconReceived(key: "hu", value: "https://www.instana.com/")
+        webserver.verifyBeaconReceived(key: "hu", value: "https://i.picsum.photos/")
     }
 
     // MARK: Helper
