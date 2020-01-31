@@ -106,8 +106,9 @@ public class Webserver {
     func verifyBeaconReceived(key: String, value: String, file: StaticString = #file, line: UInt = #line) -> Bool {
         let keyValuePair = "\(key)\t\(value)"
         let hasValue = connections.flatMap {$0.received}.first(where: { $0.contains(keyValuePair) }) != nil
+        let all = connections.flatMap {$0.received}
         if !hasValue {
-            XCTFail("Could not find value: \(value) for key: \(key)", file: file, line: line)
+            XCTFail("Could not find value: \(value) for key: \(key) just have \(all)", file: file, line: line)
         }
         return hasValue
     }
