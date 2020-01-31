@@ -139,7 +139,7 @@ class iOSAgentExampleUITests: XCTestCase {
         urlTextField.tap()
         urlTextField.typeText(url)
         app.buttons["     GO     "].tap()
-        delay(2.0)
+        delay(5.0)
     }
 }
 
