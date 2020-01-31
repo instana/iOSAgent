@@ -38,7 +38,7 @@ class iOSAgentExampleUITests: XCTestCase {
 
         // Then
         verify(app.textViews.staticTexts["{\"message\":\"api.mygigs.tapwork.de\"}"])
-        delay(5.0)
+        delay(3.0)
         webserver.verifyBeaconReceived(key: "t", value: "httpRequest")
         webserver.verifyBeaconReceived(key: "hu", value: "https://api.mygigs.tapwork.de")
         webserver.verifyBeaconReceived(key: "k", value: instanaKey)
@@ -67,7 +67,7 @@ class iOSAgentExampleUITests: XCTestCase {
         app.tabBars.buttons["Top Rated"].tap()
 
         // Then
-        delay(1.0)
+        delay(4.0)
         verify(app.images.firstMatch)
         delay(5.0)
         // Check if the first beacon has been transmitted now
@@ -80,7 +80,6 @@ class iOSAgentExampleUITests: XCTestCase {
         // Given
         launchServer()
         launchApp()
-        delay(3.0)
         let firstSessionIDs = webserver.values(for: "sid")
 
         // When creating a new a new server app instance
@@ -109,7 +108,6 @@ class iOSAgentExampleUITests: XCTestCase {
         app.terminate()
         launchServer()
         launchApp(ignoreQueuePersistence: false)
-        delay(6.0)
         load("https://www.google.com")
 
         // Then we expect both beacons (1st & 2nd app launch)
@@ -122,6 +120,7 @@ class iOSAgentExampleUITests: XCTestCase {
         webserver = Webserver(port: port)
         webserver.start()
         webserver.stub(httpStatusResponse: stubbedHTTPResponse)
+        delay(3.0)
     }
 
     func launchApp(ignoreQueuePersistence: Bool = true) {
@@ -131,16 +130,15 @@ class iOSAgentExampleUITests: XCTestCase {
                                 "-IgnoreZIPReporting", "true",
                                 "-INSTANA_IGNORE_QUEUE_PERSISTENCE", ignoreQueuePersistence ? "true" : "false"]
         app.launch()
-        delay(2.0)
+        delay(3.0)
     }
 
     func load(_ url: String) {
-        delay(8.0)
         let urlTextField = app.textFields["URL"]
         urlTextField.tap()
         urlTextField.typeText(url)
         app.buttons["     GO     "].tap()
-        delay(8.0)
+        delay(4.0)
     }
 }
 

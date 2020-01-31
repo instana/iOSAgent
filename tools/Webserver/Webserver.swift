@@ -108,7 +108,7 @@ public class Webserver {
         let hasValue = connections.flatMap {$0.received}.first(where: { $0.contains(keyValuePair) }) != nil
         let all = connections.flatMap {$0.received}
         if !hasValue {
-            XCTFail("Could not find value: \(value) for key: \(key) just have \(all)", file: file, line: line)
+            XCTFail("Could not find value: \(value) for key: \(key))", file: file, line: line)
         }
         return hasValue
     }
