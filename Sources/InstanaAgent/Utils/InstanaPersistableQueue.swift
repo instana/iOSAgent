@@ -29,7 +29,7 @@ class InstanaPersistableQueue<T: Codable & Equatable> {
 
     init(maxItems: Int) {
         self.maxItems = maxItems
-        let shouldIgnorePersistence = UserDefaults.standard.bool(forKey: "INSTANA_IGNORE_QUEUE_PERSISTENCE") ?? false
+        let shouldIgnorePersistence = UserDefaults.standard.bool(forKey: "INSTANA_IGNORE_QUEUE_PERSISTENCE")
         if !shouldIgnorePersistence, let deserializeItems = try? InstanaPersistableQueue<T>.deserialize() {
             items = deserializeItems
         } else {
