@@ -38,10 +38,16 @@ class iOSAgentExampleUITests: XCTestCase {
 
         // Then
         verify(app.textViews.staticTexts["{\"message\":\"api.mygigs.tapwork.de\"}"])
-        delay(2.0)
+        delay(5.0)
         webserver.verifyBeaconReceived(key: "t", value: "httpRequest")
         webserver.verifyBeaconReceived(key: "hu", value: "https://api.mygigs.tapwork.de")
         webserver.verifyBeaconReceived(key: "k", value: instanaKey)
+
+        let types = webserver.values(for: "t")
+        XCTAssertEqual(types.count, 3)
+        XCTAssertTrue(types.contains("sessionStart"))
+        XCTAssertTrue(types.contains("viewChange"))
+        XCTAssertTrue(types.contains("httpRequest"))
     }
 
     func test_flush_after_error() {
@@ -63,11 +69,52 @@ class iOSAgentExampleUITests: XCTestCase {
         // Then
         delay(1.0)
         verify(app.images.firstMatch)
-        delay(2.0)
+        delay(5.0)
         // Check if the first beacon has been transmitted now
         webserver.verifyBeaconReceived(key: "hu", value: "https://api.mygigs.tapwork.de")
         // And verify the new beacon
         webserver.verifyBeaconReceived(key: "hu", value: "https://i.picsum.photos/")
+    }
+
+    func test_start_new_session_after_launch() {
+        // Given
+        launchServer()
+        launchApp()
+        delay(3.0)
+        let firstSessionIDs = webserver.values(for: "sid")
+
+        // When creating a new a new server app instance
+        app.terminate()
+        webserver.stop()
+        launchApp(ignoreQueuePersistence: true)
+        launchServer()
+        delay(3.0)
+        load("https://api.mygigs.tapwork.de")
+        let newSessionids = webserver.values(for: "sid")
+
+        // Then
+        XCTAssertTrue(firstSessionIDs.count > 0)
+        XCTAssertTrue(newSessionids.count > 0)
+        XCTAssertNotEqual(firstSessionIDs.first, newSessionids.first)
+    }
+
+    func test_start_restore_queue_after_new_launch() {
+        // Given: We don't have a running server at the first launch
+        launchApp()
+
+        // When
+        load("https://api.mygigs.tapwork.de")
+
+        // When creating a new a new server app instance
+        app.terminate()
+        launchApp(ignoreQueuePersistence: false)
+        launchServer()
+        delay(3.0)
+        load("https://www.google.com")
+
+        // Then we expect both beacons (1st & 2nd app launch)
+        webserver.verifyBeaconReceived(key: "hu", value: "https://api.mygigs.tapwork.de")
+        webserver.verifyBeaconReceived(key: "hu", value: "https://www.google.com")
     }
 
     // MARK: Helper
@@ -77,9 +124,12 @@ class iOSAgentExampleUITests: XCTestCase {
         webserver.stub(httpStatusResponse: stubbedHTTPResponse)
     }
 
-    func launchApp() {
+    func launchApp(ignoreQueuePersistence: Bool = false) {
         app = XCUIApplication()
-        app.launchArguments = ["-reportingURL", "http://127.0.0.1:\(port)", "-key", instanaKey, "-IgnoreZIPReporting", "true"]
+        app.launchArguments = ["-reportingURL", "http://127.0.0.1:\(port)",
+                                "-key", instanaKey,
+                                "-IgnoreZIPReporting", "true",
+                                "-INSTANA_IGNORE_QUEUE_PERSISTENCE", ignoreQueuePersistence ? "true" : "false"]
         app.launch()
         delay(2.0)
     }

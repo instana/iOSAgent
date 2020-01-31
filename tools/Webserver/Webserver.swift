@@ -121,6 +121,20 @@ public class Webserver {
         }
         return !hasValue
     }
+
+    func values(for key: String) -> [String] {
+        let all = connections.flatMap {$0.received}
+        let values = all.map {body -> [String] in
+            let lines: [String] = body.components(separatedBy: "\n")
+            return lines.compactMap { line -> String? in
+                let kvPair = line.components(separatedBy: "\t")
+                guard kvPair.count == 2, let aKey = kvPair.first, let value = kvPair.last,
+                    key == aKey else { return nil }
+                return value
+            }
+        }
+        return values.flatMap {$0}
+    }
 }
 
 
