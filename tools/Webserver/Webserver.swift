@@ -85,9 +85,10 @@ public class Webserver {
             break
         case .failed(let error):
             print("server did fail, error: \(error)")
-            stop()
+            break
         case .cancelled:
-            stop()
+            print("server did cancel")
+            break
         default:
             break
         }
