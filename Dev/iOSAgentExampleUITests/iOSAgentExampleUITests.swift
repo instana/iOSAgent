@@ -24,8 +24,7 @@ class iOSAgentExampleUITests: XCTestCase {
 
     override func tearDown() {
         app = nil
-        webserver.stop()
-        webserver = nil
+        webserver.clean()
     }
 
     func test_Launch_and_enter_url() {
@@ -84,7 +83,7 @@ class iOSAgentExampleUITests: XCTestCase {
 
         // When creating a new a new server app instance
         app.terminate()
-        webserver.stop()
+        webserver.clean()
         launchApp(ignoreQueuePersistence: true)
         launchServer()
         delay(3.0)
@@ -117,8 +116,7 @@ class iOSAgentExampleUITests: XCTestCase {
 
     // MARK: Helper
     func launchServer(stubbedHTTPResponse: Webserver.HTTPStatusCode = .default) {
-        webserver = Webserver(port: port)
-        webserver.start()
+        webserver = Webserver.shared
         webserver.stub(httpStatusResponse: stubbedHTTPResponse)
         delay(3.0)
     }

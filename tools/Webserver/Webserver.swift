@@ -14,6 +14,7 @@ import XCTest
 /// Responds with the same body which has been received in the request
 @available(iOS 12.0, *)
 public class Webserver {
+
     public struct HTTPStatusCode: ExpressibleByIntegerLiteral, RawRepresentable {
         let code: Int
         public init(rawValue value: Int) {
@@ -32,7 +33,11 @@ public class Webserver {
     private var stubbedCode: HTTPStatusCode = .default
     private var connectionsByID: [Int: Connection] = [:]
     var connections: [Connection] { connectionsByID.map {$0.value} }
-    var removeConnectionAtEnd = false
+    static var shared: Webserver = {
+        let server = Webserver(port: 9999)
+        server.start()
+        return server
+    }()
 
     init(port: UInt16) {
         let tcpprotocol = NWProtocolTCP.Options()
@@ -43,14 +48,14 @@ public class Webserver {
         listener = try! NWListener(using: NWParameters(tls: nil, tcp: tcpprotocol), on: NWEndpoint.Port(rawValue: port)!)
     }
 
-    func start() {
+    private func start() {
         listener.stateUpdateHandler = stateDidChange(to:)
         listener.newConnectionHandler = didAccept(nwConnection:)
         listener.start(queue: .main)
         print("Signaling server started listening on port \(listener.port!)")
     }
 
-    public func stop() {
+    private func stop() {
         listener.stateUpdateHandler = nil
         listener.newConnectionHandler = nil
         listener.cancel()
@@ -58,9 +63,12 @@ public class Webserver {
             connection.stop()
             connection.didStopCallback = nil
         }
-        if removeConnectionAtEnd {
-            connectionsByID.removeAll()
-        }
+        clean()
+    }
+
+    public func clean() {
+        connectionsByID.removeAll()
+        stubbedCode = .default
     }
 
     func stub(httpStatusResponse: HTTPStatusCode) {
@@ -96,17 +104,13 @@ public class Webserver {
     }
 
     private func connectionDidStop(_ connection: Connection) {
-        if removeConnectionAtEnd {
-            connectionsByID.removeValue(forKey: connection.id)
-            print("server did close connection \(connection.id)")
-        }
     }
 
     @discardableResult
     func verifyBeaconReceived(key: String, value: String, file: StaticString = #file, line: UInt = #line) -> Bool {
         let keyValuePair = "\(key)\t\(value)"
         let hasValue = connections.flatMap {$0.received}.first(where: { $0.contains(keyValuePair) }) != nil
-        let all = connections.flatMap {$0.received}
+        //let all = connections.flatMap {$0.received}
         if !hasValue {
             XCTFail("Could not find value: \(value) for key: \(key))", file: file, line: line)
         }
