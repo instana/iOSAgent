@@ -73,9 +73,9 @@ public class Webserver {
             break
         case .failed(let error):
             print("server did fail, error: \(error)")
-            stop()
-        case .cancelled:
-            stop()
+          //  stop()
+        case .cancelled: break
+          //  stop()
         default:
             break
         }
@@ -215,7 +215,7 @@ public class Connection {
             if data?.body != nil {
                 self.respond()
             } else if let error = error {
-                self.connectionDidFail(error: error)
+              //  self.connectionDidFail(error: error)
             } else {
                 self.setupReceive()
             }
