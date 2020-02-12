@@ -18,25 +18,23 @@ Optionally:
 - Set the current visible view to match with the HTTP sessions  
 
 
-## Installation 
+## Installation
+
+To install the iOS agent, use Swift Package Manager (via Xcode) or CocoaPods.
 
 #### Swift Package Manager
-1. Just go into Xcode.
-2 .Choose File -> Swift Packages -> Add Package Dependency -> Select your Xcode project
-3. Enter this repository URL 
+
+1. Open Xcode.
+2. Select File -> Swift Packages -> Add Package Dependency -> Your Xcode project.
+3. Enter the https://github.com/instana/iOSAgent repository.
 
 #### CocoaPods
-Edit your `Podfile` to include the following:
 
-    pod 'Instana'    
-Don't forget to run `pod install` to download the dependencies.
+1. Within your `Podfile` specification, add the following:
 
-The iOS Instana agent uses the following sub-dependencies:
-- [GzipSwift](https://github.com/1024jp/GzipSwift) to zip the http body
-- [swift-nio](https://github.com/apple/swift-nio) for unit and integration tests
+   `pod 'Instana'`
 
-
-See [installation page](https://docs.instana.io/ecosystem/node-js/installation/).
+2. To download the dependencies, run `pod install`.
 
 #### Setup
 Just initialize the Instana iOS agent with the following setup. Make sure to call setup very early in `didFinishLaunchingWithOptions`
@@ -45,10 +43,10 @@ Just initialize the Instana iOS agent with the following setup. Make sure to cal
 import Instana
 
 func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
-	
+
 	Instana.setup(key: <Your Instana Key>, reportingURL: <Your Instana instance URL>)
-	
-	.... 
+
+	....
 	return true
 }
 ```

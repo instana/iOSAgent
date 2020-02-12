@@ -95,8 +95,9 @@ public class Webserver {
     func verifyBeaconReceived(key: String, value: String, file: StaticString = #file, line: UInt = #line) -> Bool {
         let keyValuePair = "\(key)\t\(value)"
         let hasValue = connections.flatMap {$0.received}.first(where: { $0.contains(keyValuePair) }) != nil
+        let all = connections.flatMap {$0.received}
         if !hasValue {
-            XCTFail("Could not find value: \(value) for key: \(key)", file: file, line: line)
+            XCTFail("Could not find value: \(value) for key: \(key))", file: file, line: line)
         }
         return hasValue
     }
@@ -109,6 +110,20 @@ public class Webserver {
             XCTFail("Did find value: \(value) for key: \(key)", file: file, line: line)
         }
         return !hasValue
+    }
+
+    func values(for key: String) -> [String] {
+        let all = connections.flatMap {$0.received}
+        let values = all.map {body -> [String] in
+            let lines: [String] = body.components(separatedBy: "\n")
+            return lines.compactMap { line -> String? in
+                let kvPair = line.components(separatedBy: "\t")
+                guard kvPair.count == 2, let aKey = kvPair.first, let value = kvPair.last,
+                    key == aKey else { return nil }
+                return value
+            }
+        }
+        return values.flatMap {$0}
     }
 }
 
@@ -192,7 +207,7 @@ public class Connection {
         nwConnection.receive(minimumIncompleteLength: 1, maximumLength: MTU) {[weak self] (data, _, isComplete, error) in
             guard let self = self else { return }
             if self.stubbedCode.canReceive, let data = data, let received = String(data: data, encoding:.utf8) {
-                print("EchoWebServer connection \(self.id) did receive: \(received)")
+                print("MockWebServer connection \(self.id) did receive: \(received)")
                 self.received.append(received)
             }
             if data?.body != nil {
