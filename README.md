@@ -32,7 +32,7 @@ To install the iOS agent, use Swift Package Manager (via Xcode) or CocoaPods.
 
 1. Within your `Podfile` specification, add the following:
 
-   `pod 'Instana'`
+   `pod 'InstanaAgent'`
 
 2. To download the dependencies, run `pod install`.
 
