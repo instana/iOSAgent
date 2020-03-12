@@ -32,14 +32,13 @@ public class Webserver {
     private var stubbedCode: HTTPStatusCode = .default
     private var connectionsByID: [Int: Connection] = [:]
     var connections: [Connection] { connectionsByID.map {$0.value} }
-    var removeConnectionAtEnd = false
 
     init(port: UInt16) {
         let tcpprotocol = NWProtocolTCP.Options()
-        tcpprotocol.enableKeepalive = true
+     //   tcpprotocol.enableKeepalive = true
         tcpprotocol.connectionTimeout = 60
-        tcpprotocol.keepaliveIdle = 5
-        tcpprotocol.enableFastOpen = true
+     //   tcpprotocol.keepaliveIdle = 5
+      //  tcpprotocol.enableFastOpen = true
         listener = try! NWListener(using: NWParameters(tls: nil, tcp: tcpprotocol), on: NWEndpoint.Port(rawValue: port)!)
     }
 
@@ -57,9 +56,6 @@ public class Webserver {
         for connection in connectionsByID.values {
             connection.stop()
             connection.didStopCallback = nil
-        }
-        if removeConnectionAtEnd {
-            connectionsByID.removeAll()
         }
     }
 
@@ -96,17 +92,12 @@ public class Webserver {
     }
 
     private func connectionDidStop(_ connection: Connection) {
-        if removeConnectionAtEnd {
-            connectionsByID.removeValue(forKey: connection.id)
-            print("server did close connection \(connection.id)")
-        }
     }
 
     @discardableResult
     func verifyBeaconReceived(key: String, value: String, file: StaticString = #file, line: UInt = #line) -> Bool {
         let keyValuePair = "\(key)\t\(value)"
         let hasValue = connections.flatMap {$0.received}.first(where: { $0.contains(keyValuePair) }) != nil
-        let all = connections.flatMap {$0.received}
         if !hasValue {
             XCTFail("Could not find value: \(value) for key: \(key))", file: file, line: line)
         }
@@ -223,9 +214,6 @@ public class Connection {
             }
             if data?.body != nil {
                 self.respond()
-            }
-            if isComplete {
-                self.connectionDidEnd()
             } else if let error = error {
                 self.connectionDidFail(error: error)
             } else {
