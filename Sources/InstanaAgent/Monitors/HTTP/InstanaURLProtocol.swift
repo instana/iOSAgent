@@ -140,23 +140,12 @@ extension InstanaURLProtocol {
     // We do some swi**ling to inject our InstanaURLProtocol to all custom sessions automatically
     // Will be called only once by using a static let
     static let install: () = {
-        prepareWebView
         prepareURLSessions
     }()
 
     static func deinstall() {
         URLSessionConfiguration.removeAllInstanaURLProtocol()
     }
-
-    // Will be called only once by using a static let
-    static let prepareWebView: () = {
-        guard let something = WKWebView().value(forKey: "browsingContextController") as? NSObject else { return }
-        let selector = NSSelectorFromString("registerSchemeForCustomProtocol:")
-        if type(of: something).responds(to: selector) {
-            type(of: something).perform(selector, with: "http")
-            type(of: something).perform(selector, with: "https")
-        }
-    }()
 
     // Will be called only once by using a static let
     static let prepareURLSessions: () = {
