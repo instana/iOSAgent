@@ -54,4 +54,4 @@ func application(_ application: UIApplication, didFinishLaunchingWithOptions lau
 
 ### API
 
-See [API page](https://docs.instana.io/ecosystem/node-js/api/).
+See [API page](https://docs.instana.io/products/mobile_app_monitoring/ios_api/).
