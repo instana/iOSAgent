@@ -120,20 +120,9 @@ public class Reporter {
 
     func runBackgroundFlush() {
         guard !queue.items.isEmpty else { return }
-
-        backgroundTaskID = UIApplication.shared.beginBackgroundTask(withName: "Finish Instana Reporting Tasks") {
-            // End the task if time expires.
-            guard let task = self.backgroundTaskID else { return }
-            UIApplication.shared.endBackgroundTask(task)
-            self.backgroundTaskID = UIBackgroundTaskIdentifier.invalid
-        }
-
-        flushQueue()
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-            guard let task = self.backgroundTaskID else { return }
-            UIApplication.shared.endBackgroundTask(task)
-            self.backgroundTaskID = UIBackgroundTaskIdentifier.invalid
+        ProcessInfo.processInfo.performExpiringActivity(withReason: "BackgroundFlush") { expired in
+            guard !expired else { return }
+            self.flushQueue()
         }
     }
 
