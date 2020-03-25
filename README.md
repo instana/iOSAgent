@@ -1,6 +1,6 @@
 # Instana iOSAgent
 
-**[Changelog](Changelog.md)** |
+**[Changelog](https://github.com/instana/iOSAgent/blob/master/Changelog.md)** |
 
 ---
 
