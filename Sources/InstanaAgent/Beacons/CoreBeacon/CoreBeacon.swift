@@ -198,6 +198,13 @@ struct CoreBeacon: Equatable, Codable {
     var dmo: String
 
     /**
+     * Instana Agent version
+     *
+     * For example: 1.0.3
+     */
+    var agv: String
+
+    /**
      * Whether the mobile device is rooted / jailbroken. True indicates that the device is definitely rooted / jailbroken.
      * False indicates that it isn't or that we could not identify the correct it.
      */

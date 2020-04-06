@@ -1,0 +1,1 @@
+Sources/InstanaAgent/Configuration/VersionConfig.swift

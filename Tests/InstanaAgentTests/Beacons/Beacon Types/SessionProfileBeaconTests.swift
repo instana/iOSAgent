@@ -21,7 +21,7 @@ class SessionProfileBeaconTests: InstanaTestCase {
         AssertEqualAndNotNil(sut.t, .sessionStart)
 
         let values = Mirror(reflecting: sut).nonNilChildren
-        XCTAssertEqual(values.count, 18)
+        XCTAssertEqual(values.count, 19)
     }
 
     func test_asString() {
@@ -39,7 +39,7 @@ class SessionProfileBeaconTests: InstanaTestCase {
         let sut = beacon.asString
 
         // When
-        let expected = "ab\t\(beacon.ab)\nav\t\(beacon.av)\nbid\t\(beacon.bid)\nbuid\t\(beacon.buid)\ncn\t\(beacon.cn ?? "")\nct\t\(beacon.ct ?? "")\ndma\tApple\ndmo\t\(beacon.dmo)\nk\t\(key)\nosn\tiOS\nosv\t\(beacon.osv)\nro\tfalse\nsid\t\(sessionID.uuidString)\nt\tsessionStart\nti\t\(session.timestamp)\nul\ten\nvh\t\(Int(UIScreen.main.nativeBounds.height))\nvw\t\(Int(UIScreen.main.nativeBounds.width))"
+        let expected = "ab\t\(beacon.ab)\nagv\t\(beacon.agv)\nav\t\(beacon.av)\nbid\t\(beacon.bid)\nbuid\t\(beacon.buid)\ncn\t\(beacon.cn ?? "")\nct\t\(beacon.ct ?? "")\ndma\tApple\ndmo\t\(beacon.dmo)\nk\t\(key)\nosn\tiOS\nosv\t\(beacon.osv)\nro\tfalse\nsid\t\(sessionID.uuidString)\nt\tsessionStart\nti\t\(session.timestamp)\nul\ten\nvh\t\(Int(UIScreen.main.nativeBounds.height))\nvw\t\(Int(UIScreen.main.nativeBounds.width))"
         XCTAssertEqual(sut, expected)
     }
 

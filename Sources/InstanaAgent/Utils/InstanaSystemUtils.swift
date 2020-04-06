@@ -32,6 +32,8 @@ class InstanaSystemUtils {
     /// Returns bundle identifer (for ex. "com.instana.ios.app")
     static var applicationBundleIdentifier: String = { Bundle.main.infoDictionary?["CFBundleIdentifier"] as? String ?? "unkown-bundle-id" }()
 
+    static var agentVersion: String { VersionConfig.agentVersion }
+
     /// Returns the screen size in Pixel
     static var screenSize: CGSize = { UIScreen.main.nativeBounds.size }()
 
