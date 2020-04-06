@@ -104,6 +104,7 @@ extension CoreBeacon {
                    osn: InstanaSystemUtils.systemName,
                    osv: InstanaSystemUtils.systemVersion,
                    dmo: InstanaSystemUtils.deviceModel,
+                   agv: InstanaSystemUtils.agentVersion,
                    ro: String(InstanaSystemUtils.isDeviceJailbroken),
                    vw: String(Int(InstanaSystemUtils.screenSize.width)),
                    vh: String(Int(InstanaSystemUtils.screenSize.height)),
