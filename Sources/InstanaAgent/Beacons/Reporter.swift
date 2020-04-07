@@ -45,6 +45,7 @@ public class Reporter {
     }
 
     func submit(_ beacon: Beacon, _ completion: (() -> Void)? = nil) {
+        Instana.current?.startSessionIfNeeded()
         backgroundQueue.async(qos: .background) {
             guard !self.queue.isFull else {
                 self.session.logger.add("Queue is full - Beacon will be discarded", level: .warning)

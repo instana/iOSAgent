@@ -9,6 +9,9 @@ import UIKit
     /// The Container for all Instana monitors (Network, HTTP, Framedrop, ...)
     internal let monitors: Monitors
 
+    /// The delayed start session beacon event
+    var startSessionItem: DispatchWorkItem?
+
     /// The current Instana session that holds the configuration, session information, custom properties and more
     internal let session: InstanaSession
 
@@ -21,9 +24,9 @@ import UIKit
         self.session = session
         self.monitors = monitors ?? Monitors(session)
         super.init()
-
         if configuration.isValid {
-            self.monitors.reporter.submit(SessionProfileBeacon(state: .start, sessionID: session.id))
+            startSessionItem = DispatchWorkItem(block: startSessionIfNeeded)
+            DispatchQueue.main.asyncAfter(deadline: .now() + configuration.maxDelayToStartSession, execute: startSessionItem!)
         } else {
             assertionFailure("Instana setup is invalid. URL and key must not be empty")
         }
@@ -32,6 +35,20 @@ import UIKit
     private static var propertyHandler: InstanaPropertyHandler {
         guard let current = Instana.current else { fatalError("Instana Config error: There is no active & valid instana setup") }
         return current.session.propertyHandler
+    }
+
+    func startSessionIfNeeded() {
+        if startSessionItem == nil {
+            // Bail out here to avoid duplicate or infinite calls
+            return
+        }
+        // A session will be started once one the properties have been updated or when the first beacon is created
+        // If none of the above criteria were met
+        // the start session beacon will be triggered
+        // after a delay of XY seconds (see InstanaConfiguration.maxDelayToStartSession)
+        startSessionItem?.cancel()
+        startSessionItem = nil
+        monitors.reporter.submit(SessionProfileBeacon(state: .start, sessionID: session.id))
     }
 }
 

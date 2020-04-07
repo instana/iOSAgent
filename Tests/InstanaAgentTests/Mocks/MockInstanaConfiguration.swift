@@ -20,6 +20,7 @@ extension InstanaConfiguration {
                                             .alertApplicationNotResponding(threshold: 2.0)],
                              transmissionDelay: 0.0, transmissionLowBatteryDelay: 0.0,
                              gzipReport: true,
-                             maxBeaconsPerRequest: 100)
+                             maxBeaconsPerRequest: 100,
+                             maxDelayToStartSession: 2.0)
     }
 }
