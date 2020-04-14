@@ -71,6 +71,11 @@
          <EnvironmentVariable
             key = "IgnoreZIPReporting"
             value = "true"
+            isEnabled = "NO">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "INSTANA_DEBUG_LOGLEVEL"
+            value = "0"
             isEnabled = "YES">
          </EnvironmentVariable>
       </EnvironmentVariables>
