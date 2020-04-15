@@ -19,6 +19,11 @@ public class Reporter {
     private var flushSemaphore: DispatchSemaphore?
     private var backgroundTaskID: UIBackgroundTaskIdentifier?
 
+    // Prequeue handling
+    private var preQueue = [Beacon]()
+    private let started = Date().timeIntervalSince1970
+    private var mustUsePrequeue: Bool { (Date().timeIntervalSince1970 - started) < session.configuration.preQueueUsageTime }
+
     // MARK: Init
 
     init(_ session: InstanaSession,
@@ -29,7 +34,9 @@ public class Reporter {
         self.session = session
         self.batterySafeForNetworking = batterySafeForNetworking
         self.send = send
-        queue = InstanaPersistableQueue<CoreBeacon>(maxItems: session.configuration.maxBeaconsPerRequest)
+
+        queue = InstanaPersistableQueue<CoreBeacon>(identifier: "com.instana.ios.mainqueue",
+                                                    maxItems: session.configuration.maxBeaconsPerRequest)
         networkUtility.connectionUpdateHandler = { [weak self] connectionType in
             guard let self = self else { return }
             if connectionType != .none {
@@ -42,22 +49,39 @@ public class Reporter {
                 self.runBackgroundFlush()
             }
         }
+        backgroundQueue.asyncAfter(deadline: .now() + session.configuration.preQueueUsageTime, execute: emptyPreQueueIfNeeded)
     }
 
     func submit(_ beacon: Beacon, _ completion: (() -> Void)? = nil) {
+        if mustUsePrequeue {
+            preQueue.append(beacon)
+            completion?()
+            return
+        }
         backgroundQueue.async(qos: .background) {
             guard !self.queue.isFull else {
                 self.session.logger.add("Queue is full - Beacon will be discarded", level: .warning)
                 return
             }
             let start = Date()
-            guard let coreBeacon = try? CoreBeaconFactory(self.session).map(beacon) else { return }
-            self.queue.add(coreBeacon)
-            let passed = Date().timeIntervalSince(start)
-            self.session.logger.add("\(Date().millisecondsSince1970) Creating the CoreBeacon took \(passed * 1000) ms")
-            self.scheduleFlush()
+            if let coreBeacon = try? CoreBeaconFactory(self.session).map(beacon) {
+                self.queue.add(coreBeacon)
+                let passed = Date().timeIntervalSince(start)
+                self.session.logger.add("\(Date().millisecondsSince1970) Creating the CoreBeacon took \(passed * 1000) ms")
+                self.scheduleFlush()
+            }
             completion?()
         }
+    }
+
+    private func emptyPreQueueIfNeeded() {
+        if preQueue.isEmpty {
+            return
+        }
+        let coreBeacons = preQueue.compactMap { try? CoreBeaconFactory(self.session).map($0) }
+        coreBeacons.forEach { queue.add($0) }
+        preQueue.removeAll()
+        scheduleFlush()
     }
 
     func scheduleFlush() {
@@ -83,16 +107,13 @@ public class Reporter {
     func flushQueue() {
         let connectionType = networkUtility.connectionType
         guard connectionType != .none else {
-            complete([], .failure(InstanaError(code: .offline, description: "No connection available")))
-            return
+            return complete([], .failure(InstanaError(code: .offline, description: "No connection available")))
         }
         if suspendReporting.contains(.cellularConnection), connectionType == .cellular {
-            complete([], .failure(InstanaError(code: .noWifiAvailable, description: "No WIFI Available")))
-            return
+            return complete([], .failure(InstanaError(code: .noWifiAvailable, description: "No WIFI Available")))
         }
         if suspendReporting.contains(.lowBattery), !batterySafeForNetworking() {
-            complete([], .failure(InstanaError(code: .lowBattery, description: "Battery too low for flushing")))
-            return
+            return complete([], .failure(InstanaError(code: .lowBattery, description: "Battery too low for flushing")))
         }
 
         let beacons = queue.items

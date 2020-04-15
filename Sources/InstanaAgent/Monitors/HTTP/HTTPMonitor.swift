@@ -42,8 +42,7 @@ extension HTTPMonitor {
         guard let url = request.url, let method = request.httpMethod else {
             throw InstanaError(code: InstanaError.Code.invalidRequest, description: "Invalid URLRequest")
         }
-        let viewName = session.propertyHandler.properties.view
-        return HTTPMarker(url: url, method: method, trigger: .automatic, delegate: self, viewName: viewName)
+        return HTTPMarker(url: url, method: method, trigger: .automatic, delegate: self)
     }
 
     private func shouldReport(marker: HTTPMarker) -> Bool {

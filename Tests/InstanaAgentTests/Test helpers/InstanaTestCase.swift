@@ -43,6 +43,5 @@ class InstanaTestCase: XCTestCase {
         IgnoreURLHandler.exactURLs.removeAll()
         IgnoreURLHandler.regex.removeAll()
         IgnoreURLHandler.urlSessions.removeAll()
-        InstanaPersistableQueue<CoreBeacon>.reset()
     }
 }

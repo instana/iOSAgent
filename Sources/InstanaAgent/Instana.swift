@@ -98,10 +98,9 @@ import UIKit
     ///
     /// - Parameters:
     ///   - request: URLRequest to capture.
-    ///   - viewName: Optional name of the visible view related to this request
     ///
     /// - Returns: HTTP marker to set the response size, finish state or error when the request has been completed.
-    static func startCapture(_ request: URLRequest, viewName: String? = nil) -> HTTPMarker {
+    static func startCapture(_ request: URLRequest) -> HTTPMarker {
         let delegate = Instana.current?.monitors.http
         let method = request.httpMethod ?? "GET"
         if request.url == nil {
@@ -110,7 +109,7 @@ import UIKit
         if delegate == nil {
             assertionFailure("No valid Instance instance found. Please call setup to create an instance first!")
         }
-        return HTTPMarker(url: request.url!, method: method, trigger: .manual, delegate: delegate, viewName: viewName)
+        return HTTPMarker(url: request.url!, method: method, trigger: .manual, delegate: delegate)
     }
 
     ///
@@ -191,6 +190,6 @@ import UIKit
     static func setView(name: String) {
         guard propertyHandler.properties.view != name else { return }
         propertyHandler.properties.view = name
-        Instana.current?.monitors.reporter.submit(ViewChange(viewName: name))
+        Instana.current?.monitors.reporter.submit(ViewChange())
     }
 }

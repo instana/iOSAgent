@@ -17,8 +17,7 @@ class HTTPBeacon: Beacon {
          responseCode: Int,
          responseSize: HTTPMarker.Size? = nil,
          error: Error? = nil,
-         backendTracingID: String? = nil,
-         viewName: String? = nil) {
+         backendTracingID: String? = nil) {
         let path = !url.path.isEmpty ? url.path : nil
         self.duration = duration
         self.method = method
@@ -28,6 +27,6 @@ class HTTPBeacon: Beacon {
         self.responseSize = responseSize
         self.error = HTTPError(error: error as NSError?, statusCode: responseCode)
         self.backendTracingID = backendTracingID
-        super.init(timestamp: timestamp, viewName: viewName)
+        super.init(timestamp: timestamp)
     }
 }

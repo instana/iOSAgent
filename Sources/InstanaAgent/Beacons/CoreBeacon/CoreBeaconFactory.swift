@@ -14,12 +14,8 @@ class CoreBeaconFactory {
     }
 
     func map(_ beacon: Beacon) throws -> CoreBeacon {
-        var cbeacon = CoreBeacon.createDefault(viewName: beacon.viewName,
-                                               key: conf.key,
-                                               timestamp: beacon.timestamp,
-                                               sessionID: beacon.sessionID,
-                                               id: beacon.id,
-                                               properties: properties)
+        var cbeacon = CoreBeacon.createDefault(key: conf.key, timestamp: beacon.timestamp, sid: beacon.sessionID, id: beacon.id)
+        cbeacon.append(properties)
         switch beacon {
         case let item as HTTPBeacon:
             cbeacon.append(item)
@@ -39,6 +35,14 @@ class CoreBeaconFactory {
 }
 
 extension CoreBeacon {
+    mutating func append(_ properties: InstanaProperties) {
+        v = v ?? properties.viewNameForCurrentAppState
+        ui = properties.user?.id
+        un = properties.user?.name
+        ue = properties.user?.email
+        m = properties.metaData
+    }
+
     mutating func append(_ beacon: HTTPBeacon) {
         t = .httpRequest
         bt = beacon.backendTracingID
@@ -81,23 +85,16 @@ extension CoreBeacon {
         }
     }
 
-    static func createDefault(viewName: String?,
-                              key: String,
+    static func createDefault(key: String,
                               timestamp: Instana.Types.Milliseconds = Date().millisecondsSince1970,
-                              sessionID: UUID = UUID(),
+                              sid: UUID = UUID(),
                               id: UUID = UUID(),
-                              connectionType: NetworkUtility.ConnectionType = InstanaSystemUtils.networkUtility.connectionType,
-                              properties: InstanaProperties) -> CoreBeacon {
-        CoreBeacon(v: viewName,
-                   k: key,
+                              connection: NetworkUtility.ConnectionType = InstanaSystemUtils.networkUtility.connectionType) -> CoreBeacon {
+        CoreBeacon(k: key,
                    ti: String(timestamp),
-                   sid: sessionID.uuidString,
+                   sid: sid.uuidString,
                    bid: id.uuidString,
                    buid: InstanaSystemUtils.applicationBundleIdentifier,
-                   m: properties.metaData,
-                   ui: properties.user?.id,
-                   un: properties.user?.name,
-                   ue: properties.user?.email,
                    ul: Locale.current.languageCode,
                    ab: InstanaSystemUtils.applicationBuildNumber,
                    av: InstanaSystemUtils.applicationVersion,
@@ -108,8 +105,8 @@ extension CoreBeacon {
                    ro: String(InstanaSystemUtils.isDeviceJailbroken),
                    vw: String(Int(InstanaSystemUtils.screenSize.width)),
                    vh: String(Int(InstanaSystemUtils.screenSize.height)),
-                   cn: connectionType.cellular.carrierName,
-                   ct: connectionType.description)
+                   cn: connection.cellular.carrierName,
+                   ct: connection.description)
     }
 
     static func create(from httpBody: String) throws -> CoreBeacon {
