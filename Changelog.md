@@ -1,12 +1,26 @@
 # Changelog
 
+## 1.0.5 Beta 5
+04/16/2020
+Fix CoreBeacon fields for bundleIdentifier and platform
+
+## 1.0.4 
+nothing - just an empty release
+
+## 1.0.3 Beta 4
+04/14/2020
+Sending the agent version to Instana
+
 ## 1.0.2 Beta 3
+03/23/2020
 Improves flushing queue in the background. iOSAgent is also available to app extensions now.
 
 ## 1.0.1 Beta 2
+03/12/2020
 Removes WKWebView from being monitored automatically
 
 ## 1.0.0 Beta 1
+01/30/2020
 Adds monitoring
 
 Session start
