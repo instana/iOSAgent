@@ -98,7 +98,7 @@ struct CoreBeacon: Equatable, Codable {
      *
      * For example: com.instana.ios.app
      */
-    var buid: String
+    var bi: String
 
     /**
      * Meta for custom key/value entries
@@ -170,7 +170,14 @@ struct CoreBeacon: Equatable, Codable {
     var av: String
 
     /**
-     * Name of the OS platform
+     * Name of the platform (same as osn)
+     *
+     * For example: iOS or tvOS
+     */
+    var p: String
+
+    /**
+     * Name of the OS
      *
      * For example: iOS or tvOS
      */
