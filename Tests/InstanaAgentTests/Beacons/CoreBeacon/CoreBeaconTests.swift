@@ -41,10 +41,11 @@ class CoreBeaconTests: InstanaTestCase {
         AssertEqualAndNotNil(sut.ti, String(timestamp))
         AssertEqualAndNotNil(sut.sid, sessionID.uuidString)
         AssertEqualAndNotNil(sut.bid, beaconID.uuidString)
-        AssertEqualAndNotNil(sut.buid, InstanaSystemUtils.applicationBundleIdentifier)
+        AssertEqualAndNotNil(sut.bi, InstanaSystemUtils.applicationBundleIdentifier)
         AssertEqualAndNotNil(sut.ul, Locale.current.languageCode)
         AssertEqualAndNotNil(sut.ab, InstanaSystemUtils.applicationBuildNumber)
         AssertEqualAndNotNil(sut.av, InstanaSystemUtils.applicationVersion)
+        AssertEqualAndNotNil(sut.p, InstanaSystemUtils.systemName)
         AssertEqualAndNotNil(sut.osn, InstanaSystemUtils.systemName)
         AssertEqualAndNotNil(sut.osv, InstanaSystemUtils.systemVersion)
         AssertEqualAndNotNil(sut.dmo, InstanaSystemUtils.deviceModel)
@@ -74,7 +75,7 @@ class CoreBeaconTests: InstanaTestCase {
         let values = Mirror(reflecting: sut).children
 
         // Then
-        XCTAssertEqual(values.count, 36)
+        XCTAssertEqual(values.count, 37)
     }
 
     func testNumberOfFields_non_nil() {
@@ -85,7 +86,7 @@ class CoreBeaconTests: InstanaTestCase {
         let values = Array(Mirror(reflecting: sut).nonNilChildren)
 
         // Then
-        XCTAssertEqual(values.count, 23)
+        XCTAssertEqual(values.count, 24)
     }
 
 
@@ -93,7 +94,7 @@ class CoreBeaconTests: InstanaTestCase {
         // Given
         let sut = coreBeacon!
 
-        let expectedKeys = ["t", "v", "bt", "k" ,"ti", "sid", "bid", "buid", "m", "ui", "un", "ue", "ul", "ab", "av", "osn", "osv", "dma", "dmo", "ro", "vw", "vh", "cn", "ct", "hu", "hp", "hm", "hs", "ebs", "dbs", "trs", "d", "ec", "em", "et"]
+        let expectedKeys = ["t", "v", "bt", "k" ,"ti", "sid", "bid", "bi", "m", "ui", "un", "ue", "ul", "ab", "av", "p", "osn", "osv", "dma", "dmo", "ro", "vw", "vh", "cn", "ct", "hu", "hp", "hm", "hs", "ebs", "dbs", "trs", "d", "ec", "em", "et"]
         // When
         let keys = Mirror(reflecting: sut).children.compactMap {$0.label}
 
@@ -114,7 +115,7 @@ class CoreBeaconTests: InstanaTestCase {
         let sut = beacon.asString
 
         // Then
-        let expected = "ab\t\(beacon.ab)\nagv\t\(beacon.agv)\nav\t\(beacon.av)\nbid\t\(beacon.bid)\nbuid\t\(beacon.buid)\ncn\tNone\nct\tWifi\ndma\tApple\ndmo\t\(beacon.dmo)\nk\t\(key)\nm_MetaKey\t\(metaData["MetaKey"]!)\nosn\tiOS\nosv\t\(beacon.osv)\nro\tfalse\nsid\t\(sessionID.uuidString)\nti\t\(beacon.ti)\nue\t\(user.email ?? "")\nui\t\(user.id)\nul\ten\nun\t\(user.name ?? "")\nv\t\(viewName!)\nvh\t\(Int(UIScreen.main.nativeBounds.height))\nvw\t\(Int(UIScreen.main.nativeBounds.width))"
+        let expected = "ab\t\(beacon.ab)\nagv\t\(beacon.agv)\nav\t\(beacon.av)\nbi\t\(beacon.bi)\nbid\t\(beacon.bid)\ncn\tNone\nct\tWifi\ndma\tApple\ndmo\t\(beacon.dmo)\nk\t\(key)\nm_MetaKey\t\(metaData["MetaKey"]!)\nosn\tiOS\nosv\t\(beacon.osv)\np\tiOS\nro\tfalse\nsid\t\(sessionID.uuidString)\nti\t\(beacon.ti)\nue\t\(user.email ?? "")\nui\t\(user.id)\nul\ten\nun\t\(user.name ?? "")\nv\t\(viewName!)\nvh\t\(Int(UIScreen.main.nativeBounds.height))\nvw\t\(Int(UIScreen.main.nativeBounds.width))"
         XCTAssertEqual(sut, expected)
     }
 
