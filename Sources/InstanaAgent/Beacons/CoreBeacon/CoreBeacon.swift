@@ -98,6 +98,7 @@ struct CoreBeacon: Equatable, Codable {
      *
      * For example: com.instana.ios.app
      */
+    // swiftlint:disable:next identifier_name
     var bi: String
 
     /**
@@ -174,6 +175,7 @@ struct CoreBeacon: Equatable, Codable {
      *
      * For example: iOS or tvOS
      */
+    // swiftlint:disable:next identifier_name
     var p: String
 
     /**
