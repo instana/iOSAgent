@@ -772,6 +772,78 @@ class ReporterTests: InstanaTestCase {
         AssertTrue(reporter.queue.items.isEmpty)
     }
 
+    // MARK: Test Prequeu
+    func test_preque_items() {
+        // Given
+        let beacon = HTTPBeacon.createMock()
+        let prequeueTime = 2.0
+        let waitForSend = expectation(description: "Wait for send")
+        var sendCount = 0
+        let queue = MockInstanaPersistableQueue<CoreBeacon>(identifier: "queue", maxItems: 2)
+        let reporter = ReporterDefaultWifi(preQueueUsageTime: prequeueTime, queue: queue, [waitForSend]) { sendCount = $0 }
+        var expectedResult: BeaconResult?
+
+        // When
+        reporter.submit(beacon)
+        reporter.completionHandler.append {result in
+            expectedResult = result
+        }
+
+        // Then
+        AssertTrue(reporter.preQueue.first === beacon)
+        AssertTrue(reporter.preQueue.count == 1)
+
+        // When
+        wait(for: [waitForSend], timeout: prequeueTime * 2)
+
+        // Then
+        AssertTrue(reporter.preQueue.isEmpty)
+        AssertTrue(sendCount == 1)
+        AssertTrue(expectedResult == .success)
+        AssertTrue(queue.addedItems.count == 1)
+        AssertEqualAndNotNil(queue.addedItems.first?.bid, beacon.id.uuidString)
+    }
+
+    func test_submit_after_preque_time() {
+        // Given
+        let beacon1 = HTTPBeacon.createMock()
+        let beacon2 = HTTPBeacon.createMock()
+        let prequeueTime = 0.5
+        let waitForSend = expectation(description: "Wait for send")
+        var sendCount = 0
+        let queue = MockInstanaPersistableQueue<CoreBeacon>(identifier: "queue", maxItems: 2)
+        let reporter = ReporterDefaultWifi(preQueueUsageTime: prequeueTime, queue: queue) {
+            sendCount = $0
+            if sendCount == 2 {
+                waitForSend.fulfill()
+            }
+        }
+
+        // When
+        reporter.submit(beacon1)
+
+        // Then
+        AssertTrue(reporter.preQueue.first === beacon1)
+        AssertTrue(reporter.preQueue.count == 1)
+
+        // When
+        wait(prequeueTime + 0.1)
+        reporter.submit(beacon2)
+
+        // Then
+        AssertTrue(queue.addedItems.count == 1)
+        AssertTrue(reporter.preQueue.isEmpty)
+
+        // When
+        wait(for: [waitForSend], timeout: prequeueTime * 2)
+
+        // Then
+        AssertTrue(sendCount == 2)
+        AssertTrue(queue.addedItems.count == 2)
+        AssertEqualAndNotNil(queue.addedItems.first?.bid, beacon1.id.uuidString)
+        AssertEqualAndNotNil(queue.addedItems.last?.bid, beacon2.id.uuidString)
+    }
+
     // MARK: Test Result Code and Errors
     func test_send_Failure() {
         // Given
@@ -965,10 +1037,12 @@ extension ReporterTests {
     }
 
     func ReporterDefaultWifi(delay: TimeInterval = 0.0,
+                              preQueueUsageTime: TimeInterval = 0.0,
+                              queue: InstanaPersistableQueue<CoreBeacon>? = nil,
                              _ expectations: [XCTestExpectation] = [],
                              _ sent: ((Int) -> Void)? = nil) -> Reporter {
         var sendCount = 0
-        return Reporter(session(delay), batterySafeForNetworking: { true }, networkUtility: .wifi) { _, callback in
+        return Reporter(session(delay, preQueueUsageTime: preQueueUsageTime), batterySafeForNetworking: { true }, networkUtility: .wifi, queue: queue) { _, callback in
             DispatchQueue.main.async {
                 callback(.success(statusCode: 200))
                 if expectations.count > sendCount {
