@@ -777,10 +777,17 @@ class ReporterTests: InstanaTestCase {
         // Given
         let beacon = HTTPBeacon.createMock()
         let prequeueTime = 2.0
+        let viewName = "ViewName"
         let waitForSend = expectation(description: "Wait for send")
-        var sendCount = 0
-        let queue = MockInstanaPersistableQueue<CoreBeacon>(identifier: "queue", maxItems: 2)
-        let reporter = ReporterDefaultWifi(preQueueUsageTime: prequeueTime, queue: queue, [waitForSend]) { sendCount = $0 }
+        let sendQueue = MockInstanaPersistableQueue<CoreBeacon>(identifier: "queue", maxItems: 2)
+        let mockSession = session(0.0, preQueueUsageTime: prequeueTime)
+        mockSession.propertyHandler.properties.view = nil
+        let reporter = Reporter(mockSession, batterySafeForNetworking: { true }, networkUtility: .wifi, queue: sendQueue) { _, completion in
+            DispatchQueue.main.async {
+                completion(.success(statusCode: 200))
+                waitForSend.fulfill()
+            }
+        }
         var expectedResult: BeaconResult?
 
         // When
@@ -790,18 +797,19 @@ class ReporterTests: InstanaTestCase {
         }
 
         // Then
-        AssertTrue(reporter.preQueue.first === beacon)
+        AssertTrue(beacon.viewName == nil)
         AssertTrue(reporter.preQueue.count == 1)
 
         // When
+        mockSession.propertyHandler.properties.view = viewName
         wait(for: [waitForSend], timeout: prequeueTime * 2)
 
         // Then
         AssertTrue(reporter.preQueue.isEmpty)
-        AssertTrue(sendCount == 1)
         AssertTrue(expectedResult == .success)
-        AssertTrue(queue.addedItems.count == 1)
-        AssertEqualAndNotNil(queue.addedItems.first?.bid, beacon.id.uuidString)
+        AssertTrue(sendQueue.addedItems.count == 1)
+        AssertEqualAndNotNil(sendQueue.addedItems.first?.bid, beacon.id.uuidString)
+        AssertEqualAndNotNil(sendQueue.addedItems.first?.v, viewName)
     }
 
     func test_submit_after_preque_time() {
@@ -843,6 +851,7 @@ class ReporterTests: InstanaTestCase {
         AssertEqualAndNotNil(queue.addedItems.first?.bid, beacon1.id.uuidString)
         AssertEqualAndNotNil(queue.addedItems.last?.bid, beacon2.id.uuidString)
     }
+
 
     // MARK: Test Result Code and Errors
     func test_send_Failure() {
