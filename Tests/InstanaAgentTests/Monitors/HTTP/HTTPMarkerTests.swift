@@ -178,7 +178,6 @@ class HTTPMarkerTests: InstanaTestCase {
     // MARK: CreateBeacon
     func test_createBeacon_freshMarker() {
         // Given
-        Instana.current?.session.propertyHandler.properties.view = "Some View"
         let url: URL = .random
         let marker = HTTPMarker(url: url, method: "c", trigger: .automatic, delegate: Delegate())
 
@@ -189,7 +188,6 @@ class HTTPMarkerTests: InstanaTestCase {
 
         // Then
         XCTAssertTrue(beacon.id.uuidString.count > 0)
-        XCTAssertEqual(beacon.viewName, "Some View")
         XCTAssertEqual(beacon.timestamp, marker.startTime)
         XCTAssertEqual(beacon.duration, 0)
         XCTAssertEqual(beacon.method, "c")

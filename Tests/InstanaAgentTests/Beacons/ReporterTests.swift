@@ -955,10 +955,11 @@ extension ReporterTests {
 
 extension ReporterTests {
 
-    func session(_ delay: Instana.Types.Seconds = 0.0, suspend: Set<InstanaConfiguration.SuspendReporting> = []) -> InstanaSession {
+    func session(_ delay: Instana.Types.Seconds = 0.0, preQueueUsageTime: Instana.Types.Seconds = 0.0, suspend: Set<InstanaConfiguration.SuspendReporting> = []) -> InstanaSession {
         var config = InstanaConfiguration.mock
         config.transmissionDelay = delay
         config.transmissionLowBatteryDelay = delay
+        config.preQueueUsageTime = preQueueUsageTime
         config.suspendReporting = suspend
         return InstanaSession.mock(configuration: config)
     }

@@ -74,7 +74,6 @@ class HTTPMonitorTests: InstanaTestCase {
         // Given
         let url: URL = .random
         let viewName = "\((1...99).randomElement() ?? 1)"
-        session.propertyHandler.properties.view = viewName
         let monitor = HTTPMonitor(session, reporter: instana.monitors.reporter)
         var request = URLRequest(url: url)
         request.httpMethod = "m"
@@ -87,7 +86,6 @@ class HTTPMonitorTests: InstanaTestCase {
         XCTAssertEqual(marker.url, url)
         XCTAssertEqual(marker.method, "m")
         XCTAssertEqual(marker.trigger, .automatic)
-        XCTAssertEqual(marker.viewName, viewName)
     }
     
     func test_invalid_request() {

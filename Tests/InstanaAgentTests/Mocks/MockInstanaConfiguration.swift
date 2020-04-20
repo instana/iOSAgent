@@ -18,8 +18,10 @@ extension InstanaConfiguration {
                                             .memoryWarning,
                                             .framerateDrop(frameThreshold: 20),
                                             .alertApplicationNotResponding(threshold: 2.0)],
-                             transmissionDelay: 0.0, transmissionLowBatteryDelay: 0.0,
+                             transmissionDelay: 0.0,
+                             transmissionLowBatteryDelay: 0.0,
                              gzipReport: true,
-                             maxBeaconsPerRequest: 100)
+                             maxBeaconsPerRequest: 100,
+                             preQueueUsageTime: 0.0)
     }
 }
