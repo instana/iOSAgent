@@ -16,7 +16,11 @@ class Beacon: Identifiable {
     }
 }
 
-enum BeaconResult {
+enum BeaconResult: Equatable {
+    static func == (lhs: BeaconResult, rhs: BeaconResult) -> Bool {
+        return lhs.error as NSError? == rhs.error as NSError?
+    }
+
     case success
     case failure(Error)
 
@@ -27,3 +31,4 @@ enum BeaconResult {
         }
     }
 }
+
