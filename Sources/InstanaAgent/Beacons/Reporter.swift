@@ -20,7 +20,7 @@ public class Reporter {
     private var backgroundTaskID: UIBackgroundTaskIdentifier?
 
     // Prequeue handling
-    private var preQueue = [Beacon]()
+    private(set) var preQueue = [Beacon]()
     private let started = Date().timeIntervalSince1970
     private var mustUsePrequeue: Bool { (Date().timeIntervalSince1970 - started) < session.configuration.preQueueUsageTime }
 
@@ -29,14 +29,13 @@ public class Reporter {
     init(_ session: InstanaSession,
          batterySafeForNetworking: @escaping () -> Bool = { InstanaSystemUtils.battery.safeForNetworking },
          networkUtility: NetworkUtility = NetworkUtility(),
+         queue: InstanaPersistableQueue<CoreBeacon>? = nil,
          send: @escaping NetworkLoader = InstanaNetworking().send(request:completion:)) {
         self.networkUtility = networkUtility
         self.session = session
         self.batterySafeForNetworking = batterySafeForNetworking
         self.send = send
-
-        queue = InstanaPersistableQueue<CoreBeacon>(identifier: "com.instana.ios.mainqueue",
-                                                    maxItems: session.configuration.maxBeaconsPerRequest)
+        self.queue = queue ?? InstanaPersistableQueue<CoreBeacon>(identifier: "com.instana.ios.mainqueue", maxItems: session.configuration.maxBeaconsPerRequest)
         networkUtility.connectionUpdateHandler = { [weak self] connectionType in
             guard let self = self else { return }
             if connectionType != .none {
