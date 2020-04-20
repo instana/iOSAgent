@@ -819,8 +819,8 @@ class ReporterTests: InstanaTestCase {
         let prequeueTime = 0.5
         let waitForSend = expectation(description: "Wait for send")
         var sendCount = 0
-        let queue = MockInstanaPersistableQueue<CoreBeacon>(identifier: "queue", maxItems: 2)
-        let reporter = ReporterDefaultWifi(preQueueUsageTime: prequeueTime, queue: queue) {
+        let sendQueue = MockInstanaPersistableQueue<CoreBeacon>(identifier: "queue", maxItems: 2)
+        let reporter = ReporterDefaultWifi(preQueueUsageTime: prequeueTime, queue: sendQueue) {
             sendCount = $0
             if sendCount == 2 {
                 waitForSend.fulfill()
@@ -839,7 +839,7 @@ class ReporterTests: InstanaTestCase {
         reporter.submit(beacon2)
 
         // Then
-        AssertTrue(queue.addedItems.count == 1)
+        AssertTrue(sendQueue.addedItems.count == 1)
         AssertTrue(reporter.preQueue.isEmpty)
 
         // When
@@ -847,9 +847,9 @@ class ReporterTests: InstanaTestCase {
 
         // Then
         AssertTrue(sendCount == 2)
-        AssertTrue(queue.addedItems.count == 2)
-        AssertEqualAndNotNil(queue.addedItems.first?.bid, beacon1.id.uuidString)
-        AssertEqualAndNotNil(queue.addedItems.last?.bid, beacon2.id.uuidString)
+        AssertTrue(sendQueue.addedItems.count == 2)
+        AssertEqualAndNotNil(sendQueue.addedItems.first?.bid, beacon1.id.uuidString)
+        AssertEqualAndNotNil(sendQueue.addedItems.last?.bid, beacon2.id.uuidString)
     }
 
 
