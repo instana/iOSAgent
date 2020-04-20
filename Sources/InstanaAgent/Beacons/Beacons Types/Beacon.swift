@@ -5,11 +5,14 @@ class Beacon: Identifiable {
     let id = UUID()
     let sessionID: UUID
     var timestamp: Instana.Types.Milliseconds = Date().millisecondsSince1970
+    let viewName: String?
 
     init(timestamp: Instana.Types.Milliseconds = Date().millisecondsSince1970,
-         sessionID: UUID = Instana.current?.session.id ?? UUID()) {
+         sessionID: UUID = Instana.current?.session.id ?? UUID(),
+         viewName: String? = nil) {
         self.sessionID = sessionID
         self.timestamp = timestamp
+        self.viewName = viewName
     }
 }
 

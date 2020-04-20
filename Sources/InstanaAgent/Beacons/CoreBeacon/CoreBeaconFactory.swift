@@ -14,7 +14,7 @@ class CoreBeaconFactory {
     }
 
     func map(_ beacon: Beacon) throws -> CoreBeacon {
-        var cbeacon = CoreBeacon.createDefault(key: conf.key, timestamp: beacon.timestamp, sid: beacon.sessionID, id: beacon.id)
+        var cbeacon = CoreBeacon.createDefault(viewName: beacon.viewName, key: conf.key, timestamp: beacon.timestamp, sid: beacon.sessionID, id: beacon.id)
         cbeacon.append(properties)
         switch beacon {
         case let item as HTTPBeacon:
@@ -85,12 +85,14 @@ extension CoreBeacon {
         }
     }
 
-    static func createDefault(key: String,
+    static func createDefault(viewName: String?,
+                              key: String,
                               timestamp: Instana.Types.Milliseconds = Date().millisecondsSince1970,
                               sid: UUID = UUID(),
                               id: UUID = UUID(),
                               connection: NetworkUtility.ConnectionType = InstanaSystemUtils.networkUtility.connectionType) -> CoreBeacon {
-        CoreBeacon(k: key,
+        CoreBeacon(v: viewName,
+                   k: key,
                    ti: String(timestamp),
                    sid: sid.uuidString,
                    bid: id.uuidString,

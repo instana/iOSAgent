@@ -19,18 +19,20 @@ protocol HTTPMarkerDelegate: AnyObject {
     let method: String
     let trigger: Trigger
     let startTime: Instana.Types.Milliseconds
+    private(set) var viewName: String?
     private(set) var backendTracingID: String?
     private(set) var responseSize: HTTPMarker.Size?
     private var endTime: Instana.Types.Milliseconds?
     private(set) var state: State = .started
     private weak var delegate: HTTPMarkerDelegate?
 
-    init(url: URL, method: String, trigger: Trigger, delegate: HTTPMarkerDelegate?) {
+    init(url: URL, method: String, trigger: Trigger, delegate: HTTPMarkerDelegate?, viewName: String? = nil) {
         startTime = Date().millisecondsSince1970
         self.url = url
         self.method = method
         self.delegate = delegate
         self.trigger = trigger
+        self.viewName = viewName
     }
 
     /// Invoke this method when the reponse size has been determined.
@@ -108,7 +110,8 @@ extension HTTPMarker {
                           responseCode: responseCode ?? -1,
                           responseSize: responseSize,
                           error: error,
-                          backendTracingID: backendTracingID)
+                          backendTracingID: backendTracingID,
+                          viewName: viewName)
     }
 }
 

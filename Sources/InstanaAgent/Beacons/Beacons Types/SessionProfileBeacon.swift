@@ -15,7 +15,7 @@ class SessionProfileBeacon: Beacon {
         super.init(timestamp: timestamp, sessionID: sessionID)
     }
 
-    private override init(timestamp: Instana.Types.Milliseconds, sessionID: UUID) {
+    private override init(timestamp: Instana.Types.Milliseconds, sessionID: UUID, viewName: String?) {
         fatalError("Wrong initializer")
     }
 }
