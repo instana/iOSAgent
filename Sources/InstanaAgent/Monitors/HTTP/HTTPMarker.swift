@@ -19,7 +19,7 @@ protocol HTTPMarkerDelegate: AnyObject {
     let method: String
     let trigger: Trigger
     let startTime: Instana.Types.Milliseconds
-    let viewName: String?
+    var viewName: String?
     private(set) var backendTracingID: String?
     private(set) var responseSize: HTTPMarker.Size?
     private var endTime: Instana.Types.Milliseconds?

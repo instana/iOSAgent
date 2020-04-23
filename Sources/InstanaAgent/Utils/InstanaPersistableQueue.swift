@@ -4,33 +4,24 @@ import Foundation
 class InstanaPersistableQueue<T: Codable & Equatable> {
     typealias Completion = ((Result<Void, Error>) -> Void)
     let maxItems: Int
-    static var queueJSONFileURL: URL? {
+    var queueJSONFileURL: URL? {
         guard let cacheDirectory = FileManager.default.urls(for: .cachesDirectory, in: .allDomainsMask).first else {
             debugAssertFailure("No Cache directory found")
             return nil
         }
-        let typeName = String(describing: self)
-        let filename = ".instana_\(typeName)_queue.json"
+        let filename = "\(identifier).instana_queue.json"
         return cacheDirectory.appendingPathComponent(filename)
     }
 
-    static func reset() {
-        guard let fileURL = InstanaPersistableQueue.queueJSONFileURL else { return }
-        let fileManager = FileManager()
-        do {
-            try fileManager.removeItem(at: fileURL)
-        } catch {
-            print("Could not reset queue at \(fileURL)")
-        }
-    }
-
-    var items: [T]
+    var items: [T] = []
     var isFull: Bool { items.count >= maxItems }
+    let identifier: String
 
-    init(maxItems: Int) {
+    init(identifier: String, maxItems: Int) {
         self.maxItems = maxItems
+        self.identifier = identifier
         let shouldIgnorePersistence = UserDefaults.standard.bool(forKey: "INSTANA_IGNORE_QUEUE_PERSISTENCE")
-        if !shouldIgnorePersistence, let deserializeItems = try? InstanaPersistableQueue<T>.deserialize() {
+        if !shouldIgnorePersistence, let deserializeItems = try? deserialize() {
             items = deserializeItems
         } else {
             items = []
@@ -38,7 +29,7 @@ class InstanaPersistableQueue<T: Codable & Equatable> {
     }
 
     func write(_ completion: Completion? = nil) {
-        guard let fileURL = InstanaPersistableQueue.queueJSONFileURL else { return }
+        guard let fileURL = queueJSONFileURL else { return }
         do {
             let data = try JSONEncoder().encode(items)
             try data.write(to: fileURL, options: .completeFileProtection)
@@ -69,8 +60,8 @@ class InstanaPersistableQueue<T: Codable & Equatable> {
         write(completion)
     }
 
-    static func deserialize() throws -> [T] {
-        guard let fileURL = InstanaPersistableQueue.queueJSONFileURL else {
+    func deserialize() throws -> [T] {
+        guard let fileURL = queueJSONFileURL else {
             throw InstanaError(code: InstanaError.Code.invalidRequest, description: "Cache path not found")
         }
         let data = try Data(contentsOf: fileURL)

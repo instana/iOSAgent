@@ -2,27 +2,17 @@ import Foundation
 
 /// Base class for Beacon.
 class Beacon: Identifiable {
-    let timestamp: Instana.Types.Milliseconds
+    let id = UUID()
     let sessionID: UUID
+    var timestamp: Instana.Types.Milliseconds = Date().millisecondsSince1970
     let viewName: String?
-    var id: UUID
 
     init(timestamp: Instana.Types.Milliseconds = Date().millisecondsSince1970,
          sessionID: UUID = Instana.current?.session.id ?? UUID(),
          viewName: String? = nil) {
-        id = UUID()
         self.sessionID = sessionID
         self.timestamp = timestamp
-        switch InstanaApplicationStateHandler.shared.state {
-        case .active:
-            self.viewName = viewName ?? Instana.current?.session.propertyHandler.properties.view
-        case .background:
-            self.viewName = "Background"
-        case .inactive:
-            self.viewName = "Inactive"
-        case .undefined:
-            self.viewName = nil
-        }
+        self.viewName = viewName
     }
 }
 

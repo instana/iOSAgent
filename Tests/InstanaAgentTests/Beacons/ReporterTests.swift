@@ -772,6 +772,97 @@ class ReporterTests: InstanaTestCase {
         AssertTrue(reporter.queue.items.isEmpty)
     }
 
+    // MARK: Test Prequeu
+    func test_preque_items() {
+        // Given
+        let beacon = HTTPBeacon.createMock()
+        var expectedResult: BeaconResult?
+        let prequeueTime = 2.0
+        let viewName = "ViewName"
+        let waitForSend = expectation(description: "Wait for send")
+        let sendQueue = MockInstanaPersistableQueue<CoreBeacon>(identifier: "queue", maxItems: 2)
+        let mockSession = session(0.0, preQueueUsageTime: prequeueTime)
+        mockSession.propertyHandler.properties.view = nil
+        let reporter = Reporter(mockSession, batterySafeForNetworking: { true }, networkUtility: .wifi, queue: sendQueue) { _, completion in
+            DispatchQueue.main.async {
+                completion(.success(statusCode: 200))
+                waitForSend.fulfill()
+            }
+        }
+
+
+        // When
+        reporter.submit(beacon)
+        reporter.completionHandler.append {result in
+            expectedResult = result
+        }
+
+        // Then
+        AssertTrue(beacon.viewName == nil)
+        AssertTrue(mockSession.propertyHandler.properties.view == nil)
+        AssertTrue(mockSession.propertyHandler.properties.user == nil)
+        AssertTrue(mockSession.propertyHandler.properties.metaData == nil)
+        AssertTrue(reporter.preQueue.count == 1)
+
+        // When
+        mockSession.propertyHandler.properties.view = viewName
+        mockSession.propertyHandler.properties.metaData = ["key": "someVal"]
+        mockSession.propertyHandler.properties.user = InstanaProperties.User(id: "123", email: "e@e.com", name: "John")
+        wait(for: [waitForSend], timeout: prequeueTime * 2)
+
+        // Then
+        AssertTrue(reporter.preQueue.isEmpty)
+        AssertTrue(expectedResult == .success)
+        AssertTrue(sendQueue.addedItems.count == 1)
+        AssertEqualAndNotNil(sendQueue.addedItems.first?.bid, beacon.id.uuidString)
+        AssertEqualAndNotNil(sendQueue.addedItems.first?.v, viewName)
+        AssertEqualAndNotNil(sendQueue.addedItems.first?.ue, "e@e.com")
+        AssertEqualAndNotNil(sendQueue.addedItems.first?.un, "John")
+        AssertEqualAndNotNil(sendQueue.addedItems.first?.ui, "123")
+        AssertEqualAndNotNil(sendQueue.addedItems.first?.m, ["key": "someVal"])
+    }
+
+    func test_submit_after_preque_time() {
+        // Given
+        let beacon1 = HTTPBeacon.createMock()
+        let beacon2 = HTTPBeacon.createMock()
+        let prequeueTime = 0.5
+        let waitForSend = expectation(description: "Wait for send")
+        var sendCount = 0
+        let sendQueue = MockInstanaPersistableQueue<CoreBeacon>(identifier: "queue", maxItems: 2)
+        let reporter = ReporterDefaultWifi(preQueueUsageTime: prequeueTime, queue: sendQueue) {
+            sendCount = $0
+            if sendCount == 2 {
+                waitForSend.fulfill()
+            }
+        }
+
+        // When
+        reporter.submit(beacon1)
+
+        // Then
+        AssertTrue(reporter.preQueue.first === beacon1)
+        AssertTrue(reporter.preQueue.count == 1)
+
+        // When
+        wait(prequeueTime + 0.1)
+        reporter.submit(beacon2)
+
+        // Then
+        AssertTrue(sendQueue.addedItems.count == 1)
+        AssertTrue(reporter.preQueue.isEmpty)
+
+        // When
+        wait(for: [waitForSend], timeout: prequeueTime * 2)
+
+        // Then
+        AssertTrue(sendCount == 2)
+        AssertTrue(sendQueue.addedItems.count == 2)
+        AssertEqualAndNotNil(sendQueue.addedItems.first?.bid, beacon1.id.uuidString)
+        AssertEqualAndNotNil(sendQueue.addedItems.last?.bid, beacon2.id.uuidString)
+    }
+
+
     // MARK: Test Result Code and Errors
     func test_send_Failure() {
         // Given
@@ -955,19 +1046,22 @@ extension ReporterTests {
 
 extension ReporterTests {
 
-    func session(_ delay: Instana.Types.Seconds = 0.0, suspend: Set<InstanaConfiguration.SuspendReporting> = []) -> InstanaSession {
+    func session(_ delay: Instana.Types.Seconds = 0.0, preQueueUsageTime: Instana.Types.Seconds = 0.0, suspend: Set<InstanaConfiguration.SuspendReporting> = []) -> InstanaSession {
         var config = InstanaConfiguration.mock
         config.transmissionDelay = delay
         config.transmissionLowBatteryDelay = delay
+        config.preQueueUsageTime = preQueueUsageTime
         config.suspendReporting = suspend
         return InstanaSession.mock(configuration: config)
     }
 
     func ReporterDefaultWifi(delay: TimeInterval = 0.0,
+                              preQueueUsageTime: TimeInterval = 0.0,
+                              queue: InstanaPersistableQueue<CoreBeacon>? = nil,
                              _ expectations: [XCTestExpectation] = [],
                              _ sent: ((Int) -> Void)? = nil) -> Reporter {
         var sendCount = 0
-        return Reporter(session(delay), batterySafeForNetworking: { true }, networkUtility: .wifi) { _, callback in
+        return Reporter(session(delay, preQueueUsageTime: preQueueUsageTime), batterySafeForNetworking: { true }, networkUtility: .wifi, queue: queue) { _, callback in
             DispatchQueue.main.async {
                 callback(.success(statusCode: 200))
                 if expectations.count > sendCount {
@@ -1005,5 +1099,15 @@ extension NetworkUtility {
     static func utility(connectionType: NetworkUtility.ConnectionType) -> NetworkUtility {
         let reach = try? MockReachability(connection: connectionType)
         return NetworkUtility(reachability: reach)
+    }
+}
+
+extension BeaconResult: Equatable {
+    public static func == (lhs: BeaconResult, rhs: BeaconResult) -> Bool {
+        switch (lhs, rhs) {
+        case (.success, .success): return true
+        case let (.failure(lerror), .failure(rerror)): return lerror as NSError? == rerror as NSError?
+        default: return false
+        }
     }
 }

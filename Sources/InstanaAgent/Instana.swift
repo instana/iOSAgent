@@ -98,7 +98,7 @@ import UIKit
     ///
     /// - Parameters:
     ///   - request: URLRequest to capture.
-    ///   - viewName: Optional name of the visible view related to this request
+    ///   - viewName: Optional view name to group the request to a view (nil is default)
     ///
     /// - Returns: HTTP marker to set the response size, finish state or error when the request has been completed.
     static func startCapture(_ request: URLRequest, viewName: String? = nil) -> HTTPMarker {

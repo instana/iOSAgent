@@ -5,18 +5,11 @@ import UIKit
 class InstanaApplicationStateHandler {
     static let shared = InstanaApplicationStateHandler()
 
-    enum AppState {
-        case undefined
-        case active
-        case background
-        case inactive
-    }
-
-    var state: AppState = .undefined {
+    var state: UIApplication.State = UIApplication.shared.applicationState {
         didSet { stateUpdateHandler.forEach { $0(state) } }
     }
 
-    typealias StateUpdater = (AppState) -> Void
+    typealias StateUpdater = (UIApplication.State) -> Void
     private var stateUpdateHandler = [StateUpdater]()
 
     init() {

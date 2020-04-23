@@ -42,11 +42,10 @@ extension HTTPMonitor {
         guard let url = request.url, let method = request.httpMethod else {
             throw InstanaError(code: InstanaError.Code.invalidRequest, description: "Invalid URLRequest")
         }
-        let viewName = session.propertyHandler.properties.view
-        return HTTPMarker(url: url, method: method, trigger: .automatic, delegate: self, viewName: viewName)
+        return HTTPMarker(url: url, method: method, trigger: .automatic, delegate: self)
     }
 
-    private func shouldReport(marker: HTTPMarker) -> Bool {
+    func shouldReport(_ marker: HTTPMarker) -> Bool {
         switch session.configuration.httpCaptureConfig {
         case .automatic: return marker.trigger == .automatic
         case .manual: return marker.trigger == .manual
@@ -57,7 +56,8 @@ extension HTTPMonitor {
 
 extension HTTPMonitor: HTTPMarkerDelegate {
     func httpMarkerDidFinish(_ marker: HTTPMarker) {
-        guard shouldReport(marker: marker) else { return }
+        guard shouldReport(marker) else { return }
+        marker.viewName = marker.viewName ?? session.propertyHandler.properties.viewNameForCurrentAppState
         reporter.submit(marker.createBeacon())
     }
 }

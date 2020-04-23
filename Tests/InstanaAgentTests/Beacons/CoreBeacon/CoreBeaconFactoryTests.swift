@@ -66,10 +66,11 @@ class CoreBeaconFactoryTests: InstanaTestCase {
 
     func test_map_beacon_implicit_values() {
         // Given
+        let session: InstanaSession = .mock
         let viewName = randomViewName
-        Instana.current?.session.propertyHandler.properties.view = viewName
+        session.propertyHandler.properties.view = viewName
         let beacon = ViewChange()
-        let factory = CoreBeaconFactory(.mock)
+        let factory = CoreBeaconFactory(session)
 
         // When
         guard let sut = try? factory.map(beacon) else {
@@ -83,13 +84,13 @@ class CoreBeaconFactoryTests: InstanaTestCase {
         AssertEqualAndNotNil(sut.bid, "\(beacon.id)")
     }
 
-    func test_map_http_in_background_overriding_viewName() {
+    func test_map_http_in_background_background_viewName() {
         // Given
         NotificationCenter.default.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
-        let viewName = randomViewName
+        let session: InstanaSession = .mock
         let timestamp = Date().millisecondsSince1970
-        let beacon = ViewChange(timestamp: timestamp, sessionID: UUID(), viewName: viewName)
-        let factory = CoreBeaconFactory(.mock)
+        let beacon = ViewChange(timestamp: timestamp, sessionID: UUID())
+        let factory = CoreBeaconFactory(session)
 
         // When
         guard let sut = try? factory.map(beacon) else {
