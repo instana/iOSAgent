@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.6 Beta 6
+04/23/2020
+* Defer reporting and setting the view names. This helps us to a prequeue beacons, collect all properties and the first appearing view
+* ViewNames for http requests can be set at the capture start when using manual http capture mode
+Update tests
+
 ## 1.0.5 Beta 5
 04/16/2020
 Fix CoreBeacon fields for bundleIdentifier and platform
