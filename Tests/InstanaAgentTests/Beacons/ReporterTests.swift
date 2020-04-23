@@ -1091,3 +1091,13 @@ extension NetworkUtility {
         return NetworkUtility(reachability: reach)
     }
 }
+
+extension BeaconResult: Equatable {
+    public static func == (lhs: BeaconResult, rhs: BeaconResult) -> Bool {
+        switch (lhs, rhs) {
+        case (.success, .success): return true
+        case let (.failure(lerror), .failure(rerror)): return lerror as NSError? == rerror as NSError?
+        default: return false
+        }
+    }
+}
