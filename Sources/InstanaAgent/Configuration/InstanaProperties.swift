@@ -15,6 +15,21 @@ struct InstanaProperties: Equatable {
     var view: String?
 }
 
+extension InstanaProperties {
+    var viewNameForCurrentAppState: String? {
+        switch InstanaApplicationStateHandler.shared.state {
+        case .active:
+            return view
+        case .background:
+            return "Background"
+        case .inactive:
+            return "Inactive"
+        @unknown default:
+            return view
+        }
+    }
+}
+
 class InstanaPropertyHandler: NSObject {
     struct Const {
         static let maximumNumberOfMetaDataFields = 50
