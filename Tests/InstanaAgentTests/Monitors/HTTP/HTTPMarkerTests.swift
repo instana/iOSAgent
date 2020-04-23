@@ -8,16 +8,25 @@ class HTTPMarkerTests: InstanaTestCase {
         // Given
         let url: URL = .random
         let start = Date().millisecondsSince1970
-        let viewName = URL.random.absoluteString
 
         // When
-        let marker = HTTPMarker(url: url, method: "GET", trigger: .automatic, delegate: Delegate(), viewName: viewName)
+        let marker = HTTPMarker(url: url, method: "GET", trigger: .automatic, delegate: Delegate())
 
         // Then
         XCTAssertEqual(marker.url, url)
         XCTAssertEqual(marker.method, "GET")
         XCTAssertEqual(marker.trigger, .automatic)
         XCTAssertTrue(marker.startTime >= start)
+    }
+
+    func test_marker_viewname() {
+        // Given
+        let viewName = URL.random.absoluteString
+
+        // When
+        let marker = HTTPMarker(url: .random, method: "GET", trigger: .automatic, delegate: nil, viewName: viewName)
+
+        // Then
         XCTAssertEqual(marker.viewName, viewName)
     }
 

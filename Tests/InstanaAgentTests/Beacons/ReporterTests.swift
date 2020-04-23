@@ -776,6 +776,7 @@ class ReporterTests: InstanaTestCase {
     func test_preque_items() {
         // Given
         let beacon = HTTPBeacon.createMock()
+        var expectedResult: BeaconResult?
         let prequeueTime = 2.0
         let viewName = "ViewName"
         let waitForSend = expectation(description: "Wait for send")
@@ -788,7 +789,7 @@ class ReporterTests: InstanaTestCase {
                 waitForSend.fulfill()
             }
         }
-        var expectedResult: BeaconResult?
+
 
         // When
         reporter.submit(beacon)
@@ -798,10 +799,15 @@ class ReporterTests: InstanaTestCase {
 
         // Then
         AssertTrue(beacon.viewName == nil)
+        AssertTrue(mockSession.propertyHandler.properties.view == nil)
+        AssertTrue(mockSession.propertyHandler.properties.user == nil)
+        AssertTrue(mockSession.propertyHandler.properties.metaData == nil)
         AssertTrue(reporter.preQueue.count == 1)
 
         // When
         mockSession.propertyHandler.properties.view = viewName
+        mockSession.propertyHandler.properties.metaData = ["key": "someVal"]
+        mockSession.propertyHandler.properties.user = InstanaProperties.User(id: "123", email: "e@e.com", name: "John")
         wait(for: [waitForSend], timeout: prequeueTime * 2)
 
         // Then
@@ -810,6 +816,10 @@ class ReporterTests: InstanaTestCase {
         AssertTrue(sendQueue.addedItems.count == 1)
         AssertEqualAndNotNil(sendQueue.addedItems.first?.bid, beacon.id.uuidString)
         AssertEqualAndNotNil(sendQueue.addedItems.first?.v, viewName)
+        AssertEqualAndNotNil(sendQueue.addedItems.first?.ue, "e@e.com")
+        AssertEqualAndNotNil(sendQueue.addedItems.first?.un, "John")
+        AssertEqualAndNotNil(sendQueue.addedItems.first?.ui, "123")
+        AssertEqualAndNotNil(sendQueue.addedItems.first?.m, ["key": "someVal"])
     }
 
     func test_submit_after_preque_time() {
