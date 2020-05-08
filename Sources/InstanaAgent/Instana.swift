@@ -211,11 +211,11 @@ import UIKit
     ///     - meta: (Optional) Key - Value data which can be used to send metadata to Instana just for this singular event
     ///     - viewName: (Optional) Name to group the request to a view (Default is the current view name set via `setView(name: String)`)
     static func reportEvent(name: String,
-                             duration: Instana.Types.Milliseconds = 0,
-                             backendTracingID: String? = nil,
-                             error: Error? = nil,
-                             meta: [String: String]? = nil,
-                             viewName: String? = nil) {
+                            duration: Instana.Types.Milliseconds = 0,
+                            backendTracingID: String? = nil,
+                            error: Error? = nil,
+                            meta: [String: String]? = nil,
+                            viewName: String? = nil) {
         let view = propertyHandler.properties.view
         let beacon = CustomBeacon(name: name,
                                   duration: duration,
