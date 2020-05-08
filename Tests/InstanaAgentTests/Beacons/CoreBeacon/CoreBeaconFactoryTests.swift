@@ -21,10 +21,9 @@ class CoreBeaconFactoryTests: InstanaTestCase {
 
     func test_map_beacon() {
         // Given
-        let sessionID = UUID()
         let timestamp = Date().millisecondsSince1970
         let viewName = randomViewName
-        let beacon = ViewChange(timestamp: timestamp, sessionID: sessionID, viewName: viewName)
+        let beacon = ViewChange(timestamp: timestamp, viewName: viewName)
         let factory = CoreBeaconFactory(.mock)
 
         // When
@@ -38,7 +37,6 @@ class CoreBeaconFactoryTests: InstanaTestCase {
         AssertEqualAndNotNil(sut.v, viewName)
         AssertEqualAndNotNil(sut.k, key)
         AssertEqualAndNotNil(sut.ti, "\(beacon.timestamp)")
-        AssertEqualAndNotNil(sut.sid, "\(beacon.sessionID)")
         AssertEqualAndNotNil(sut.bid, "\(beacon.id)")
         AssertEqualAndNotNil(sut.bi, "\(InstanaSystemUtils.applicationBundleIdentifier)")
         AssertEqualAndNotNil(sut.ul, "en")
@@ -89,7 +87,7 @@ class CoreBeaconFactoryTests: InstanaTestCase {
         NotificationCenter.default.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
         let session: InstanaSession = .mock
         let timestamp = Date().millisecondsSince1970
-        let beacon = ViewChange(timestamp: timestamp, sessionID: UUID())
+        let beacon = ViewChange(timestamp: timestamp)
         let factory = CoreBeaconFactory(session)
 
         // When

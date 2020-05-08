@@ -23,7 +23,7 @@ import UIKit
         super.init()
 
         if configuration.isValid {
-            self.monitors.reporter.submit(SessionProfileBeacon(state: .start, sessionID: session.id))
+            self.monitors.reporter.submit(SessionProfileBeacon(state: .start))
         } else {
             assertionFailure("Instana setup is invalid. URL and key must not be empty")
         }
