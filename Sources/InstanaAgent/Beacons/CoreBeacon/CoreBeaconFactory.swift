@@ -25,6 +25,8 @@ class CoreBeaconFactory {
             cbeacon.append(item)
         case let item as SessionProfileBeacon:
             cbeacon.append(item)
+        case let item as CustomBeacon:
+            cbeacon.append(item)
         default:
             let message = "Beacon <-> CoreBeacon mapping for beacon \(beacon) not defined"
             debugAssertFailure(message)
@@ -82,6 +84,24 @@ extension CoreBeacon {
     mutating func append(_ beacon: SessionProfileBeacon) {
         if beacon.state == .start {
             t = .sessionStart // there is no sessionEnd yet
+        }
+    }
+
+    mutating func append(_ beacon: CustomBeacon) {
+        t = .custom
+        v = beacon.viewName
+        cen = beacon.name
+        m = beacon.meta
+        if let error = beacon.error {
+            et = String(describing: type(of: error))
+            em = String(describing: error)
+            ec = String(1)
+        }
+        if let duration = beacon.duration {
+            d = String(duration)
+        }
+        if let tracingID = beacon.backendTracingID {
+            bt = tracingID
         }
     }
 
