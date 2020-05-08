@@ -98,7 +98,7 @@ import UIKit
     ///
     /// - Parameters:
     ///   - request: URLRequest to capture.
-    ///   - viewName: Optional view name to group the request to a view (nil is default)
+    ///   - viewName: (Optional) Name to group the request to a view
     ///
     /// - Returns: HTTP marker to set the response size, finish state or error when the request has been completed.
     static func startCapture(_ request: URLRequest, viewName: String? = nil) -> HTTPMarker {
@@ -172,8 +172,8 @@ import UIKit
     ///
     /// - Parameters:
     ///     - id: Unique identifier for the user
-    ///     - email: User's email address
-    ///     - name: User's full name
+    ///     - email: (Optional) User's email address
+    ///     - name: (Optional) User's full name
     static func setUser(id: String, email: String?, name: String?) {
         propertyHandler.properties.user = InstanaProperties.User(id: id, email: email, name: name)
     }
