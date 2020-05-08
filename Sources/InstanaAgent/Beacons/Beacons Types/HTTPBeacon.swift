@@ -10,8 +10,8 @@ class HTTPBeacon: Beacon {
     var backendTracingID: String?
     var error: HTTPError?
 
-    init(timestamp: Instana.Types.Milliseconds,
-         duration: Instana.Types.Milliseconds = Date().millisecondsSince1970,
+    init(timestamp: Instana.Types.Milliseconds = Date().millisecondsSince1970,
+         duration: Instana.Types.Milliseconds = 0,
          method: String,
          url: URL,
          responseCode: Int,

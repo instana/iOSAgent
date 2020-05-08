@@ -897,7 +897,7 @@ class ReporterTests: InstanaTestCase {
         let reporter = ReporterDefaultWifi()
 
         // When
-        reporter.submit(Beacon(timestamp: 1000000, sessionID: UUID())) {
+        reporter.submit(Beacon(timestamp: 1000000)) {
             shouldNotSubmitted = false
         }
 

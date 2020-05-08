@@ -30,7 +30,7 @@ class CoreBeaconTests: InstanaTestCase {
         props = session.propertyHandler.properties
         coreBeacon = CoreBeacon.createDefault(viewName: viewName, key: key, timestamp: timestamp, sid: sessionID, id: beaconID)
         coreBeacon.append(props)
-        wifiCoreBeacon = CoreBeacon.createDefault(viewName: viewName, key: key, sid: sessionID, connection: .wifi)
+        wifiCoreBeacon = CoreBeacon.createDefault(viewName: viewName, key: key, timestamp: timestamp, sid: sessionID, id: beaconID, connection: .wifi)
         wifiCoreBeacon.append(props)
     }
 

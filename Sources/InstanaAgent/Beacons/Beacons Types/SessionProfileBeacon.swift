@@ -8,14 +8,12 @@ class SessionProfileBeacon: Beacon {
 
     let state: State
 
-    init(state: State,
-         timestamp: Instana.Types.Milliseconds = Date().millisecondsSince1970,
-         sessionID: UUID) {
+    init(state: State, timestamp: Instana.Types.Milliseconds = Date().millisecondsSince1970) {
         self.state = state
-        super.init(timestamp: timestamp, sessionID: sessionID)
+        super.init(timestamp: timestamp)
     }
 
-    private override init(timestamp: Instana.Types.Milliseconds, sessionID: UUID, viewName: String?) {
+    private override init(timestamp: Instana.Types.Milliseconds, viewName: String?) {
         fatalError("Wrong initializer")
     }
 }
