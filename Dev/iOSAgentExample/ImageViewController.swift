@@ -32,6 +32,7 @@ class ImageViewViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         Instana.setView(name: "ImageView")
+        Instana.reportCustom(name: "TEST123")
     }
 
     @objc func downloadImage() {
