@@ -28,7 +28,7 @@ class CustomBeacon: Beacon {
         self.backendTracingID = backendTracingID
         var start = Date().millisecondsSince1970
         if let duration = duration {
-            start = start - duration
+            start -= duration
         }
         if let timestamp = timestamp {
             start = timestamp
