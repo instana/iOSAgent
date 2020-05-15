@@ -14,7 +14,7 @@ class HTTPMonitor {
         self.installer = installer
         self.uninstaller = uninstaller
         self.reporter = reporter
-
+        IgnoreURLHandler.exactURLs.insert(session.configuration.reportingURL)
         switch session.configuration.httpCaptureConfig {
         case .automatic:
             install()
