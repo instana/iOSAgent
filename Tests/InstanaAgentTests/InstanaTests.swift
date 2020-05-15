@@ -269,7 +269,7 @@ class InstanaTests: InstanaTestCase {
         Instana.current = Instana(configuration: config, monitors: Monitors(env, reporter: reporter))
 
         // When
-        Instana.reportCustom(name: name)
+        Instana.reportEvent(name: name)
 
         // Then
         AssertTrue(didReport)
@@ -291,7 +291,7 @@ class InstanaTests: InstanaTestCase {
         Instana.current = Instana(configuration: config, monitors: Monitors(env, reporter: reporter))
 
         // When
-        Instana.reportCustom(name: name, duration: duration, backendTracingID: backendID, error: error, meta: meta, viewName: viewName)
+        Instana.reportEvent(name: name, duration: duration, backendTracingID: backendID, error: error, meta: meta, viewName: viewName)
 
         // Then
         AssertTrue(didReport != nil)
@@ -314,7 +314,7 @@ class InstanaTests: InstanaTestCase {
         Instana.current = Instana(configuration: config, monitors: Monitors(env, reporter: reporter))
 
         // When
-        Instana.reportCustom(name: name)
+        Instana.reportEvent(name: name)
 
         // Then
         AssertTrue(didReport != nil)

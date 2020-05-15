@@ -14,7 +14,7 @@ class CustomBeacon: Beacon {
     let error: Error?
     let meta: [String: String]?
 
-    init(timestamp: Instana.Types.Milliseconds = Date().millisecondsSince1970,
+    init(timestamp: Instana.Types.Milliseconds? = nil,
          name: String,
          duration: Instana.Types.Milliseconds? = nil,
          backendTracingID: String? = nil,
@@ -26,6 +26,13 @@ class CustomBeacon: Beacon {
         self.error = error
         self.meta = meta
         self.backendTracingID = backendTracingID
-        super.init(timestamp: timestamp, viewName: viewName)
+        var start = Date().millisecondsSince1970
+        if let duration = duration {
+            start = start - duration
+        }
+        if let timestamp = timestamp {
+            start = timestamp
+        }
+        super.init(timestamp: start, viewName: viewName)
     }
 }
