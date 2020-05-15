@@ -53,10 +53,8 @@ extension CoreBeacon {
         hs = String(beacon.responseCode)
         hm = beacon.method
         d = String(beacon.duration)
-        et = beacon.error?.rawValue
-        em = beacon.error?.description
-        if beacon.error != nil {
-            ec = String(1)
+        if let error = beacon.error {
+            add(error: error)
         }
 
         if let responseSize = beacon.responseSize {
@@ -93,9 +91,7 @@ extension CoreBeacon {
         cen = beacon.name
         m = beacon.meta
         if let error = beacon.error {
-            et = String(describing: type(of: error))
-            em = String(describing: error)
-            ec = String(1)
+            add(error: error)
         }
         if let duration = beacon.duration {
             d = String(duration)
@@ -103,6 +99,16 @@ extension CoreBeacon {
         if let tracingID = beacon.backendTracingID {
             bt = tracingID
         }
+    }
+
+    private mutating func add(error: Error) {
+        et = "\(type(of: error))"
+        if let httpError = error as? HTTPError {
+            em = "\(httpError.rawValue): \(httpError.errorDescription)"
+        } else {
+            em = "\(error)"
+        }
+        ec = String(1)
     }
 
     static func createDefault(viewName: String?,
