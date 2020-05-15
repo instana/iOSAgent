@@ -15,6 +15,20 @@ class HTTPMonitorTests: InstanaTestCase {
         self.session = nil
     }
 
+    func test_reporting_url_ignored() {
+        // Given
+        let reportingURL = URL.random
+        let mocksession = InstanaSession.mock(configuration: .mock(key: "Key", reportingURL: reportingURL, httpCaptureConfig: .automatic), sessionID: nil, metaData: nil, user: nil, currentView: nil)
+
+        // When
+        _ = HTTPMonitor(mocksession, reporter: instana.monitors.reporter)
+
+        // Then
+        AssertTrue(IgnoreURLHandler.shouldIgnore(reportingURL))
+        AssertTrue(IgnoreURLHandler.exactURLs.count == 1)
+        AssertTrue(IgnoreURLHandler.exactURLs.first == reportingURL)
+    }
+
     func test_installing_shouldAddCustomProtocol() {
         var installed = false
         let monitor = HTTPMonitor(session, installer: {
