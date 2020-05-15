@@ -4,6 +4,7 @@ enum BeaconType: String, Equatable, Codable, CustomStringConvertible {
     case sessionStart
     case httpRequest
     case viewChange
+    case custom
     case crash
     case alert
     var description: String { rawValue }
@@ -100,6 +101,13 @@ struct CoreBeacon: Equatable, Codable {
      */
     // swiftlint:disable:next identifier_name
     var bi: String
+
+    /**
+     * Custom Event name
+     *
+     * Defines what kind of event has happened in your app that should result in the transmission of a custom beacon.
+     */
+    var cen: String?
 
     /**
      * Meta for custom key/value entries

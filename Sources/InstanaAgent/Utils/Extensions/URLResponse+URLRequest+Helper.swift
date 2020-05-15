@@ -3,6 +3,7 @@ import Foundation
 extension URLResponse {
     var backendTracingID: String? {
         guard let httpResponse = self as? HTTPURLResponse,
+            // can be lowercase TODO
             let servertiming = httpResponse.allHeaderFields["Server-Timing"] as? String,
             let regex = try? NSRegularExpression(pattern: "^intid;desc=(.+)$", options: .caseInsensitive),
             let match = regex.firstMatch(in: servertiming, options: [], range: NSRange(location: 0, length: servertiming.utf16.count)),
