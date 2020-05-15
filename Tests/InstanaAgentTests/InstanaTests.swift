@@ -258,27 +258,11 @@ class InstanaTests: InstanaTestCase {
         AssertEqualAndNotZero(IgnoreURLHandler.urlSessions.count, 2)
     }
 
-    func test_reportCustom_simple() {
-        // Given
-        let name = "Custom Event"
-        let env = InstanaSession.mock(configuration: config)
-        var didReport = false
-        let reporter = MockReporter {beacon in
-            didReport = (beacon as? CustomBeacon)?.name == name
-        }
-        Instana.current = Instana(configuration: config, monitors: Monitors(env, reporter: reporter))
-
-        // When
-        Instana.reportEvent(name: name)
-
-        // Then
-        AssertTrue(didReport)
-    }
-
     func test_reportCustom_AllValues() {
         // Given
         let name = "Custom Event"
-        let duration: Int64 = 123
+        let duration: Int64 = 1
+        let timestamp: Int64 = 123
         let backendID = "B123"
         let error = NSError(domain: "Domain", code: 100, userInfo: nil)
         let meta = ["Key": "Value"]
@@ -291,19 +275,20 @@ class InstanaTests: InstanaTestCase {
         Instana.current = Instana(configuration: config, monitors: Monitors(env, reporter: reporter))
 
         // When
-        Instana.reportEvent(name: name, duration: duration, backendTracingID: backendID, error: error, meta: meta, viewName: viewName)
+        Instana.reportEvent(name: name, timestamp:timestamp, duration: duration, backendTracingID: backendID, error: error, meta: meta, viewName: viewName)
 
         // Then
         AssertTrue(didReport != nil)
         AssertEqualAndNotNil(didReport?.name, name)
         AssertEqualAndNotNil(didReport?.duration, duration)
+        AssertEqualAndNotNil(didReport?.timestamp, timestamp)
         AssertEqualAndNotNil(didReport?.backendTracingID, backendID)
         AssertEqualAndNotNil((didReport?.error as NSError?), error)
         AssertEqualAndNotNil(didReport?.meta, meta)
         AssertEqualAndNotNil(didReport?.viewName, viewName)
     }
 
-    func test_reportCustom_implicit_values() {
+    func test_reportCustom_ignore_optional_args() {
         // Given
         let name = "Custom Event"
         let env = InstanaSession.mock(configuration: config)
@@ -319,7 +304,8 @@ class InstanaTests: InstanaTestCase {
         // Then
         AssertTrue(didReport != nil)
         AssertEqualAndNotNil(didReport?.name, name)
-        AssertEqualAndNotNil(didReport?.duration, 0)
+        AssertTrue(didReport?.duration == nil)
+        AssertTrue(didReport?.timestamp == Date().millisecondsSince1970)
         AssertTrue(didReport?.backendTracingID == nil)
         AssertTrue(didReport?.meta == nil)
         AssertTrue(didReport?.error == nil)

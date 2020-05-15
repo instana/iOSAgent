@@ -33,10 +33,7 @@ import UIKit
         guard let current = Instana.current else { fatalError("Instana Config error: There is no active & valid instana setup") }
         return current.session.propertyHandler
     }
-}
 
-/// Public API methods
-@objc public extension Instana {
     /// Optional reporting URL used for on-premises Instana backend installations.
     class var reportingURL: URL? { Instana.current?.session.configuration.reportingURL }
 
@@ -205,19 +202,25 @@ import UIKit
     ///
     /// - Parameters:
     ///     - name: Defines what kind of event has happened in your app that should result in the transmission of a custom beacon.
-    ///     - duration: The duration in milliseconds of how long the event took. Default is zero
+    ///     - timestamp: (Optional) The timestamp when the event has been started.
+    ///                  If you don't provide a timestamp, we assume now as timestamp.
+    ///                  In case you don't provide a timestamp, but set a duration,
+    ///                  we calculate a timestamp by substracting the duration from now. (timestamp = now - duration)
+    ///     - duration: (Optional) The duration in milliseconds of how long the event took. Default is zero
     ///     - backendTracingID: (Optional) Use this parameter to relate a beacon to a backend trace.
     ///     - error: (Optional) Error object to provide additional context.
     ///     - meta: (Optional) Key - Value data which can be used to send metadata to Instana just for this singular event
     ///     - viewName: (Optional) Name to group the request to a view (Default is the current view name set via `setView(name: String)`)
     static func reportEvent(name: String,
-                            duration: Instana.Types.Milliseconds = 0,
+                            timestamp: Instana.Types.Milliseconds? = nil,
+                            duration: Instana.Types.Milliseconds? = nil,
                             backendTracingID: String? = nil,
                             error: Error? = nil,
                             meta: [String: String]? = nil,
                             viewName: String? = nil) {
         let view = propertyHandler.properties.view
-        let beacon = CustomBeacon(name: name,
+        let beacon = CustomBeacon(timestamp: timestamp,
+                                  name: name,
                                   duration: duration,
                                   backendTracingID: backendTracingID,
                                   error: error,
