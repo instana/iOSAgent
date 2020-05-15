@@ -66,8 +66,8 @@ class HTTPBeaconTests: InstanaTestCase {
 
         // Then
         AssertTrue(sut.ec == "1")
-        AssertTrue(sut.et == "Timeout")
-        AssertTrue(sut.em == "An asynchronous operation timed out.")
+        AssertTrue(sut.et == "HTTPError")
+        AssertTrue(sut.em == "Timeout: An asynchronous operation timed out.")
 
         let values = Mirror(reflecting: sut).nonNilChildren
         XCTAssertEqual(values.count, 33)
@@ -118,8 +118,8 @@ class HTTPBeaconTests: InstanaTestCase {
             AssertEqualAndNotNil(sut.t, .httpRequest)
             AssertEqualAndNotNil(sut.hs, String(code))
             AssertTrue(sut.ec == "1")
-            AssertTrue(sut.et == "HTTP \(code)")
-            AssertTrue(sut.em == "HTTP Error with status code \(code)")
+            AssertTrue(sut.et == "HTTPError")
+            AssertTrue(sut.em == "HTTP \(code): HTTP Error with status code \(code)")
         }
     }
 
@@ -145,7 +145,8 @@ class HTTPBeaconTests: InstanaTestCase {
         let sut = beacon.asString
 
         // When
-        let expected = "ab\t\(beacon.ab)\nagv\t\(beacon.agv)\nav\t\(beacon.av)\nbi\t\(beacon.bi)\nbid\t\(beacon.bid)\nbt\t\(backendTracingID)\ncn\t\(beacon.cn ?? "")\nct\t\(beacon.ct ?? "")\nd\t\(duration)\ndbs\t\(responseSize.bodyBytesAfterDecoding!)\ndma\tApple\ndmo\t\(beacon.dmo)\nebs\t\(responseSize.bodyBytes!)\nec\t1\nem\t\(HTTPError.timeout.description)\net\t\(HTTPError.timeout.rawValue)\nhm\t\(method)\nhp\t\(url.path)\nhs\t\(responseCode)\nhu\t\(url.absoluteString)\nk\t\(key)\nosn\tiOS\nosv\t\(beacon.osv)\np\tiOS\nro\tfalse\nsid\t\(beacon.sid)\nt\thttpRequest\nti\t\(timestamp)\ntrs\t\(responseSize.headerBytes! + responseSize.bodyBytes!)\nul\ten\nv\t\(viewName)\nvh\t\(Int(UIScreen.main.nativeBounds.height))\nvw\t\(Int(UIScreen.main.nativeBounds.width))"
+        let expectedErrorMessage = "\(HTTPError.timeout.rawValue): \(HTTPError.timeout.errorDescription)"
+        let expected = "ab\t\(beacon.ab)\nagv\t\(beacon.agv)\nav\t\(beacon.av)\nbi\t\(beacon.bi)\nbid\t\(beacon.bid)\nbt\t\(backendTracingID)\ncn\t\(beacon.cn ?? "")\nct\t\(beacon.ct ?? "")\nd\t\(duration)\ndbs\t\(responseSize.bodyBytesAfterDecoding!)\ndma\tApple\ndmo\t\(beacon.dmo)\nebs\t\(responseSize.bodyBytes!)\nec\t1\nem\t\(expectedErrorMessage)\net\tHTTPError\nhm\t\(method)\nhp\t\(url.path)\nhs\t\(responseCode)\nhu\t\(url.absoluteString)\nk\t\(key)\nosn\tiOS\nosv\t\(beacon.osv)\np\tiOS\nro\tfalse\nsid\t\(beacon.sid)\nt\thttpRequest\nti\t\(timestamp)\ntrs\t\(responseSize.headerBytes! + responseSize.bodyBytes!)\nul\ten\nv\t\(viewName)\nvh\t\(Int(UIScreen.main.nativeBounds.height))\nvw\t\(Int(UIScreen.main.nativeBounds.width))"
         XCTAssertEqual(sut, expected)
     }
 

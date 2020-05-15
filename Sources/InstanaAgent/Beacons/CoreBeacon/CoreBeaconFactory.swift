@@ -25,6 +25,8 @@ class CoreBeaconFactory {
             cbeacon.append(item)
         case let item as SessionProfileBeacon:
             cbeacon.append(item)
+        case let item as CustomBeacon:
+            cbeacon.append(item)
         default:
             let message = "Beacon <-> CoreBeacon mapping for beacon \(beacon) not defined"
             debugAssertFailure(message)
@@ -51,10 +53,8 @@ extension CoreBeacon {
         hs = String(beacon.responseCode)
         hm = beacon.method
         d = String(beacon.duration)
-        et = beacon.error?.rawValue
-        em = beacon.error?.description
-        if beacon.error != nil {
-            ec = String(1)
+        if let error = beacon.error {
+            add(error: error)
         }
 
         if let responseSize = beacon.responseSize {
@@ -83,6 +83,32 @@ extension CoreBeacon {
         if beacon.state == .start {
             t = .sessionStart // there is no sessionEnd yet
         }
+    }
+
+    mutating func append(_ beacon: CustomBeacon) {
+        t = .custom
+        v = beacon.viewName
+        cen = beacon.name
+        m = beacon.meta
+        if let error = beacon.error {
+            add(error: error)
+        }
+        if let duration = beacon.duration {
+            d = String(duration)
+        }
+        if let tracingID = beacon.backendTracingID {
+            bt = tracingID
+        }
+    }
+
+    private mutating func add(error: Error) {
+        et = "\(type(of: error))"
+        if let httpError = error as? HTTPError {
+            em = "\(httpError.rawValue): \(httpError.errorDescription)"
+        } else {
+            em = "\(error)"
+        }
+        ec = String(1)
     }
 
     static func createDefault(viewName: String?,

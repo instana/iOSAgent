@@ -77,7 +77,7 @@ class CoreBeaconTests: InstanaTestCase {
         let values = Mirror(reflecting: sut).children
 
         // Then
-        XCTAssertEqual(values.count, 37)
+        XCTAssertEqual(values.count, 38)
     }
 
     func testNumberOfFields_non_nil() {

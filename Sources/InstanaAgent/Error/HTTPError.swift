@@ -1,6 +1,6 @@
 import Foundation
 
-enum HTTPError: RawRepresentable, CustomStringConvertible, Equatable {
+enum HTTPError: LocalizedError, RawRepresentable, CustomStringConvertible, Equatable {
     case offline
     case timeout
     case cancelled
@@ -87,6 +87,14 @@ enum HTTPError: RawRepresentable, CustomStringConvertible, Equatable {
     }
 
     var description: String {
+        errorDescription
+    }
+
+    var localizedDescription: String {
+        errorDescription
+    }
+
+    var errorDescription: String {
         switch self {
         case .offline: return "A network resource was requested, but an internet connection has not been established and can’t be established automatically."
         case .timeout: return "An asynchronous operation timed out."
