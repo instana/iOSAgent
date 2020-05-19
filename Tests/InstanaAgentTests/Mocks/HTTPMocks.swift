@@ -11,6 +11,9 @@ class MockHTTPURLResponse: HTTPURLResponse {
     var stubbedStatusCode: Int = 200
     override var allHeaderFields: [AnyHashable : Any] { stubbedAllHeaderFields }
     override var statusCode: Int { stubbedStatusCode }
+    override func value(forHTTPHeaderField field: String) -> String? {
+        (allHeaderFields as NSDictionary)[field] as? String
+    }
 }
 
 class MockURLSessionTask: URLSessionTask {
