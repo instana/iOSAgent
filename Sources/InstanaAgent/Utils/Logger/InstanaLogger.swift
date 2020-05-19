@@ -22,7 +22,7 @@ class InstanaLogger {
     func add(_ entry: String, level: Level = .debug) {
         guard level.rawValue >= self.level.rawValue else { return }
         #if DEBUG
-            print("[Instana]\(level.logTag) \(entry)")
+            print("[Instana] \(level.logTag): \(entry)")
         #endif
     }
 }

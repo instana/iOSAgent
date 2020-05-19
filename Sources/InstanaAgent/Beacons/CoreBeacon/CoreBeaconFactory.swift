@@ -30,6 +30,7 @@ class CoreBeaconFactory {
         default:
             let message = "Beacon <-> CoreBeacon mapping for beacon \(beacon) not defined"
             debugAssertFailure(message)
+            session.logger.add(message, level: .error)
             throw InstanaError(code: .unknownType, description: message)
         }
         return cbeacon

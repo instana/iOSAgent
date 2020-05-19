@@ -51,8 +51,6 @@ extension URLRequest {
             self.setValue("application/json", forHTTPHeaderField: "Content-Type")
             self.setValue("\(jsonData.count)", forHTTPHeaderField: "Content-Length")
             self.httpBody = jsonData
-        } else {
-            debugAssertFailure("Could not serialize JSON")
         }
     }
 }
