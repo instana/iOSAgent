@@ -20,7 +20,7 @@ class FramerateDropMonitor {
     private var runningAverage: Float = 0
     private var consecutiveFrameDrop: UInt = 0
 
-    private init() { fatalError() }
+    private init() { fatalError("Wrong init - Please use init(threshold: UInt, samplingInterval: Instana.Types.Seconds, reporter: Reporter) instead") }
 
     init(threshold: UInt, samplingInterval: Instana.Types.Seconds = 1, reporter: Reporter) {
         self.reporter = reporter
