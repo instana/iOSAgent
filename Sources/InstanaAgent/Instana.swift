@@ -25,7 +25,7 @@ import UIKit
         if configuration.isValid {
             self.monitors.reporter.submit(SessionProfileBeacon(state: .start))
         } else {
-            assertionFailure("Instana setup is invalid. URL and key must not be empty")
+            session.logger.add("Instana setup is invalid. URL and key must not be empty", level: .error)
         }
     }
 
@@ -102,10 +102,10 @@ import UIKit
         let delegate = Instana.current?.monitors.http
         let method = request.httpMethod ?? "GET"
         if request.url == nil {
-            assertionFailure("URL must not be nil!")
+            Instana.current?.session.logger.add("URL must not be nil!", level: .error)
         }
         if delegate == nil {
-            assertionFailure("No valid Instance instance found. Please call setup to create an instance first!")
+            Instana.current?.session.logger.add("No valid Instance instance found. Please call setup to create an instance first!", level: .error)
         }
         return HTTPMarker(url: request.url!, method: method, trigger: .manual, delegate: delegate, viewName: viewName)
     }

@@ -55,7 +55,7 @@ class InstanaPropertyHandler: NSObject {
 
     func validate(value: String) -> Bool {
         if value.count > Const.maximumLengthPerMetaDataField {
-            debugAssertFailure("Instana: MetaData value reached maximum length (\(Const.maximumLengthPerMetaDataField)).")
+            Instana.current?.session.logger.add("Instana: MetaData value reached maximum length (\(Const.maximumLengthPerMetaDataField)).", level: .warning)
             return false
         }
         return value.count <= Const.maximumLengthPerMetaDataField
@@ -63,7 +63,7 @@ class InstanaPropertyHandler: NSObject {
 
     func validate(keys: [String]) -> Bool {
         if keys.count > Const.maximumNumberOfMetaDataFields {
-            debugAssertFailure("Instana: MetaData reached maximum number (\(Const.maximumNumberOfMetaDataFields)) of valid fields.")
+            Instana.current?.session.logger.add("Instana: MetaData reached maximum number (\(Const.maximumNumberOfMetaDataFields)) of valid fields.", level: .warning)
             return false
         }
         return true

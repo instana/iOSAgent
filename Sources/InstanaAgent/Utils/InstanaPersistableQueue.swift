@@ -6,7 +6,7 @@ class InstanaPersistableQueue<T: Codable & Equatable> {
     let maxItems: Int
     var queueJSONFileURL: URL? {
         guard let cacheDirectory = FileManager.default.urls(for: .cachesDirectory, in: .allDomainsMask).first else {
-            debugAssertFailure("No Cache directory found")
+            Instana.current?.session.logger.add("No Cache directory found", level: .error)
             return nil
         }
         let filename = "\(identifier).instana_queue.json"
