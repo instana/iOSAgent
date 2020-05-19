@@ -6,7 +6,7 @@ class ApplicationNotRespondingMonitor {
     private let reporter: Reporter
     var timer: Timer?
     private let samplingInterval: Double
-    private init() { fatalError() }
+    private init() { fatalError("Wrong init - Please use init(threshold: Instana.Types.Seconds, samplingInterval: Double, reporter: Reporter) instead") }
 
     init(threshold: Instana.Types.Seconds, samplingInterval: Double = 1.0, reporter: Reporter) {
         self.reporter = reporter

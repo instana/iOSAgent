@@ -30,7 +30,10 @@ import UIKit
     }
 
     private static var propertyHandler: InstanaPropertyHandler {
-        guard let current = Instana.current else { fatalError("Instana Config error: There is no active & valid instana setup") }
+        guard let current = Instana.current else {
+            InstanaLogger().add("Instana Config error: No active or valid instana session has been setup", level: .error)
+            return InstanaPropertyHandler()
+        }
         return current.session.propertyHandler
     }
 
@@ -211,7 +214,7 @@ import UIKit
     ///     - error: (Optional) Error object to provide additional context.
     ///     - meta: (Optional) Key - Value data which can be used to send metadata to Instana just for this singular event
     ///     - viewName: (Optional) Name to group the request to a view (Default is the current view name set via `setView(name: String)`)
-    public static func reportEvent(name: String,timestamp: Instana.Types.Milliseconds? = nil, duration: Instana.Types.Milliseconds? = nil, backendTracingID: String? = nil, error: Error? = nil, meta: [String: String]? = nil, viewName: String? = nil) {
+    public static func reportEvent(name: String, timestamp: Instana.Types.Milliseconds? = nil, duration: Instana.Types.Milliseconds? = nil, backendTracingID: String? = nil, error: Error? = nil, meta: [String: String]? = nil, viewName: String? = nil) {
         let view = propertyHandler.properties.view
         let beacon = CustomBeacon(timestamp: timestamp,
                                   name: name,
