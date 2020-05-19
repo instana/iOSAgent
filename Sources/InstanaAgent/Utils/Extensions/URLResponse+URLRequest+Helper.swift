@@ -8,15 +8,15 @@ extension URLResponse {
     var backendTracingID: String? {
         guard let httpResponse = self as? HTTPURLResponse,
             let servertiming = httpResponse.value(for: "Server-Timing")
-            else { return nil }
+        else { return nil }
 
         let items = servertiming.components(separatedBy: ", ")
-        let pairs = items.map {item -> Pair? in
+        let pairs = items.map { item -> Pair? in
             let comps = item.components(separatedBy: "=")
-            guard let key = comps.first, let value = comps.last else { return nil}
+            guard let key = comps.first, let value = comps.last else { return nil }
             return Pair(key: key, value: value)
         }
-        let value = pairs.compactMap {$0}.last(where: {$0.key == "intid;desc"})?.value ?? ""
+        let value = pairs.compactMap { $0 }.last(where: { $0.key == "intid;desc" })?.value ?? ""
         return !value.isEmpty ? value : nil
     }
 }
