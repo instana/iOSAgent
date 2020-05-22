@@ -221,7 +221,7 @@ import UIKit
     ///     - viewName: (Optional) You can pass a String to group the request to a view.
     ///                            If you send explicitly nil, the viewName will be ignored.
     ///                            Alternatively you can leave out the parameter `viewName` to use the current view name you did set in `setView(name: String)`)
-    public static func reportEvent(name: String, timestamp: Instana.Types.Milliseconds? = nil, duration: Instana.Types.Milliseconds? = nil, backendTracingID: String? = nil, error: Error? = nil, meta: [String: String]? = nil, viewName: String? = Instana.viewName) {
+    public static func reportEvent(name: String, timestamp: Instana.Types.Milliseconds? = nil, duration: Instana.Types.Milliseconds? = nil, backendTracingID: String? = nil, error: Error? = nil, meta: [String: String]? = nil, viewName: String? = CustomBeaconDefaultViewNameID) {
         let beacon = CustomBeacon(timestamp: timestamp,
                                   name: name,
                                   duration: duration,

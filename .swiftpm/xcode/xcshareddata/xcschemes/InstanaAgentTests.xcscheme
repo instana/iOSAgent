@@ -27,9 +27,6 @@
                   Identifier = "BasicIntegrationServerTest">
                </Test>
                <Test
-                  Identifier = "InstanaURLProtocolIntegrationTests">
-               </Test>
-               <Test
                   Identifier = "IntegrationTestCase">
                </Test>
             </SkippedTests>

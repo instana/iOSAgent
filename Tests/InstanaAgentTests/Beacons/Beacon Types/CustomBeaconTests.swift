@@ -11,10 +11,28 @@ class CustomBeaconTests: InstanaTestCase {
         let sut = CustomBeacon(name: name)
 
         // Then
-        XCTAssertEqual(sut.name, name)
-        XCTAssertEqual(sut.timestamp, Date().millisecondsSince1970)
+        AssertEqualAndNotNil(sut.name, name)
+        AssertEqualAndNotNil(sut.timestamp, Date().millisecondsSince1970)
         XCTAssertNil(sut.backendTracingID)
-        XCTAssertNil(sut.viewName)
+        AssertEqualAndNotNil(sut.viewName, CustomBeaconDefaultViewNameID)
+        XCTAssertNil(sut.duration)
+        XCTAssertNil(sut.meta)
+        XCTAssertNil(sut.error)
+    }
+
+    func test_init_name_and_viewname() {
+        // Given
+        let name = "Test"
+        let viewName = "SomeView"
+
+        // When
+        let sut = CustomBeacon(name: name, viewName: viewName)
+
+        // Then
+        AssertEqualAndNotNil(sut.name, name)
+        AssertEqualAndNotNil(sut.timestamp, Date().millisecondsSince1970)
+        XCTAssertNil(sut.backendTracingID)
+        AssertEqualAndNotNil(sut.viewName, viewName)
         XCTAssertNil(sut.duration)
         XCTAssertNil(sut.meta)
         XCTAssertNil(sut.error)
@@ -29,9 +47,9 @@ class CustomBeaconTests: InstanaTestCase {
         let sut = CustomBeacon(name: name, duration: duration)
 
         // Then
-        XCTAssertEqual(sut.name, name)
-        XCTAssertEqual(sut.timestamp, Date().millisecondsSince1970 - duration)
-        XCTAssertEqual(sut.duration, duration)
+        AssertEqualAndNotNil(sut.name, name)
+        AssertEqualAndNotNil(sut.timestamp, Date().millisecondsSince1970 - duration)
+        AssertEqualAndNotNil(sut.duration, duration)
     }
 
     func test_init_duration_and_timestamp_given() {
@@ -44,9 +62,9 @@ class CustomBeaconTests: InstanaTestCase {
         let sut = CustomBeacon(timestamp: timestamp, name: name, duration: duration)
 
         // Then
-        XCTAssertEqual(sut.name, name)
-        XCTAssertEqual(sut.timestamp, timestamp)
-        XCTAssertEqual(sut.duration, duration)
+        AssertEqualAndNotNil(sut.name, name)
+        AssertEqualAndNotNil(sut.timestamp, timestamp)
+        AssertEqualAndNotNil(sut.duration, duration)
     }
 
     func test_init_timestamp_given() {
@@ -58,14 +76,14 @@ class CustomBeaconTests: InstanaTestCase {
         let sut = CustomBeacon(timestamp: timestamp, name: name)
 
         // Then
-        XCTAssertEqual(sut.name, name)
-        XCTAssertEqual(sut.timestamp, timestamp)
+        AssertEqualAndNotNil(sut.name, name)
+        AssertEqualAndNotNil(sut.timestamp, timestamp)
         XCTAssertNil(sut.duration)
     }
 
-    func test_asString() {
+    func test_full_asString() {
         // Given
-        let customBeacon = createCustomBeacon(viewName: "Some View")
+        let customBeacon = createCustomBeacon()
         var beacon: CoreBeacon!
         do {
             beacon = try CoreBeaconFactory(.mock(configuration: .mock)).map(customBeacon)
@@ -84,29 +102,33 @@ class CustomBeaconTests: InstanaTestCase {
         XCTAssertNotNil(customBeacon.error)
         XCTAssertNotNil(customBeacon.backendTracingID)
 
-        XCTAssertEqual(beacon.v, customBeacon.viewName)
-        XCTAssertEqual(beacon.cen, customBeacon.name)
-        XCTAssertEqual(beacon.d, "\(customBeacon.duration ?? 0)")
-        XCTAssertEqual(beacon.ti, "\(customBeacon.timestamp)")
-        XCTAssertEqual(beacon.m, customBeacon.meta)
-        XCTAssertEqual(beacon.bt, customBeacon.backendTracingID)
-        XCTAssertEqual(beacon.et, "\(type(of: customBeacon.error!))")
-        XCTAssertEqual(beacon.em, "\(customBeacon.error!)")
-        XCTAssertEqual(beacon.ec, "1")
+        AssertEqualAndNotNil(beacon.v, customBeacon.viewName)
+        AssertEqualAndNotNil(beacon.cen, customBeacon.name)
+        AssertEqualAndNotNil(beacon.d, "\(customBeacon.duration ?? 0)")
+        AssertEqualAndNotNil(beacon.ti, "\(customBeacon.timestamp)")
+        AssertEqualAndNotNil(beacon.m, customBeacon.meta)
+        AssertEqualAndNotNil(beacon.bt, customBeacon.backendTracingID)
+        AssertEqualAndNotNil(beacon.et, "\(type(of: customBeacon.error!))")
+        AssertEqualAndNotNil(beacon.em, "\(customBeacon.error!)")
+        AssertEqualAndNotNil(beacon.ec, "1")
 
         let expectediOSVersion = UIDevice.current.systemVersion
         let expectedErrorType = "\(type(of: customBeacon.error!))"
         let expectedErrorMessage = "\(customBeacon.error!)"
         let expected = "ab\t\(beacon.ab)\nagv\t\(beacon.agv)\nav\tunknown-version\nbi\t\(beacon.bi)\nbid\t\(beacon.bid)\nbt\t\(customBeacon.backendTracingID ?? "")\ncen\t\(customBeacon.name)\ncn\tNone\nct\tUnknown\nd\t\(customBeacon.duration ?? 0)\ndma\tApple\ndmo\tx86_64\nec\t1\nem\t\(expectedErrorMessage)\net\t\(expectedErrorType)\nk\tKEY\nm_\(customBeacon.meta?.keys.first ?? "")\t\(customBeacon.meta?.values.first ?? "")\nosn\tiOS\nosv\t\(expectediOSVersion)\np\tiOS\nro\tfalse\nsid\t\(beacon.sid)\nt\tcustom\nti\t\(customBeacon.timestamp)\nul\ten\nv\t\(customBeacon.viewName ?? "")\nvh\t\(Int(UIScreen.main.nativeBounds.height))\nvw\t\(Int(UIScreen.main.nativeBounds.width))"
-        XCTAssertEqual(sut, expected)
+        AssertEqualAndNotNil(sut, expected)
     }
 
     func test_asString_viewname_nil() {
         // Given
-        let customBeacon = createCustomBeacon(viewName: nil)
+        let name = "SomeName"
+        let session: InstanaSession = .mock(configuration: .mock)
+        session.propertyHandler.properties.view = "SomeView"
+        let customBeacon = CustomBeacon(name: name, viewName: nil)
+
         var beacon: CoreBeacon!
         do {
-            beacon = try CoreBeaconFactory(.mock(configuration: .mock)).map(customBeacon)
+            beacon = try CoreBeaconFactory(session).map(customBeacon)
         } catch {
             XCTFail("Could not create CoreBeacon")
         }
@@ -115,19 +137,45 @@ class CustomBeaconTests: InstanaTestCase {
         let sut = beacon.asString
 
         // Then
-        XCTAssertNil(customBeacon.viewName)
-        XCTAssertNil(beacon.v)
+        AssertTrue(customBeacon.viewName == nil)
+        AssertEqualAndNotNil(beacon.v, nil)
 
         let expectediOSVersion = UIDevice.current.systemVersion
-        let expectedErrorType = "\(type(of: customBeacon.error!))"
-        let expectedErrorMessage = "\(customBeacon.error!)"
-        let expected = "ab\t\(beacon.ab)\nagv\t\(beacon.agv)\nav\tunknown-version\nbi\t\(beacon.bi)\nbid\t\(beacon.bid)\nbt\t\(customBeacon.backendTracingID ?? "")\ncen\t\(customBeacon.name)\ncn\tNone\nct\tUnknown\nd\t\(customBeacon.duration ?? 0)\ndma\tApple\ndmo\tx86_64\nec\t1\nem\t\(expectedErrorMessage)\net\t\(expectedErrorType)\nk\tKEY\nm_\(customBeacon.meta?.keys.first ?? "")\t\(customBeacon.meta?.values.first ?? "")\nosn\tiOS\nosv\t\(expectediOSVersion)\np\tiOS\nro\tfalse\nsid\t\(beacon.sid)\nt\tcustom\nti\t\(customBeacon.timestamp)\nul\ten\nvh\t\(Int(UIScreen.main.nativeBounds.height))\nvw\t\(Int(UIScreen.main.nativeBounds.width))"
-        XCTAssertEqual(sut, expected)
+        let expected = "ab\t\(beacon.ab)\nagv\t\(beacon.agv)\nav\tunknown-version\nbi\t\(beacon.bi)\nbid\t\(beacon.bid)\ncen\t\(name)\ncn\tNone\nct\tUnknown\ndma\tApple\ndmo\tx86_64\nk\tKEY\nosn\tiOS\nosv\t\(expectediOSVersion)\np\tiOS\nro\tfalse\nsid\t\(beacon.sid)\nt\tcustom\nti\t\(customBeacon.timestamp)\nul\ten\nvh\t\(Int(UIScreen.main.nativeBounds.height))\nvw\t\(Int(UIScreen.main.nativeBounds.width))"
+        AssertEqualAndNotNil(sut, expected)
+    }
+
+    func test_asString_viewname_implicit() {
+        // Given
+        let viewName = "ViewName"
+        let name = "SomeName"
+        let session: InstanaSession = .mock(configuration: .mock)
+
+        session.propertyHandler.properties.view = viewName
+        let customBeacon = CustomBeacon(name: name)
+
+        var beacon: CoreBeacon!
+        do {
+            beacon = try CoreBeaconFactory(session).map(customBeacon)
+        } catch {
+            XCTFail("Could not create CoreBeacon")
+        }
+
+        // When
+        let sut = beacon.asString
+
+        // Then
+        AssertEqualAndNotNil(customBeacon.viewName, CustomBeaconDefaultViewNameID)
+        AssertEqualAndNotNil(beacon.v, viewName)
+
+        let expectediOSVersion = UIDevice.current.systemVersion
+        let expected = "ab\t\(beacon.ab)\nagv\t\(beacon.agv)\nav\tunknown-version\nbi\t\(beacon.bi)\nbid\t\(beacon.bid)\ncen\t\(name)\ncn\tNone\nct\tUnknown\ndma\tApple\ndmo\tx86_64\nk\tKEY\nosn\tiOS\nosv\t\(expectediOSVersion)\np\tiOS\nro\tfalse\nsid\t\(beacon.sid)\nt\tcustom\nti\t\(customBeacon.timestamp)\nul\ten\nv\t\(viewName)\nvh\t\(Int(UIScreen.main.nativeBounds.height))\nvw\t\(Int(UIScreen.main.nativeBounds.width))"
+        AssertEqualAndNotNil(sut, expected)
     }
 
     func test_asJSON() {
         // Given
-        let customBeacon = createCustomBeacon(viewName: "Some View")
+        let customBeacon = createCustomBeacon()
 
         // When
         var beacon: CoreBeacon!
@@ -156,7 +204,8 @@ class CustomBeaconTests: InstanaTestCase {
     enum SomeBeaconError: Error {
         case something
     }
-    func createCustomBeacon(viewName: String?) -> CustomBeacon {
+    func createCustomBeacon() -> CustomBeacon {
+        let viewName = "View Name"
         let timestamp: Instana.Types.Milliseconds = 12348
         let duration: Instana.Types.Milliseconds = 12
         let name = "SomeName"

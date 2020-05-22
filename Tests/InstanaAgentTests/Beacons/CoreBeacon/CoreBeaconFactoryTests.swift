@@ -147,5 +147,5 @@ class CoreBeaconFactoryTests: InstanaTestCase {
         AssertEqualAndNotZero(mirror.nonNilChildren.count, 28)
     }
 
-    /// All other beacon mapping will be tested in the 'Beacon Types' Tests (i.e. HTTPBeaconTests)
+    /// All other beacon mapping will be tested in the 'Beacon Types' Tests (-> HTTPBeaconTests or CustomBeaconTests)
 }

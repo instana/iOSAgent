@@ -286,13 +286,14 @@ class InstanaTests: InstanaTestCase {
         AssertEqualAndNotNil(didReport?.viewName, viewName)
     }
 
-    func test_reportCustom_ignore_optional_args() {
+    func test_reportCustom_just_name() {
         // Given
         let name = "Custom Event"
         var didReport: CustomBeacon? = nil
-        let reporter = MockReporter { didReport = $0 as? CustomBeacon }
+        let reporter = MockReporter {
+            didReport = $0 as? CustomBeacon
+        }
         Instana.current = Instana(configuration: config, monitors: Monitors(InstanaSession.mock(configuration: config), reporter: reporter))
-        Instana.current?.session.propertyHandler.properties.view = "Some View"
 
         // When
         let expectedDate = Date().millisecondsSince1970
@@ -306,10 +307,10 @@ class InstanaTests: InstanaTestCase {
         AssertTrue(didReport?.backendTracingID == nil)
         AssertTrue(didReport?.meta == nil)
         AssertTrue(didReport?.error == nil)
-        AssertEqualAndNotNil(didReport?.viewName, Instana.current?.session.propertyHandler.properties.view)
+        AssertEqualAndNotNil(didReport?.viewName, CustomBeaconDefaultViewNameID)
     }
 
-    func test_reportCustom_set_viewname() {
+    func test_reportCustom_set_name_and_viewname() {
         // Given
         let viewName = "Custom View"
         var didReport: CustomBeacon? = nil

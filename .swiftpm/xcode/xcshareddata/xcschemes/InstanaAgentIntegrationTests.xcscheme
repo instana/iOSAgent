@@ -30,6 +30,9 @@
                   Identifier = "ApplicationNotRespondingMonitorTests">
                </Test>
                <Test
+                  Identifier = "BasicIntegrationServerTest">
+               </Test>
+               <Test
                   Identifier = "CoreBeaconExtensionsTests">
                </Test>
                <Test
@@ -37,6 +40,9 @@
                </Test>
                <Test
                   Identifier = "CoreBeaconTests">
+               </Test>
+               <Test
+                  Identifier = "CustomBeaconTests">
                </Test>
                <Test
                   Identifier = "FramerateDropMonitorTests">
@@ -73,6 +79,9 @@
                </Test>
                <Test
                   Identifier = "InstanaPropertyHandlerTests">
+               </Test>
+               <Test
+                  Identifier = "InstanaSystemUtilsTests">
                </Test>
                <Test
                   Identifier = "InstanaTests">

@@ -26,7 +26,7 @@ class CoreBeaconFactory {
         case let item as SessionProfileBeacon:
             cbeacon.append(item)
         case let item as CustomBeacon:
-            cbeacon.append(item)
+            cbeacon.append(item, properties: properties)
         default:
             let message = "Beacon <-> CoreBeacon mapping for beacon \(beacon) not defined"
             debugAssertFailure(message)
@@ -86,9 +86,10 @@ extension CoreBeacon {
         }
     }
 
-    mutating func append(_ beacon: CustomBeacon) {
+    mutating func append(_ beacon: CustomBeacon, properties: InstanaProperties) {
         t = .custom
-        v = beacon.viewName
+        let useCurrentVisibleViewName = beacon.viewName == CustomBeaconDefaultViewNameID
+        v = useCurrentVisibleViewName ? properties.viewNameForCurrentAppState : beacon.viewName
         cen = beacon.name
         m = beacon.meta
         if let error = beacon.error {
@@ -140,15 +141,22 @@ extension CoreBeacon {
     }
 
     static func create(from httpBody: String) throws -> CoreBeacon {
+        var metaPairs = [String: String]()
         let lines = httpBody.components(separatedBy: "\n")
-        let kvPairs = lines.reduce([String: Any]()) { result, line -> [String: Any] in
+        var kvPairs = lines.reduce([String: Any]()) { result, line -> [String: Any] in
             let components = line.components(separatedBy: "\t")
             guard let key = components.first, let value = components.last else { return result }
             var newResult = result
             newResult[key] = value
+            if key.hasPrefix("m_") {
+                let newKey = key.replacingOccurrences(of: "m_", with: "")
+                metaPairs[newKey] = value
+            }
             return newResult
         }
-
+        if metaPairs.count > 0 {
+            kvPairs["m"] = metaPairs
+        }
         let jsonData = try JSONSerialization.data(withJSONObject: kvPairs, options: .prettyPrinted)
         let beacon = try JSONDecoder().decode(CoreBeacon.self, from: jsonData)
         return beacon
