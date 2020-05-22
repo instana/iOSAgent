@@ -216,16 +216,17 @@ import UIKit
     ///     - backendTracingID: (Optional) Use this parameter to relate a beacon to a backend trace.
     ///     - error: (Optional) Error object to provide additional context.
     ///     - meta: (Optional) Key - Value data which can be used to send metadata to Instana just for this singular event
-    ///     - viewName: (Optional) Name to group the request to a view (Default is the current view name set via `setView(name: String)`)
-    public static func reportEvent(name: String, timestamp: Instana.Types.Milliseconds? = nil, duration: Instana.Types.Milliseconds? = nil, backendTracingID: String? = nil, error: Error? = nil, meta: [String: String]? = nil, viewName: String? = nil) {
-        let view = propertyHandler.properties.view
+    ///     - viewName: (Optional) You can pass a String to group the request to a view.
+    ///                            If you send explicitly nil, the viewName will be ignored.
+    ///                            Alternatively you can leave out the parameter `viewName` to use the current view name you did set in `setView(name: String)`)
+    public static func reportEvent(name: String, timestamp: Instana.Types.Milliseconds? = nil, duration: Instana.Types.Milliseconds? = nil, backendTracingID: String? = nil, error: Error? = nil, meta: [String: String]? = nil, viewName: String? = Instana.viewName) {
         let beacon = CustomBeacon(timestamp: timestamp,
                                   name: name,
                                   duration: duration,
                                   backendTracingID: backendTracingID,
                                   error: error,
                                   meta: meta,
-                                  viewName: viewName ?? view)
+                                  viewName: viewName)
         Instana.current?.monitors.reporter.submit(beacon)
     }
 }

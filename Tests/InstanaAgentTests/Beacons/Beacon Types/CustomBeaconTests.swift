@@ -65,7 +65,7 @@ class CustomBeaconTests: InstanaTestCase {
 
     func test_asString() {
         // Given
-        let customBeacon = createCustomBeacon()
+        let customBeacon = createCustomBeacon(viewName: "Some View")
         var beacon: CoreBeacon!
         do {
             beacon = try CoreBeaconFactory(.mock(configuration: .mock)).map(customBeacon)
@@ -101,9 +101,33 @@ class CustomBeaconTests: InstanaTestCase {
         XCTAssertEqual(sut, expected)
     }
 
+    func test_asString_viewname_nil() {
+        // Given
+        let customBeacon = createCustomBeacon(viewName: nil)
+        var beacon: CoreBeacon!
+        do {
+            beacon = try CoreBeaconFactory(.mock(configuration: .mock)).map(customBeacon)
+        } catch {
+            XCTFail("Could not create CoreBeacon")
+        }
+
+        // When
+        let sut = beacon.asString
+
+        // Then
+        XCTAssertNil(customBeacon.viewName)
+        XCTAssertNil(beacon.v)
+
+        let expectediOSVersion = UIDevice.current.systemVersion
+        let expectedErrorType = "\(type(of: customBeacon.error!))"
+        let expectedErrorMessage = "\(customBeacon.error!)"
+        let expected = "ab\t\(beacon.ab)\nagv\t\(beacon.agv)\nav\tunknown-version\nbi\t\(beacon.bi)\nbid\t\(beacon.bid)\nbt\t\(customBeacon.backendTracingID ?? "")\ncen\t\(customBeacon.name)\ncn\tNone\nct\tUnknown\nd\t\(customBeacon.duration ?? 0)\ndma\tApple\ndmo\tx86_64\nec\t1\nem\t\(expectedErrorMessage)\net\t\(expectedErrorType)\nk\tKEY\nm_\(customBeacon.meta?.keys.first ?? "")\t\(customBeacon.meta?.values.first ?? "")\nosn\tiOS\nosv\t\(expectediOSVersion)\np\tiOS\nro\tfalse\nsid\t\(beacon.sid)\nt\tcustom\nti\t\(customBeacon.timestamp)\nul\ten\nvh\t\(Int(UIScreen.main.nativeBounds.height))\nvw\t\(Int(UIScreen.main.nativeBounds.width))"
+        XCTAssertEqual(sut, expected)
+    }
+
     func test_asJSON() {
         // Given
-        let customBeacon = createCustomBeacon()
+        let customBeacon = createCustomBeacon(viewName: "Some View")
 
         // When
         var beacon: CoreBeacon!
@@ -132,14 +156,13 @@ class CustomBeaconTests: InstanaTestCase {
     enum SomeBeaconError: Error {
         case something
     }
-    func createCustomBeacon() -> CustomBeacon {
+    func createCustomBeacon(viewName: String?) -> CustomBeacon {
         let timestamp: Instana.Types.Milliseconds = 12348
         let duration: Instana.Types.Milliseconds = 12
         let name = "SomeName"
         let backendTracingID = "BID"
         let error = SomeBeaconError.something
         let meta = ["Key":"SomeValue"]
-        let viewName = "The View Name"
         return CustomBeacon(timestamp: timestamp, name: name, duration: duration, backendTracingID: backendTracingID, error: error, meta: meta, viewName: viewName)
     }
 }

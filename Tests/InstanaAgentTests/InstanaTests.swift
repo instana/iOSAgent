@@ -268,12 +268,9 @@ class InstanaTests: InstanaTestCase {
         let error = NSError(domain: "Domain", code: 100, userInfo: nil)
         let meta = ["Key": "Value"]
         let viewName = "Some View"
-        let env = InstanaSession.mock(configuration: config)
         var didReport: CustomBeacon? = nil
-        let reporter = MockReporter {beacon in
-            didReport = beacon as? CustomBeacon
-        }
-        Instana.current = Instana(configuration: config, monitors: Monitors(env, reporter: reporter))
+        let reporter = MockReporter { didReport = $0 as? CustomBeacon }
+        Instana.current = Instana(configuration: config, monitors: Monitors(InstanaSession.mock(configuration: config), reporter: reporter))
 
         // When
         Instana.reportEvent(name: name, timestamp:timestamp, duration: duration, backendTracingID: backendID, error: error, meta: meta, viewName: viewName)
@@ -292,24 +289,50 @@ class InstanaTests: InstanaTestCase {
     func test_reportCustom_ignore_optional_args() {
         // Given
         let name = "Custom Event"
-        let env = InstanaSession.mock(configuration: config)
         var didReport: CustomBeacon? = nil
-        let reporter = MockReporter {beacon in
-            didReport = beacon as? CustomBeacon
-        }
-        Instana.current = Instana(configuration: config, monitors: Monitors(env, reporter: reporter))
+        let reporter = MockReporter { didReport = $0 as? CustomBeacon }
+        Instana.current = Instana(configuration: config, monitors: Monitors(InstanaSession.mock(configuration: config), reporter: reporter))
+        Instana.current?.session.propertyHandler.properties.view = "Some View"
 
         // When
+        let expectedDate = Date().millisecondsSince1970
         Instana.reportEvent(name: name)
 
         // Then
         AssertTrue(didReport != nil)
         AssertEqualAndNotNil(didReport?.name, name)
         AssertTrue(didReport?.duration == nil)
-        AssertTrue(didReport?.timestamp == Date().millisecondsSince1970)
+        AssertTrue(didReport?.timestamp == expectedDate)
         AssertTrue(didReport?.backendTracingID == nil)
         AssertTrue(didReport?.meta == nil)
         AssertTrue(didReport?.error == nil)
         AssertEqualAndNotNil(didReport?.viewName, Instana.current?.session.propertyHandler.properties.view)
+    }
+
+    func test_reportCustom_set_viewname() {
+        // Given
+        let viewName = "Custom View"
+        var didReport: CustomBeacon? = nil
+        let reporter = MockReporter { didReport = $0 as? CustomBeacon }
+        Instana.current = Instana(configuration: config, monitors: Monitors(InstanaSession.mock(configuration: config), reporter: reporter))
+
+        // When
+        Instana.reportEvent(name: name, viewName: viewName)
+
+        // Then
+        AssertEqualAndNotNil(didReport?.viewName, viewName)
+    }
+
+    func test_reportCustom_set_viewname_nil() {
+        // Given
+        var didReport: CustomBeacon? = nil
+        let reporter = MockReporter { didReport = $0 as? CustomBeacon }
+        Instana.current = Instana(configuration: config, monitors: Monitors(InstanaSession.mock(configuration: config), reporter: reporter))
+
+        // When
+        Instana.reportEvent(name: name, viewName: nil)
+
+        // Then
+        AssertTrue(didReport?.viewName == nil)
     }
 }
