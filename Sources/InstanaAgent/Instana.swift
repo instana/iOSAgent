@@ -46,6 +46,9 @@ import UIKit
     /// The current session id of this active Instana agent.
     public class var sessionID: String? { Instana.current?.session.id.uuidString }
 
+    /// The current view name you can set via `setView(name: String)`
+    public class var viewName: String? { Instana.current?.session.propertyHandler.properties.view }
+
     /// Configures and sets up the Instana agent with the default configuration.
     /// - HTTP sessions will be captured automatically by default
     ///

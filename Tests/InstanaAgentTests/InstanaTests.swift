@@ -131,6 +131,7 @@ class InstanaTests: InstanaTestCase {
         // Then
         AssertTrue(didReport)
         AssertEqualAndNotNil(Instana.current?.session.propertyHandler.properties.view, viewName)
+        AssertEqualAndNotNil(Instana.viewName, viewName)
     }
 
     func test_setViewName_shouldnotreport_if_view_not_changed() {
