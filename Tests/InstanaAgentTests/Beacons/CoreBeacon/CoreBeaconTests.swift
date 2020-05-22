@@ -7,7 +7,6 @@ class CoreBeaconTests: InstanaTestCase {
     var user: InstanaProperties.User!
     var metaData: [String: String]!
     var viewName: String!
-    var session: InstanaSession!
     var props: InstanaProperties!
     var coreBeacon: CoreBeacon!
     var wifiCoreBeacon: CoreBeacon!

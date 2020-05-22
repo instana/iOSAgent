@@ -18,8 +18,8 @@ import UIKit
 
     internal let appStateHandler = InstanaApplicationStateHandler.shared
 
-    internal init(configuration: InstanaConfiguration, monitors: Monitors? = nil) {
-        let session = InstanaSession(configuration: configuration, propertyHandler: InstanaPropertyHandler())
+    internal init(session: InstanaSession? = nil, configuration: InstanaConfiguration, monitors: Monitors? = nil) {
+        let session = session ?? InstanaSession(configuration: configuration, propertyHandler: InstanaPropertyHandler())
         self.session = session
         self.monitors = monitors ?? Monitors(session)
         super.init()
@@ -29,14 +29,6 @@ import UIKit
         } else {
             session.logger.add("Instana setup is invalid. URL and key must not be empty", level: .error)
         }
-    }
-
-    private static var propertyHandler: InstanaPropertyHandler {
-        guard let current = Instana.current else {
-            InstanaLogger().add("Instana Config error: No active or valid instana session has been setup", level: .error)
-            return InstanaPropertyHandler()
-        }
-        return current.session.propertyHandler
     }
 
     /// Optional reporting URL used for on-premises Instana backend installations.
@@ -153,6 +145,7 @@ import UIKit
     ///     - value: An arbitrary String typed value
     ///     - key: The key (String) to store the custom meta value
     public static func setMeta(value: String, key: String) {
+        guard let propertyHandler = Instana.current?.session.propertyHandler else { return }
         guard propertyHandler.validate(value: value) else { return }
         var metaData = propertyHandler.properties.metaData ?? [:]
         metaData[key] = value
@@ -180,7 +173,7 @@ import UIKit
     ///     - email: (Optional) User's email address
     ///     - name: (Optional) User's full name
     public static func setUser(id: String, email: String?, name: String?) {
-        propertyHandler.properties.user = InstanaProperties.User(id: id, email: email, name: name)
+        Instana.current?.session.propertyHandler.properties.user = InstanaProperties.User(id: id, email: email, name: name)
     }
 
     /// Set the current visible view represented by a custom name.
@@ -194,6 +187,7 @@ import UIKit
     /// - Parameters:
     ///     - name: The name of the current visible view
     public static func setView(name: String) {
+        guard let propertyHandler = Instana.current?.session.propertyHandler else { return }
         guard propertyHandler.properties.view != name else { return }
         propertyHandler.properties.view = name
         Instana.current?.monitors.reporter.submit(ViewChange(viewName: name))

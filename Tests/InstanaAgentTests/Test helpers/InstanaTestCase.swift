@@ -6,8 +6,10 @@ class InstanaTestCase: XCTestCase {
 
     private static let sid = UUID()
     private static let sharedInstana: Instana = {
-        let config = InstanaConfiguration.mock(key: "KEY", reportingURL: .random, httpCaptureConfig: .automatic)
-        let instana = Instana(configuration: config)
+        var config = InstanaConfiguration.mock(key: "KEY", reportingURL: .random, httpCaptureConfig: .automatic)
+        config.gzipReport = false
+        let session = InstanaSession.mock(configuration: config)
+        let instana = Instana(session: session, configuration: config)
         Instana.current = instana
         return instana
     }()
@@ -18,6 +20,7 @@ class InstanaTestCase: XCTestCase {
     var key: String { config.key }
     var sessionID: UUID { InstanaTestCase.sid }
     var instana: Instana { InstanaTestCase.sharedInstana }
+    var session: InstanaSession!
 
     override func setUp() {
         super.setUp()
@@ -27,6 +30,7 @@ class InstanaTestCase: XCTestCase {
         if Instana.current == nil || InstanaTestCase.sharedInstana != Instana.current {
             Instana.current = InstanaTestCase.sharedInstana
         }
+        session = instana.session
         cleanUp()
         InstanaApplicationStateHandler.shared.state = .active
     }

@@ -310,30 +310,21 @@ class InstanaTests: InstanaTestCase {
         AssertEqualAndNotNil(didReport?.viewName, CustomBeaconDefaultViewNameID)
     }
 
-    func test_reportCustom_set_name_and_viewname() {
+    func test_reportCustom_view_nil() {
         // Given
-        let viewName = "Custom View"
+        let name = "Custom Event"
         var didReport: CustomBeacon? = nil
-        let reporter = MockReporter { didReport = $0 as? CustomBeacon }
-        Instana.current = Instana(configuration: config, monitors: Monitors(InstanaSession.mock(configuration: config), reporter: reporter))
-
-        // When
-        Instana.reportEvent(name: name, viewName: viewName)
-
-        // Then
-        AssertEqualAndNotNil(didReport?.viewName, viewName)
-    }
-
-    func test_reportCustom_set_viewname_nil() {
-        // Given
-        var didReport: CustomBeacon? = nil
-        let reporter = MockReporter { didReport = $0 as? CustomBeacon }
+        let reporter = MockReporter {
+            didReport = $0 as? CustomBeacon
+        }
         Instana.current = Instana(configuration: config, monitors: Monitors(InstanaSession.mock(configuration: config), reporter: reporter))
 
         // When
         Instana.reportEvent(name: name, viewName: nil)
 
         // Then
-        AssertTrue(didReport?.viewName == nil)
+        AssertTrue(didReport != nil)
+        AssertEqualAndNotNil(didReport?.name, name)
+        AssertEqualAndNotNil(didReport?.viewName, nil)
     }
 }
