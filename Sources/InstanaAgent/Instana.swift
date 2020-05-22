@@ -208,12 +208,12 @@ import UIKit
     ///
     /// - Parameters:
     ///     - name: Defines what kind of event has happened in your app that should result in the transmission of a custom beacon.
-    ///     - timestamp: (Optional) The timestamp when the event has been started.
+    ///     - timestamp: (Optional) The timestamp in milliseconds when the event has been started.
     ///                  If you don't provide a timestamp, we assume now as timestamp.
     ///                  In case you don't provide a timestamp, but set a duration,
     ///                  we calculate a timestamp by substracting the duration from now. (timestamp = now - duration)
-    ///     - duration: (Optional) The duration in milliseconds of how long the event took. Default is zero
-    ///     - backendTracingID: (Optional) Use this parameter to relate a beacon to a backend trace.
+    ///     - duration: (Optional) The duration in milliseconds of how long the event lasted. Default is zero
+    ///     - backendTracingID: (Optional) Identifier to create a backend trace for this event.
     ///     - error: (Optional) Error object to provide additional context.
     ///     - meta: (Optional) Key - Value data which can be used to send metadata to Instana just for this singular event
     ///     - viewName: (Optional) You can pass a String to group the request to a view.

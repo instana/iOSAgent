@@ -273,7 +273,7 @@ class InstanaTests: InstanaTestCase {
         Instana.current = Instana(configuration: config, monitors: Monitors(InstanaSession.mock(configuration: config), reporter: reporter))
 
         // When
-        Instana.reportEvent(name: name, timestamp:timestamp, duration: duration, backendTracingID: backendID, error: error, meta: meta, viewName: viewName)
+        Instana.reportEvent(name: name, timestamp: timestamp, duration: duration, backendTracingID: backendID, error: error, meta: meta, viewName: viewName)
 
         // Then
         AssertTrue(didReport != nil)
