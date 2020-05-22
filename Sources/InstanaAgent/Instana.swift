@@ -1,6 +1,8 @@
 import Foundation
 import UIKit
 
+// swiftlint:disable line_length
+
 /// Root object for the Instana agent.
 ///
 ///

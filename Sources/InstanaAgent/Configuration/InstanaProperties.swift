@@ -63,6 +63,7 @@ class InstanaPropertyHandler: NSObject {
 
     func validate(keys: [String]) -> Bool {
         if keys.count > Const.maximumNumberOfMetaDataFields {
+            // swiftlint:disable:next line_length
             Instana.current?.session.logger.add("Instana: MetaData reached maximum number (\(Const.maximumNumberOfMetaDataFields)) of valid fields.", level: .warning)
             return false
         }
