@@ -18,29 +18,32 @@ extension CoreBeacon {
     }
 
     func formattedKVPair(key: String, value: Any) -> String? {
-        let value = cleaning(value)
         guard Mirror.isNotNil(value: value) else { return nil }
         if let dict = value as? [AnyHashable: AnyObject] {
             return dict.asString(prefix: key)
         }
+        let value = "\(value)".cleanAndEscape()
         return "\(key)\t\(value)"
-    }
-
-    func cleaning<T: Any>(_ entry: T) -> T {
-        if let stringValue = entry as? String {
-            var trimmed = stringValue.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
-            trimmed = trimmed.truncated(at: Int(CoreBeacon.maxBytesPerField))
-            trimmed = trimmed.replacingOccurrences(of: "\t", with: "")
-            guard let result = trimmed as? T else { return entry }
-            return result
-        }
-        return entry
     }
 }
 
 extension Dictionary {
     func asString(prefix: String) -> String {
-        return map { "\(prefix)_\($0.key)\t\($0.value)" }.joined(separator: "\n")
+        return map {
+            let value = "\($0.value)".cleanAndEscape()
+            return "\(prefix)_\($0.key)\t\(value)"
+        }.joined(separator: "\n")
+    }
+}
+
+extension String {
+    func cleanAndEscape() -> Self {
+        var trimmed = trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+        trimmed = trimmed.truncated(at: Int(CoreBeacon.maxBytesPerField))
+        trimmed = trimmed.replacingOccurrences(of: "\\", with: "\\\\")
+        trimmed = trimmed.replacingOccurrences(of: "\n", with: "\\n")
+        trimmed = trimmed.replacingOccurrences(of: "\t", with: "\\t")
+        return trimmed
     }
 }
 
