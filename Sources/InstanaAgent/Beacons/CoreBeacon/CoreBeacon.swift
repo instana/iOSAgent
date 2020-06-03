@@ -142,7 +142,7 @@ struct CoreBeacon: Equatable, Codable {
      * Current selected language for the app
      * The language is described using BCP 47 language tags.
      *
-     * For example: en-US"
+     * For example: en-US
      *
      * optional
      */
