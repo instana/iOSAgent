@@ -27,7 +27,16 @@
                   Identifier = "BasicIntegrationServerTest">
                </Test>
                <Test
+                  Identifier = "InstanaIntegrationTests">
+               </Test>
+               <Test
+                  Identifier = "InstanaURLProtocolIntegrationTests">
+               </Test>
+               <Test
                   Identifier = "IntegrationTestCase">
+               </Test>
+               <Test
+                  Identifier = "ReporterIntegrationTests">
                </Test>
             </SkippedTests>
          </TestableReference>
