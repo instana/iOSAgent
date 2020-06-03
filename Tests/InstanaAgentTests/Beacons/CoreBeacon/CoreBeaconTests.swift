@@ -184,8 +184,12 @@ class CoreBeaconTests: InstanaTestCase {
         let sut = coreBeacon.formattedKVPair(key: "m", value: coreBeacon.m!)
 
         // Then
-        XCTAssertEqual(sut, "m_Key\tSome\\nNewline\\tTab\\\\escape\nm_More\ttest")
+        let valid1 = "m_Key\tSome\\nNewline\\tTab\\\\escape\nm_More\ttest"
+        let valid2 = "m_More\ttest\nm_Key\tSome\\nNewline\\tTab\\\\escape"
+        let validResults = [valid1, valid2]
+        AssertTrue(validResults.contains(sut ?? ""))
     }
+    
 
     func test_truncate_at_max_length() {
         // Given

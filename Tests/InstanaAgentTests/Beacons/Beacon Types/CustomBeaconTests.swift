@@ -83,6 +83,7 @@ class CustomBeaconTests: InstanaTestCase {
 
     func test_full_asString() {
         // Given
+        InstanaSystemUtils.networkUtility.update(.wifi)
         let customBeacon = createCustomBeacon()
         var beacon: CoreBeacon!
         do {
@@ -115,12 +116,13 @@ class CustomBeaconTests: InstanaTestCase {
         let expectediOSVersion = UIDevice.current.systemVersion
         let expectedErrorType = "\(type(of: customBeacon.error!))"
         let expectedErrorMessage = "\(customBeacon.error!)"
-        let expected = "ab\t\(beacon.ab)\nagv\t\(beacon.agv)\nav\tunknown-version\nbi\t\(beacon.bi)\nbid\t\(beacon.bid)\nbt\t\(customBeacon.backendTracingID ?? "")\ncen\t\(customBeacon.name)\ncn\tNone\nct\tUnknown\nd\t\(customBeacon.duration ?? 0)\ndma\tApple\ndmo\tx86_64\nec\t1\nem\t\(expectedErrorMessage)\net\t\(expectedErrorType)\nk\tKEY\nm_\(customBeacon.meta?.keys.first ?? "")\t\(customBeacon.meta?.values.first ?? "")\nosn\tiOS\nosv\t\(expectediOSVersion)\np\tiOS\nro\tfalse\nsid\t\(beacon.sid)\nt\tcustom\nti\t\(customBeacon.timestamp)\nul\ten\nv\t\(customBeacon.viewName ?? "")\nvh\t\(Int(UIScreen.main.nativeBounds.height))\nvw\t\(Int(UIScreen.main.nativeBounds.width))"
+        let expected = "ab\t\(beacon.ab)\nagv\t\(beacon.agv)\nav\tunknown-version\nbi\t\(beacon.bi)\nbid\t\(beacon.bid)\nbt\t\(customBeacon.backendTracingID ?? "")\ncen\t\(customBeacon.name)\ncn\tNone\nct\t\(InstanaSystemUtils.networkUtility.connectionType.description)\nd\t\(customBeacon.duration ?? 0)\ndma\tApple\ndmo\tx86_64\nec\t1\nem\t\(expectedErrorMessage)\net\t\(expectedErrorType)\nk\tKEY\nm_\(customBeacon.meta?.keys.first ?? "")\t\(customBeacon.meta?.values.first ?? "")\nosn\tiOS\nosv\t\(expectediOSVersion)\np\tiOS\nro\tfalse\nsid\t\(beacon.sid)\nt\tcustom\nti\t\(customBeacon.timestamp)\nul\ten\nv\t\(customBeacon.viewName ?? "")\nvh\t\(Int(UIScreen.main.nativeBounds.height))\nvw\t\(Int(UIScreen.main.nativeBounds.width))"
         AssertEqualAndNotNil(sut, expected)
     }
 
     func test_asString_viewname_nil() {
         // Given
+        InstanaSystemUtils.networkUtility.update(.cellular)
         let name = "SomeName"
         let session: InstanaSession = .mock(configuration: .mock)
         session.propertyHandler.properties.view = "SomeView"
@@ -141,12 +143,13 @@ class CustomBeaconTests: InstanaTestCase {
         AssertEqualAndNotNil(beacon.v, nil)
 
         let expectediOSVersion = UIDevice.current.systemVersion
-        let expected = "ab\t\(beacon.ab)\nagv\t\(beacon.agv)\nav\tunknown-version\nbi\t\(beacon.bi)\nbid\t\(beacon.bid)\ncen\t\(name)\ncn\tNone\nct\tUnknown\ndma\tApple\ndmo\tx86_64\nk\tKEY\nosn\tiOS\nosv\t\(expectediOSVersion)\np\tiOS\nro\tfalse\nsid\t\(beacon.sid)\nt\tcustom\nti\t\(customBeacon.timestamp)\nul\ten\nvh\t\(Int(UIScreen.main.nativeBounds.height))\nvw\t\(Int(UIScreen.main.nativeBounds.width))"
+        let expected = "ab\t\(beacon.ab)\nagv\t\(beacon.agv)\nav\tunknown-version\nbi\t\(beacon.bi)\nbid\t\(beacon.bid)\ncen\t\(name)\ncn\tNone\nct\t\(InstanaSystemUtils.networkUtility.connectionType.description)\ndma\tApple\ndmo\tx86_64\nk\tKEY\nosn\tiOS\nosv\t\(expectediOSVersion)\np\tiOS\nro\tfalse\nsid\t\(beacon.sid)\nt\tcustom\nti\t\(customBeacon.timestamp)\nul\ten\nvh\t\(Int(UIScreen.main.nativeBounds.height))\nvw\t\(Int(UIScreen.main.nativeBounds.width))"
         AssertEqualAndNotNil(sut, expected)
     }
 
     func test_asString_viewname_implicit() {
         // Given
+        InstanaSystemUtils.networkUtility.update(.none)
         let viewName = "ViewName"
         let name = "SomeName"
         let session: InstanaSession = .mock(configuration: .mock)
@@ -169,7 +172,7 @@ class CustomBeaconTests: InstanaTestCase {
         AssertEqualAndNotNil(beacon.v, viewName)
 
         let expectediOSVersion = UIDevice.current.systemVersion
-        let expected = "ab\t\(beacon.ab)\nagv\t\(beacon.agv)\nav\tunknown-version\nbi\t\(beacon.bi)\nbid\t\(beacon.bid)\ncen\t\(name)\ncn\tNone\nct\tUnknown\ndma\tApple\ndmo\tx86_64\nk\tKEY\nosn\tiOS\nosv\t\(expectediOSVersion)\np\tiOS\nro\tfalse\nsid\t\(beacon.sid)\nt\tcustom\nti\t\(customBeacon.timestamp)\nul\ten\nv\t\(viewName)\nvh\t\(Int(UIScreen.main.nativeBounds.height))\nvw\t\(Int(UIScreen.main.nativeBounds.width))"
+        let expected = "ab\t\(beacon.ab)\nagv\t\(beacon.agv)\nav\tunknown-version\nbi\t\(beacon.bi)\nbid\t\(beacon.bid)\ncen\t\(name)\ncn\tNone\nct\t\(InstanaSystemUtils.networkUtility.connectionType.description)\ndma\tApple\ndmo\tx86_64\nk\tKEY\nosn\tiOS\nosv\t\(expectediOSVersion)\np\tiOS\nro\tfalse\nsid\t\(beacon.sid)\nt\tcustom\nti\t\(customBeacon.timestamp)\nul\ten\nv\t\(viewName)\nvh\t\(Int(UIScreen.main.nativeBounds.height))\nvw\t\(Int(UIScreen.main.nativeBounds.width))"
         AssertEqualAndNotNil(sut, expected)
     }
 

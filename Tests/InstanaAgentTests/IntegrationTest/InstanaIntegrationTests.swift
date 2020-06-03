@@ -154,13 +154,15 @@ class InstanaIntegrationTests: InstanaTestCase {
         let viewName = "View"
         var sentBeacon: CoreBeacon?
         createInstanaReporter(beaconType: .custom, waitFor) { sentBeacon = $0 }
+        session.propertyHandler.properties.metaData = ["Key": "MyValue"]
+        session.propertyHandler.properties.view = "My View"
 
         // When
         Instana.reportEvent(name: name, timestamp: timestamp, duration: duration, backendTracingID: backendTracingID, error: error, meta: [mKey: mValue], viewName: viewName)
 
         // Then
         wait(for: [waitFor], timeout: 5.0)
-        AssertEqualAndNotNil(sentBeacon?.v, viewName)
+        AssertEqualAndNotNil(sentBeacon?.v, viewName) // Overrides the default set in session.propertyHandler.properties
         AssertEqualAndNotNil(sentBeacon?.bt, backendTracingID)
         AssertEqualAndNotNil(sentBeacon?.ti, "\(timestamp)")
         AssertEqualAndNotNil(sentBeacon?.d, "\(duration)")
@@ -168,7 +170,7 @@ class InstanaIntegrationTests: InstanaTestCase {
         AssertEqualAndNotNil(sentBeacon?.ec, "\(1)")
         AssertEqualAndNotNil(sentBeacon?.et, "InstanaError")
         AssertEqualAndNotNil(sentBeacon?.em, "Error Domain=com.instana.ios.agent.error Code=2 \"Some\" UserInfo={NSLocalizedDescription=Some}")
-        AssertEqualAndNotNil(sentBeacon?.m?[mKey], mValue)
+        AssertEqualAndNotNil(sentBeacon?.m?[mKey], mValue) // Overrides the default set in session.propertyHandler.properties
     }
 
     func test_Instana_report_custom_event_current_viewName() {
@@ -205,6 +207,42 @@ class InstanaIntegrationTests: InstanaTestCase {
         AssertTrue(sentBeacon != nil)
         AssertEqualAndNotNil(sentBeacon?.cen, name)
         AssertTrue(sentBeacon?.v == nil)
+    }
+
+    func test_default_values() {
+        // Given
+        let waitFor = expectation(description: "Wait For")
+        var serverBeacon: CoreBeacon!
+        createInstanaReporter(beaconType: .custom, waitFor) { serverBeacon = $0 }
+        session.propertyHandler.properties.metaData = ["Key": "MyValue"]
+        session.propertyHandler.properties.user = .init(id: "UserID", email: "email@example.com", name: "User Name")
+        session.propertyHandler.properties.view = "My View"
+
+        // When
+        Instana.reportEvent(name: "Event name", viewName: "my view")
+
+        // Then
+        wait(for: [waitFor], timeout: 5.0)
+        AssertEqualAndNotNil(serverBeacon.ab, InstanaSystemUtils.applicationBuildNumber)
+        AssertEqualAndNotNil(serverBeacon.av, InstanaSystemUtils.applicationVersion)
+        AssertEqualAndNotNil(serverBeacon.agv, InstanaSystemUtils.agentVersion)
+        AssertEqualAndNotNil(serverBeacon.bi, "com.apple.dt.xctest.tool")
+        AssertEqualAndNotNil(serverBeacon.ct, "Wifi")
+        AssertEqualAndNotNil(serverBeacon.t, BeaconType.custom)
+        AssertEqualAndNotNil(serverBeacon.cn, "None")
+        AssertEqualAndNotNil(serverBeacon.dma, "Apple")
+        AssertEqualAndNotNil(serverBeacon.cen, "Event name")
+        AssertEqualAndNotNil(serverBeacon.v, "my view") // Overrides the original
+        AssertEqualAndNotNil(serverBeacon.vh, "\(Int(UIScreen.main.nativeBounds.size.height))")
+        AssertEqualAndNotNil(serverBeacon.vw, "\(Int(UIScreen.main.nativeBounds.size.width))")
+        AssertEqualAndNotNil(serverBeacon.osv, InstanaSystemUtils.systemVersion)
+        AssertEqualAndNotNil(serverBeacon.osn, "iOS")
+        AssertEqualAndNotNil(serverBeacon.p, "iOS")
+        AssertEqualAndNotNil(serverBeacon.m, ["Key": "MyValue"])
+        AssertEqualAndNotNil(serverBeacon.ui, "UserID")
+        AssertEqualAndNotNil(serverBeacon.ue, "email@example.com")
+        AssertEqualAndNotNil(serverBeacon.un, "User Name")
+        AssertEqualAndNotNil(serverBeacon.ul, "en")
     }
 
     // MARK: Helper
