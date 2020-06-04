@@ -262,8 +262,8 @@ class InstanaTests: InstanaTestCase {
     func test_reportCustom_AllValues() {
         // Given
         let name = "Custom Event"
-        let duration: Int64 = 1
-        let timestamp: Int64 = 123
+        let duration = "1"
+        let timestamp = "123"
         let backendID = "B123"
         let error = NSError(domain: "Domain", code: 100, userInfo: nil)
         let meta = ["Key": "Value"]
@@ -278,8 +278,8 @@ class InstanaTests: InstanaTestCase {
         // Then
         AssertTrue(didReport != nil)
         AssertEqualAndNotNil(didReport?.name, name)
-        AssertEqualAndNotNil(didReport?.duration, duration)
-        AssertEqualAndNotNil(didReport?.timestamp, timestamp)
+        AssertEqualAndNotNil(didReport?.duration, Instana.Types.Milliseconds(duration))
+        AssertEqualAndNotNil(didReport?.timestamp, Instana.Types.Milliseconds(timestamp))
         AssertEqualAndNotNil(didReport?.backendTracingID, backendID)
         AssertEqualAndNotNil((didReport?.error as NSError?), error)
         AssertEqualAndNotNil(didReport?.meta, meta)
