@@ -32,15 +32,19 @@ import UIKit
     }
 
     /// Optional reporting URL used for on-premises Instana backend installations.
+    @objc
     public class var reportingURL: URL? { Instana.current?.session.configuration.reportingURL }
 
     /// Instana key identifying your application.
+    @objc
     public class var key: String? { Instana.current?.session.configuration.key }
 
     /// The current session id of this active Instana agent.
+    @objc
     public class var sessionID: String? { Instana.current?.session.id.uuidString }
 
     /// The current view name you can set via `setView(name: String)`
+    @objc
     public class var viewName: String? { Instana.current?.session.propertyHandler.properties.view }
 
     /// Configures and sets up the Instana agent with the default configuration.
@@ -50,6 +54,7 @@ import UIKit
     /// - Parameters:
     ///   - key: Instana key to identify your application.
     ///   - reportingURL: Reporting URL for the Instana backend.
+    @objc
     public static func setup(key: String, reportingURL: URL) {
         let config = InstanaConfiguration.default(key: key, reportingURL: reportingURL, httpCaptureConfig: .automatic)
         Instana.current = Instana(configuration: config)
@@ -62,6 +67,7 @@ import UIKit
     ///   - key: Instana key to identify your application.
     ///   - reportingURL: Reporting URL for the Instana backend.
     ///   - httpCaptureConfig: HTTP monitoring configuration to set the capture behavior (automatic, manual or none) http requests & responses
+    @objc
     public static func setup(key: String, reportingURL: URL, httpCaptureConfig: HTTPCaptureConfig = .automatic) {
         let config = InstanaConfiguration.default(key: key, reportingURL: reportingURL, httpCaptureConfig: httpCaptureConfig)
         Instana.current = Instana(configuration: config)
@@ -98,6 +104,7 @@ import UIKit
     ///   - viewName: (Optional) Name to group the request to a view
     ///
     /// - Returns: HTTP marker to set the response size, finish state or error when the request has been completed.
+    @objc
     public static func startCapture(_ request: URLRequest, viewName: String? = nil) -> HTTPMarker {
         let delegate = Instana.current?.monitors.http
         let method = request.httpMethod ?? "GET"
@@ -115,6 +122,7 @@ import UIKit
     ///
     /// - Parameters:
     ///     - urls: URLs that will ignored from the Instana monitoring
+    @objc
     public static func setIgnore(urls: [URL]) {
         IgnoreURLHandler.exactURLs = IgnoreURLHandler.exactURLs.union(urls)
     }
@@ -124,6 +132,7 @@ import UIKit
     ///
     /// - Parameters:
     ///     - regex: URLs that match with the given regular expressions will be ignored from monitoring
+    @objc
     public static func setIgnoreURLs(matching regex: [NSRegularExpression]) {
         IgnoreURLHandler.regex = IgnoreURLHandler.regex.union(regex)
     }
@@ -133,6 +142,7 @@ import UIKit
     ///
     /// - Parameters:
     ///     - session: URLSession to ignore from HTTP monitoring
+    @objc
     public static func ignore(_ session: URLSession) {
         IgnoreURLHandler.urlSessions.insert(session)
         session.configuration.removeInstanaURLProtocol()
@@ -144,6 +154,7 @@ import UIKit
     /// - Parameters:
     ///     - value: An arbitrary String typed value
     ///     - key: The key (String) to store the custom meta value
+    @objc
     public static func setMeta(value: String, key: String) {
         guard let propertyHandler = Instana.current?.session.propertyHandler else { return }
         guard propertyHandler.validate(value: value) else { return }
@@ -172,6 +183,7 @@ import UIKit
     ///     - id: Unique identifier for the user
     ///     - email: (Optional) User's email address
     ///     - name: (Optional) User's full name
+    @objc
     public static func setUser(id: String, email: String?, name: String?) {
         Instana.current?.session.propertyHandler.properties.user = InstanaProperties.User(id: id, email: email, name: name)
     }
@@ -186,6 +198,7 @@ import UIKit
     ///
     /// - Parameters:
     ///     - name: The name of the current visible view
+    @objc
     public static func setView(name: String) {
         guard let propertyHandler = Instana.current?.session.propertyHandler else { return }
         guard propertyHandler.properties.view != name else { return }
@@ -199,23 +212,28 @@ import UIKit
     /// important interactions and custom timings to Instana.
     /// This can be especially helpful when analyzing uncaught errors (breadcrumbs) and
     /// to track additional performance metrics.
+    /// We need to use a String type for timestamp & duration, because ObjC does not allow optional Int64 parameter in method signatures.
+    /// The String typed timestamp & duration will be converted to Int64 internally.
     ///
     /// You can call this method at any time.
     ///
     /// - Parameters:
     ///     - name: Defines what kind of event has happened in your app that should result in the transmission of a custom beacon.
-    ///     - timestamp: (Optional) The timestamp in milliseconds when the event has been started.
+    ///     - timestamp: The timestamp in milliseconds when the event has been started.
     ///                  If you don't provide a timestamp, we assume now as timestamp.
     ///                  In case you don't provide a timestamp, but set a duration,
     ///                  we calculate a timestamp by substracting the duration from now. (timestamp = now - duration)
-    ///     - duration: (Optional) The duration in milliseconds of how long the event lasted. Default is zero
+    ///     - duration: The duration in milliseconds of how long the event lasted. Default is nil (= unused)
     ///     - backendTracingID: (Optional) Identifier to create a backend trace for this event.
     ///     - error: (Optional) Error object to provide additional context.
     ///     - meta: (Optional) Key - Value data which can be used to send metadata to Instana just for this singular event
     ///     - viewName: (Optional) You can pass a String to group the request to a view.
     ///                            If you send explicitly nil, the viewName will be ignored.
     ///                            Alternatively you can leave out the parameter `viewName` to use the current view name you did set in `setView(name: String)`)
-    public static func reportEvent(name: String, timestamp: Instana.Types.Milliseconds? = nil, duration: Instana.Types.Milliseconds? = nil, backendTracingID: String? = nil, error: Error? = nil, meta: [String: String]? = nil, viewName: String? = CustomBeaconDefaultViewNameID) {
+    @objc
+    public static func reportEvent(name: String, timestamp: String? = nil, duration: String? = nil, backendTracingID: String? = nil, error: Error? = nil, meta: [String: String]? = nil, viewName: String? = CustomBeaconDefaultViewNameID) {
+        let timestamp = Instana.Types.Milliseconds(timestamp ?? "")
+        let duration = Instana.Types.Milliseconds(duration ?? "")
         let beacon = CustomBeacon(timestamp: timestamp,
                                   name: name,
                                   duration: duration,
