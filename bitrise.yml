@@ -1,0 +1,98 @@
+---
+format_version: '8'
+default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+project_type: ios
+workflows:
+  tests:
+    steps:
+    - github-status@2.2.2:
+        inputs:
+        - auth_token: "$GITHUB_STATUS"
+        - set_specific_status: pending
+    - activate-ssh-key@4.0.3:
+        run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+    - git-clone@4.0.17: {}
+    - cache-pull@2.1.1: {}
+    - script@1.1.6:
+        title: Run swift lint
+        inputs:
+        - content: scripts/lint.sh
+    - script:
+        title: Run iOS 13 Unit Tests
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            echo "Run iOS 13 Unit Tests"
+            scripts/run-swiftpm-tests.sh --ios=13 --test=unit
+    - script@1.1.6:
+        title: Run iOS 12 Unit Tests
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            echo "Run iOS 12 Unit Tests"
+            scripts/run-swiftpm-tests.sh --ios=12 --test=unit
+    - script@1.1.6:
+        title: Run iOS 11 Unit Tests
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            echo "Run iOS 11 Unit Tests"
+            scripts/run-swiftpm-tests.sh --ios=11 --test=unit
+    - script@1.1.6:
+        title: Run iOS 13 Integration Tests
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            echo "Run iOS 13 Integration Tests"
+            scripts/run-swiftpm-tests.sh --ios=13 --test=integration
+    - script@1.1.6:
+        title: Run iOS 12 Integration Tests
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            echo "Run iOS 12 Integration Tests"
+            scripts/run-swiftpm-tests.sh --ios=12 --test=integration
+    - script@1.1.6:
+        title: Run iOS 11 Integration Tests
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            echo "Run iOS 11 Integration Tests"
+            scripts/run-swiftpm-tests.sh --ios=11 --test=integration
+    - github-status@2.2.2:
+        inputs:
+        - auth_token: "$GITHUB_STATUS"
+    meta:
+      bitrise.io:
+        stack: osx-xcode-11.5.x
+  UITests:
+    steps:
+    - github-status@2.2.2:
+        inputs:
+        - auth_token: "$GITHUB_STATUS"
+        - set_specific_status: pending
+    - activate-ssh-key@4.0.3:
+        run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+    - git-clone@4.0.17: {}
+    - cache-pull@2.1.1: {}
+    - script@1.1.6:
+        title: Run swift lint
+        inputs:
+        - content: scripts/lint.sh
+    - script@1.1.6:
+        title: Run iOS UI Tests
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            echo "Run iOS 11 Integration Tests"
+            #scripts/run-ui-tests.sh
+            cd Dev
+            xcodebuild test -destination 'name=iPhone 11 Pro Max,OS=13.5' -scheme 'iOSAgentExample'
+    - github-status@2.2.2:
+        inputs:
+        - auth_token: "$GITHUB_STATUS"
+trigger_map:
+- push_branch: master
+  workflow: tests
+- pull_request_source_branch: "*"
+  workflow: tests
