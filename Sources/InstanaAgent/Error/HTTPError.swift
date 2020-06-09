@@ -1,5 +1,7 @@
 import Foundation
 
+// swiftlint:disable line_length
+
 enum HTTPError: LocalizedError, RawRepresentable, CustomStringConvertible, Equatable {
     case offline
     case timeout
@@ -100,7 +102,6 @@ enum HTTPError: LocalizedError, RawRepresentable, CustomStringConvertible, Equat
         case .timeout: return "An asynchronous operation timed out."
         case .cancelled: return "An asynchronous load has been canceled."
         case .badURL: return "A malformed URL prevented a URL request from being initiated."
-        // swiftlint:disable:next line_length
         case .callIsActive: return "A connection was attempted while a phone call was active on a network that doesn’t support simultaneous phone and data communication, such as EDGE or GPRS."
         case .cannotConnectToHost: return "An attempt to connect to a host failed."
         case .cannotDecodeContentData: return "Content data received during a connection request had an unknown content encoding."
@@ -118,9 +119,7 @@ enum HTTPError: LocalizedError, RawRepresentable, CustomStringConvertible, Equat
         case .downloadDecodingFailedMidStream: return "A download task failed to decode an encoded file during the download."
         case .downloadDecodingFailedToComplete: return "A download task failed to decode an encoded file after downloading."
         case .tooManyRedirects: return "A redirect loop was detected or the threshold for number of allowable redirects was exceeded (currently 16)."
-        // swiftlint:disable:next line_length
         case .redirectToNonExistentLocation: return "A redirect was specified by way of server response code, but the server didn’t accompany this code with a redirect URL."
-        // swiftlint:disable:next line_length
         case .internationalRoamingOff: return "The attempted connection required activating a data context while roaming, but international roaming is disabled."
         case .networkConnectionLost: return "A client or server connection was severed in the middle of an in-progress load."
         case .certificateRejected: return "A server certificate was rejected."
@@ -130,7 +129,6 @@ enum HTTPError: LocalizedError, RawRepresentable, CustomStringConvertible, Equat
         case .serverCertificateHasUnknownRoot: return "A server certificate wasn’t signed by any root server."
         case .serverCertificateNotYetValid: return "A server certificate isn’t valid yet."
         case .serverCertificateUntrusted: return "A server certificate was signed by a root server that isn’t trusted."
-        // swiftlint:disable:next line_length
         case .atsRequiresSecureConnection: return "The resource could not be loaded because the App Transport Security policy requires the use of a secure connection."
         case .unsupportedURL: return "A properly formed URL couldn’t be handled by the framework."
         case .userAuthenticationRequired: return "Authentication was required to access a resource."

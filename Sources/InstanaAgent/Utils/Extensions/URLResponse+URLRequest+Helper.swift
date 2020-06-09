@@ -5,6 +5,7 @@ extension URLResponse {
         let key: String
         let value: String
     }
+
     var backendTracingID: String? {
         guard let httpResponse = self as? HTTPURLResponse,
             let servertiming = httpResponse.value(for: "Server-Timing")

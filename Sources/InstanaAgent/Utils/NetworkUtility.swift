@@ -11,10 +11,12 @@ class NetworkUtility {
     }
 
     var connectionUpdateHandler: (ConnectionType) -> Void = { _ in }
+
     private let reachability: Reachability?
 
     init(reachability: Reachability? = nil) {
-        self.reachability = reachability ?? (try? Reachability())
+        let reachability = reachability ?? (try? Reachability())
+        self.reachability = reachability
 
         // Remove when dropping iOS 11 and NWPath (see git history)
         reachability?.whenReachable = { [weak self] reachability in

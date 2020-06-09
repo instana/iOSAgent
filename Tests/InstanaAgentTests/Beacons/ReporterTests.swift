@@ -4,7 +4,6 @@ import Network
 
 class ReporterTests: InstanaTestCase {
 
-    var session: InstanaSession!
     var reporterRetainer: [Reporter]!
 
     override func setUp() {

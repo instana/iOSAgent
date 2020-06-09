@@ -3,8 +3,6 @@ import XCTest
 
 class HTTPMonitorTests: InstanaTestCase {
 
-    var session: InstanaSession!
-
     override func setUp() {
         super.setUp()
         session = InstanaSession.mock

@@ -7,7 +7,6 @@ class CoreBeaconTests: InstanaTestCase {
     var user: InstanaProperties.User!
     var metaData: [String: String]!
     var viewName: String!
-    var session: InstanaSession!
     var props: InstanaProperties!
     var coreBeacon: CoreBeacon!
     var wifiCoreBeacon: CoreBeacon!
@@ -170,12 +169,27 @@ class CoreBeaconTests: InstanaTestCase {
         """
 
         // When
-        let sut = coreBeacon.cleaning(coreBeacon.bt)
+        let sut = coreBeacon.formattedKVPair(key: "bt", value: coreBeacon.bt!)
 
         // Then
         XCTAssertEqual(coreBeacon.bt, "\t\nTrace ab")
-        XCTAssertEqual(sut, "Trace ab")
+        XCTAssertEqual(sut, "bt\tTrace ab")
     }
+
+    func test_format_clean_dict() {
+        // Given
+        coreBeacon.m = ["Key": "Some\nNewline\tTab\\escape", "More": "\ntest\n"]
+
+        // When
+        let sut = coreBeacon.formattedKVPair(key: "m", value: coreBeacon.m!)
+
+        // Then
+        let valid1 = "m_Key\tSome\\nNewline\\tTab\\\\escape\nm_More\ttest"
+        let valid2 = "m_More\ttest\nm_Key\tSome\\nNewline\\tTab\\\\escape"
+        let validResults = [valid1, valid2]
+        AssertTrue(validResults.contains(sut ?? ""))
+    }
+    
 
     func test_truncate_at_max_length() {
         // Given
@@ -184,9 +198,50 @@ class CoreBeaconTests: InstanaTestCase {
         beacon.bt = longString
 
         // When
-        let sut = beacon.cleaning(beacon.bt) ?? ""
+        let sut = coreBeacon.formattedKVPair(key: "bt", value: beacon.bt!)
 
         // Then
-        XCTAssertTrue(sut.hasSuffix("…"))
+        XCTAssertNotNil(sut)
+        XCTAssertTrue(sut!.hasSuffix("…"))
+    }
+
+    func test_clean_and_escape() {
+        // Given
+        let sut = "Some\nNewline\tTab\\escape"
+
+        // When
+        XCTAssertEqual(sut.cleanAndEscape(), "Some\\nNewline\\tTab\\\\escape")
+    }
+
+    func test_clean_remove_newline() {
+        // Given
+        let sut = "\n"
+
+        // When
+        XCTAssertEqual(sut.cleanAndEscape(), "")
+    }
+
+    func test_clean_remove_newline_2() {
+        // Given
+        let sut = "\nTest"
+
+        // When
+        XCTAssertEqual(sut.cleanAndEscape(), "Test")
+    }
+
+    func test_clean_remove_tab() {
+        // Given
+        let sut = "\t"
+
+        // When
+        XCTAssertEqual(sut.cleanAndEscape(), "")
+    }
+
+    func test_clean_remove_whitespace() {
+        // Given
+        let sut = " "
+
+        // When
+        XCTAssertEqual(sut.cleanAndEscape(), "")
     }
 }

@@ -102,7 +102,7 @@ class CoreBeaconFactoryTests: InstanaTestCase {
 
     func test_create_from_string() {
         // Given
-        let httpBody = "ab\t15702\nav\tunknown-version\nbid\tB5FAF31C-FE37-482E-97F2-20D49C506586\nbt\tBackendTracingID\nbi\tcom.apple.dt.xctest.tool\ncn\tNone\nct\tUnknown\nd\t1578569955952\ndma\tApple\ndmo\tx86_64\nec\t1\nem\tA client or server connection was severed in the middle of an in-progress load.\net\tNetwork Connection Lost\nhm\tPOST\nhs\t200\nhu\thttps://www.example.com\nk\tKEY\np\tiOS\nosn\tiOS\nosv\t13.3\nagv\t1.0.4\nro\tfalse\nsid\t70BED140-D947-4EC7-ADE9-8F1F7C6955D0\nt\thttpRequest\nti\t1578569955952\nul\ten\nvh\t1792\nvw\t828"
+        let httpBody = "ab\t15702\nav\tunknown-version\nbid\tB5FAF31C-FE37-482E-97F2-20D49C506586\nbt\tBackendTracingID\nbi\tcom.apple.dt.xctest.tool\ncn\tNone\nct\tWifi\nd\t1578569955952\ndma\tApple\ndmo\tx86_64\nec\t1\nem\tA client or server connection was severed in the middle of an in-progress load.\net\tNetwork Connection Lost\nhm\tPOST\nhs\t200\nhu\thttps://www.example.com\nk\tKEY\np\tiOS\nosn\tiOS\nosv\t13.3\nagv\t1.0.4\nro\tfalse\nsid\t70BED140-D947-4EC7-ADE9-8F1F7C6955D0\nt\thttpRequest\nti\t1578569955952\nul\ten\nvh\t1792\nvw\t828"
 
         // When
         let sut: CoreBeacon
@@ -121,7 +121,7 @@ class CoreBeaconFactoryTests: InstanaTestCase {
         AssertEqualAndNotNil(sut.bt, "BackendTracingID")
         AssertEqualAndNotNil(sut.bi, "com.apple.dt.xctest.tool")
         AssertEqualAndNotNil(sut.cn, "None")
-        AssertEqualAndNotNil(sut.ct, "Unknown")
+        AssertEqualAndNotNil(sut.ct, "Wifi")
         AssertEqualAndNotNil(sut.d, "1578569955952")
         AssertEqualAndNotNil(sut.dma, "Apple")
         AssertEqualAndNotNil(sut.dmo, "x86_64")
@@ -147,5 +147,5 @@ class CoreBeaconFactoryTests: InstanaTestCase {
         AssertEqualAndNotZero(mirror.nonNilChildren.count, 28)
     }
 
-    /// All other beacon mapping will be tested in the 'Beacon Types' Tests (i.e. HTTPBeaconTests)
+    /// All other beacon mapping will be tested in the 'Beacon Types' Tests (-> HTTPBeaconTests or CustomBeaconTests)
 }

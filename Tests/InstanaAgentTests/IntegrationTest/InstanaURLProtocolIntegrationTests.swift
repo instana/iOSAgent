@@ -7,14 +7,12 @@ import WebKit
 @available(iOS 12.0, *)
 class InstanaURLProtocolIntegrationTests: InstanaTestCase {
 
-    var session: InstanaSession!
     var givenURL: URL!
     var urlSession: URLSession!
 
     override func setUp() {
         super.setUp()
         SecondURLProtocol.monitoredURL = nil
-        session = InstanaSession.mock
         givenURL = .random
     }
 
@@ -29,7 +27,7 @@ class InstanaURLProtocolIntegrationTests: InstanaTestCase {
             }
         }
         let monitors = Monitors(session, reporter: mockReporter)
-        Instana.current = Instana(configuration: session.configuration, monitors: monitors)
+        Instana.current = Instana(session: session, configuration: session.configuration, monitors: monitors)
 
         // When
         URLSession.shared.dataTask(with: givenURL) {_, _, _ in}.resume()
@@ -50,7 +48,7 @@ class InstanaURLProtocolIntegrationTests: InstanaTestCase {
             }
         }
         let monitors = Monitors(session, reporter: mockReporter)
-        Instana.current = Instana(configuration: session.configuration, monitors: monitors)
+        Instana.current = Instana(session: session, configuration: session.configuration, monitors: monitors)
         let config = URLSessionConfiguration.default
         config.protocolClasses?.insert(SecondURLProtocol.self, at: 0)
         urlSession = URLSession(configuration: config)
@@ -75,7 +73,7 @@ class InstanaURLProtocolIntegrationTests: InstanaTestCase {
             }
         }
         let monitors = Monitors(session, reporter: mockReporter)
-        Instana.current = Instana(configuration: session.configuration, monitors: monitors)
+        Instana.current = Instana(session: session, configuration: session.configuration, monitors: monitors)
         urlSession = URLSession(configuration: URLSessionConfiguration.default)
 
         // When
