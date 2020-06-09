@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.7 Beta 7
+- Adds the ability to report custom events
+- Fixes bug with missing backend
+- Removes fatalError for missing Instana agent configuration (Uses logging instead)
+- Some more bug fixes (Avoids circular reporting and fix connection type parameter)
+- Fixes exposing public methods to Objective-C
+- Improves Unit Tests
+
 ## 1.0.6 Beta 6
 04/23/2020
 * Defer reporting and setting the view names. This helps us to a prequeue beacons, collect all properties and the first appearing view
@@ -10,7 +18,7 @@ Update tests
 04/16/2020
 Fix CoreBeacon fields for bundleIdentifier and platform
 
-## 1.0.4 
+## 1.0.4
 nothing - just an empty release
 
 ## 1.0.3 Beta 4
