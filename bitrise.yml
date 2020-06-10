@@ -32,13 +32,6 @@ workflows:
             echo "Run iOS 12 Unit Tests"
             scripts/run-swiftpm-tests.sh --ios=12 --test=unit
     - script@1.1.6:
-        title: Run iOS 11 Unit Tests
-        inputs:
-        - content: |-
-            #!/usr/bin/env bash
-            echo "Run iOS 11 Unit Tests"
-            scripts/run-swiftpm-tests.sh --ios=11 --test=unit
-    - script@1.1.6:
         title: Run iOS 13 Integration Tests
         inputs:
         - content: |-
@@ -77,7 +70,7 @@ workflows:
         inputs:
         - content: |-
             #!/usr/bin/env bash
-            echo "Run iOS 11 Integration Tests"
+            echo "Run UI Tests"
             #scripts/run-ui-tests.sh
             cd Dev
             xcodebuild test -destination 'name=iPhone 11 Pro Max,OS=13.5' -scheme 'iOSAgentExample'
