@@ -52,13 +52,6 @@ workflows:
             #!/usr/bin/env bash
             echo "Run iOS 12 Integration Tests"
             scripts/run-swiftpm-tests.sh --ios=12 --test=integration
-    - script@1.1.6:
-        title: Run iOS 11 Integration Tests
-        inputs:
-        - content: |-
-            #!/usr/bin/env bash
-            echo "Run iOS 11 Integration Tests"
-            scripts/run-swiftpm-tests.sh --ios=11 --test=integration
     - github-status@2.2.2:
         inputs:
         - auth_token: "$GITHUB_STATUS"
