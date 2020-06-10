@@ -726,7 +726,7 @@ class ReporterTests: InstanaTestCase {
 
         // When
         reporter.submit(HTTPBeacon.createMock())
-        wait(for: [waitForSend], timeout: 5)
+        wait(for: [waitForSend], timeout: 10)
 
         // Then
         AssertEqualAndNotZero(sendCount, 1)
