@@ -38,7 +38,7 @@ class CustomBeaconTests: InstanaTestCase {
         XCTAssertNil(sut.error)
     }
 
-    func test_init_duration_given() {
+    func x_test_init_duration_given() {
         // Given
         let name = "Test"
         let duration: Instana.Types.Milliseconds = 12
