@@ -11,8 +11,9 @@ class NetworkUtility {
     }
 
     var connectionUpdateHandler: (ConnectionType) -> Void = { _ in }
-
     private let reachability: Reachability?
+
+    static let shared = NetworkUtility()
 
     init(reachability: Reachability? = nil) {
         let reachability = reachability ?? (try? Reachability())
