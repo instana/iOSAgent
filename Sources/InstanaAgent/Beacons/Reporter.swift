@@ -152,8 +152,8 @@ public class Reporter {
             beaconsToBeRemoved = beacons
         case let .failure(error):
             session.logger.add("Failed to send Beacon batch: \(error)", level: .warning)
-            // Beacons will be removed here if queue is full, otherwise the beacons will be kept for the next flush
-            beaconsToBeRemoved = queue.isFull ? beacons : []
+            let removeFromQueue = queue.isFull || (error as? InstanaError).isHTTPClientError
+            beaconsToBeRemoved = removeFromQueue ? beacons : []
         }
         queue.remove(beaconsToBeRemoved) { [weak self] _ in
             guard let self = self else { return }
