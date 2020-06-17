@@ -100,7 +100,7 @@ class ReporterIntegrationTests: InstanaTestCase {
         // Then
         wait(for: [waitForFirstFlushTry], timeout: 5.0)
         AssertEqualAndNotZero(reporter.queue.items.count, 1)
-        AssertTrue(resultError?.code == InstanaError.Code.offline.rawValue)
+        AssertTrue(resultError == InstanaError.offline)
 
         // When going online again
         networkUtil.update(.wifi)

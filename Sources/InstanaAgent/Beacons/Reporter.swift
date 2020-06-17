@@ -106,13 +106,13 @@ public class Reporter {
     func flushQueue() {
         let connectionType = networkUtility.connectionType
         guard connectionType != .none else {
-            return complete([], .failure(InstanaError(code: .offline, description: "No connection available")))
+            return complete([], .failure(InstanaError.offline))
         }
         if suspendReporting.contains(.cellularConnection), connectionType == .cellular {
-            return complete([], .failure(InstanaError(code: .noWifiAvailable, description: "No WIFI Available")))
+            return complete([], .failure(InstanaError.noWifiAvailable))
         }
         if suspendReporting.contains(.lowBattery), !batterySafeForNetworking() {
-            return complete([], .failure(InstanaError(code: .lowBattery, description: "Battery too low for flushing")))
+            return complete([], .failure(InstanaError.lowBattery))
         }
 
         let beacons = queue.items
@@ -130,10 +130,8 @@ public class Reporter {
             switch result {
             case let .failure(error):
                 self.complete(beacons, .failure(error))
-            case .success(200 ... 299):
+            case .success:
                 self.complete(beacons, .success)
-            case let .success(statusCode):
-                self.complete(beacons, .failure(InstanaError(code: .invalidResponse, description: "Invalid repsonse status code: \(statusCode)")))
             }
         }
     }
@@ -168,7 +166,7 @@ public class Reporter {
 extension Reporter {
     func createBatchRequest(from beacons: String) throws -> URLRequest {
         guard !session.configuration.key.isEmpty else {
-            throw InstanaError(code: .notAuthenticated, description: "Missing application key. No data will be sent.")
+            throw InstanaError.missingAppKey
         }
 
         var urlRequest = URLRequest(url: session.configuration.reportingURL)

@@ -148,7 +148,7 @@ class InstanaIntegrationTests: InstanaTestCase {
         let name = "Some name"
         let duration = "12"
         let backendTracingID = "BackendID"
-        let error: NSError = InstanaError(code: .invalidResponse, description: "Some")
+        let error = InstanaError.invalidResponse
         let mKey = "Key"
         let mValue = "Value"
         let viewName = "View"
