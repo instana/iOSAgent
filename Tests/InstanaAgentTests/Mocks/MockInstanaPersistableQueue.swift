@@ -5,6 +5,7 @@ import XCTest
 class MockInstanaPersistableQueue<T: Codable & Hashable>: InstanaPersistableQueue<T> {
 
     var addedItems = Set<T>()
+    var removedItems = [T]()
 
     override func add(_ item: T, _ completion: Completion? = nil) {
         super.add([item], completion)
@@ -14,5 +15,10 @@ class MockInstanaPersistableQueue<T: Codable & Hashable>: InstanaPersistableQueu
     override func add(_ newItems: [T], _ completion: Completion? = nil) {
         super.add(newItems, completion)
         addedItems.formUnion(newItems)
+    }
+
+    override func remove(_ removalItems: [T], completion: Completion? = nil) {
+        super.remove(removalItems, completion: completion)
+        removedItems = removalItems
     }
 }
