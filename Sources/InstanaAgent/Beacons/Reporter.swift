@@ -115,7 +115,7 @@ public class Reporter {
             return complete([], .failure(InstanaError(code: .lowBattery, description: "Battery too low for flushing")))
         }
 
-        let beacons = queue.items
+        let beacons = Array(queue.items)
         let beaconsAsString = beacons.asString
         let request: URLRequest
         do {

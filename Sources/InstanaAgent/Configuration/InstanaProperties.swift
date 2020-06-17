@@ -1,7 +1,7 @@
 import Foundation
 
 struct InstanaProperties: Equatable {
-    struct User: Identifiable, Equatable {
+    struct User: Equatable {
         /// Unique identifier for the user
         var id: String
         /// User's email address

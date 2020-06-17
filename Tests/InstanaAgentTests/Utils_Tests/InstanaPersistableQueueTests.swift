@@ -7,7 +7,6 @@ class InstanaPersistableQueueTests: InstanaTestCase {
 
     func test_add_read_Queue_single() {
         // Given
-        let exp = expectation(description: "test_add_read_Queue_single")
         let corebeacons = createCoreBeacons()
         let queueHandler = InstanaPersistableQueue<CoreBeacon>(identifier: "queue", maxItems: 100)
         let singleBeacon = corebeacons.first!
@@ -17,9 +16,7 @@ class InstanaPersistableQueueTests: InstanaTestCase {
         queueHandler.removeAll()
         queueHandler.add(singleBeacon) {result in
             AssertTrue(result.error == nil)
-            exp.fulfill()
         }
-        wait(for: [exp], timeout: 0.4)
 
         // Then
         let storedBeacons = readStoredCoreBeacons()
@@ -29,55 +26,88 @@ class InstanaPersistableQueueTests: InstanaTestCase {
 
     func test_add_read_Queue_multiple() {
         // Given
-        let exp = expectation(description: "test_add_read_Queue_multiple")
-        let corebeacons = createCoreBeacons()
+        let corebeacons = createCoreBeacons().sorted(by: {$0.bid > $1.bid})
         let queueHandler = InstanaPersistableQueue<CoreBeacon>(identifier: "queue", maxItems: 100)
         queueHandler.removeAll()
 
         // When
         queueHandler.add(corebeacons) {result in
             AssertTrue(result.error == nil)
-            exp.fulfill()
         }
-        wait(for: [exp], timeout: 0.4)
 
         // Then
-        let storedBeacons = readStoredCoreBeacons()
+        let storedBeacons = readStoredCoreBeacons().sorted(by: {$0.bid > $1.bid})
         AssertTrue(storedBeacons == corebeacons)
         AssertTrue(storedBeacons.count == 3)
     }
 
-    //
-    // When creating a new Queue instance, we expect the old stored beacons that haven't been transmitted
-    //
-    func test_add_read_Queue_adding_persisted_beacons_at_init() {
+    func test_add_Queue_ignore_dups() {
         // Given
-        let firstExp = expectation(description: "test_add_read_Queue_adding_persisted_beacons_at_init_1")
-        let secondExp = expectation(description: "test_add_read_Queue_adding_persisted_beacons_at_init_2")
-        let corebeacons = createCoreBeacons()
-        var queueHandler = InstanaPersistableQueue<CoreBeacon>(identifier: "queue", maxItems: 100)
+        let sessionID = UUID()
+        let id = UUID()
+        let beacon1 = CoreBeacon.createDefault(viewName: "View_1", key: "Key_1", timestamp: 0, sid: sessionID, id: id)
+        let beacon2 = CoreBeacon.createDefault(viewName: "View_2", key: "Key_2", timestamp: 0, sid: sessionID, id: id)
+        let queueHandler = InstanaPersistableQueue<CoreBeacon>(identifier: "queue", maxItems: 100)
         queueHandler.removeAll()
-        queueHandler.add(corebeacons) {_ in
-            firstExp.fulfill()
-        }
-        wait(for: [firstExp], timeout: 2.0)
 
         // When
-        queueHandler = InstanaPersistableQueue<CoreBeacon>(identifier: "queue", maxItems: 100)
-        queueHandler.add(corebeacons) {result in
+        queueHandler.add([beacon1, beacon2]) {result in
             AssertTrue(result.error == nil)
-            secondExp.fulfill()
         }
-        wait(for: [secondExp], timeout: 3.0)
+
+        // Then - only one should be added since the 2nd has the ID
+        let storedBeacons = readStoredCoreBeacons()
+        AssertTrue(storedBeacons.first == beacon1)
+        AssertTrue(storedBeacons.count == 1)
+    }
+
+    //
+    // When creating a new Queue instance, we expect the old (persisted) beacons + new beacons
+    //
+    func test_persisted_beacons_plus_new() {
+        // Given
+        let oldBeacons = [CoreBeacon.createDefault(viewName: "V", key: "K", timestamp: 1, sid: UUID(), id: UUID())]
+        var queueHandler = InstanaPersistableQueue<CoreBeacon>(identifier: "queue", maxItems: 100)
+        queueHandler.removeAll()
+        queueHandler.add(oldBeacons) {_ in}
+
+        // When
+        let newBeacons = [CoreBeacon.createDefault(viewName: "V", key: "K", timestamp: 2, sid: UUID(), id: UUID())]
+        queueHandler = InstanaPersistableQueue<CoreBeacon>(identifier: "queue", maxItems: 100)
+        queueHandler.add(newBeacons) {result in
+            AssertTrue(result.error == nil)
+        }
 
         // Then
-        let storedBeacons = readStoredCoreBeacons()
-        AssertTrue(storedBeacons.count == corebeacons.count * 2)
+        let storedBeacons = readStoredCoreBeacons().sorted(by: {$0.ti < $1.ti})
+        AssertTrue(storedBeacons == oldBeacons + newBeacons)
+    }
+
+    //
+    // When creating a new Queue instance, we expect the old (persisted) beacons - but new (same ID) should be ignored
+    //
+    func test_persisted_beacons_avoid_dups() {
+        // Given
+        let id = UUID()
+        let oldBeacons = [CoreBeacon.createDefault(viewName: "V", key: "K", timestamp: 1, sid: UUID(), id: id)]
+        var queueHandler = InstanaPersistableQueue<CoreBeacon>(identifier: "queue", maxItems: 100)
+        queueHandler.removeAll()
+        queueHandler.add(oldBeacons) {_ in}
+
+        // When
+        let newBeacon = CoreBeacon.createDefault(viewName: "V", key: "K", timestamp: 2, sid: UUID(), id: id)
+        queueHandler = InstanaPersistableQueue<CoreBeacon>(identifier: "queue", maxItems: 100)
+        queueHandler.add(newBeacon) {result in
+            AssertTrue(result.error == nil)
+        }
+
+        // Then
+        let storedBeacons = readStoredCoreBeacons().sorted(by: {$0.ti < $1.ti})
+        AssertTrue(storedBeacons == oldBeacons)
     }
 
     func test_removeAll() {
         // Given
-        let exp = expectation(description: "test_removeAll")
         let corebeacons = createCoreBeacons()
         var queueHandler = InstanaPersistableQueue<CoreBeacon>(identifier: "queue", maxItems: 100)
         queueHandler.add(corebeacons)
@@ -85,9 +115,7 @@ class InstanaPersistableQueueTests: InstanaTestCase {
         // When
         queueHandler.removeAll() {result in
             AssertTrue(result.error == nil)
-            exp.fulfill()
         }
-        wait(for: [exp], timeout: 0.4)
 
         // Then
         var storedBeacons = readStoredCoreBeacons()
@@ -104,23 +132,21 @@ class InstanaPersistableQueueTests: InstanaTestCase {
 
     func test_remove_last() {
         // Given
-        let exp = expectation(description: "test_remove_last")
         let corebeacons = createCoreBeacons()
         var queueHandler = InstanaPersistableQueue<CoreBeacon>(identifier: "queue", maxItems: 100)
         queueHandler.removeAll()
         queueHandler.add(corebeacons)
+        let last = Array(queueHandler.items).last!
 
         // When
-        queueHandler.remove([queueHandler.items.last!]) {result in
+        queueHandler.remove([last]) {result in
             AssertTrue(result.error == nil)
-            exp.fulfill()
         }
-        wait(for: [exp], timeout: 4)
 
         // Then
         var storedBeacons = readStoredCoreBeacons()
         AssertTrue(storedBeacons.count == corebeacons.count - 1)
-        AssertTrue(storedBeacons.last != corebeacons.last!)
+        AssertTrue(!storedBeacons.contains(last))
 
         // The removal should also be persisted
         // When creating a new instance
@@ -129,7 +155,7 @@ class InstanaPersistableQueueTests: InstanaTestCase {
         // Then
         storedBeacons = readStoredCoreBeacons()
         AssertTrue(storedBeacons.count == corebeacons.count - 1)
-        AssertTrue(storedBeacons.last != corebeacons.last!)
+        AssertTrue(!storedBeacons.contains(last))
     }
 
     // MARK: Helper

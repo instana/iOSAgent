@@ -155,7 +155,7 @@ class ReporterTests: InstanaTestCase {
         // Then
         AssertTrue(reporter.queue.items.count == 1)
         AssertTrue(sendCount == 0)
-        AssertEqualAndNotNil(reporter.queue.items.last?.bid, givenBeacon.id.uuidString)
+        AssertEqualAndNotNil(reporter.queue.items.randomElement()?.bid, givenBeacon.id.uuidString)
 
         // Wait for final flush
         wait(for: [finalExp], timeout: 5.0)
@@ -858,7 +858,7 @@ class ReporterTests: InstanaTestCase {
         AssertTrue(sendCount == 2)
         AssertTrue(sendQueue.addedItems.count == 2)
         AssertEqualAndNotNil(sendQueue.addedItems.first?.bid, beacon1.id.uuidString)
-        AssertEqualAndNotNil(sendQueue.addedItems.last?.bid, beacon2.id.uuidString)
+        AssertEqualAndNotNil(sendQueue.addedItems.randomElement()?.bid, beacon2.id.uuidString)
     }
 
 
@@ -887,7 +887,7 @@ class ReporterTests: InstanaTestCase {
 
         // Then
         AssertEqualAndNotNil(resultError, givenError)
-        AssertEqualAndNotNil(reporter.queue.items.last?.bid, givenBeacon.id.uuidString)
+        AssertEqualAndNotNil(reporter.queue.items.randomElement()?.bid, givenBeacon.id.uuidString)
     }
 
     func test_invalid_beacon_should_not_submitted() {
