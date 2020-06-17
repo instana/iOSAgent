@@ -28,7 +28,7 @@ public class Reporter {
 
     init(_ session: InstanaSession,
          batterySafeForNetworking: @escaping () -> Bool = { InstanaSystemUtils.battery.safeForNetworking },
-         networkUtility: NetworkUtility = NetworkUtility(),
+         networkUtility: NetworkUtility = NetworkUtility.shared,
          queue: InstanaPersistableQueue<CoreBeacon>? = nil,
          send: @escaping NetworkLoader = InstanaNetworking().send(request:completion:)) {
         self.networkUtility = networkUtility

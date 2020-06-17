@@ -16,7 +16,7 @@ class InstanaSystemUtils {
         return identifier
     }()
 
-    static var networkUtility = { NetworkUtility() }()
+    static var networkUtility = { NetworkUtility.shared }()
 
     /// Returns iOS version (for ex. "12.1")
     static var systemVersion: String = { UIDevice.current.systemVersion }()
