@@ -38,6 +38,19 @@ class NetworkUtility {
 }
 
 extension NetworkUtility {
+    enum ConnectionType: String, CustomStringConvertible {
+        case undetermined, none, wifi, cellular
+        var cellular: CellularType { CellularType.current }
+        var description: String {
+            switch self {
+            case .none: return "None"
+            case .wifi: return "Wifi"
+            case .cellular: return CellularType.current.rawValue
+            case .undetermined: return "Unknown"
+            }
+        }
+    }
+
     enum CellularType: String {
         case none, twoG, threeG, fourG, unknown
         var rawValue: String {
@@ -51,53 +64,48 @@ extension NetworkUtility {
         }
 
         var carrierName: String {
+            var name = "None"
             if ProcessInfo.isRunningDebugSessionSimulator {
-                return "Simulator"
+                name = "Simulator"
             } else {
-                let networkInfo = CTTelephonyNetworkInfo()
-                let carrier = networkInfo.subscriberCellularProvider
-                return carrier?.carrierName ?? "None"
+                #if os(iOS) && !targetEnvironment(macCatalyst)
+                    let networkInfo = CTTelephonyNetworkInfo()
+                    let carrier = networkInfo.subscriberCellularProvider
+                    name = carrier?.carrierName ?? name
+                #endif
             }
+            return name
         }
 
         static var current: CellularType {
             if ProcessInfo.isRunningDebugSessionSimulator {
                 return .none
             } else {
-                guard let radioAccessTechnology = CTTelephonyNetworkInfo().currentRadioAccessTechnology else {
+                #if os(iOS) && !targetEnvironment(macCatalyst)
+                    guard let radioAccessTechnology = CTTelephonyNetworkInfo().currentRadioAccessTechnology else {
+                        return .none
+                    }
+                    switch radioAccessTechnology {
+                    case CTRadioAccessTechnologyGPRS,
+                         CTRadioAccessTechnologyEdge,
+                         CTRadioAccessTechnologyCDMA1x:
+                        return .twoG
+                    case CTRadioAccessTechnologyWCDMA,
+                         CTRadioAccessTechnologyHSDPA,
+                         CTRadioAccessTechnologyHSUPA,
+                         CTRadioAccessTechnologyCDMAEVDORev0,
+                         CTRadioAccessTechnologyCDMAEVDORevA,
+                         CTRadioAccessTechnologyCDMAEVDORevB,
+                         CTRadioAccessTechnologyeHRPD:
+                        return .threeG
+                    case CTRadioAccessTechnologyLTE:
+                        return .fourG
+                    default:
+                        return .unknown
+                    }
+                #else
                     return .none
-                }
-                switch radioAccessTechnology {
-                case CTRadioAccessTechnologyGPRS,
-                     CTRadioAccessTechnologyEdge,
-                     CTRadioAccessTechnologyCDMA1x:
-                    return .twoG
-                case CTRadioAccessTechnologyWCDMA,
-                     CTRadioAccessTechnologyHSDPA,
-                     CTRadioAccessTechnologyHSUPA,
-                     CTRadioAccessTechnologyCDMAEVDORev0,
-                     CTRadioAccessTechnologyCDMAEVDORevA,
-                     CTRadioAccessTechnologyCDMAEVDORevB,
-                     CTRadioAccessTechnologyeHRPD:
-                    return .threeG
-                case CTRadioAccessTechnologyLTE:
-                    return .fourG
-                default:
-                    return .unknown
-                }
-            }
-        }
-    }
-
-    enum ConnectionType: String, CustomStringConvertible {
-        case undetermined, none, wifi, cellular
-        var cellular: CellularType { CellularType.current }
-        var description: String {
-            switch self {
-            case .none: return "None"
-            case .wifi: return "Wifi"
-            case .cellular: return CellularType.current.rawValue
-            case .undetermined: return "Unknown"
+                #endif
             }
         }
     }

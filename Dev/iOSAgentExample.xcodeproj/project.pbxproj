@@ -37,6 +37,7 @@
 		72109EBF23E178EC00441D87 /* iosAgent */ = {isa = PBXFileReference; lastKnownFileType = folder; name = iosAgent; path = ..; sourceTree = "<group>"; };
 		7247F62523E200970064CA8D /* Webserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Webserver.swift; path = ../../tools/Webserver/Webserver.swift; sourceTree = "<group>"; };
 		728CF9DB2387F01200BEE2F9 /* iOSAgentExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iOSAgentExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		72B5BA7A249A98BD00B7F261 /* iOSAgentExample.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = iOSAgentExample.entitlements; sourceTree = "<group>"; };
 		72C7A9D723E049FF00041782 /* ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		72C7A9D823E049FF00041782 /* JSONViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JSONViewController.swift; sourceTree = "<group>"; };
 		72C7A9D923E049FF00041782 /* Icon.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Icon.xcassets; sourceTree = "<group>"; };
@@ -103,6 +104,7 @@
 		72C7A9D623E049FF00041782 /* iOSAgentExample */ = {
 			isa = PBXGroup;
 			children = (
+				72B5BA7A249A98BD00B7F261 /* iOSAgentExample.entitlements */,
 				72C7A9D723E049FF00041782 /* ViewController.swift */,
 				72C7A9D823E049FF00041782 /* JSONViewController.swift */,
 				72C7A9D923E049FF00041782 /* Icon.xcassets */,
@@ -471,6 +473,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				BUILD_LIBRARY_FOR_DISTRIBUTION = NO;
+				CODE_SIGN_ENTITLEMENTS = iOSAgentExample/iOSAgentExample.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1578416283;
@@ -484,6 +487,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = net.tapwork.instana.sdkexample;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -494,6 +498,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				BUILD_LIBRARY_FOR_DISTRIBUTION = NO;
+				CODE_SIGN_ENTITLEMENTS = iOSAgentExample/iOSAgentExample.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1578416283;
@@ -507,6 +512,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = net.tapwork.instana.sdkexample;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "Instana Demo Project";
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

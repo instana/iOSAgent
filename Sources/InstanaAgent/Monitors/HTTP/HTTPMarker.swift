@@ -155,8 +155,9 @@ extension HTTPMarker {
 
         internal convenience init(_ response: URLResponse) {
             var headerBytes: Instana.Types.Bytes = 0
-            if let headerFields = (response as? HTTPURLResponse)?.allHeaderFields {
-                headerBytes = Instana.Types.Bytes(NSKeyedArchiver.archivedData(withRootObject: headerFields).count)
+            if let headerFields = (response as? HTTPURLResponse)?.allHeaderFields,
+                let data = try? NSKeyedArchiver.archivedData(withRootObject: headerFields, requiringSecureCoding: false) {
+                headerBytes = Instana.Types.Bytes(data.count)
             }
             self.init(header: headerBytes, body: response.expectedContentLength, bodyAfterDecoding: 0)
         }
