@@ -262,8 +262,8 @@ class InstanaTests: InstanaTestCase {
     func test_reportCustom_AllValues() {
         // Given
         let name = "Custom Event"
-        let duration = "1"
-        let timestamp = "123"
+        let duration: Instana.Types.Milliseconds = 1
+        let timestamp: Instana.Types.Milliseconds = 123
         let backendID = "B123"
         let error = NSError(domain: "Domain", code: 100, userInfo: nil)
         let meta = ["Key": "Value"]
