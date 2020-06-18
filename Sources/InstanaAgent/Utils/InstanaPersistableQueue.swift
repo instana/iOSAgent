@@ -62,7 +62,7 @@ class InstanaPersistableQueue<T: Codable & Equatable> {
 
     func deserialize() throws -> [T] {
         guard let fileURL = queueJSONFileURL else {
-            throw InstanaError(code: InstanaError.Code.invalidRequest, description: "Cache path not found")
+            throw InstanaError.fileHandling("Cache path not found")
         }
         let data = try Data(contentsOf: fileURL)
         return try JSONDecoder().decode([T].self, from: data)

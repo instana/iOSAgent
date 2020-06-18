@@ -18,23 +18,56 @@ class InstanaNetworkingTests: InstanaTestCase {
         XCTAssertTrue(loaded, "Load never invoked callback")
     }
 
-    func test_networking_parsesResponseSatusCode() {
+    func test_networking_parsesResponseSatusCode_ok() {
         var invocations = 0
-        var networking = InstanaNetworking(send: { TestSessionDataTask(response: self.validResponse(statusCode: 200), callback: $1) })
-        
+        let randomOK: Int = (200...299).randomElement() ?? 200
+        let networking = InstanaNetworking(send: { TestSessionDataTask(response: self.validResponse(statusCode: randomOK), callback: $1) })
         networking.send(request: URLRequest(url: testURL)) {
-            invocations += 1
-            guard case .success(200) = $0 else { XCTFail("Invalid result"); return }
+            if case .success(randomOK) = $0 {
+                invocations += 1
+            } else { XCTFail("Invalid result \($0)"); return }
         }
-        
-        networking = InstanaNetworking(send: { TestSessionDataTask(response: self.validResponse(statusCode: 204), callback: $1) })
-        
+
+        XCTAssertEqual(invocations, 1)
+    }
+
+    func test_networking_parsesResponseSatusCode_http_client_error() {
+        var invocations = 0
+        let random400: Int = (400...499).randomElement() ?? 400
+        let networking = InstanaNetworking(send: { TestSessionDataTask(response: self.validResponse(statusCode: random400), callback: $1) })
         networking.send(request: URLRequest(url: testURL)) {
-            invocations += 1
-            guard case .success(204) = $0 else { XCTFail("Invalid result"); return }
+            if case .failure(InstanaError.httpClientError(random400)) = $0 {
+                invocations += 1
+            } else { XCTFail("Invalid result \($0)"); return }
         }
-        
-        XCTAssertEqual(invocations, 2)
+
+        XCTAssertEqual(invocations, 1)
+    }
+
+    func test_networking_parsesResponseSatusCode_http_server_error() {
+        var invocations = 0
+        let random500: Int = (500...599).randomElement() ?? 500
+        let networking = InstanaNetworking(send: { TestSessionDataTask(response: self.validResponse(statusCode: random500), callback: $1) })
+        networking.send(request: URLRequest(url: testURL)) {
+            if case .failure(InstanaError.httpServerError(random500)) = $0 {
+                invocations += 1
+            } else { XCTFail("Invalid result \($0)"); return }
+        }
+
+        XCTAssertEqual(invocations, 1)
+    }
+
+    func test_networking_parsesResponseSatusCode_invalid_response() {
+        var invocations = 0
+        let random500: Int = (600...1999).randomElement() ?? 600
+        let networking = InstanaNetworking(send: { TestSessionDataTask(response: self.validResponse(statusCode: random500), callback: $1) })
+        networking.send(request: URLRequest(url: testURL)) {
+            if case .failure(InstanaError.invalidResponse) = $0 {
+                invocations += 1
+            } else { XCTFail("Invalid result \($0)"); return }
+        }
+
+        XCTAssertEqual(invocations, 1)
     }
     
     func test_networkingReturnsError_ifNotAbleToExtractStatusCode() {
@@ -47,7 +80,7 @@ class InstanaNetworkingTests: InstanaTestCase {
         XCTAssertNotNil(result)
         guard case let .failure(e)? = result else { XCTFail("Result is not error"); return }
         guard let error = e as? InstanaError else { XCTFail("Error type missmatch"); return }
-        XCTAssertEqual(error.code, InstanaError.Code.invalidResponse.rawValue)
+        XCTAssertEqual(error, InstanaError.invalidResponse)
     }
     
     func test_networking_forwardsResponseError() {
@@ -59,8 +92,9 @@ class InstanaNetworkingTests: InstanaTestCase {
         
         XCTAssertNotNil(result)
         guard case let .failure(e)? = result else { XCTFail("Result is not error"); return }
-        guard let error = e as? CocoaError else { XCTFail("Error type missmatch"); return }
-        XCTAssertEqual(responseError, error)
+        guard let error = e as? InstanaError else { XCTFail("Error is not InstanaError"); return }
+        guard case let InstanaError.underlying(underlyingE) = error else { XCTFail("Error is not InstanaError underlying"); return }
+        XCTAssertEqual(underlyingE as? CocoaError, responseError)
     }
 }
 

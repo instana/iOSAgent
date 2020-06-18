@@ -15,7 +15,7 @@ class CoreBeaconFactoryTests: InstanaTestCase {
         // When
         XCTAssertThrowsError(try factory.map(beacon)) {error in
             // Then
-            XCTAssertEqual((error as? InstanaError)?.code, InstanaError.Code.unknownType.rawValue)
+            AssertTrue((error as? InstanaError).isUnknownType)
         }
     }
 

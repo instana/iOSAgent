@@ -110,7 +110,7 @@ class HTTPMonitorTests: InstanaTestCase {
         // When
         XCTAssertThrowsError(try monitor.mark(request)) {error in
             // Then
-            XCTAssertEqual((error as? InstanaError)?.code, InstanaError.Code.invalidRequest.rawValue)
+            XCTAssertEqual((error as? InstanaError), InstanaError.invalidRequest)
         }
     }
 
