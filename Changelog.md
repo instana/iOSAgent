@@ -1,8 +1,11 @@
 # Changelog
 
-## 1.0.7 Beta 7
+## 1.1.0 Beta
+- Adds the ability to report custom events
 - Adds the ability to report custom events
 - Fixes bug with missing backend
+- Fixes bug with unknown carrier name
+- Avoids sending beacon duplicates
 - Removes fatalError for missing Instana agent configuration (Uses logging instead)
 - Some more bug fixes (Avoids circular reporting and fix connection type parameter)
 - Fixes exposing public methods to Objective-C

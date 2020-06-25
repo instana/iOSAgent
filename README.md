@@ -7,11 +7,11 @@
 iOS agent to use Instana for your iOS app. The monitoring currently supports:
 
 - Session Start
-- Capture  HTTP sessions automatically or manually
+- Capture HTTP sessions automatically or manually
 - Automatic delivery of device & app information (like bundle identifer, version, language, iOS device information)
+- Send custom event (This can be especially helpful to send logs, to track additional performance metrics or errors.)
 
 Optionally:
-
 - Ignore full URLs by regex or full URLs
 - Set global meta data (key/value)
 - Set user specific data (like id, name and email)
