@@ -224,7 +224,7 @@ class ReporterTests: InstanaTestCase {
 
         // Then
         AssertTrue(sendNotCalled)
-        AssertTrue(resultError?.code == InstanaError.Code.offline.rawValue)
+        AssertTrue(resultError == InstanaError.offline)
     }
 
     /// Send when coming back offline again (starting offline
@@ -259,7 +259,7 @@ class ReporterTests: InstanaTestCase {
 
         // Then
         AssertTrue(sendCalled == false)
-        AssertTrue(resultError?.code == InstanaError.Code.offline.rawValue)
+        AssertTrue(resultError == InstanaError.offline)
 
         // When coming back online
         networkUtility.update(.wifi)
@@ -299,7 +299,7 @@ class ReporterTests: InstanaTestCase {
 
         // Then
         AssertTrue(sendNotCalled)
-        AssertTrue(resultError?.code == InstanaError.Code.noWifiAvailable.rawValue)
+        AssertTrue(resultError == InstanaError.noWifiAvailable)
     }
 
     /// Criteria:
@@ -379,7 +379,7 @@ class ReporterTests: InstanaTestCase {
 
         // Then
         AssertTrue(sendNotCalled)
-        AssertTrue(resultError?.code == InstanaError.Code.noWifiAvailable.rawValue)
+        AssertTrue(resultError == InstanaError.noWifiAvailable)
     }
 
     // MARK: Test suspending behavior on LOW Battery
@@ -410,7 +410,7 @@ class ReporterTests: InstanaTestCase {
 
         // Then
         AssertTrue(sendNotCalled)
-        AssertTrue(resultError?.code == InstanaError.Code.lowBattery.rawValue)
+        AssertTrue(resultError == InstanaError.lowBattery)
     }
 
     /// Criteria:
@@ -490,7 +490,7 @@ class ReporterTests: InstanaTestCase {
 
         // Then
         AssertTrue(didNOTSendReport)
-        AssertTrue(resultError?.code == InstanaError.Code.lowBattery.rawValue)
+        AssertTrue(resultError == InstanaError.lowBattery)
     }
 
     // MARK: Test suspending behavior on all (NO WIFI and low Battery)
@@ -521,7 +521,7 @@ class ReporterTests: InstanaTestCase {
 
         // Then
         AssertTrue(sendNotCalled)
-        AssertTrue(resultError?.code == InstanaError.Code.noWifiAvailable.rawValue)
+        AssertTrue(resultError == InstanaError.noWifiAvailable)
     }
 
     /// Criteria:
@@ -550,7 +550,7 @@ class ReporterTests: InstanaTestCase {
 
         // Then
         AssertTrue(sendNotCalled)
-        AssertTrue(resultError?.code == InstanaError.Code.noWifiAvailable.rawValue)
+        AssertTrue(resultError == InstanaError.noWifiAvailable)
     }
 
     /// Criteria:
@@ -579,7 +579,7 @@ class ReporterTests: InstanaTestCase {
 
         // Then
         AssertTrue(sendNotCalled)
-        AssertTrue(resultError?.code == InstanaError.Code.lowBattery.rawValue)
+        AssertTrue(resultError == InstanaError.lowBattery)
     }
 
     /// Criteria:
@@ -890,6 +890,56 @@ class ReporterTests: InstanaTestCase {
         AssertEqualAndNotNil(reporter.queue.items.randomElement()?.bid, givenBeacon.id.uuidString)
     }
 
+    func test_remove_from_after_http_client_error() {
+        // Given
+        let beacon = HTTPBeacon.createMock()
+        let mockQueue = MockInstanaPersistableQueue<CoreBeacon>(identifier: "", maxItems: 2)
+        let givenError = InstanaError.httpClientError(400)
+        let waitForSend = expectation(description: "Delayed sending")
+        let reporter = Reporter(session(), batterySafeForNetworking: { true }, networkUtility: .wifi, queue: mockQueue) { _, completion in
+            DispatchQueue.main.async {
+                completion(.failure(givenError))
+            }
+        }
+
+        // When
+        reporter.completionHandler.append {result in
+            waitForSend.fulfill()
+        }
+        reporter.submit(beacon)
+        wait(for: [waitForSend], timeout: 2.0)
+
+        // Then
+        AssertTrue(reporter.queue.items.isEmpty)
+        AssertTrue(mockQueue.removedItems.count == 1)
+        AssertTrue(mockQueue.removedItems.first?.bid == beacon.id.uuidString)
+    }
+
+    func test_remove_from_after_queue_full() {
+        // Given
+        let beacon = HTTPBeacon.createMock()
+        let mockQueue = MockInstanaPersistableQueue<CoreBeacon>(identifier: "", maxItems: 1)
+        let givenError = InstanaError.httpServerError(500)
+        let waitForSend = expectation(description: "Delayed sending")
+        let reporter = Reporter(session(), batterySafeForNetworking: { true }, networkUtility: .wifi, queue: mockQueue) { _, completion in
+            DispatchQueue.main.async {
+                completion(.failure(givenError))
+            }
+        }
+
+        // When
+        reporter.completionHandler.append {result in
+            waitForSend.fulfill()
+        }
+        reporter.submit(beacon)
+        wait(for: [waitForSend], timeout: 2.0)
+
+        // Then
+        AssertTrue(reporter.queue.items.isEmpty)
+        AssertTrue(mockQueue.removedItems.count == 1)
+        AssertTrue(mockQueue.removedItems.first?.bid == beacon.id.uuidString)
+    }
+
     func test_invalid_beacon_should_not_submitted() {
         // Given
         var shouldNotSubmitted = true
@@ -949,7 +999,7 @@ class ReporterTests: InstanaTestCase {
         wait(for: [waitForSend], timeout: 10.0)
 
         // Then
-        AssertEqualAndNotZero(resultError?.code ?? 0, InstanaError.Code.invalidResponse.rawValue)
+        AssertTrue(resultError == InstanaError.invalidResponse)
     }
 
     func test_submit_and_flush_shouldNotCause_RetainCycle() {
@@ -980,7 +1030,7 @@ class ReporterTests: InstanaTestCase {
         let waitFor = expectation(description: "Wait For")
         let reporter = Reporter(session(), batterySafeForNetworking: { true }, networkUtility: .wifi) { _, completion in
             DispatchQueue.main.async {
-                completion(.failure(InstanaError(code: .invalidResponse, description: "SomeError")))
+                completion(.failure(InstanaError.invalidResponse))
             }
         }
         let beacons: [HTTPBeacon] = (0..<reporter.queue.maxItems).map { _ in HTTPBeacon.createMock() }
@@ -1038,7 +1088,7 @@ extension ReporterTests {
         // When
         XCTAssertThrowsError(try reporter.createBatchRequest(from: corebeacons.asString)) {error in
             // Then
-            XCTAssertEqual((error as? InstanaError)?.code, InstanaError.Code.notAuthenticated.rawValue)
+            XCTAssertEqual((error as? InstanaError), InstanaError.missingAppKey)
         }
     }
 }

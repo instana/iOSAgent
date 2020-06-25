@@ -18,11 +18,20 @@ class InstanaNetworking {
     func send(request: URLRequest, completion: @escaping LoadResult) {
         send(request) { _, response, error in
             if let error = error {
-                completion(.failure(error))
-            } else if let httpResponse = response as? HTTPURLResponse {
+                return completion(.failure(InstanaError.create(from: error)))
+            }
+            guard let httpResponse = response as? HTTPURLResponse else {
+                return completion(.failure(InstanaError.invalidResponse))
+            }
+            switch httpResponse.statusCode {
+            case 200 ... 399:
                 completion(.success(statusCode: httpResponse.statusCode))
-            } else {
-                completion(.failure(InstanaError(code: .invalidResponse, description: "Unexpected response type")))
+            case 400 ... 499:
+                completion(.failure(InstanaError.httpClientError(httpResponse.statusCode)))
+            case 500 ... 599:
+                completion(.failure(InstanaError.httpServerError(httpResponse.statusCode)))
+            default:
+                completion(.failure(InstanaError.invalidResponse))
             }
         }.resume()
     }

@@ -231,9 +231,10 @@ import UIKit
     ///                            If you send explicitly nil, the viewName will be ignored.
     ///                            Alternatively you can leave out the parameter `viewName` to use the current view name you did set in `setView(name: String)`)
     @objc
-    public static func reportEvent(name: String, timestamp: String? = nil, duration: String? = nil, backendTracingID: String? = nil, error: Error? = nil, meta: [String: String]? = nil, viewName: String? = CustomBeaconDefaultViewNameID) {
-        let timestamp = Instana.Types.Milliseconds(timestamp ?? "")
-        let duration = Instana.Types.Milliseconds(duration ?? "")
+    public static func reportEvent(name: String, timestamp: Instana.Types.Milliseconds = Instana.Types.Milliseconds(NSNotFound), duration: Instana.Types.Milliseconds = Instana.Types.Milliseconds(NSNotFound), backendTracingID: String? = nil, error: Error? = nil, meta: [String: String]? = nil, viewName: String? = CustomBeaconDefaultViewNameID) {
+        // As a workaround for primitive values in ObjC
+        let timestamp = timestamp == NSNotFound ? nil : timestamp
+        let duration = duration == NSNotFound ? nil : duration
         let beacon = CustomBeacon(timestamp: timestamp,
                                   name: name,
                                   duration: duration,

@@ -39,7 +39,7 @@ class HTTPMonitor {
 extension HTTPMonitor {
     func mark(_ request: URLRequest) throws -> HTTPMarker {
         guard let url = request.url, let method = request.httpMethod else {
-            throw InstanaError(code: InstanaError.Code.invalidRequest, description: "Invalid URLRequest")
+            throw InstanaError.invalidRequest
         }
         return HTTPMarker(url: url, method: method, trigger: .automatic, delegate: self)
     }

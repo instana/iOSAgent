@@ -144,11 +144,11 @@ class InstanaIntegrationTests: InstanaTestCase {
     func test_Instana_report_custom_event() {
         // Given
         let waitFor = expectation(description: "Wait For")
-        let timestamp = "1234"
+        let timestamp: Instana.Types.Milliseconds = 1234
         let name = "Some name"
-        let duration = "12"
+        let duration: Instana.Types.Milliseconds = 12
         let backendTracingID = "BackendID"
-        let error: NSError = InstanaError(code: .invalidResponse, description: "Some")
+        let error = InstanaError.invalidResponse
         let mKey = "Key"
         let mValue = "Value"
         let viewName = "View"
@@ -164,8 +164,8 @@ class InstanaIntegrationTests: InstanaTestCase {
         wait(for: [waitFor], timeout: 5.0)
         AssertEqualAndNotNil(sentBeacon?.v, viewName) // Overrides the default set in session.propertyHandler.properties
         AssertEqualAndNotNil(sentBeacon?.bt, backendTracingID)
-        AssertEqualAndNotNil(sentBeacon?.ti, timestamp)
-        AssertEqualAndNotNil(sentBeacon?.d, duration)
+        AssertEqualAndNotNil(sentBeacon?.ti, "\(timestamp)")
+        AssertEqualAndNotNil(sentBeacon?.d, "\(duration)")
         AssertEqualAndNotNil(sentBeacon?.cen, name)
         AssertEqualAndNotNil(sentBeacon?.ec, "\(1)")
         AssertEqualAndNotNil(sentBeacon?.et, "InstanaError")
