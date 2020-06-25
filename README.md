@@ -55,12 +55,3 @@ func application(_ application: UIApplication, didFinishLaunchingWithOptions lau
 
 See [API page](https://docs.instana.io/products/mobile_app_monitoring/ios_api/).
 
-### Contribution
-Proposals, improvements or bug fixes are always welcome!
-
-#### Release version
-Please make sure to follow the semantic versioning rules.
-1. Update version in `InstanaAgent.podspec` (`s.version = "<Your Version>"`)
-2. Update version in VersionConfig.Swift
-3. Run `git tag <Your Version> && git push origin <Your Version>`
-4. Run `pod trunk push InstanaAgent.podspec --allow-warnings`
