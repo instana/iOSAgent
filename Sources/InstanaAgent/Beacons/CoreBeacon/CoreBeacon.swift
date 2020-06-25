@@ -16,7 +16,7 @@ enum BeaconType: String, Equatable, Codable, CustomStringConvertible {
 /// This model uses a short field name to reduce the transfer size
 /// We transfer a simple String (no json) to the backend via the HTTP body.
 /// That means we also loose the type information, so we need treat all fields as String
-struct CoreBeacon: Equatable, Codable {
+struct CoreBeacon: Codable {
     /**
      * The max byte for each field (bytes)
      *
@@ -327,4 +327,16 @@ struct CoreBeacon: Equatable, Codable {
      * For example: "Timeout"
      */
     var et: String?
+}
+
+extension CoreBeacon: Hashable {
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(bid)
+    }
+}
+
+extension CoreBeacon: Equatable {
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        return lhs.bid == rhs.bid
+    }
 }

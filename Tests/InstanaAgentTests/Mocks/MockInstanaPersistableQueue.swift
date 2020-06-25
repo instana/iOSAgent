@@ -2,19 +2,19 @@ import Foundation
 import XCTest
 @testable import InstanaAgent
 
-class MockInstanaPersistableQueue<T: Codable & Equatable>: InstanaPersistableQueue<T> {
+class MockInstanaPersistableQueue<T: Codable & Hashable>: InstanaPersistableQueue<T> {
 
-    var addedItems = [T]()
+    var addedItems = Set<T>()
     var removedItems = [T]()
 
     override func add(_ item: T, _ completion: Completion? = nil) {
         super.add([item], completion)
-        addedItems.append(item)
+        addedItems.insert(item)
     }
 
     override func add(_ newItems: [T], _ completion: Completion? = nil) {
         super.add(newItems, completion)
-        addedItems.append(contentsOf: newItems)
+        addedItems.formUnion(newItems)
     }
 
     override func remove(_ removalItems: [T], completion: Completion? = nil) {

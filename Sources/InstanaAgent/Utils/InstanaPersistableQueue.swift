@@ -1,7 +1,7 @@
 import Foundation
 
 /// To be used in an asynchronous world (i.e. via a background dispatch queue)
-class InstanaPersistableQueue<T: Codable & Equatable> {
+class InstanaPersistableQueue<T: Codable & Hashable> {
     typealias Completion = ((Result<Void, Error>) -> Void)
     let maxItems: Int
     var queueJSONFileURL: URL? {
@@ -13,7 +13,7 @@ class InstanaPersistableQueue<T: Codable & Equatable> {
         return cacheDirectory.appendingPathComponent(filename)
     }
 
-    var items: [T] = []
+    var items: Set<T> = Set([])
     var isFull: Bool { items.count >= maxItems }
     let identifier: String
 
@@ -22,9 +22,9 @@ class InstanaPersistableQueue<T: Codable & Equatable> {
         self.identifier = identifier
         let shouldIgnorePersistence = UserDefaults.standard.bool(forKey: "INSTANA_IGNORE_QUEUE_PERSISTENCE")
         if !shouldIgnorePersistence, let deserializeItems = try? deserialize() {
-            items = deserializeItems
+            items = Set(deserializeItems)
         } else {
-            items = []
+            items = Set([])
         }
     }
 
@@ -44,7 +44,7 @@ class InstanaPersistableQueue<T: Codable & Equatable> {
     }
 
     func add(_ newItems: [T], _ completion: Completion? = nil) {
-        items.append(contentsOf: newItems)
+        items.formUnion(newItems)
         write(completion)
     }
 
@@ -54,9 +54,7 @@ class InstanaPersistableQueue<T: Codable & Equatable> {
     }
 
     func remove(_ removalItems: [T], completion: Completion? = nil) {
-        removalItems.forEach { removal in
-            items.removeAll(where: { $0 == removal })
-        }
+        items.subtract(removalItems)
         write(completion)
     }
 
