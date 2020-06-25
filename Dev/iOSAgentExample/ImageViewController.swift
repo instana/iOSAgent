@@ -32,7 +32,7 @@ class ImageViewViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         Instana.setView(name: "ImageView")
-        Instana.reportEvent(name: "Custom Event", duration: 1001, backendTracingID: nil, error: NSError(domain: "Domain", code: 0, userInfo: nil), meta: ["Key": "Val"], viewName:"Image")
+        Instana.reportEvent(name: "Custom Event", duration: "1001", backendTracingID: nil, error: NSError(domain: "Domain", code: 0, userInfo: nil), meta: ["Key": "Val"], viewName:"Image")
     }
 
     @objc func downloadImage() {

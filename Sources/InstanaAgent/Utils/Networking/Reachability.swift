@@ -37,7 +37,7 @@ public enum ReachabilityError: Error {
 }
 
 @available(*, unavailable, renamed: "Notification.Name.reachabilityChanged")
-public let ReachabilityChangedNotification = NSNotification.Name("ReachabilityChangedNotification")
+public let reachabilityChangedNotification = NSNotification.Name("ReachabilityChangedNotification")
 
 public extension Notification.Name {
     static let reachabilityChanged = Notification.Name("reachabilityChanged")
@@ -276,6 +276,8 @@ private extension Reachability {
         notificationQueue?.async(execute: notify) ?? notify()
     }
 }
+
+// swiftlint:disable identifier_name
 
 extension SCNetworkReachabilityFlags {
     typealias Connection = Reachability.Connection
