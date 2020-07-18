@@ -40,7 +40,7 @@ To install the iOS agent, use Swift Package Manager (via Xcode) or CocoaPods.
 Just initialize the Instana iOS agent with the following setup. Make sure to call setup very early in `didFinishLaunchingWithOptions`
 
 ```
-import Instana
+import InstanaAgent
 
 func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
 
