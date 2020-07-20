@@ -53,7 +53,9 @@ public class Reporter {
 
     func submit(_ beacon: Beacon, _ completion: (() -> Void)? = nil) {
         if mustUsePrequeue {
-            preQueue.append(beacon)
+            backgroundQueue.sync {
+                self.preQueue.append(beacon)
+            }
             completion?()
             return
         }
