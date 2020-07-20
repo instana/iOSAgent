@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		7247F62623E200970064CA8D /* Webserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7247F62523E200970064CA8D /* Webserver.swift */; };
+		7298778F24C602F500E92B48 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7298778E24C602F500E92B48 /* Config.swift */; };
 		72C7A9E523E049FF00041782 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72C7A9D723E049FF00041782 /* ViewController.swift */; };
 		72C7A9E623E049FF00041782 /* JSONViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72C7A9D823E049FF00041782 /* JSONViewController.swift */; };
 		72C7A9E723E049FF00041782 /* Icon.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 72C7A9D923E049FF00041782 /* Icon.xcassets */; };
@@ -37,6 +38,7 @@
 		72109EBF23E178EC00441D87 /* iosAgent */ = {isa = PBXFileReference; lastKnownFileType = folder; name = iosAgent; path = ..; sourceTree = "<group>"; };
 		7247F62523E200970064CA8D /* Webserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Webserver.swift; path = ../../tools/Webserver/Webserver.swift; sourceTree = "<group>"; };
 		728CF9DB2387F01200BEE2F9 /* iOSAgentExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iOSAgentExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		7298778E24C602F500E92B48 /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
 		72B5BA7A249A98BD00B7F261 /* iOSAgentExample.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = iOSAgentExample.entitlements; sourceTree = "<group>"; };
 		72C7A9D723E049FF00041782 /* ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		72C7A9D823E049FF00041782 /* JSONViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JSONViewController.swift; sourceTree = "<group>"; };
@@ -117,6 +119,7 @@
 				72C7A9E223E049FF00041782 /* Info.plist */,
 				72C7A9E323E049FF00041782 /* EventListViewController.swift */,
 				72C7A9E423E049FF00041782 /* SceneDelegate.swift */,
+				7298778E24C602F500E92B48 /* Config.swift */,
 			);
 			path = iOSAgentExample;
 			sourceTree = "<group>";
@@ -138,12 +141,13 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 728CF9FA2387F01300BEE2F9 /* Build configuration list for PBXNativeTarget "iOSAgentExample" */;
 			buildPhases = (
-				72C7A9F123E04B2000041782 /* Load environment variables */,
+				72C7A9F123E04B2000041782 /* Set Config */,
 				72E6C5D223E2EA1D009E118E /* SwiftLint */,
 				72E6C5D323E2EA34009E118E /* SwiftFormat */,
 				728CF9D72387F01200BEE2F9 /* Sources */,
 				728CF9D82387F01200BEE2F9 /* Frameworks */,
 				728CF9D92387F01200BEE2F9 /* Resources */,
+				7298779024C6080000E92B48 /* Reset Config */,
 			);
 			buildRules = (
 			);
@@ -238,7 +242,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		72C7A9F123E04B2000041782 /* Load environment variables */ = {
+		7298779024C6080000E92B48 /* Reset Config */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -247,14 +251,32 @@
 			);
 			inputPaths = (
 			);
-			name = "Load environment variables";
+			name = "Reset Config";
 			outputFileListPaths = (
 			);
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if [ -f ../../.env-vars ]\nthen\n    echo \"Import secure variables\"\n    source ../../.env-vars\n    /usr/libexec/PlistBuddy -c \"Set :INSTANA_REPORTING_URL ${INSTANA_REPORTING_URL}\" ${INFOPLIST_FILE}\n    /usr/libexec/PlistBuddy -c \"Set :INSTANA_REPORTING_KEY ${INSTANA_REPORTING_KEY}\" ${INFOPLIST_FILE}\nfi\n";
+			shellScript = "if [ -f ../../.env-vars ]\nthen\n    echo \"Import secure variables\"\n    source ../../.env-vars\n    sed -i '' 's,'\\\"${INSTANA_REPORTING_KEY}\\\"',\\\"KEY\\\",g' ${PRODUCT_NAME}/Config.swift\n    sed -i '' 's,'\\\"${INSTANA_REPORTING_URL}\\\"',\\\"URL\\\",g' ${PRODUCT_NAME}/Config.swift\nfi\n";
+		};
+		72C7A9F123E04B2000041782 /* Set Config */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Set Config";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if [ -f ../../.env-vars ]\nthen\n    echo \"Import secure variables\"\n    source ../../.env-vars\n    sed -i '' 's,\\\"KEY\\\",'\\\"${INSTANA_REPORTING_KEY}\\\"',g' ${PRODUCT_NAME}/Config.swift\n    sed -i '' 's,\\\"URL\\\",'\\\"${INSTANA_REPORTING_URL}\\\"',g' ${PRODUCT_NAME}/Config.swift\nfi\n";
 		};
 		72E6C5D223E2EA1D009E118E /* SwiftLint */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -304,6 +326,7 @@
 				72C7A9EF23E049FF00041782 /* EventListViewController.swift in Sources */,
 				72C7A9E923E049FF00041782 /* ImageViewController.swift in Sources */,
 				72C7A9E523E049FF00041782 /* ViewController.swift in Sources */,
+				7298778F24C602F500E92B48 /* Config.swift in Sources */,
 				72C7A9ED23E049FF00041782 /* AppDelegate.swift in Sources */,
 				72C7A9EC23E049FF00041782 /* WebViewController.swift in Sources */,
 			);
@@ -479,7 +502,7 @@
 				CURRENT_PROJECT_VERSION = 1578416283;
 				DEVELOPMENT_TEAM = D5PCJAP39R;
 				ENABLE_BITCODE = NO;
-				INFOPLIST_FILE = iOSAgentExample/Info.plist;
+				INFOPLIST_FILE = "${PROJECT_DIR}/$(PRODUCT_NAME)/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -504,7 +527,7 @@
 				CURRENT_PROJECT_VERSION = 1578416283;
 				DEVELOPMENT_TEAM = D5PCJAP39R;
 				ENABLE_BITCODE = NO;
-				INFOPLIST_FILE = iOSAgentExample/Info.plist;
+				INFOPLIST_FILE = "${PROJECT_DIR}/$(PRODUCT_NAME)/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
