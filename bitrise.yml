@@ -11,7 +11,6 @@ workflows:
         - set_specific_status: pending
     - activate-ssh-key@4.0.3:
         run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
-    - git-clone@4.0.17: {}
     - cache-pull@2.1.1: {}
     - script@1.1.6:
         title: Run swift lint
