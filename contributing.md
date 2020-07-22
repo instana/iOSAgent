@@ -20,8 +20,9 @@ Please note we have a code of conduct, please follow it in all your interactions
 Please make sure to follow the semantic versioning rules.
 1. Update version in `InstanaAgent.podspec` (`s.version = "<Your Version>"`)
 2. Update version in VersionConfig.Swift
-3. Run `git tag <Your Version> && git push origin <Your Version>`
-4. Run `pod trunk push InstanaAgent.podspec --allow-warnings`
+3. Update CHANGELOG.md accordingly
+4. Run `git tag <Your Version> && git push origin <Your Version>`
+5. Run `pod trunk push InstanaAgent.podspec --allow-warnings`
 
 ## Code of Conduct
 

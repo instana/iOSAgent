@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.1.1 Beta
+- Fix prequeue threading issue
+
 ## 1.1.0 Beta
 - Adds the ability to report custom events
 - Adds the ability to report custom events
