@@ -507,7 +507,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = net.tapwork.instana.sdkexample;
+				PRODUCT_BUNDLE_IDENTIFIER = com.instana.iOSAgentExample;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTS_MACCATALYST = YES;
@@ -532,7 +532,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = net.tapwork.instana.sdkexample;
+				PRODUCT_BUNDLE_IDENTIFIER = com.instana.iOSAgentExample;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "Instana Demo Project";
 				SUPPORTS_MACCATALYST = YES;
