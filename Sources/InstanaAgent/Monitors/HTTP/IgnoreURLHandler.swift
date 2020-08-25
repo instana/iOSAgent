@@ -17,6 +17,16 @@ struct IgnoreURLHandler {
         let matches = regex.flatMap { url.matches(regex: $0) }
         return matches.count > 0
     }
+
+    static func ignore(pattern: String) {
+        if let regular = try? NSRegularExpression(pattern: pattern) {
+            regex.insert(regular)
+        }
+    }
+
+    static func ignore(patterns: [String]) {
+        patterns.forEach { ignore(pattern: $0) }
+    }
 }
 
 extension URL {

@@ -15,6 +15,8 @@ class HTTPMonitor {
         self.uninstaller = uninstaller
         self.reporter = reporter
         IgnoreURLHandler.exactURLs.insert(session.configuration.reportingURL)
+        IgnoreURLHandler.exactURLs.formUnion(IgnoredURLs.excludedURLs)
+        IgnoreURLHandler.ignore(patterns: IgnoredURLs.excludedPatterns)
         switch session.configuration.httpCaptureConfig {
         case .automatic:
             install()
