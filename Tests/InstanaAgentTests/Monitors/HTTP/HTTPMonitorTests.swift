@@ -3,28 +3,27 @@ import XCTest
 
 class HTTPMonitorTests: InstanaTestCase {
 
-    override func setUp() {
-        super.setUp()
-        session = InstanaSession.mock
-    }
-
-    override func tearDown() {
-        super.tearDown()
-        self.session = nil
-    }
-
     func test_reporting_url_ignored() {
         // Given
-        let reportingURL = URL.random
-        let mocksession = InstanaSession.mock(configuration: .mock(key: "Key", reportingURL: reportingURL, httpCaptureConfig: .automatic), sessionID: nil, metaData: nil, user: nil, currentView: nil)
+        let reportingURL = session.configuration.reportingURL
 
         // When
-        _ = HTTPMonitor(mocksession, reporter: instana.monitors.reporter)
+        _ = HTTPMonitor(session, reporter: instana.monitors.reporter)
 
         // Then
         AssertTrue(IgnoreURLHandler.shouldIgnore(reportingURL))
         AssertTrue(IgnoreURLHandler.exactURLs.count == 1)
         AssertTrue(IgnoreURLHandler.exactURLs.first == reportingURL)
+    }
+
+    func test_load_default_DefaultIgnoredURLs() {
+        // When
+        _ = HTTPMonitor(session, reporter: instana.monitors.reporter)
+
+        // Then
+        AssertTrue(IgnoreURLHandler.shouldIgnore(URL(string: "https://api.instabug.com/some")!))
+        AssertTrue(IgnoreURLHandler.shouldIgnore(URL(string: "https://some.instabug.com/some")!))
+        AssertFalse(IgnoreURLHandler.shouldIgnore(URL(string: "https://some.instabug.de/some")!))
     }
 
     func test_installing_shouldAddCustomProtocol() {

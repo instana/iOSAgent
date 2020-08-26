@@ -59,4 +59,30 @@ class IgnoreURLHandlerTests: InstanaTestCase {
         // Then
         AssertTrue(sut)
     }
+
+    func test_loadDefaultDefaultIgnoredURLs() {
+        // Given
+        let url = session.configuration.reportingURL
+
+        // When
+        IgnoreURLHandler.loadDefaultDefaultIgnoredURLs(session: session!)
+
+        // Then
+        AssertTrue(IgnoreURLHandler.shouldIgnore(url))
+        AssertTrue(IgnoreURLHandler.shouldIgnore(URL(string: "https://api.instabug.com/some")!))
+        AssertTrue(IgnoreURLHandler.shouldIgnore(URL(string: "https://some.instabug.com/some")!))
+        AssertFalse(IgnoreURLHandler.shouldIgnore(URL(string: "https://some.instabug.de/some")!))
+    }
+}
+
+class DefaultIgnoredURLsTests: XCTestCase {
+
+    func test_excludedURLs() {
+        // Nothing specific yet
+        AssertEqualAndNotNil(DefaultIgnoredURLs.excludedURLs, [])
+    }
+
+    func test_excludedPatterns() {
+        AssertEqualAndNotNil(DefaultIgnoredURLs.excludedPatterns, [".*instabug.com.*"])
+    }
 }
