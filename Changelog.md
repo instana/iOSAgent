@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.1.2 Beta
+- Adds default URLs (currenty Instabug) to be ignored during monitored
+
 ## 1.1.1 Beta
 - Fix prequeue threading issue
 
