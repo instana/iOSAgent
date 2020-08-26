@@ -28,12 +28,12 @@ struct IgnoreURLHandler {
         patterns.forEach { ignore(pattern: $0) }
     }
 
-    static func loadDefaultIgnoredURLs(session: InstanaSession? = nil) {
+    static func loadDefaultDefaultIgnoredURLs(session: InstanaSession? = nil) {
         if let session = session {
             exactURLs.insert(session.configuration.reportingURL)
         }
-        exactURLs.formUnion(IgnoredURLs.excludedURLs)
-        ignore(patterns: IgnoredURLs.excludedPatterns)
+        exactURLs.formUnion(DefaultIgnoredURLs.excludedURLs)
+        ignore(patterns: DefaultIgnoredURLs.excludedPatterns)
     }
 }
 

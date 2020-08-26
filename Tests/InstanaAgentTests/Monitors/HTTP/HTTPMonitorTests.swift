@@ -16,7 +16,7 @@ class HTTPMonitorTests: InstanaTestCase {
         AssertTrue(IgnoreURLHandler.exactURLs.first == reportingURL)
     }
 
-    func test_load_default_ignoredURLs() {
+    func test_load_default_DefaultIgnoredURLs() {
         // When
         _ = HTTPMonitor(session, reporter: instana.monitors.reporter)
 
