@@ -27,6 +27,14 @@ struct IgnoreURLHandler {
     static func ignore(patterns: [String]) {
         patterns.forEach { ignore(pattern: $0) }
     }
+
+    static func loadDefaultIgnoredURLs(session: InstanaSession? = nil) {
+        if let session = session {
+            exactURLs.insert(session.configuration.reportingURL)
+        }
+        exactURLs.formUnion(IgnoredURLs.excludedURLs)
+        ignore(patterns: IgnoredURLs.excludedPatterns)
+    }
 }
 
 extension URL {

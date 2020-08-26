@@ -37,6 +37,10 @@ func AssertTrue(_ expression: @autoclosure () throws -> Bool, _ message: @autocl
     XCTAssertTrue(try expression(), message(), file: file, line: line)
 }
 
+func AssertFalse(_ expression: @autoclosure () throws -> Bool, _ message: @autoclosure () -> String = "", file: StaticString = #file, line: UInt = #line) {
+    XCTAssertFalse(try expression(), message(), file: file, line: line)
+}
+
 func AssertEqualAndNotZero<T: Numeric & Comparable>(_ expression1: @autoclosure () throws -> T, _ expression2: @autoclosure () throws -> T, _ message: @autoclosure () -> String = "", file: StaticString = #file, line: UInt = #line) {
     XCTAssertTrue(try expression1() > 0, message(), file: file, line: line)
     XCTAssertTrue(try expression2() > 0, message(), file: file, line: line)
