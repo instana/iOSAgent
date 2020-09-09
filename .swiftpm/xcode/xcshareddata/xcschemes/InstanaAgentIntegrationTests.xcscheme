@@ -33,6 +33,9 @@
                   Identifier = "BasicIntegrationServerTest">
                </Test>
                <Test
+                  Identifier = "BeaconTests">
+               </Test>
+               <Test
                   Identifier = "CoreBeaconExtensionsTests">
                </Test>
                <Test
@@ -43,6 +46,9 @@
                </Test>
                <Test
                   Identifier = "CustomBeaconTests">
+               </Test>
+               <Test
+                  Identifier = "DefaultIgnoredURLsTests">
                </Test>
                <Test
                   Identifier = "FramerateDropMonitorTests">

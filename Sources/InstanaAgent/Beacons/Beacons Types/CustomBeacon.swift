@@ -17,19 +17,19 @@ class CustomBeacon: Beacon {
     let duration: Instana.Types.Milliseconds?
     let backendTracingID: String?
     let error: Error?
-    let meta: [String: String]?
+    let metaData: MetaData?
 
     init(timestamp: Instana.Types.Milliseconds? = nil,
          name: String,
          duration: Instana.Types.Milliseconds? = nil,
          backendTracingID: String? = nil,
          error: Error? = nil,
-         meta: [String: String]? = nil,
+         metaData: MetaData? = nil,
          viewName: String? = CustomBeaconDefaultViewNameID) {
         self.duration = duration
         self.name = name
         self.error = error
-        self.meta = meta
+        self.metaData = metaData
         self.backendTracingID = backendTracingID
         var start = Date().millisecondsSince1970
         if let duration = duration {

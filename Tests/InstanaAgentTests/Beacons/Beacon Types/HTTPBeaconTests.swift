@@ -12,12 +12,12 @@ class HTTPBeaconTests: InstanaTestCase {
         let backendTracingID = "BackendTID"
         let timestamp = Date().millisecondsSince1970
         let http = HTTPBeacon(timestamp: timestamp,
-                                method: method,
-                                url: url,
-                                responseCode: 200,
-                                responseSize: responseSize,
-                                backendTracingID: backendTracingID,
-                                viewName: "View Details")
+                              method: method,
+                              url: url,
+                              responseCode: 200,
+                              responseSize: responseSize,
+                              backendTracingID: backendTracingID,
+                              viewName: "View Details")
         let factory = CoreBeaconFactory(.mock)
 
         // When
@@ -49,13 +49,13 @@ class HTTPBeaconTests: InstanaTestCase {
     func test_map_http_with_error() {
         // Given
         let http = HTTPBeacon(timestamp: Date().millisecondsSince1970,
-                                method: "POST",
-                                url: URL.random,
-                                responseCode: 0,
-                                responseSize: HTTPMarker.Size(header: 4, body: 5, bodyAfterDecoding: 6),
-                                error: timeout,
-                                backendTracingID: "BackendTID",
-                                viewName: "View")
+                              method: "POST",
+                              url: URL.random,
+                              responseCode: 0,
+                              responseSize: HTTPMarker.Size(header: 4, body: 5, bodyAfterDecoding: 6),
+                              error: timeout,
+                              backendTracingID: "BackendTID",
+                              viewName: "View")
         let factory = CoreBeaconFactory(.mock)
 
         // When
@@ -77,10 +77,10 @@ class HTTPBeaconTests: InstanaTestCase {
         // Given
         let responseCode = 399
         let http = HTTPBeacon(timestamp: Date().millisecondsSince1970,
-                                method: "POST",
-                                url: URL.random,
-                                responseCode: responseCode,
-                                responseSize: HTTPMarker.Size.random)
+                              method: "POST",
+                              url: URL.random,
+                              responseCode: responseCode,
+                              responseSize: HTTPMarker.Size.random)
         let factory = CoreBeaconFactory(.mock)
 
         // When
@@ -159,7 +159,7 @@ class HTTPBeaconTests: InstanaTestCase {
         // When
         var beacon: CoreBeacon!
         do {
-             beacon = try CoreBeaconFactory(.mock(configuration: .mock)).map(http)
+            beacon = try CoreBeaconFactory(.mock(configuration: .mock)).map(http)
         } catch {
             XCTFail("Could not create CoreBeacon")
         }
@@ -174,6 +174,38 @@ class HTTPBeaconTests: InstanaTestCase {
             let value = child.value as AnyObject
             AssertEqualAndNotNil(sut[child.label] as? String, value.description, "Values for \(child.0) must be same")
         }
+    }
+
+    func test_length_url_valid() {
+        // Given
+        let base = "https://www.google.com/"
+        let suffix = ".html"
+        let path = (0..<HTTPBeacon.maxLengthURL - base.count - suffix.count).map {_ in "A"}.joined()
+        let url = URL(string: base + path + suffix)
+
+        // When
+        let beacon = HTTPBeacon(method: "GET", url: url!, responseCode: 200)
+
+        // Then
+        AssertTrue(beacon.url.absoluteString.count == HTTPBeacon.maxLengthURL)
+        AssertTrue(beacon.url.path.hasSuffix(suffix))
+    }
+
+    func test_length_url_exceeds() {
+        // Given
+        let suffix = ".html"
+        let overflow = suffix.count
+        let base = "https://www.some.com/"
+        let path = (0..<HTTPBeacon.maxLengthURL - base.count - suffix.count + overflow).map {_ in "A"}.joined()
+        let url = URL(string: base + path + suffix)
+
+        // When
+        let beacon = HTTPBeacon(method: "GET", url: url!, responseCode: 200)
+
+        // Then
+        AssertTrue(beacon.url.absoluteString.count == HTTPBeacon.maxLengthURL)
+        AssertFalse(beacon.url.path.contains(suffix))
+        AssertTrue(beacon.url.path.contains(path))
     }
 
     // MARK: Helper

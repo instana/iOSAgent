@@ -164,36 +164,56 @@ class InstanaTests: InstanaTestCase {
         AssertEqualAndNotNil(Instana.current?.session.propertyHandler.properties.metaData, given)
     }
 
-    func test_setMetaData_to_long_value() {
+    func test_setMetaData_value_exceeds_max() {
         // Given
-        let valid = "\((0...255).map {_ in "A"}.joined())"
-        let invalid = "\((0...256).map {_ in "A"}.joined())"
+        let max = MetaData.Max.lengthMetaValue
+        let valid = "\((0..<max).map {_ in "A"}.joined())"
+        let exceeds = "\((0..<max+10).map {_ in "C"}.joined())"
 
         // When
         Instana.setMeta(value: valid, key: "valid")
-        Instana.setMeta(value: invalid, key: "invalid")
+        Instana.setMeta(value: exceeds, key: "exceeds")
 
         // Then
-        AssertEqualAndNotNil(Instana.current?.session.propertyHandler.properties.metaData?["valid"], valid)
-        AssertTrue(Instana.current?.session.propertyHandler.properties.metaData?.count == 1)
+        AssertEqualAndNotNil(Instana.current?.session.propertyHandler.properties.metaData["valid"], valid)
+        AssertEqualAndNotNil(Instana.current?.session.propertyHandler.properties.metaData["exceeds"], exceeds.cleanEscapeAndTruncate(at: max))
+        AssertTrue(Instana.current?.session.propertyHandler.properties.metaData.count == 2)
+    }
+
+    func test_setMetaData_key_exceeds_max() {
+        // Given
+        let max = MetaData.Max.lengthMetaKey
+        let valid = "\((0..<max).map {_ in "A"}.joined())"
+        let exceeds = "\((0..<max+10).map {_ in "B"}.joined())"
+
+        // When
+        Instana.setMeta(value: "valid", key: valid)
+        Instana.setMeta(value: "exceeds", key: exceeds)
+
+        // Then
+        AssertEqualAndNotNil(Instana.current?.session.propertyHandler.properties.metaData[valid], "valid")
+        AssertEqualAndNotNil(Instana.current?.session.propertyHandler.properties.metaData[exceeds.cleanEscapeAndTruncate(at: max)], "exceeds")
+        AssertTrue(Instana.current?.session.propertyHandler.properties.metaData.count == 2)
     }
 
     func test_setMetaData_ignore_too_many_fields() {
+        // Given
+        let max = MetaData.Max.numberOfMetaEntries
+
         // When
-        (0...50).forEach { index in
+        (0...MetaData.Max.numberOfMetaEntries).forEach { index in
             Instana.setMeta(value: "V-\(index)", key: "\(index)")
         }
 
         // Then
-
-        let values = Array(Instana.current!.session.propertyHandler.properties.metaData!.values)
-        let keys = Array(Instana.current!.session.propertyHandler.properties.metaData!.keys)
+        let values = Array(Instana.current!.session.propertyHandler.properties.metaData.values)
+        let keys = Array(Instana.current!.session.propertyHandler.properties.metaData.keys)
         AssertTrue(values.contains("V-0") == true)
-        AssertTrue(values.contains("V-49") == true)
-        AssertTrue(values.contains("V-50") == false)
-        AssertTrue(keys.contains("49") == true)
-        AssertTrue(keys.contains("50") == false)
-        AssertTrue(Instana.current!.session.propertyHandler.properties.metaData?.count == 50)
+        AssertTrue(values.contains("V-63") == true)
+        AssertTrue(values.contains("V-64") == false)
+        AssertTrue(keys.contains("63") == true)
+        AssertTrue(keys.contains("64") == false)
+        AssertTrue(Instana.current!.session.propertyHandler.properties.metaData.count == max)
     }
 
     func test_setIgnoreURLs() {
@@ -282,7 +302,7 @@ class InstanaTests: InstanaTestCase {
         AssertEqualAndNotNil(didReport?.timestamp, Instana.Types.Milliseconds(timestamp))
         AssertEqualAndNotNil(didReport?.backendTracingID, backendID)
         AssertEqualAndNotNil((didReport?.error as NSError?), error)
-        AssertEqualAndNotNil(didReport?.meta, meta)
+        AssertEqualAndNotNil(didReport?.metaData, meta)
         AssertEqualAndNotNil(didReport?.viewName, viewName)
     }
 
@@ -305,7 +325,7 @@ class InstanaTests: InstanaTestCase {
         AssertTrue(didReport?.duration == nil)
         AssertTrue(didReport?.timestamp == expectedDate)
         AssertTrue(didReport?.backendTracingID == nil)
-        AssertTrue(didReport?.meta == nil)
+        AssertTrue(didReport?.metaData == nil)
         AssertTrue(didReport?.error == nil)
         AssertEqualAndNotNil(didReport?.viewName, CustomBeaconDefaultViewNameID)
     }

@@ -23,7 +23,7 @@ struct CoreBeacon: Codable {
      *
      * Default: To be discussed if it can be dynamic
      */
-    static let maxBytesPerField: Instana.Types.Bytes = 10000
+    static let maxLengthPerField: Int = 16384
 
     /**
      * The type of the beacon.
@@ -113,7 +113,7 @@ struct CoreBeacon: Codable {
      *
      * optional
      */
-    var m: [String: String]?
+    var m: MetaData?
 
     /**
      * User ID

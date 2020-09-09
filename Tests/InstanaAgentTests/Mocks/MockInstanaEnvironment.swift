@@ -10,13 +10,18 @@ extension InstanaSession {
 
     static func mock(configuration: InstanaConfiguration = .mock,
                      sessionID: UUID? = nil,
-                     metaData: [String: String]? = nil,
+                     metaData: MetaData = [:],
                      user: InstanaProperties.User? = nil,
                      currentView: String? = nil) -> InstanaSession {
         let sessionID = sessionID ?? UUID()
         let metaData = metaData
         let propertyHandler = InstanaPropertyHandler()
-        propertyHandler.properties = InstanaProperties(user: user, metaData: metaData, view: currentView)
+        var properties = InstanaProperties(user: user, view: currentView)
+        metaData.forEach { (key, value) in
+            properties.appendMetaData(key, value)
+        }
+        propertyHandler.properties = properties
+
         return InstanaSession(configuration: configuration, propertyHandler: propertyHandler, sessionID: sessionID)
     }
 }

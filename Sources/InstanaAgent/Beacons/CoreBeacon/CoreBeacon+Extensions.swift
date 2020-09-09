@@ -19,31 +19,22 @@ extension CoreBeacon {
 
     func formattedKVPair(key: String, value: Any) -> String? {
         guard Mirror.isNotNil(value: value) else { return nil }
-        if let dict = value as? [AnyHashable: AnyObject] {
+        if let dict = value as? MetaData {
             return dict.asString(prefix: key)
         }
-        let value = "\(value)".cleanAndEscape()
+        let value = "\(value)".coreBeaconClean()
+        guard !value.isEmpty else { return nil }
         return "\(key)\t\(value)"
     }
 }
 
-extension Dictionary {
-    func asString(prefix: String) -> String {
-        return map {
-            let value = "\($0.value)".cleanAndEscape()
-            return "\(prefix)_\($0.key)\t\(value)"
+extension MetaData {
+    func asString(prefix: String) -> String? {
+        guard count > 0 else { return nil }
+        return compactMap {
+            guard !$0.value.isEmpty else { return nil }
+            return "\(prefix)_\($0.key)\t\($0.value.coreBeaconClean())"
         }.joined(separator: "\n")
-    }
-}
-
-extension String {
-    func cleanAndEscape() -> Self {
-        var trimmed = trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
-        trimmed = trimmed.truncated(at: Int(CoreBeacon.maxBytesPerField))
-        trimmed = trimmed.replacingOccurrences(of: "\\", with: "\\\\")
-        trimmed = trimmed.replacingOccurrences(of: "\n", with: "\\n")
-        trimmed = trimmed.replacingOccurrences(of: "\t", with: "\\t")
-        return trimmed
     }
 }
 

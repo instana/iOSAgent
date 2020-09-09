@@ -43,7 +43,7 @@ extension CoreBeacon {
         ui = properties.user?.id
         un = properties.user?.name
         ue = properties.user?.email
-        m = properties.metaData
+        m = !properties.metaData.isEmpty ? properties.metaData : nil
     }
 
     mutating func append(_ beacon: HTTPBeacon) {
@@ -91,7 +91,7 @@ extension CoreBeacon {
         let useCurrentVisibleViewName = beacon.viewName == CustomBeaconDefaultViewNameID
         v = useCurrentVisibleViewName ? properties.viewNameForCurrentAppState : beacon.viewName
         cen = beacon.name
-        m = beacon.meta
+        m = beacon.metaData
         if let error = beacon.error {
             add(error: error)
         }
