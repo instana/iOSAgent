@@ -161,6 +161,18 @@ class CoreBeaconTests: InstanaTestCase {
         XCTAssertNil(sut)
     }
 
+    func test_formattedKVPair_empty_value() {
+        // Given
+        let beacon = coreBeacon!
+        let value = ""
+
+        // When
+        let sut = beacon.formattedKVPair(key: "KEY", value: value)
+
+        // When
+        XCTAssertNil(sut)
+    }
+
     func test_cleaning() {
         // Given
         coreBeacon.bt = """
@@ -176,7 +188,7 @@ class CoreBeaconTests: InstanaTestCase {
         XCTAssertEqual(sut, "bt\tTrace ab")
     }
 
-    func test_format_clean_dict() {
+    func test_format_clean_meta() {
         // Given
         coreBeacon.m = ["Key": "Some\nNewline\tTab\\escape", "More": "\ntest\n"]
 
@@ -186,14 +198,24 @@ class CoreBeaconTests: InstanaTestCase {
         // Then
         let valid1 = "m_Key\tSome\\nNewline\\tTab\\\\escape\nm_More\ttest"
         let valid2 = "m_More\ttest\nm_Key\tSome\\nNewline\\tTab\\\\escape"
-        let validResults = [valid1, valid2]
-        AssertTrue(validResults.contains(sut ?? ""))
+        let isValid = sut == valid1 || sut == valid2
+        AssertTrue(isValid)
     }
-    
+
+    func test_format_empty_meta_value() {
+        // Given
+        coreBeacon.m = ["Key": "Some\nNewline\tTab\\escape", "More": ""]
+
+        // When
+        let sut = coreBeacon.formattedKVPair(key: "m", value: coreBeacon.m!)
+
+        // Then
+        AssertEqualAndNotNil(sut, "m_Key\tSome\\nNewline\\tTab\\\\escape")
+    }
 
     func test_truncate_at_max_length() {
         // Given
-        let longString = (0...CoreBeacon.maxBytesPerField).map {"\($0)"}.joined()
+        let longString = (0...CoreBeacon.maxLengthPerField).map {"\($0)"}.joined()
         var beacon = coreBeacon!
         beacon.bt = longString
 
@@ -203,45 +225,6 @@ class CoreBeaconTests: InstanaTestCase {
         // Then
         XCTAssertNotNil(sut)
         XCTAssertTrue(sut!.hasSuffix("…"))
-    }
-
-    func test_clean_and_escape() {
-        // Given
-        let sut = "Some\nNewline\tTab\\escape"
-
-        // When
-        XCTAssertEqual(sut.cleanAndEscape(), "Some\\nNewline\\tTab\\\\escape")
-    }
-
-    func test_clean_remove_newline() {
-        // Given
-        let sut = "\n"
-
-        // When
-        XCTAssertEqual(sut.cleanAndEscape(), "")
-    }
-
-    func test_clean_remove_newline_2() {
-        // Given
-        let sut = "\nTest"
-
-        // When
-        XCTAssertEqual(sut.cleanAndEscape(), "Test")
-    }
-
-    func test_clean_remove_tab() {
-        // Given
-        let sut = "\t"
-
-        // When
-        XCTAssertEqual(sut.cleanAndEscape(), "")
-    }
-
-    func test_clean_remove_whitespace() {
-        // Given
-        let sut = " "
-
-        // When
-        XCTAssertEqual(sut.cleanAndEscape(), "")
+        XCTAssertEqual(CoreBeacon.maxLengthPerField, 16384)
     }
 }

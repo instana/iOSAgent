@@ -1,18 +1,63 @@
 import Foundation
 
+typealias MetaData = [String: String]
+
 struct InstanaProperties: Equatable {
     struct User: Equatable {
+        static let userValueMaxLength = 128
+
         /// Unique identifier for the user
-        var id: String
+        var id: String {
+            didSet { id = Self.validate(value: id) ?? id }
+        }
+
         /// User's email address
-        var email: String?
+        var email: String? {
+            didSet { email = Self.validate(value: email) }
+        }
+
         /// User's full name
-        var name: String?
+        var name: String? {
+            didSet { name = Self.validate(value: name) }
+        }
+
+        init(id: String, email: String?, name: String?) {
+            self.id = Self.validate(value: id) ?? id
+            self.email = Self.validate(value: email)
+            self.name = Self.validate(value: name)
+        }
+
+        static func validate(value: String?) -> String? {
+            guard let value = value else { return nil }
+            return value.cleanEscapeAndTruncate(at: userValueMaxLength)
+        }
     }
 
     var user: User?
-    var metaData: [String: String]?
-    var view: String?
+    private(set) var metaData = MetaData()
+
+    static let viewMaxLength = 256
+    var view: String? {
+        didSet { view = Self.validate(view: view) }
+    }
+
+    init(user: User? = nil, view: String? = nil) {
+        self.user = user
+        self.view = Self.validate(view: view)
+    }
+
+    mutating func appendMetaData(_ key: String, _ value: String) {
+        let key = MetaData.validate(key: key)
+        let value = MetaData.validate(value: value)
+        if metaData.count < MetaData.Max.numberOfMetaEntries {
+            metaData[key] = value
+        }
+    }
+
+    static func validate(view: String?) -> String? {
+        guard let value = view else { return nil }
+        return value.cleanEscapeAndTruncate(at: viewMaxLength)
+    }
 }
 
 extension InstanaProperties {
@@ -31,11 +76,6 @@ extension InstanaProperties {
 }
 
 class InstanaPropertyHandler: NSObject {
-    struct Const {
-        static let maximumNumberOfMetaDataFields = 50
-        static let maximumLengthPerMetaDataField = 256
-    }
-
     private var unsafe_properties = InstanaProperties()
     private let lock = NSLock()
     var properties: InstanaProperties {
@@ -52,21 +92,26 @@ class InstanaPropertyHandler: NSObject {
             lock.unlock()
         }
     }
+}
 
-    func validate(value: String) -> Bool {
-        if value.count > Const.maximumLengthPerMetaDataField {
-            Instana.current?.session.logger.add("Instana: MetaData value reached maximum length (\(Const.maximumLengthPerMetaDataField)).", level: .warning)
-            return false
-        }
-        return value.count <= Const.maximumLengthPerMetaDataField
+extension MetaData {
+    struct Max {
+        static let numberOfMetaEntries = 64
+        static let lengthMetaValue = 256
+        static let lengthMetaKey = 98
     }
 
-    func validate(keys: [String]) -> Bool {
-        if keys.count > Const.maximumNumberOfMetaDataFields {
-            // swiftlint:disable:next line_length
-            Instana.current?.session.logger.add("Instana: MetaData reached maximum number (\(Const.maximumNumberOfMetaDataFields)) of valid fields.", level: .warning)
-            return false
+    static func validate(value: String) -> String {
+        if value.count > Max.lengthMetaValue {
+            Instana.current?.session.logger.add("Instana: MetaData value reached maximum length (\(Max.lengthMetaValue)) Truncating value.", level: .warning)
         }
-        return true
+        return value.cleanEscapeAndTruncate(at: Max.lengthMetaValue)
+    }
+
+    static func validate(key: String) -> String {
+        if key.count > Max.lengthMetaKey {
+            Instana.current?.session.logger.add("Instana: MetaData key reached maximum length (\(Max.lengthMetaKey)) Truncating key.", level: .warning)
+        }
+        return key.cleanEscapeAndTruncate(at: Max.lengthMetaKey)
     }
 }

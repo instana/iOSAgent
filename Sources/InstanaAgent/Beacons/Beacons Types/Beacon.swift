@@ -2,6 +2,7 @@ import Foundation
 
 /// Base class for Beacon.
 class Beacon {
+
     let id = UUID()
     var timestamp: Instana.Types.Milliseconds = Date().millisecondsSince1970
     let viewName: String?
@@ -9,7 +10,7 @@ class Beacon {
     init(timestamp: Instana.Types.Milliseconds = Date().millisecondsSince1970,
          viewName: String? = nil) {
         self.timestamp = timestamp
-        self.viewName = viewName
+        self.viewName = InstanaProperties.validate(view: viewName)
     }
 }
 

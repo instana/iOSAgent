@@ -59,7 +59,7 @@ class InstanaNetworkingTests: InstanaTestCase {
 
     func test_networking_parsesResponseSatusCode_invalid_response() {
         var invocations = 0
-        let random500: Int = (600...1999).randomElement() ?? 600
+        let random500: Int = (600...699).randomElement() ?? 600
         let networking = InstanaNetworking(send: { TestSessionDataTask(response: self.validResponse(statusCode: random500), callback: $1) })
         networking.send(request: URLRequest(url: testURL)) {
             if case .failure(InstanaError.invalidResponse) = $0 {
