@@ -12,11 +12,10 @@ class CustomBeaconTests: InstanaTestCase {
 
         // Then
         AssertEqualAndNotNil(sut.name, name)
-        AssertEqualAndNotNil(sut.timestamp, Date().millisecondsSince1970)
         XCTAssertNil(sut.backendTracingID)
         AssertEqualAndNotNil(sut.viewName, CustomBeaconDefaultViewNameID)
         XCTAssertNil(sut.duration)
-        XCTAssertNil(sut.meta)
+        XCTAssertNil(sut.metaData)
         XCTAssertNil(sut.error)
     }
 
@@ -34,7 +33,7 @@ class CustomBeaconTests: InstanaTestCase {
         XCTAssertNil(sut.backendTracingID)
         AssertEqualAndNotNil(sut.viewName, viewName)
         XCTAssertNil(sut.duration)
-        XCTAssertNil(sut.meta)
+        XCTAssertNil(sut.metaData)
         XCTAssertNil(sut.error)
     }
 
@@ -99,7 +98,7 @@ class CustomBeaconTests: InstanaTestCase {
         XCTAssertNotNil(customBeacon.viewName)
         XCTAssertNotNil(customBeacon.duration)
         XCTAssertTrue(customBeacon.timestamp > 0)
-        XCTAssertNotNil(customBeacon.meta)
+        XCTAssertNotNil(customBeacon.metaData)
         XCTAssertNotNil(customBeacon.error)
         XCTAssertNotNil(customBeacon.backendTracingID)
 
@@ -107,7 +106,7 @@ class CustomBeaconTests: InstanaTestCase {
         AssertEqualAndNotNil(beacon.cen, customBeacon.name)
         AssertEqualAndNotNil(beacon.d, "\(customBeacon.duration ?? 0)")
         AssertEqualAndNotNil(beacon.ti, "\(customBeacon.timestamp)")
-        AssertEqualAndNotNil(beacon.m, customBeacon.meta)
+        AssertEqualAndNotNil(beacon.m, customBeacon.metaData)
         AssertEqualAndNotNil(beacon.bt, customBeacon.backendTracingID)
         AssertEqualAndNotNil(beacon.et, "\(type(of: customBeacon.error!))")
         AssertEqualAndNotNil(beacon.em, "\(customBeacon.error!)")
@@ -116,7 +115,7 @@ class CustomBeaconTests: InstanaTestCase {
         let expectediOSVersion = UIDevice.current.systemVersion
         let expectedErrorType = "\(type(of: customBeacon.error!))"
         let expectedErrorMessage = "\(customBeacon.error!)"
-        let expected = "ab\t\(beacon.ab)\nagv\t\(beacon.agv)\nav\tunknown-version\nbi\t\(beacon.bi)\nbid\t\(beacon.bid)\nbt\t\(customBeacon.backendTracingID ?? "")\ncen\t\(customBeacon.name)\ncn\tNone\nct\t\(InstanaSystemUtils.networkUtility.connectionType.description)\nd\t\(customBeacon.duration ?? 0)\ndma\tApple\ndmo\tx86_64\nec\t1\nem\t\(expectedErrorMessage)\net\t\(expectedErrorType)\nk\tKEY\nm_\(customBeacon.meta?.keys.first ?? "")\t\(customBeacon.meta?.values.first ?? "")\nosn\tiOS\nosv\t\(expectediOSVersion)\np\tiOS\nro\tfalse\nsid\t\(beacon.sid)\nt\tcustom\nti\t\(customBeacon.timestamp)\nul\ten\nv\t\(customBeacon.viewName ?? "")\nvh\t\(Int(UIScreen.main.nativeBounds.height))\nvw\t\(Int(UIScreen.main.nativeBounds.width))"
+        let expected = "ab\t\(beacon.ab)\nagv\t\(beacon.agv)\nav\tunknown-version\nbi\t\(beacon.bi)\nbid\t\(beacon.bid)\nbt\t\(customBeacon.backendTracingID ?? "")\ncen\t\(customBeacon.name)\ncn\tNone\nct\t\(InstanaSystemUtils.networkUtility.connectionType.description)\nd\t\(customBeacon.duration ?? 0)\ndma\tApple\ndmo\tx86_64\nec\t1\nem\t\(expectedErrorMessage)\net\t\(expectedErrorType)\nk\tKEY\nm_\(customBeacon.metaData?.keys.first ?? "")\t\(customBeacon.metaData?.values.first ?? "")\nosn\tiOS\nosv\t\(expectediOSVersion)\np\tiOS\nro\tfalse\nsid\t\(beacon.sid)\nt\tcustom\nti\t\(customBeacon.timestamp)\nul\ten\nv\t\(customBeacon.viewName ?? "")\nvh\t\(Int(UIScreen.main.nativeBounds.height))\nvw\t\(Int(UIScreen.main.nativeBounds.width))"
         AssertEqualAndNotNil(sut, expected)
     }
 
@@ -214,7 +213,7 @@ class CustomBeaconTests: InstanaTestCase {
         let name = "SomeName"
         let backendTracingID = "BID"
         let error = SomeBeaconError.something
-        let meta = ["Key":"SomeValue"]
-        return CustomBeacon(timestamp: timestamp, name: name, duration: duration, backendTracingID: backendTracingID, error: error, meta: meta, viewName: viewName)
+        let metaData = ["Key": "SomeValue"]
+        return CustomBeacon(timestamp: timestamp, name: name, duration: duration, backendTracingID: backendTracingID, error: error, metaData: metaData, viewName: viewName)
     }
 }

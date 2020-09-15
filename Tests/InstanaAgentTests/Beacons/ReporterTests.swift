@@ -800,12 +800,12 @@ class ReporterTests: InstanaTestCase {
         AssertTrue(beacon.viewName == nil)
         AssertTrue(mockSession.propertyHandler.properties.view == nil)
         AssertTrue(mockSession.propertyHandler.properties.user == nil)
-        AssertTrue(mockSession.propertyHandler.properties.metaData == nil)
+        AssertTrue(mockSession.propertyHandler.properties.metaData.isEmpty)
         AssertTrue(reporter.preQueue.count == 1)
 
         // When
         mockSession.propertyHandler.properties.view = viewName
-        mockSession.propertyHandler.properties.metaData = ["key": "someVal"]
+        mockSession.propertyHandler.properties.appendMetaData("key", "someVal")
         mockSession.propertyHandler.properties.user = InstanaProperties.User(id: "123", email: "e@e.com", name: "John")
         wait(for: [waitForSend], timeout: prequeueTime * 2)
 

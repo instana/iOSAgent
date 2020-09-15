@@ -157,12 +157,7 @@ import UIKit
     @objc
     public static func setMeta(value: String, key: String) {
         guard let propertyHandler = Instana.current?.session.propertyHandler else { return }
-        guard propertyHandler.validate(value: value) else { return }
-        var metaData = propertyHandler.properties.metaData ?? [:]
-        metaData[key] = value
-        if propertyHandler.validate(keys: Array(metaData.keys)) {
-            propertyHandler.properties.metaData = metaData
-        }
+        propertyHandler.properties.appendMetaData(key, value)
     }
 
     /// User-specific information
@@ -240,7 +235,7 @@ import UIKit
                                   duration: duration,
                                   backendTracingID: backendTracingID,
                                   error: error,
-                                  meta: meta,
+                                  metaData: meta,
                                   viewName: viewName)
         Instana.current?.monitors.reporter.submit(beacon)
     }

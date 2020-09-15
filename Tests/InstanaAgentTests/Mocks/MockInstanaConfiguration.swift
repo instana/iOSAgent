@@ -9,7 +9,8 @@ extension InstanaConfiguration {
 
     static func mock(key: String = "KEY",
                      reportingURL: URL = .random,
-                     httpCaptureConfig: HTTPCaptureConfig = .automatic) -> InstanaConfiguration {
+                     httpCaptureConfig: HTTPCaptureConfig = .automatic,
+                     gzipReport: Bool = false) -> InstanaConfiguration {
         InstanaConfiguration(reportingURL: reportingURL,
                              key: key,
                              httpCaptureConfig: httpCaptureConfig,
@@ -20,7 +21,7 @@ extension InstanaConfiguration {
                                             .alertApplicationNotResponding(threshold: 2.0)],
                              transmissionDelay: 0.0,
                              transmissionLowBatteryDelay: 0.0,
-                             gzipReport: true,
+                             gzipReport: gzipReport,
                              maxBeaconsPerRequest: 100,
                              preQueueUsageTime: 0.0)
     }

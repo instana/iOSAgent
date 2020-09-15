@@ -1,6 +1,8 @@
 import Foundation
 
 class HTTPBeacon: Beacon {
+    static let maxLengthURL: Int = 4096
+
     let duration: Instana.Types.Milliseconds
     let method: String
     let url: URL
@@ -22,7 +24,8 @@ class HTTPBeacon: Beacon {
         let path = !url.path.isEmpty ? url.path : nil
         self.duration = duration
         self.method = method
-        self.url = url
+        let urlString = url.absoluteString.cleanEscapeAndTruncate(at: Self.maxLengthURL, trailing: "")
+        self.url = URL(string: urlString) ?? url
         self.path = path
         self.responseCode = responseCode
         self.responseSize = responseSize

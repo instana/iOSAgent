@@ -18,12 +18,12 @@ enum BeaconType: String, Equatable, Codable, CustomStringConvertible {
 /// That means we also loose the type information, so we need treat all fields as String
 struct CoreBeacon: Codable {
     /**
-     * The max byte for each field (bytes)
+     * The max length for each field
      *
      *
      * Default: To be discussed if it can be dynamic
      */
-    static let maxBytesPerField: Instana.Types.Bytes = 10000
+    static let maxLengthPerField: Int = 16384
 
     /**
      * The type of the beacon.
@@ -113,7 +113,7 @@ struct CoreBeacon: Codable {
      *
      * optional
      */
-    var m: [String: String]?
+    var m: MetaData?
 
     /**
      * User ID
