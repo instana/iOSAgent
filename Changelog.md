@@ -1,4 +1,6 @@
 # Changelog
+## 1.1.3 Beta
+- Validates the length of properties, meta data and view name gracefully without throwing fatalError. Any value that exceeds the limit will be truncated
 
 ## 1.1.2 Beta
 - Adds default URLs (currenty Instabug) to be ignored during monitored
