@@ -23,6 +23,7 @@ extension InstanaConfiguration {
                              transmissionLowBatteryDelay: 0.0,
                              gzipReport: gzipReport,
                              maxBeaconsPerRequest: 100,
-                             preQueueUsageTime: 0.0)
+                             preQueueUsageTime: 0.0,
+                             reporterRateLimits: [.init(timeout: 10.0, maxItems: 10), .init(timeout: 60.0, maxItems: 20)])
     }
 }

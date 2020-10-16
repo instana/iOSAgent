@@ -37,6 +37,52 @@ class ReporterTests: InstanaTestCase {
         AssertTrue(reporter.queue.items.count == 1)
     }
 
+    func test_submit_rateLimit_two_NOT_exceeded() {
+        // Given
+        let submittedToQueue1 = expectation(description: "Submitted First Beacon")
+        let submittedToQueue2 = expectation(description: "Submitted Second Beacon")
+        let rateLimiter = ReporterRateLimiter(configs: [.init(timeout: 30.0, maxItems: 2)])
+        let reporter = ReporterDefaultWifi(delay: 10.0, rateLimiter: rateLimiter)
+
+        // When
+        reporter.submit(AlertBeacon(alertType: .lowMemory)) {
+            submittedToQueue1.fulfill()
+        }
+        wait(for: [submittedToQueue1], timeout: 3.0)
+
+        // Submit another beacon that should be rejected
+        reporter.submit(AlertBeacon(alertType: .lowMemory)) {
+            submittedToQueue2.fulfill()
+        }
+        wait(for: [submittedToQueue2], timeout: 3.0)
+
+        // Then - the second beacon is also in the queue - no beacon has been dropped
+        AssertTrue(reporter.queue.items.count == 2)
+    }
+
+    func test_submit_rateLimit_exceeds() {
+        // Given
+        let submittedToQueue1 = expectation(description: "Submitted First Beacon")
+        let submittedToQueue2 = expectation(description: "Submitted Second Beacon")
+        let rateLimiter = ReporterRateLimiter(configs: [.init(timeout: 30.0, maxItems: 1)])
+        let reporter = ReporterDefaultWifi(delay: 10.0, rateLimiter: rateLimiter)
+
+        // When
+        reporter.submit(AlertBeacon(alertType: .lowMemory)) {
+            submittedToQueue1.fulfill()
+        }
+        wait(for: [submittedToQueue1], timeout: 3.0)
+
+        // Submit another beacon that should be rejected
+        reporter.submit(AlertBeacon(alertType: .lowMemory)) {
+            submittedToQueue2.fulfill()
+        }
+        wait(for: [submittedToQueue2], timeout: 3.0)
+
+        // Then : only one beacon should be the in queue - the second has been dropped
+        AssertTrue(reporter.queue.items.count == 1)
+    }
+
     func test_submit_multiple_must_be_delayed() {
         // Given
         var didSubmitFirst = false
@@ -1109,11 +1155,16 @@ extension ReporterTests {
 
     func ReporterDefaultWifi(delay: TimeInterval = 0.0,
                               preQueueUsageTime: TimeInterval = 0.0,
+                              rateLimiter: ReporterRateLimiter? = nil,
                               queue: InstanaPersistableQueue<CoreBeacon>? = nil,
                              _ expectations: [XCTestExpectation] = [],
                              _ sent: ((Int) -> Void)? = nil) -> Reporter {
         var sendCount = 0
-        return Reporter(session(delay, preQueueUsageTime: preQueueUsageTime), batterySafeForNetworking: { true }, networkUtility: .wifi, queue: queue) { _, callback in
+        return Reporter(session(delay, preQueueUsageTime: preQueueUsageTime),
+                        batterySafeForNetworking: { true },
+                        networkUtility: .wifi,
+                        rateLimiter: rateLimiter,
+                        queue: queue) { _, callback in
             DispatchQueue.main.async {
                 callback(.success(statusCode: 200))
                 if expectations.count > sendCount {
