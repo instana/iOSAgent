@@ -84,6 +84,9 @@
                   Identifier = "InstanaPersistableQueueTests">
                </Test>
                <Test
+                  Identifier = "InstanaPropertiesTests">
+               </Test>
+               <Test
                   Identifier = "InstanaPropertyHandlerTests">
                </Test>
                <Test
@@ -103,6 +106,9 @@
                </Test>
                <Test
                   Identifier = "NetworkUtilityTests">
+               </Test>
+               <Test
+                  Identifier = "ReporterRateLimitTests">
                </Test>
                <Test
                   Identifier = "ReporterTests">

@@ -857,8 +857,8 @@ class ReporterTests: InstanaTestCase {
         // Then
         AssertTrue(sendCount == 2)
         AssertTrue(sendQueue.addedItems.count == 2)
-        AssertEqualAndNotNil(sendQueue.addedItems.first?.bid, beacon1.id.uuidString)
-        AssertEqualAndNotNil(sendQueue.addedItems.randomElement()?.bid, beacon2.id.uuidString)
+        AssertTrue(sendQueue.addedItems.map {$0.bid}.contains(beacon1.id.uuidString))
+        AssertTrue(sendQueue.addedItems.map {$0.bid}.contains(beacon2.id.uuidString))
     }
 
 
@@ -979,12 +979,12 @@ class ReporterTests: InstanaTestCase {
     func test_submitSuccess_withStatusCodeOutside200Range_shouldReportFailure() {
         // Given
         let waitForSend = expectation(description: "waitForSend")
-        var resultError: InstanaError?
+        var resultErrors = [InstanaError]()
         var errorCount = 0
         let verifyResult: (BeaconResult) -> Void = {
             guard case let .failure(e) = $0 else { XCTFail("Invalid result: \($0)"); return }
             guard let error = e as? InstanaError else { XCTFail("Error type missmatch"); return }
-            resultError = error
+            resultErrors.append(error)
             errorCount += 1
             if errorCount == 4 {
                 waitForSend.fulfill()
@@ -992,24 +992,27 @@ class ReporterTests: InstanaTestCase {
         }
 
         // When
-        mockBeaconSubmission(.success(statusCode: 100), resultCallback: verifyResult)
-        mockBeaconSubmission(.success(statusCode: 300), resultCallback: verifyResult)
-        mockBeaconSubmission(.success(statusCode: 400), resultCallback: verifyResult)
-        mockBeaconSubmission(.success(statusCode: 500), resultCallback: verifyResult)
+        mockBeaconSubmission(.failure(InstanaError.httpClientError(400)), resultCallback: verifyResult)
+        mockBeaconSubmission(.failure(InstanaError.httpClientError(499)), resultCallback: verifyResult)
+        mockBeaconSubmission(.failure(InstanaError.httpServerError(500)), resultCallback: verifyResult)
+        mockBeaconSubmission(.failure(InstanaError.httpServerError(599)), resultCallback: verifyResult)
         wait(for: [waitForSend], timeout: 10.0)
 
         // Then
-        AssertTrue(resultError == InstanaError.invalidResponse)
+        AssertTrue(resultErrors.contains(InstanaError.httpClientError(400)))
+        AssertTrue(resultErrors.contains(InstanaError.httpClientError(499)))
+        AssertTrue(resultErrors.contains(InstanaError.httpClientError(500)))
+        AssertTrue(resultErrors.contains(InstanaError.httpClientError(599)))
     }
 
     func test_submit_and_flush_shouldNotCause_RetainCycle() {
         // Given
         let waitForCompletion = expectation(description: "waitForSend")
-        var reporter: Reporter? = Reporter(session()) { _, completion in
+        var reporter: Reporter? = Reporter(session(), send:  { _, completion in
             DispatchQueue.main.async {
                 completion(.success(statusCode: 200))
             }
-        }
+        })
         reporter?.completionHandler.append {result in
             waitForCompletion.fulfill()
         }
@@ -1059,7 +1062,7 @@ extension ReporterTests {
     func test_createBatchRequest() {
         // Given
         session = session()
-        let reporter = Reporter(session) { _, _ in}
+        let reporter = Reporter(session, send:  { _, _ in})
         let beacons = [HTTPBeacon.createMock(), HTTPBeacon.createMock()]
         let cbeacons = try! CoreBeaconFactory(session).map(beacons)
         let data = cbeacons.asString.data(using: .utf8)
@@ -1081,7 +1084,7 @@ extension ReporterTests {
         // Given
         let invalidConfig = InstanaConfiguration.mock(key: "")
         session = InstanaSession.mock(configuration: invalidConfig)
-        let reporter = Reporter(session) { _, _ in}
+        let reporter = Reporter(session, send:  { _, _ in})
         let beacons = [HTTPBeacon.createMock(), HTTPBeacon.createMock()]
         let corebeacons = try! CoreBeaconFactory(session).map(beacons)
 

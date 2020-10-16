@@ -38,9 +38,6 @@
                <Test
                   Identifier = "ReporterIntegrationTests">
                </Test>
-               <Test
-                  Identifier = "ReporterTests">
-               </Test>
             </SkippedTests>
          </TestableReference>
       </Testables>
