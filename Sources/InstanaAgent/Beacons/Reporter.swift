@@ -9,7 +9,7 @@ public class Reporter {
     typealias NetworkLoader = (URLRequest, @escaping (InstanaNetworking.Result) -> Void) -> Void
     var completionHandler = [Completion]()
     let queue: InstanaPersistableQueue<CoreBeacon>
-    private let backgroundQueue = DispatchQueue(label: "com.instana.ios.agent.background", qos: .background)
+    private let dispatchQueue = DispatchQueue(label: "com.instana.ios.agent.reporter", qos: .utility)
     private let send: NetworkLoader
     private let rateLimiter: ReporterRateLimiter
     private let batterySafeForNetworking: () -> Bool
@@ -51,25 +51,26 @@ public class Reporter {
                 self.runBackgroundFlush()
             }
         }
-        backgroundQueue.asyncAfter(deadline: .now() + session.configuration.preQueueUsageTime, execute: emptyPreQueueIfNeeded)
+        dispatchQueue.asyncAfter(deadline: .now() + session.configuration.preQueueUsageTime, execute: emptyPreQueueIfNeeded)
     }
 
     func submit(_ beacon: Beacon, _ completion: (() -> Void)? = nil) {
-        guard rateLimiter.canSubmit() else {
-            self.session.logger.add("Rate Limit reached - Beacon will be discarded", level: .warning)
-            completion?()
-            return
-        }
-        if mustUsePrequeue {
-            backgroundQueue.sync {
-                self.preQueue.append(beacon)
+        dispatchQueue.async { [weak self] in
+            guard let self = self else { return }
+            guard self.rateLimiter.canSubmit() else {
+                self.session.logger.add("Rate Limit reached - Beacon will be discarded", level: .warning)
+                completion?()
+                return
             }
-            completion?()
-            return
-        }
-        backgroundQueue.async(qos: .background) {
+            if self.mustUsePrequeue {
+                self.preQueue.append(beacon)
+                completion?()
+                return
+            }
+
             guard !self.queue.isFull else {
                 self.session.logger.add("Queue is full - Beacon will be discarded", level: .warning)
+                completion?()
                 return
             }
             let start = Date()
@@ -110,7 +111,7 @@ public class Reporter {
         flushWorkItem = workItem
         var interval = batterySafeForNetworking() ? session.configuration.transmissionDelay : session.configuration.transmissionLowBatteryDelay
         interval = queue.isFull ? 0.0 : interval
-        backgroundQueue.asyncAfter(deadline: .now() + interval, execute: workItem)
+        dispatchQueue.asyncAfter(deadline: .now() + interval, execute: workItem)
     }
 
     func flushQueue() {
@@ -134,23 +135,32 @@ public class Reporter {
             complete([], .failure(error))
             return
         }
-        send(request) { [weak self] result in
-            guard let self = self else { return }
-            self.session.logger.add("Did transfer beacon\n \(beaconsAsString)")
-            switch result {
-            case let .failure(error):
-                self.complete(beacons, .failure(error))
-            case .success:
-                self.complete(beacons, .success)
-            }
+        let sentSemaphore = DispatchSemaphore(value: 0)
+        var result: InstanaNetworking.Result?
+        send(request) { sentResult in
+            result = sentResult
+            sentSemaphore.signal()
+        }
+        _ = sentSemaphore.wait(timeout: .now() + request.timeoutInterval + 1)
+        session.logger.add("Did transfer beacon\n \(beaconsAsString)")
+        switch result {
+        case let .failure(error):
+            complete(beacons, .failure(error))
+        case .success:
+            complete(beacons, .success)
+        case .none:
+            complete(beacons, .failure(HTTPError.timeout))
         }
     }
 
     func runBackgroundFlush() {
-        guard !queue.items.isEmpty else { return }
-        ProcessInfo.processInfo.performExpiringActivity(withReason: "BackgroundFlush") { expired in
-            guard !expired else { return }
-            self.flushQueue()
+        dispatchQueue.async { [weak self] in
+            guard let self = self else { return }
+            guard !self.queue.items.isEmpty else { return }
+            ProcessInfo.processInfo.performExpiringActivity(withReason: "BackgroundFlush") { expired in
+                guard !expired else { return }
+                self.flushQueue()
+            }
         }
     }
 
@@ -214,7 +224,7 @@ class ReporterRateLimiter {
         }
 
         func scheduleReset() {
-            queue.asyncAfter(deadline: .now() + timeout) {[weak self] in
+            queue.asyncAfter(deadline: .now() + timeout) { [weak self] in
                 guard let self = self else { return }
                 self.current = 0
                 self.scheduleReset()
