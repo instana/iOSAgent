@@ -227,10 +227,8 @@ class ReporterTests: InstanaTestCase {
         let start = Date()
         var finished: Date?
         let reporter = Reporter(session(delay), batterySafeForNetworking: { false }, networkUtility: .cell) { _, _ in
-            DispatchQueue.main.async {
-                finished = Date()
-                exp.fulfill()
-            }
+            finished = Date()
+            exp.fulfill()
         }
 
         // When
@@ -255,9 +253,7 @@ class ReporterTests: InstanaTestCase {
         var resultError: InstanaError?
         var sendNotCalled = true
         let reporter = Reporter(session(), batterySafeForNetworking: { true }, networkUtility: .none) { _, _ in
-            DispatchQueue.main.async {
-                sendNotCalled = false
-            }
+            sendNotCalled = false
         }
 
         // When Offline
@@ -288,11 +284,9 @@ class ReporterTests: InstanaTestCase {
         var sendCalled = false
         let networkUtility: NetworkUtility = .none
         let reporter = Reporter(session(), batterySafeForNetworking: { true }, networkUtility: networkUtility) { _, _ in
-            DispatchQueue.main.async {
-                sendCalled = true
-                resultError = nil
-                secondStep.fulfill()
-            }
+            sendCalled = true
+            resultError = nil
+            secondStep.fulfill()
         }
 
         // When Offline
@@ -330,9 +324,7 @@ class ReporterTests: InstanaTestCase {
         var resultError: InstanaError?
         var sendNotCalled = true
         let reporter = Reporter(session(suspend: [.cellularConnection]), batterySafeForNetworking: { true }, networkUtility: .cell) { _, _ in
-            DispatchQueue.main.async {
-                sendNotCalled = false
-            }
+            sendNotCalled = false
         }
 
         // When
@@ -359,10 +351,8 @@ class ReporterTests: InstanaTestCase {
         let waitFor = expectation(description: "Delayed sending")
         var didSendReport = false
         let reporter = Reporter(session(suspend: [.cellularConnection]), batterySafeForNetworking: { false }, networkUtility: .wifi) { _, _ in
-            DispatchQueue.main.async {
-                didSendReport = true
-                waitFor.fulfill()
-            }
+            didSendReport = true
+            waitFor.fulfill()
         }
 
         // When
@@ -384,10 +374,8 @@ class ReporterTests: InstanaTestCase {
         let waitFor = expectation(description: "Delayed sending")
         var didSendReport = false
         let reporter = Reporter(session(suspend: [.cellularConnection]), batterySafeForNetworking: { true }, networkUtility: .wifi) { _, _ in
-            DispatchQueue.main.async {
-                didSendReport = true
-                waitFor.fulfill()
-            }
+            didSendReport = true
+            waitFor.fulfill()
         }
 
         // When
@@ -410,9 +398,7 @@ class ReporterTests: InstanaTestCase {
         var resultError: InstanaError?
         var sendNotCalled = true
         let reporter = Reporter(session(suspend: [.cellularConnection]), batterySafeForNetworking: { false }, networkUtility: .cell) { _, _ in
-            DispatchQueue.main.async {
-                sendNotCalled = false
-            }
+            sendNotCalled = false
         }
 
         // When
@@ -441,9 +427,7 @@ class ReporterTests: InstanaTestCase {
         var resultError: InstanaError?
         var sendNotCalled = true
         let reporter = Reporter(session(suspend: [.lowBattery]), batterySafeForNetworking: { false }, networkUtility: .cell) { _, _ in
-            DispatchQueue.main.async {
-                sendNotCalled = false
-            }
+            sendNotCalled = false
         }
 
         // When
@@ -470,10 +454,8 @@ class ReporterTests: InstanaTestCase {
         let waitFor = expectation(description: "Delayed sending")
         var didSendReport = false
         let reporter = Reporter(session(suspend: [.lowBattery]), batterySafeForNetworking: { true }, networkUtility: .wifi) { _, _ in
-            DispatchQueue.main.async {
-                didSendReport = true
-                waitFor.fulfill()
-            }
+            didSendReport = true
+            waitFor.fulfill()
         }
 
         // When
@@ -495,10 +477,8 @@ class ReporterTests: InstanaTestCase {
         let waitFor = expectation(description: "Delayed sending")
         var didSendReport = false
         let reporter = Reporter(session(suspend: [.lowBattery]), batterySafeForNetworking: { true }, networkUtility: .cell) { _, _ in
-            DispatchQueue.main.async {
-                didSendReport = true
-                waitFor.fulfill()
-            }
+            didSendReport = true
+            waitFor.fulfill()
         }
 
         // When
@@ -521,9 +501,7 @@ class ReporterTests: InstanaTestCase {
         var resultError: InstanaError?
         var didNOTSendReport = true
         let reporter = Reporter(session(suspend: [.lowBattery]), batterySafeForNetworking: { false }, networkUtility: .wifi) { _, _ in
-            DispatchQueue.main.async {
-                didNOTSendReport = false
-            }
+            didNOTSendReport = false
         }
 
         // When
@@ -552,9 +530,7 @@ class ReporterTests: InstanaTestCase {
         var resultError: InstanaError?
         var sendNotCalled = true
         let reporter = Reporter(session(suspend: [.lowBattery, .cellularConnection]), batterySafeForNetworking: { false }, networkUtility: .cell) { _, _ in
-            DispatchQueue.main.async {
-                sendNotCalled = false
-            }
+            sendNotCalled = false
         }
 
         // When
@@ -581,9 +557,7 @@ class ReporterTests: InstanaTestCase {
         var resultError: InstanaError?
         var sendNotCalled = true
         let reporter = Reporter(session(suspend: [.lowBattery, .cellularConnection]), batterySafeForNetworking: { true }, networkUtility: .cell) { _, _ in
-            DispatchQueue.main.async {
-                sendNotCalled = false
-            }
+            sendNotCalled = false
         }
 
         // When
@@ -610,9 +584,7 @@ class ReporterTests: InstanaTestCase {
         let waitForCompletion = expectation(description: "Delayed sending")
         var sendNotCalled = true
         let reporter = Reporter(session(suspend: [.lowBattery, .cellularConnection]), batterySafeForNetworking: { false }, networkUtility: .wifi) { _, _ in
-            DispatchQueue.main.async {
-                sendNotCalled = false
-            }
+            sendNotCalled = false
         }
 
         // When
@@ -638,10 +610,8 @@ class ReporterTests: InstanaTestCase {
         let waitForSend = expectation(description: "Delayed sending")
         var sendCount = 0
         let reporter = Reporter(session(suspend: [.lowBattery, .cellularConnection]), batterySafeForNetworking: { true }, networkUtility: .wifi) { _, _ in
-            DispatchQueue.main.async {
-                sendCount += 1
-                waitForSend.fulfill()
-            }
+            sendCount += 1
+            waitForSend.fulfill()
         }
 
         // When
@@ -666,10 +636,8 @@ class ReporterTests: InstanaTestCase {
         var sendCount = 0
         let waitForSend = expectation(description: "Delayed sending")
         let reporter = Reporter(session(), batterySafeForNetworking: { false }, networkUtility: .cell) { _, _ in
-            DispatchQueue.main.async {
-                sendCount += 1
-                waitForSend.fulfill()
-            }
+            sendCount += 1
+            waitForSend.fulfill()
         }
 
         // When
@@ -713,10 +681,8 @@ class ReporterTests: InstanaTestCase {
         var sendCount = 0
         let waitForSend = expectation(description: "Delayed sending")
         let reporter = Reporter(session(), batterySafeForNetworking: { false }, networkUtility: .wifi) { _, _ in
-            DispatchQueue.main.async {
-                sendCount += 1
-                waitForSend.fulfill()
-            }
+            sendCount += 1
+            waitForSend.fulfill()
         }
 
         // When
@@ -738,10 +704,8 @@ class ReporterTests: InstanaTestCase {
         var sendCount = 0
         let waitForSend = expectation(description: "Delayed sending")
         let reporter = Reporter(session(), batterySafeForNetworking: { true }, networkUtility: .cell)  { _, _ in
-            DispatchQueue.main.async {
-                sendCount += 1
-                waitForSend.fulfill()
-            }
+            sendCount += 1
+            waitForSend.fulfill()
         }
 
         // When
@@ -824,25 +788,26 @@ class ReporterTests: InstanaTestCase {
         var expectedResult: BeaconResult?
         let prequeueTime = 2.0
         let viewName = "ViewName"
+        let waitForSubmit = expectation(description: "Wait for Submit")
         let waitForSend = expectation(description: "Wait for send")
         let sendQueue = MockInstanaPersistableQueue<CoreBeacon>(identifier: "queue", maxItems: 2)
         let mockSession = session(0.0, preQueueUsageTime: prequeueTime)
         mockSession.propertyHandler.properties.view = nil
         let reporter = Reporter(mockSession, batterySafeForNetworking: { true }, networkUtility: .wifi, queue: sendQueue) { _, completion in
-            DispatchQueue.main.async {
-                completion(.success(statusCode: 200))
-                waitForSend.fulfill()
-            }
+            completion(.success(statusCode: 200))
         }
 
-
         // When
-        reporter.submit(beacon)
+        reporter.submit(beacon) {
+            waitForSubmit.fulfill()
+        }
         reporter.completionHandler.append {result in
             expectedResult = result
+            waitForSend.fulfill()
         }
 
         // Then
+        wait(for: [waitForSubmit], timeout: 2.0)
         AssertTrue(beacon.viewName == nil)
         AssertTrue(mockSession.propertyHandler.properties.view == nil)
         AssertTrue(mockSession.propertyHandler.properties.user == nil)
@@ -872,39 +837,42 @@ class ReporterTests: InstanaTestCase {
         let beacon1 = HTTPBeacon.createMock()
         let beacon2 = HTTPBeacon.createMock()
         let prequeueTime = 0.5
+        let waitForSubmit = expectation(description: "Wait for submit")
         let waitForSend = expectation(description: "Wait for send")
         var sendCount = 0
         let sendQueue = MockInstanaPersistableQueue<CoreBeacon>(identifier: "queue", maxItems: 2)
-        let reporter = ReporterDefaultWifi(preQueueUsageTime: prequeueTime, queue: sendQueue) {
-            sendCount = $0
+        let mockSession = session(0.0, preQueueUsageTime: prequeueTime)
+        let reporter = Reporter(mockSession, batterySafeForNetworking: { true }, networkUtility: .wifi, queue: sendQueue) { _, completion in
+            completion(.success(statusCode: 200))
+        }
+
+        // When
+        reporter.submit(beacon1) {
+            waitForSubmit.fulfill()
+        }
+        reporter.completionHandler.append { beaconResult in
+            sendCount += 1
             if sendCount == 2 {
                 waitForSend.fulfill()
             }
         }
 
-        // When
-        reporter.submit(beacon1)
-
         // Then
+        wait(for: [waitForSubmit], timeout: 3.0)
         AssertTrue(reporter.preQueue.first === beacon1)
         AssertTrue(reporter.preQueue.count == 1)
 
         // When
         wait(prequeueTime + 0.1)
         reporter.submit(beacon2)
-
-        // Then
-        AssertTrue(sendQueue.addedItems.count == 1)
-        AssertTrue(reporter.preQueue.isEmpty)
-
-        // When
-        wait(for: [waitForSend], timeout: prequeueTime * 2)
+        wait(for: [waitForSend], timeout: prequeueTime * 4)
 
         // Then
         AssertTrue(sendCount == 2)
         AssertTrue(sendQueue.addedItems.count == 2)
         AssertTrue(sendQueue.addedItems.map {$0.bid}.contains(beacon1.id.uuidString))
         AssertTrue(sendQueue.addedItems.map {$0.bid}.contains(beacon2.id.uuidString))
+        AssertTrue(reporter.preQueue.isEmpty)
     }
 
 
@@ -916,9 +884,7 @@ class ReporterTests: InstanaTestCase {
         let givenBeacon = HTTPBeacon.createMock()
         let waitForSend = expectation(description: "Delayed sending")
         let reporter = Reporter(session(), batterySafeForNetworking: { true }, networkUtility: .wifi) { _, completion in
-            DispatchQueue.main.async {
-                completion(.failure(givenError))
-            }
+            completion(.failure(givenError))
         }
 
         // When
@@ -943,9 +909,7 @@ class ReporterTests: InstanaTestCase {
         let givenError = InstanaError.httpClientError(400)
         let waitForSend = expectation(description: "Delayed sending")
         let reporter = Reporter(session(), batterySafeForNetworking: { true }, networkUtility: .wifi, queue: mockQueue) { _, completion in
-            DispatchQueue.main.async {
-                completion(.failure(givenError))
-            }
+            completion(.failure(givenError))
         }
 
         // When
@@ -968,9 +932,7 @@ class ReporterTests: InstanaTestCase {
         let givenError = InstanaError.httpServerError(500)
         let waitForSend = expectation(description: "Delayed sending")
         let reporter = Reporter(session(), batterySafeForNetworking: { true }, networkUtility: .wifi, queue: mockQueue) { _, completion in
-            DispatchQueue.main.async {
-                completion(.failure(givenError))
-            }
+            completion(.failure(givenError))
         }
 
         // When
@@ -988,16 +950,17 @@ class ReporterTests: InstanaTestCase {
 
     func test_invalid_beacon_should_not_submitted() {
         // Given
-        var shouldNotSubmitted = true
+        let waitForSubmit = expectation(description: "wait for submit")
         let reporter = ReporterDefaultWifi()
 
         // When
         reporter.submit(Beacon(timestamp: 1000000)) {
-            shouldNotSubmitted = false
+            waitForSubmit.fulfill()
         }
 
         // Then
-        AssertTrue(shouldNotSubmitted)
+        wait(for: [waitForSubmit], timeout: 2.0)
+        AssertTrue(reporter.queue.items.isEmpty)
     }
     
     func test_submitSuccess_withStatusCodeIn200Range_shouldReportSuccess() {
@@ -1055,9 +1018,7 @@ class ReporterTests: InstanaTestCase {
         // Given
         let waitForCompletion = expectation(description: "waitForSend")
         var reporter: Reporter? = Reporter(session(), send:  { _, completion in
-            DispatchQueue.main.async {
-                completion(.success(statusCode: 200))
-            }
+            completion(.success(statusCode: 200))
         })
         reporter?.completionHandler.append {result in
             waitForCompletion.fulfill()
@@ -1078,9 +1039,7 @@ class ReporterTests: InstanaTestCase {
         var shouldCallCompletion = false
         let waitFor = expectation(description: "Wait For")
         let reporter = Reporter(session(), batterySafeForNetworking: { true }, networkUtility: .wifi) { _, completion in
-            DispatchQueue.main.async {
-                completion(.failure(InstanaError.invalidResponse))
-            }
+            completion(.failure(InstanaError.invalidResponse))
         }
         let beacons: [HTTPBeacon] = (0..<reporter.queue.maxItems).map { _ in HTTPBeacon.createMock() }
         let corebeacons = try! CoreBeaconFactory(session).map(beacons)
@@ -1154,26 +1113,28 @@ extension ReporterTests {
     }
 
     func ReporterDefaultWifi(delay: TimeInterval = 0.0,
-                              preQueueUsageTime: TimeInterval = 0.0,
+                             preQueueUsageTime: TimeInterval = 0.0,
                               rateLimiter: ReporterRateLimiter? = nil,
                               queue: InstanaPersistableQueue<CoreBeacon>? = nil,
                              _ expectations: [XCTestExpectation] = [],
                              _ sent: ((Int) -> Void)? = nil) -> Reporter {
         var sendCount = 0
-        return Reporter(session(delay, preQueueUsageTime: preQueueUsageTime),
+        let reporter = Reporter(session(delay, preQueueUsageTime: preQueueUsageTime),
                         batterySafeForNetworking: { true },
                         networkUtility: .wifi,
                         rateLimiter: rateLimiter,
-                        queue: queue) { _, callback in
-            DispatchQueue.main.async {
-                callback(.success(statusCode: 200))
-                if expectations.count > sendCount {
-                    expectations[sendCount].fulfill()
-                }
-                sendCount += 1
-                sent?(sendCount)
+                        queue: queue,
+                        send: { _, callback in
+                            callback(.success(statusCode: 200))
+                        })
+        reporter.completionHandler.append { result in
+            sendCount += 1
+            sent?(sendCount)
+            if sendCount <= expectations.count {
+                expectations[sendCount - 1].fulfill()
             }
         }
+        return reporter
     }
 
     func mockBeaconSubmission(_ loadResult: InstanaNetworking.Result, resultCallback: @escaping (BeaconResult) -> Void) {
@@ -1183,9 +1144,7 @@ extension ReporterTests {
         let reporter = Reporter(.mock(configuration: config),
                                 batterySafeForNetworking: { true },
                                 networkUtility: .wifi) { _, callback in
-                                    DispatchQueue.main.async {
-                                        callback(loadResult)
-                                    }
+            callback(loadResult)
         }
         reporter.queue.removeAll()
         reporter.completionHandler.append(resultCallback)
