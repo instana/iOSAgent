@@ -14,6 +14,7 @@ class InstanaURLProtocol: URLProtocol {
     private(set) lazy var sessionConfiguration: URLSessionConfiguration = { .default }()
     var marker: HTTPMarker?
     private var incomingTask: URLSessionTask?
+    let markerQueue = DispatchQueue(label: "com.instana.ios.agent.InstanaURLProtocol", qos: .default)
 
     convenience init(task: URLSessionTask, cachedResponse: CachedURLResponse?, client: URLProtocolClient?) {
         guard let request = task.originalRequest else { self.init(); return }
@@ -43,16 +44,20 @@ class InstanaURLProtocol: URLProtocol {
     }
 
     override func startLoading() {
-        if InstanaURLProtocol.mode == .enabled, canMark {
-            marker = try? Instana.current?.monitors.http?.mark(request)
+        markerQueue.sync {
+            if InstanaURLProtocol.mode == .enabled, canMark {
+                marker = try? Instana.current?.monitors.http?.mark(request)
+            }
+            let task = session.dataTask(with: request)
+            task.resume()
         }
-        let task = session.dataTask(with: request)
-        task.resume()
     }
 
     override func stopLoading() {
-        session.invalidateAndCancel()
-        if let marker = marker, case .started = marker.state { marker.cancel() }
+        markerQueue.sync {
+            session.invalidateAndCancel()
+            if let marker = marker, case .started = marker.state { marker.cancel() }
+        }
     }
 }
 
@@ -63,11 +68,15 @@ extension InstanaURLProtocol: URLSessionTaskDelegate {
         } else {
             client?.urlProtocolDidFinishLoading(self)
         }
-        marker?.finish(response: task.response, error: error)
+        markerQueue.sync {
+            marker?.finish(response: task.response, error: error)
+        }
     }
 
     func urlSession(_ session: URLSession, task: URLSessionTask, didFinishCollecting metrics: URLSessionTaskMetrics) {
-        marker?.set(responseSize: HTTPMarker.Size(response: task.response ?? URLResponse(), transactionMetrics: metrics.transactionMetrics))
+        markerQueue.sync {
+            marker?.set(responseSize: HTTPMarker.Size(response: task.response ?? URLResponse(), transactionMetrics: metrics.transactionMetrics))
+        }
     }
 }
 
@@ -89,10 +98,12 @@ extension InstanaURLProtocol: URLSessionDataDelegate {
                     willPerformHTTPRedirection response: HTTPURLResponse,
                     newRequest request: URLRequest,
                     completionHandler: @escaping (URLRequest?) -> Void) {
-        marker?.set(responseSize: HTTPMarker.Size(response))
-        marker?.finish(response: response, error: nil)
-        marker = try? Instana.current?.monitors.http?.mark(request)
-        completionHandler(request)
+        markerQueue.sync {
+            marker?.set(responseSize: HTTPMarker.Size(response))
+            marker?.finish(response: response, error: nil)
+            marker = try? Instana.current?.monitors.http?.mark(request)
+            completionHandler(request)
+        }
     }
 }
 

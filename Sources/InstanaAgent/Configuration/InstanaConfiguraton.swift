@@ -19,6 +19,11 @@ struct InstanaConfiguration: Equatable {
         static let defaults: Set<SuspendReporting> = []
     }
 
+    struct ReporterRateLimitConfig: Equatable {
+        let timeout: TimeInterval
+        let maxItems: Int
+    }
+
     enum MonitorTypes: Hashable {
         case http
         case memoryWarning
@@ -37,6 +42,8 @@ struct InstanaConfiguration: Equatable {
         static let gzipReport = ProcessInfo.ignoreZIPReporting ? false : true
         static let maxBeaconsPerRequest = 100
         static let preQueueUsageTime: TimeInterval = 2.0
+        static let reporterRateLimits = [ReporterRateLimitConfig(timeout: 10, maxItems: 20),
+                                         ReporterRateLimitConfig(timeout: 60 * 5, maxItems: 500)]
     }
 
     var reportingURL: URL
@@ -49,6 +56,7 @@ struct InstanaConfiguration: Equatable {
     var gzipReport: Bool
     var maxBeaconsPerRequest: Int
     var preQueueUsageTime: TimeInterval
+    var reporterRateLimits: [ReporterRateLimitConfig]
     var isValid: Bool { !key.isEmpty && !reportingURL.absoluteString.isEmpty }
 
     static var empty: InstanaConfiguration {
@@ -65,6 +73,7 @@ struct InstanaConfiguration: Equatable {
                   transmissionLowBatteryDelay: Defaults.transmissionLowBatteryDelay,
                   gzipReport: Defaults.gzipReport,
                   maxBeaconsPerRequest: Defaults.maxBeaconsPerRequest,
-                  preQueueUsageTime: Defaults.preQueueUsageTime)
+                  preQueueUsageTime: Defaults.preQueueUsageTime,
+                  reporterRateLimits: Defaults.reporterRateLimits)
     }
 }

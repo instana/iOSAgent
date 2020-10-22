@@ -148,6 +148,7 @@
 				728CF9D82387F01200BEE2F9 /* Frameworks */,
 				728CF9D92387F01200BEE2F9 /* Resources */,
 				7298779024C6080000E92B48 /* Reset Config */,
+				7255C2122539D79B005B1DBA /* Reset Simulator */,
 			);
 			buildRules = (
 			);
@@ -169,6 +170,7 @@
 				72C7A9F323E04D6300041782 /* Sources */,
 				72C7A9F423E04D6300041782 /* Frameworks */,
 				72C7A9F523E04D6300041782 /* Resources */,
+				7255C20D2539D723005B1DBA /* Reset Simulators */,
 			);
 			buildRules = (
 			);
@@ -242,6 +244,42 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		7255C20D2539D723005B1DBA /* Reset Simulators */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Reset Simulators";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "echo \"Shutdown and reset Simulators\"\nxcrun simctl shutdown all\nxcrun simctl erase all\n";
+		};
+		7255C2122539D79B005B1DBA /* Reset Simulator */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Reset Simulator";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "echo \"Shutdown and reset Simulators\"\nxcrun simctl shutdown all\nxcrun simctl erase all\n";
+		};
 		7298779024C6080000E92B48 /* Reset Config */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -258,7 +296,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if [ -f ../../.env-vars ]\nthen\n    echo \"Import secure variables\"\n    source ../../.env-vars\n    sed -i '' 's,'\\\"${INSTANA_REPORTING_KEY}\\\"',\\\"KEY\\\",g' ${PRODUCT_NAME}/Config.swift\n    sed -i '' 's,'\\\"${INSTANA_REPORTING_URL}\\\"',\\\"URL\\\",g' ${PRODUCT_NAME}/Config.swift\nfi\n";
+			shellScript = "if [ -f ../../.env-vars ]\nthen\n    echo \"Import secure variables\"\n    source ../../.env-vars\n    sed -i '' 's,'${INSTANA_REPORTING_KEY}',INSTANA_REPORTING_KEY,g' ${PRODUCT_NAME}/Config.swift\n    sed -i '' 's,'${INSTANA_REPORTING_URL}',INSTANA_REPORTING_URL,g' ${PRODUCT_NAME}/Config.swift\nfi\n";
 		};
 		72C7A9F123E04B2000041782 /* Set Config */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -276,7 +314,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if [ -f ../../.env-vars ]\nthen\n    echo \"Import secure variables\"\n    source ../../.env-vars\n    sed -i '' 's,\\\"KEY\\\",'\\\"${INSTANA_REPORTING_KEY}\\\"',g' ${PRODUCT_NAME}/Config.swift\n    sed -i '' 's,\\\"URL\\\",'\\\"${INSTANA_REPORTING_URL}\\\"',g' ${PRODUCT_NAME}/Config.swift\nfi\n";
+			shellScript = "if [ -f ../../.env-vars ]\nthen\n    echo \"Import secure variables\"\n    source ../../.env-vars\n    sed -i '' 's,INSTANA_REPORTING_KEY,'${INSTANA_REPORTING_KEY}',g' ${PRODUCT_NAME}/Config.swift\n    sed -i '' 's,INSTANA_REPORTING_URL,'${INSTANA_REPORTING_URL}',g' ${PRODUCT_NAME}/Config.swift\nfi\n";
 		};
 		72E6C5D223E2EA1D009E118E /* SwiftLint */ = {
 			isa = PBXShellScriptBuildPhase;

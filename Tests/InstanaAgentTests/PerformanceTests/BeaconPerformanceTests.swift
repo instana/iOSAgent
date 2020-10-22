@@ -28,11 +28,12 @@ class BeaconPerformanceTests: InstanaTestCase {
         let waitFor = expectation(description: "testSubmitCoreBeacons_1_time")
         // Given
         reporter = Reporter(.mock(configuration: .mock), batterySafeForNetworking: { true }) { _, _ in
+            if done { return }
             done = true
             waitFor.fulfill()
         }
 
-        self.measure {
+        measure {
             // When
             reporter.submit(createHTTPBeacon())
         }
@@ -52,7 +53,7 @@ class BeaconPerformanceTests: InstanaTestCase {
             waitFor.fulfill()
         }
 
-        self.measure {
+        measure {
             // When
             (0..<10).forEach {_ in
                 reporter.submit(createHTTPBeacon())

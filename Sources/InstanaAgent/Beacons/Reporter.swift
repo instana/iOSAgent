@@ -9,8 +9,9 @@ public class Reporter {
     typealias NetworkLoader = (URLRequest, @escaping (InstanaNetworking.Result) -> Void) -> Void
     var completionHandler = [Completion]()
     let queue: InstanaPersistableQueue<CoreBeacon>
-    private let backgroundQueue = DispatchQueue(label: "com.instana.ios.agent.background", qos: .background)
+    private let dispatchQueue = DispatchQueue(label: "com.instana.ios.agent.reporter", qos: .utility)
     private let send: NetworkLoader
+    private let rateLimiter: ReporterRateLimiter
     private let batterySafeForNetworking: () -> Bool
     private let networkUtility: NetworkUtility
     private var suspendReporting: Set<InstanaConfiguration.SuspendReporting> { session.configuration.suspendReporting }
@@ -29,12 +30,14 @@ public class Reporter {
     init(_ session: InstanaSession,
          batterySafeForNetworking: @escaping () -> Bool = { InstanaSystemUtils.battery.safeForNetworking },
          networkUtility: NetworkUtility = NetworkUtility.shared,
+         rateLimiter: ReporterRateLimiter? = nil,
          queue: InstanaPersistableQueue<CoreBeacon>? = nil,
          send: @escaping NetworkLoader = InstanaNetworking().send(request:completion:)) {
         self.networkUtility = networkUtility
         self.session = session
         self.batterySafeForNetworking = batterySafeForNetworking
         self.send = send
+        self.rateLimiter = rateLimiter ?? ReporterRateLimiter(configs: session.configuration.reporterRateLimits)
         self.queue = queue ?? InstanaPersistableQueue<CoreBeacon>(identifier: "com.instana.ios.mainqueue", maxItems: session.configuration.maxBeaconsPerRequest)
         networkUtility.connectionUpdateHandler = { [weak self] connectionType in
             guard let self = self else { return }
@@ -44,24 +47,30 @@ public class Reporter {
         }
         InstanaApplicationStateHandler.shared.listen { [weak self] state in
             guard let self = self else { return }
-            if state == .background {
+            if state == .background, !ProcessInfo.isRunningTests {
                 self.runBackgroundFlush()
             }
         }
-        backgroundQueue.asyncAfter(deadline: .now() + session.configuration.preQueueUsageTime, execute: emptyPreQueueIfNeeded)
+        dispatchQueue.asyncAfter(deadline: .now() + session.configuration.preQueueUsageTime, execute: emptyPreQueueIfNeeded)
     }
 
     func submit(_ beacon: Beacon, _ completion: (() -> Void)? = nil) {
-        if mustUsePrequeue {
-            backgroundQueue.sync {
-                self.preQueue.append(beacon)
+        dispatchQueue.async { [weak self] in
+            guard let self = self else { return }
+            guard self.rateLimiter.canSubmit() else {
+                self.session.logger.add("Rate Limit reached - Beacon will be discarded", level: .warning)
+                completion?()
+                return
             }
-            completion?()
-            return
-        }
-        backgroundQueue.async(qos: .background) {
+            if self.mustUsePrequeue {
+                self.preQueue.append(beacon)
+                completion?()
+                return
+            }
+
             guard !self.queue.isFull else {
                 self.session.logger.add("Queue is full - Beacon will be discarded", level: .warning)
+                completion?()
                 return
             }
             let start = Date()
@@ -102,7 +111,7 @@ public class Reporter {
         flushWorkItem = workItem
         var interval = batterySafeForNetworking() ? session.configuration.transmissionDelay : session.configuration.transmissionLowBatteryDelay
         interval = queue.isFull ? 0.0 : interval
-        backgroundQueue.asyncAfter(deadline: .now() + interval, execute: workItem)
+        dispatchQueue.asyncAfter(deadline: .now() + interval, execute: workItem)
     }
 
     func flushQueue() {
@@ -126,23 +135,32 @@ public class Reporter {
             complete([], .failure(error))
             return
         }
-        send(request) { [weak self] result in
-            guard let self = self else { return }
-            self.session.logger.add("Did transfer beacon\n \(beaconsAsString)")
-            switch result {
-            case let .failure(error):
-                self.complete(beacons, .failure(error))
-            case .success:
-                self.complete(beacons, .success)
-            }
+        let sentSemaphore = DispatchSemaphore(value: 0)
+        var result: InstanaNetworking.Result?
+        send(request) { sentResult in
+            result = sentResult
+            sentSemaphore.signal()
+        }
+        _ = sentSemaphore.wait(timeout: .now() + request.timeoutInterval + 1)
+        session.logger.add("Did transfer beacon\n \(beaconsAsString)")
+        switch result {
+        case let .failure(error):
+            complete(beacons, .failure(error))
+        case .success:
+            complete(beacons, .success)
+        case .none:
+            complete(beacons, .failure(HTTPError.timeout))
         }
     }
 
     func runBackgroundFlush() {
-        guard !queue.items.isEmpty else { return }
-        ProcessInfo.processInfo.performExpiringActivity(withReason: "BackgroundFlush") { expired in
-            guard !expired else { return }
-            self.flushQueue()
+        dispatchQueue.async { [weak self] in
+            guard let self = self else { return }
+            guard !self.queue.items.isEmpty else { return }
+            ProcessInfo.processInfo.performExpiringActivity(withReason: "BackgroundFlush") { expired in
+                guard !expired else { return }
+                self.flushQueue()
+            }
         }
     }
 
@@ -187,5 +205,47 @@ extension Reporter {
         }
 
         return urlRequest
+    }
+}
+
+class ReporterRateLimiter {
+    class Limiter {
+        let maxItems: Int
+        let timeout: TimeInterval
+        var current = 0
+        private lazy var queue = DispatchQueue(label: "com.instana.ios.agent.reporterratelimit.\(maxItems).\(timeout)")
+
+        var exceeds: Bool { current > maxItems }
+
+        init(maxItems: Int, timeout: TimeInterval) {
+            self.maxItems = maxItems
+            self.timeout = timeout
+            scheduleReset()
+        }
+
+        func scheduleReset() {
+            queue.asyncAfter(deadline: .now() + timeout) { [weak self] in
+                guard let self = self else { return }
+                self.current = 0
+                self.scheduleReset()
+            }
+        }
+
+        func signal() -> Bool {
+            queue.sync {
+                current += 1
+                return exceeds
+            }
+        }
+    }
+
+    let limiters: [Limiter]
+
+    init(configs: [InstanaConfiguration.ReporterRateLimitConfig]) {
+        limiters = configs.map { Limiter(maxItems: $0.maxItems, timeout: $0.timeout) }
+    }
+
+    func canSubmit() -> Bool {
+        limiters.map { $0.signal() }.filter { $0 == true }.isEmpty
     }
 }

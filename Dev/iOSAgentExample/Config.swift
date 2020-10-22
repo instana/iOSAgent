@@ -8,5 +8,5 @@
 
 import Foundation
 
-let InstanaKey = "KEY"
-let InstanaURL = "URL"
+let InstanaKey = "INSTANA_REPORTING_KEY"
+let InstanaURL = "INSTANA_REPORTING_URL"
