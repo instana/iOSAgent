@@ -47,7 +47,7 @@ public class Reporter {
         }
         InstanaApplicationStateHandler.shared.listen { [weak self] state in
             guard let self = self else { return }
-            if state == .background {
+            if state == .background && !ProcessInfo.isRunningTests {
                 self.runBackgroundFlush()
             }
         }
