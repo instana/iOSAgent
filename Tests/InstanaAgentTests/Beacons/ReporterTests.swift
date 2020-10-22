@@ -839,12 +839,15 @@ class ReporterTests: InstanaTestCase {
         let prequeueTime = 0.5
         var sendCount = 0
         let waitForSubmit1 = expectation(description: "Wait for submit1")
-        let waitForSubmit2 = expectation(description: "Wait for submit2")
+        let waitForSend = expectation(description: "Wait for send")
         let sendQueue = MockInstanaPersistableQueue<CoreBeacon>(identifier: "queue", maxItems: 2)
         let mockSession = session(0.0, preQueueUsageTime: prequeueTime)
         let reporter = Reporter(mockSession, batterySafeForNetworking: { true }, networkUtility: .wifi, queue: sendQueue) { _, completion in
             completion(.success(statusCode: 200))
             sendCount += 1
+            if sendCount == 2 {
+                waitForSend.fulfill()
+            }
         }
 
         // When
@@ -859,13 +862,11 @@ class ReporterTests: InstanaTestCase {
 
         // When
         wait(prequeueTime + 0.1)
-        reporter.submit(beaconAfterQueue) {
-            waitForSubmit2.fulfill()
-        }
-        wait(for: [waitForSubmit2], timeout: prequeueTime * 4)
+        reporter.submit(beaconAfterQueue)
+        wait(for: [waitForSend], timeout: prequeueTime * 4)
 
         // Then
-        AssertEqualAndNotNil(sendCount, 1) // The prequeue has been flushed only
+        AssertEqualAndNotNil(sendCount, 2) // The prequeue has been flushed only
         AssertTrue(sendQueue.addedItems.count == 2)
         AssertTrue(sendQueue.addedItems.map {$0.bid}.contains(beaconPreQueue.id.uuidString))
         AssertTrue(sendQueue.addedItems.map {$0.bid}.contains(beaconAfterQueue.id.uuidString))
