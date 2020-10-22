@@ -44,18 +44,18 @@ class InstanaURLProtocol: URLProtocol {
     }
 
     override func startLoading() {
-        if InstanaURLProtocol.mode == .enabled, canMark {
-            markerQueue.sync {
+        markerQueue.sync {
+            if InstanaURLProtocol.mode == .enabled, canMark {
                 marker = try? Instana.current?.monitors.http?.mark(request)
             }
+            let task = session.dataTask(with: request)
+            task.resume()
         }
-        let task = session.dataTask(with: request)
-        task.resume()
     }
 
     override func stopLoading() {
-        session.invalidateAndCancel()
         markerQueue.sync {
+            session.invalidateAndCancel()
             if let marker = marker, case .started = marker.state { marker.cancel() }
         }
     }
