@@ -1,4 +1,10 @@
 # Changelog
+
+## 1.1.4 Beta
+- Add Rate limiter to avoid an extensive usage of Instana
+- Improve concurrency and threading
+- Update tests
+
 ## 1.1.3 Beta
 - Validates the length of properties, meta data and view name gracefully without throwing fatalError. Any value that exceeds the limit will be truncated
 
