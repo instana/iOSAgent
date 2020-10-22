@@ -43,7 +43,7 @@ struct InstanaConfiguration: Equatable {
         static let maxBeaconsPerRequest = 100
         static let preQueueUsageTime: TimeInterval = 2.0
         static let reporterRateLimits = [ReporterRateLimitConfig(timeout: 10, maxItems: 20),
-                                         ReporterRateLimitConfig(timeout: 60 * 5, maxItems: 200)]
+                                         ReporterRateLimitConfig(timeout: 60 * 5, maxItems: 500)]
     }
 
     var reportingURL: URL
