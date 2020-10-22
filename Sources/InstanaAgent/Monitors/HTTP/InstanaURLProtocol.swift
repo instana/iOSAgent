@@ -14,7 +14,7 @@ class InstanaURLProtocol: URLProtocol {
     private(set) lazy var sessionConfiguration: URLSessionConfiguration = { .default }()
     var marker: HTTPMarker?
     private var incomingTask: URLSessionTask?
-    let markerQueue = DispatchQueue(label: "com.instana.ios.agent.InstanaURLProtocol", qos: .utility)
+    let markerQueue = DispatchQueue(label: "com.instana.ios.agent.InstanaURLProtocol", qos: .default)
 
     convenience init(task: URLSessionTask, cachedResponse: CachedURLResponse?, client: URLProtocolClient?) {
         guard let request = task.originalRequest else { self.init(); return }
