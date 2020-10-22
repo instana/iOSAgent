@@ -5,7 +5,7 @@ import UIKit
 class InstanaApplicationStateHandler {
     static let shared = InstanaApplicationStateHandler()
 
-    var state: UIApplication.State = UIApplication.shared.applicationState {
+    @Atomic var state: UIApplication.State = UIApplication.shared.applicationState {
         didSet { stateUpdateHandler.forEach { $0(state) } }
     }
 
