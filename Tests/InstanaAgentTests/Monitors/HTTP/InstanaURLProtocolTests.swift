@@ -2,7 +2,6 @@ import XCTest
 @testable import InstanaAgent
 
 class InstanaURLProtocolTests: InstanaTestCase {
-    let makeRequest: (String) -> URLRequest = { URLRequest(url: URL(string: $0)!) }
 
     override func setUp() {
         super.setUp()
@@ -66,24 +65,22 @@ class InstanaURLProtocolTests: InstanaTestCase {
 
     func test_startLoading_enabled() {
         // Given
-        let url = "http://www.a.c"
+        let url = URL.random
         InstanaURLProtocol.mode = .enabled
-        let task = URLSession(configuration: .default).dataTask(with: makeRequest(url))
-        let urlProtocol = InstanaURLProtocol(task: task, cachedResponse: nil, client: nil)
+        let urlProtocol = InstanaURLProtocol(task: mockTask(for: url), cachedResponse: nil, client: nil)
 
         // When
         urlProtocol.startLoading()
 
         // Then
-        AssertEqualAndNotNil(urlProtocol.marker?.url, URL(string: url))
+        AssertEqualAndNotNil(urlProtocol.marker?.url, url)
     }
 
     func test_startLoading_disabled() {
         // Given
-        let url = "http://www.a.c"
+        let url = URL.random
         InstanaURLProtocol.mode = .disabled
-        let task = URLSession(configuration: .default).dataTask(with: makeRequest(url))
-        let urlProtocol = InstanaURLProtocol(task: task, cachedResponse: nil, client: nil)
+        let urlProtocol = InstanaURLProtocol(task: mockTask(for: url), cachedResponse: nil, client: nil)
 
         // When
         urlProtocol.startLoading()
@@ -110,15 +107,17 @@ class InstanaURLProtocolTests: InstanaTestCase {
 
     func test_urlProtocol_shouldExtractInternalTaskSessionConfiguration() {
         // Given
+        let timeout = 123.2
         let configuration = URLSessionConfiguration.default
-        configuration.timeoutIntervalForRequest = 123
+        configuration.timeoutIntervalForRequest = timeout
+        let request = URLRequest(url: URL.random, cachePolicy: .reloadRevalidatingCacheData, timeoutInterval: timeout)
+        let task = URLSession(configuration: configuration).dataTask(with: request)
 
         // When
-        let task = URLSession(configuration: configuration).dataTask(with: makeRequest("http://www.a.c"))
         let urlProtocol = InstanaURLProtocol(task: task, cachedResponse: nil, client: nil)
 
         // Then
-        XCTAssertEqual(urlProtocol.sessionConfiguration.timeoutIntervalForRequest, 123)
+        AssertEqualAndNotNil(urlProtocol.sessionConfiguration.timeoutIntervalForRequest, timeout)
     }
     
     func test_urlProtocol_shouldRemoveSelfFromCopiedInternalTaskSessionConfiguration() {
@@ -127,8 +126,7 @@ class InstanaURLProtocolTests: InstanaTestCase {
 
         // When
         configuration.protocolClasses?.insert(InstanaURLProtocol.self, at: 0)
-        let task = URLSession(configuration: configuration).dataTask(with: makeRequest("http://www.a.c"))
-        let urlProtocol = InstanaURLProtocol(task: task, cachedResponse: nil, client: nil)
+        let urlProtocol = InstanaURLProtocol(task: mockTask(for: URL.random), cachedResponse: nil, client: nil)
 
         // When
         let protocolClasses = urlProtocol.sessionConfiguration.protocolClasses ?? []
@@ -237,7 +235,7 @@ class InstanaURLProtocolTests: InstanaTestCase {
         response.stubbedAllHeaderFields = ["Server-Timing": "intid;desc=981d9553578fc280"]
         task.stubbedResponse = response
         let metrics = MockURLSessionTaskMetrics.random
-        let urlProtocol = InstanaURLProtocol()
+        let urlProtocol = InstanaURLProtocol(task: mockTask(for: url), cachedResponse: nil, client: nil)
         let marker = HTTPMarker(url: url, method: "GET", trigger: .automatic, delegate: delegate)
         urlProtocol.marker = marker
 
@@ -282,7 +280,7 @@ class InstanaURLProtocolTests: InstanaTestCase {
         response.stubbedStatusCode = 301
         response.stubbedAllHeaderFields = ["Server-Timing": "intid;desc=981d9553578fc280"]
         task.stubbedResponse = response
-        let urlProtocol = InstanaURLProtocol()
+        let urlProtocol = InstanaURLProtocol(task: mockTask(for: url), cachedResponse: nil, client: nil)
         let marker = HTTPMarker(url: url, method: "GET", trigger: .automatic, delegate: delegate)
         urlProtocol.marker = marker
         let newRequest = URLRequest(url: URL.random)
@@ -325,7 +323,7 @@ class InstanaURLProtocolTests: InstanaTestCase {
         let response = MockHTTPURLResponse(url: url, mimeType: "text/plain", expectedContentLength: 10, textEncodingName: "txt")
         response.stubbedAllHeaderFields = ["Server-Timing": "intid;desc=981d9553578fc280"]
         task.stubbedResponse = response
-        let urlProtocol = InstanaURLProtocol()
+        let urlProtocol = InstanaURLProtocol(request: URLRequest(url: url), cachedResponse: nil, client: nil)
         urlProtocol.marker = HTTPMarker(url: url, method: "GET", trigger: .automatic, delegate: delegate)
         let givenError = NSError(domain: NSURLErrorDomain, code: NSURLErrorDataNotAllowed, userInfo: nil)
         var resultError: NSError?
@@ -360,7 +358,7 @@ class InstanaURLProtocolTests: InstanaTestCase {
         let waitFor = expectation(description: "Wait For")
         let delegate = Delegate()
         let url = URL.random
-        let urlProtocol = InstanaURLProtocol()
+        let urlProtocol = InstanaURLProtocol(request: URLRequest(url: url), cachedResponse: nil, client: nil)
         urlProtocol.marker = HTTPMarker(url: url, method: "GET", trigger: .automatic, delegate: delegate)
 
         // When
@@ -380,6 +378,15 @@ class InstanaURLProtocolTests: InstanaTestCase {
     }
 
     // MARK: Helper
+
+    func mockTask(for url: URL) -> URLSessionTask {
+        URLSession(configuration: .default).dataTask(with: url)
+    }
+
+    func makeRequest(_ url: String) -> URLRequest {
+        URLRequest(url: URL(string: url)!)
+    }
+
     class Delegate: HTTPMarkerDelegate {
         var calledFinalized = false
         func httpMarkerDidFinish(_ marker: HTTPMarker) { calledFinalized = true }
