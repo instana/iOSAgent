@@ -7,7 +7,7 @@ workflows:
     steps:
     - github-status@2.2.2:
         inputs:
-        - auth_token: "$GITHUB_STATUS"
+        - auth_token: "$GITHUB_STATUS_TOKEN"
         - set_specific_status: pending
     - activate-ssh-key@4.0.3:
         run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
@@ -17,30 +17,27 @@ workflows:
         inputs:
         - content: scripts/lint.sh
     - script:
+        title: Run iOS 14 Unit Tests
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            echo "Run iOS 14 Unit Tests"
+            scripts/run-swiftpm-tests.sh --ios=14 --test=unit
+    - script@1.1.6:
         title: Run iOS 13 Unit Tests
         inputs:
         - content: |-
             #!/usr/bin/env bash
             echo "Run iOS 13 Unit Tests"
             scripts/run-swiftpm-tests.sh --ios=13 --test=unit
-    - script@1.1.6:
-        title: Run iOS 12 Unit Tests
-        inputs:
-        - content: |-
-            #!/usr/bin/env bash
-            echo "Run iOS 12 Unit Tests"
-            scripts/run-swiftpm-tests.sh --ios=12 --test=unit
     - github-status@2.2.2:
         inputs:
-        - auth_token: "$GITHUB_STATUS"
-    meta:
-      bitrise.io:
-        stack: osx-xcode-11.5.x
+        - auth_token: "$GITHUB_STATUS_TOKEN"
   UITests:
     steps:
     - github-status@2.2.2:
         inputs:
-        - auth_token: "$GITHUB_STATUS"
+        - auth_token: "$GITHUB_STATUS_TOKEN"
         - set_specific_status: pending
     - activate-ssh-key@4.0.3:
         run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
@@ -58,10 +55,10 @@ workflows:
             echo "Run UI Tests"
             #scripts/run-ui-tests.sh
             cd Dev
-            xcodebuild test -destination 'name=iPhone 11 Pro Max,OS=13.5' -scheme 'iOSAgentExample'
+            xcodebuild test -destination 'name=iPhone 11 Pro Max,OS=14.0' -scheme 'iOSAgentExample'
     - github-status@2.2.2:
         inputs:
-        - auth_token: "$GITHUB_STATUS"
+        - auth_token: "$GITHUB_STATUS_TOKEN"
 trigger_map:
 - push_branch: master
   workflow: tests
