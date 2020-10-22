@@ -834,44 +834,41 @@ class ReporterTests: InstanaTestCase {
 
     func test_submit_after_preque_time() {
         // Given
-        let beacon1 = HTTPBeacon.createMock()
-        let beacon2 = HTTPBeacon.createMock()
+        let beaconPreQueue = HTTPBeacon.createMock()
+        let beaconAfterQueue = HTTPBeacon.createMock()
         let prequeueTime = 0.5
-        let waitForSubmit = expectation(description: "Wait for submit")
-        let waitForSend = expectation(description: "Wait for send")
         var sendCount = 0
+        let waitForSubmit1 = expectation(description: "Wait for submit1")
+        let waitForSubmit2 = expectation(description: "Wait for submit2")
         let sendQueue = MockInstanaPersistableQueue<CoreBeacon>(identifier: "queue", maxItems: 2)
         let mockSession = session(0.0, preQueueUsageTime: prequeueTime)
         let reporter = Reporter(mockSession, batterySafeForNetworking: { true }, networkUtility: .wifi, queue: sendQueue) { _, completion in
             completion(.success(statusCode: 200))
+            sendCount += 1
         }
 
         // When
-        reporter.submit(beacon1) {
-            waitForSubmit.fulfill()
-        }
-        reporter.completionHandler.append { beaconResult in
-            sendCount += 1
-            if sendCount == 2 {
-                waitForSend.fulfill()
-            }
+        reporter.submit(beaconPreQueue) {
+            waitForSubmit1.fulfill()
         }
 
         // Then
-        wait(for: [waitForSubmit], timeout: 3.0)
-        AssertTrue(reporter.preQueue.first === beacon1)
+        wait(for: [waitForSubmit1], timeout: 3.0)
+        AssertTrue(reporter.preQueue.first === beaconPreQueue)
         AssertTrue(reporter.preQueue.count == 1)
 
         // When
         wait(prequeueTime + 0.1)
-        reporter.submit(beacon2)
-        wait(for: [waitForSend], timeout: prequeueTime * 4)
+        reporter.submit(beaconAfterQueue) {
+            waitForSubmit2.fulfill()
+        }
+        wait(for: [waitForSubmit2], timeout: prequeueTime * 4)
 
         // Then
-        AssertTrue(sendCount == 2)
+        AssertEqualAndNotNil(sendCount, 1) // The prequeue has been flushed only
         AssertTrue(sendQueue.addedItems.count == 2)
-        AssertTrue(sendQueue.addedItems.map {$0.bid}.contains(beacon1.id.uuidString))
-        AssertTrue(sendQueue.addedItems.map {$0.bid}.contains(beacon2.id.uuidString))
+        AssertTrue(sendQueue.addedItems.map {$0.bid}.contains(beaconPreQueue.id.uuidString))
+        AssertTrue(sendQueue.addedItems.map {$0.bid}.contains(beaconAfterQueue.id.uuidString))
         AssertTrue(reporter.preQueue.isEmpty)
     }
 
