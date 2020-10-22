@@ -23,13 +23,6 @@ workflows:
             #!/usr/bin/env bash
             echo "Run iOS 14 Unit Tests"
             scripts/run-swiftpm-tests.sh --ios=14 --test=unit
-    - script@1.1.6:
-        title: Run iOS 13 Unit Tests
-        inputs:
-        - content: |-
-            #!/usr/bin/env bash
-            echo "Run iOS 13 Unit Tests"
-            scripts/run-swiftpm-tests.sh --ios=13 --test=unit
     - github-status@2.2.2:
         inputs:
         - auth_token: "$GITHUB_STATUS_TOKEN"
