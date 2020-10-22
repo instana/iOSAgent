@@ -228,6 +228,7 @@ class InstanaURLProtocolTests: InstanaTestCase {
     // Integration Tests
     func test_finish_success() {
         // Given
+        let waitFor = expectation(description: "Wait for")
         let delegate = Delegate()
         let backendTracingID = "981d9553578fc280"
         let url = URL.random
@@ -243,8 +244,12 @@ class InstanaURLProtocolTests: InstanaTestCase {
         // When
         urlProtocol.urlSession(URLSession.shared, task: task, didFinishCollecting: metrics)
         urlProtocol.urlSession(URLSession.shared, task: task, didCompleteWithError: nil)
+        urlProtocol.markerQueue.async {
+            waitFor.fulfill()
+        }
 
         // Then
+        wait(for: [waitFor], timeout: 3.0)
         AssertEqualAndNotNil(urlProtocol.marker?.backendTracingID, backendTracingID)
         AssertEqualAndNotNil(urlProtocol.marker, marker)
         AssertTrue(delegate.calledFinalized)
@@ -269,6 +274,7 @@ class InstanaURLProtocolTests: InstanaTestCase {
     func test_finish_success_with_http_forward_301() {
         // Given
         let delegate = Delegate()
+        let waitFor = expectation(description: "Wait For")
         let backendTracingID = "981d9553578fc280"
         let url = URL.random
         let task = MockURLSessionTask()
@@ -285,9 +291,11 @@ class InstanaURLProtocolTests: InstanaTestCase {
         // When perfom the HTTP Forward
         urlProtocol.urlSession(URLSession.shared, task: task, willPerformHTTPRedirection: response, newRequest: newRequest) { comingRequest in
             resultCompletionRequest = comingRequest
+            waitFor.fulfill()
         }
 
         // Then
+        wait(for: [waitFor], timeout: 3.0)
         AssertEqualAndNotNil(marker.backendTracingID, backendTracingID)
         AssertEqualAndNotNil(resultCompletionRequest, newRequest)
         AssertTrue(delegate.calledFinalized)
@@ -309,6 +317,7 @@ class InstanaURLProtocolTests: InstanaTestCase {
 
     func test_finish_error() {
         // Given
+        let waitFor = expectation(description: "Wait for")
         let delegate = Delegate()
         let backendTracingID = "981d9553578fc280"
         let task = MockURLSessionTask()
@@ -324,8 +333,12 @@ class InstanaURLProtocolTests: InstanaTestCase {
         // When
         urlProtocol.urlSession(URLSession.shared, task: task, didFinishCollecting: MockURLSessionTaskMetrics.random)
         urlProtocol.urlSession(URLSession.shared, task: task, didCompleteWithError: givenError)
+        urlProtocol.markerQueue.async {
+            waitFor.fulfill()
+        }
 
         // Then
+        wait(for: [waitFor], timeout: 3.0)
         AssertEqualAndNotNil(urlProtocol.marker?.backendTracingID, backendTracingID)
         AssertTrue(delegate.calledFinalized)
         if case let .failed(error) = urlProtocol.marker?.state {
@@ -344,6 +357,7 @@ class InstanaURLProtocolTests: InstanaTestCase {
     }
 
     func test_stop_loading() {
+        let waitFor = expectation(description: "Wait For")
         let delegate = Delegate()
         let url = URL.random
         let urlProtocol = InstanaURLProtocol()
@@ -351,8 +365,12 @@ class InstanaURLProtocolTests: InstanaTestCase {
 
         // When
         urlProtocol.stopLoading()
+        urlProtocol.markerQueue.async {
+            waitFor.fulfill()
+        }
 
         // Then
+        wait(for: [waitFor], timeout: 3.0)
         AssertTrue(urlProtocol.marker?.backendTracingID == nil)
         AssertTrue(delegate.calledFinalized)
         guard case .canceled = urlProtocol.marker?.state else {
