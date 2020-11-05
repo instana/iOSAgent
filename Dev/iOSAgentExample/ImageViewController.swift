@@ -39,8 +39,8 @@ class ImageViewViewController: UIViewController {
         let url = URL(string: "https://picsum.photos/900")!
         publisher = session.dataTaskPublisher(for: url)
             .receive(on: RunLoop.main)
-            .assertNoFailure()
             .map { UIImage(data: $0.data)}
+            .replaceError(with: UIImage())
             .assign(to: \.image, on: self.imageView)
     }
 }
