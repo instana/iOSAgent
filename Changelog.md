@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.1.6 Beta
+- Dispatch background flush on queue (synchronized)
+
 ## 1.1.5 Beta
 - Remove UIApplication.shared to enable InstanaAgent for extensions
 
