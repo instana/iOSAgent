@@ -18,7 +18,6 @@ public class Reporter {
     private let session: InstanaSession
     private var flushWorkItem: DispatchWorkItem?
     private var flushSemaphore: DispatchSemaphore?
-    private var backgroundTaskID: UIBackgroundTaskIdentifier?
 
     // Prequeue handling
     private(set) var preQueue = [Beacon]()
@@ -154,11 +153,11 @@ public class Reporter {
     }
 
     func runBackgroundFlush() {
-        dispatchQueue.async { [weak self] in
-            guard let self = self else { return }
-            guard !self.queue.items.isEmpty else { return }
-            ProcessInfo.processInfo.performExpiringActivity(withReason: "BackgroundFlush") { expired in
-                guard !expired else { return }
+        ProcessInfo.processInfo.performExpiringActivity(withReason: "BackgroundFlush") { expired in
+            guard !expired else { return }
+            self.dispatchQueue.async { [weak self] in
+                guard let self = self else { return }
+                guard !self.queue.items.isEmpty else { return }
                 self.flushQueue()
             }
         }
