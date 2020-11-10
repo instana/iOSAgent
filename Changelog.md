@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.1.5 Beta
+- Remove UIApplication.shared to enable InstanaAgent for extensions
+
 ## 1.1.4 Beta
 - Add Rate limiter to avoid an extensive usage of Instana
 - Improve concurrency and threading
