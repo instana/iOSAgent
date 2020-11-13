@@ -73,35 +73,38 @@ import UIKit
         Instana.current = Instana(configuration: config)
     }
 
-    /// Use this method to manually monitor http requests.
+    /// Manual monitoring of URLRequest.
     ///
-    /// Start the capture of the http session before using the URLRequest in a URLSession (you can pass a viewName optionally as a second):
+    /// Start the capture of the http session before using the URLRequest in a URLSession
     ///
     ///     let marker = Instana.startCapture(urlRequest)
     ///
-    /// Finish the marker with the URLResponse and an optional error when the request has been completed
+    /// Optionally: You can pass the viewName
     ///
-    ///     marker.finish(response: response, error: error)
+    ///     let marker = Instana.startCapture(urlRequest, viewName: "Home")
     ///
-    /// Full example:
-    ///
-    ///     let marker = Instana.startCapture(request)
-    ///     URLSession.shared.dataTask(with: request) { data, response, error in
-    ///         marker.finish(response: response, error: error)
-    ///     }.resume()
-    ///
-    ///
-    /// You can also capture the HTTP response size manually via the URLSessionDelegate. Like the following:
+    /// In order to capture the HTTP response size use the URLSessionDelegate like the following example:
     ///
     ///       func urlSession(_ session: URLSession, task: URLSessionTask, didFinishCollecting metrics: URLSessionTaskMetrics) {
     ///             guard let response = task.response else { return }
     ///             marker.set(responseSize: HTTPMarker.Size(response: response, transactionMetrics: metrics.transactionMetrics))
     ///       }
     ///
+    /// Call finish after the download has been completed and size has been set (Optionally: Pass an error)
+    ///
+    ///     marker.finish(response: urlResponse, error: error)
+    ///
+    /// Full example:
+    ///
+    ///     let marker = Instana.startCapture(request, viewName: "Home")
+    ///     URLSession.shared.dataTask(with: request) { data, urlResponse, error in
+    ///         marker.finish(response: urlResponse, error: error)
+    ///     }.resume()
+    ///
     ///
     /// - Parameters:
     ///   - request: URLRequest to capture.
-    ///   - viewName: (Optional) Name to group the request to a view
+    ///   - viewName: (Optional) Name of the current view to group the request
     ///
     /// - Returns: HTTP marker to set the response size, finish state or error when the request has been completed.
     @objc
@@ -115,6 +118,56 @@ import UIKit
             Instana.current?.session.logger.add("No valid Instance instance found. Please call setup to create an instance first!", level: .error)
         }
         return HTTPMarker(url: request.url!, method: method, trigger: .manual, delegate: delegate, viewName: viewName)
+    }
+
+    /// Manual monitoring of URL calls.
+    ///
+    /// Start the capture of the http session before call the URL (Optionally: Pass a viewName):
+    ///
+    ///     let marker = Instana.startCapture(url: URL(string: "https://www.example.com")!, method: "GET", viewName: "Home")
+    ///
+    /// In order to capture the HTTP response size use the URLSessionDelegate like the following example:
+    ///
+    ///     func urlSession(_ session: URLSession, task: URLSessionTask, didFinishCollecting metrics: URLSessionTaskMetrics) {
+    ///          guard let response = task.response else { return }
+    ///          marker.set(responseSize: HTTPMarker.Size(response: response, transactionMetrics: metrics.transactionMetrics))
+    ///     }
+    ///
+    /// Call finish after the request has been completed and size has been set (Optionally: Pass an error)
+    ///
+    ///     marker.finish(response: urlResponse, error: error)
+    ///
+    ///  If you don't have access to the URLResponse, you can use the HTTPCaptureResult
+    ///
+    ///     let size = HTTPMarker.Size(header: 123, body: 1024, bodyAfterDecoding: 2048)
+    ///     let result = HTTPCaptureResult(statusCode: 200, backendTracingID: "Instana-backend-tracing-id", responseSize: size, error: error)
+    ///     marker.finish(result: result)
+    ///
+    ///
+    /// Full example:
+    ///
+    ///     let url = URL(string: "https://www.example.com")!
+    ///     let marker = Instana.startCapture(url: url, method: "GET", viewName: "Home")
+    ///     YourNetworkCall(url: url, method: "GET") { (statusCode, error) in
+    ///            let backendTracingID = header[
+    ///            let size = HTTPMarker.Size(header: 123, body: 1024, bodyAfterDecoding: 2048)
+    ///            let result = HTTPCaptureResult(statusCode: statusCode, backendTracingID: "Instana-backend-tracing-id", responseSize: size, error: error)
+    ///            marker.finish(result: result)
+    ///     }.resume()
+    ///
+    /// - Parameters:
+    ///   - request: URLRequest to capture.
+    ///   - method: HTTP Method (e.g. "GET" or "POST")
+    ///   - viewName: (Optional) Name of the current view to group the request
+    ///
+    /// - Returns: HTTP marker to set the response size, finish state or error when the request has been completed.
+    @objc
+    public static func startCapture(url: URL, method: String, viewName: String? = nil) -> HTTPMarker {
+        let delegate = Instana.current?.monitors.http
+        if delegate == nil {
+            Instana.current?.session.logger.add("No valid Instance instance found. Please call setup to create an instance first!", level: .error)
+        }
+        return HTTPMarker(url: url, method: method, trigger: .manual, delegate: delegate, viewName: viewName)
     }
 
     ///
