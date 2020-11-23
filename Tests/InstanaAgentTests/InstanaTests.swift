@@ -114,6 +114,62 @@ class InstanaTests: InstanaTestCase {
         AssertEqualAndNotNil(Instana.current?.session.propertyHandler.properties.user?.name, name)
     }
 
+    func test_setUserID() {
+        // Given
+        let id = UUID().uuidString
+
+        // When
+        Instana.setUser(id: id)
+
+        // Then
+        AssertEqualAndNotNil(Instana.current?.session.propertyHandler.properties.user?.id, id)
+        AssertTrue(Instana.current?.session.propertyHandler.properties.user?.email == nil)
+        AssertTrue(Instana.current?.session.propertyHandler.properties.user?.name == nil)
+    }
+
+    func test_setUserEmail() {
+        // Given
+        let email = "email@example.com"
+
+        // When
+        Instana.setUser(email: email)
+
+        // Then
+        AssertEqualAndNotNil(Instana.current?.session.propertyHandler.properties.user?.id, "")
+        AssertEqualAndNotNil(Instana.current?.session.propertyHandler.properties.user?.email, email)
+        AssertTrue(Instana.current?.session.propertyHandler.properties.user?.name == nil)
+    }
+
+    func test_setUserName() {
+        // Given
+        let name = "John"
+
+        // When
+        Instana.setUser(name: name)
+
+        // Then
+        AssertEqualAndNotNil(Instana.current?.session.propertyHandler.properties.user?.id, "")
+        AssertTrue(Instana.current?.session.propertyHandler.properties.user?.email == nil)
+        AssertEqualAndNotNil(Instana.current?.session.propertyHandler.properties.user?.name, name)
+    }
+
+    func test_setUser_update_existing() {
+        // Given
+        let id = UUID().uuidString
+        let email = "email@example.com"
+        let name = "John Appleseed"
+
+        // When
+        Instana.setUser(id: id)
+        Instana.setUser(email: email)
+        Instana.setUser(name: name)
+
+        // Then
+        AssertEqualAndNotNil(Instana.current?.session.propertyHandler.properties.user?.id, id)
+        AssertEqualAndNotNil(Instana.current?.session.propertyHandler.properties.user?.email, email)
+        AssertEqualAndNotNil(Instana.current?.session.propertyHandler.properties.user?.name, name)
+    }
+
     func test_setViewName() {
         // Given
         let viewName = "Some View"
