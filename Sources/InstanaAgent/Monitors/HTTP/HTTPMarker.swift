@@ -9,10 +9,10 @@ protocol HTTPMarkerDelegate: AnyObject {
     let backendTracingID: String?
     let responseSize: HTTPMarker.Size?
     let error: Error?
-    init(statusCode: Int,
-         backendTracingID: String? = nil,
-         responseSize: HTTPMarker.Size? = nil,
-         error: Error? = nil) {
+    @objc public init(statusCode: Int,
+                      backendTracingID: String? = nil,
+                      responseSize: HTTPMarker.Size? = nil,
+                      error: Error? = nil) {
         self.statusCode = statusCode
         self.backendTracingID = backendTracingID
         self.responseSize = responseSize
