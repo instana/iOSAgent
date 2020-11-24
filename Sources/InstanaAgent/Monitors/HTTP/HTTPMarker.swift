@@ -4,6 +4,22 @@ protocol HTTPMarkerDelegate: AnyObject {
     func httpMarkerDidFinish(_ marker: HTTPMarker)
 }
 
+@objc public class HTTPCaptureResult: NSObject {
+    let statusCode: Int
+    let backendTracingID: String?
+    let responseSize: HTTPMarker.Size?
+    let error: Error?
+    init(statusCode: Int,
+         backendTracingID: String? = nil,
+         responseSize: HTTPMarker.Size? = nil,
+         error: Error? = nil) {
+        self.statusCode = statusCode
+        self.backendTracingID = backendTracingID
+        self.responseSize = responseSize
+        self.error = error
+    }
+}
+
 /// Remote call markers are used to track remote calls.
 
 @objc public class HTTPMarker: NSObject {
@@ -54,19 +70,33 @@ protocol HTTPMarkerDelegate: AnyObject {
     ///
     /// Note: Make sure you don't call any methods on this HTTPMarker after you called finish
     @objc public func finish(response: URLResponse?, error: Error?) {
+        let statusCode = (response as? HTTPURLResponse)?.statusCode ?? 400
+        let result = HTTPCaptureResult(statusCode: statusCode,
+                                       backendTracingID: response?.backendTracingID,
+                                       responseSize: responseSize,
+                                       error: error)
+        finish(result)
+    }
+
+    /// Invoke this method after the request has been completed.
+    ///
+    /// - Parameters:
+    ///   - result: Pass the HTTPCaptureResult when the request has been completed.
+    ///   - error: Optional Error
+    ///
+    /// Note: Make sure you don't call any methods on this HTTPMarker after you called finish
+    @objc public func finish(_ result: HTTPCaptureResult) {
         guard case .started = state else { return }
-        if let error = error {
+        if let error = result.error {
             state = .failed(error: error)
-        } else if let response = response {
-            let code = (response as? HTTPURLResponse)?.statusCode ?? 200
-            state = .finished(responseCode: code)
         } else {
-            state = .failed(error: NSError(domain: NSURLErrorDomain, code: NSURLErrorCannotParseResponse, userInfo: nil))
+            state = .finished(responseCode: result.statusCode)
         }
         endTime = Date().millisecondsSince1970
-        if let bid = response?.backendTracingID {
+        if let bid = result.backendTracingID {
             backendTracingID = bid
         }
+        responseSize = result.responseSize
         delegate?.httpMarkerDidFinish(self)
     }
 
@@ -121,7 +151,7 @@ extension HTTPMarker {
         var bodyBytes: Instana.Types.Bytes?
         var bodyBytesAfterDecoding: Instana.Types.Bytes?
 
-        @objc public init(header: Instana.Types.Bytes, body: Instana.Types.Bytes, bodyAfterDecoding: Instana.Types.Bytes) {
+        @objc public init(header: Instana.Types.Bytes = 0, body: Instana.Types.Bytes = 0, bodyAfterDecoding: Instana.Types.Bytes = 0) {
             super.init()
             headerBytes = header > 0 ? header : nil
             bodyBytes = body > 0 ? body : nil

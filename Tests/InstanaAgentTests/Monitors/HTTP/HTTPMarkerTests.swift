@@ -91,6 +91,58 @@ class HTTPMarkerTests: InstanaTestCase {
         }
     }
 
+    func test_finish_with_HTTPCaptureResult_no_error() {
+        // Given
+        let delegate = Delegate()
+        let marker = HTTPMarker(url: URL.random, method: "POST", trigger: .manual, delegate: delegate, viewName: "SomeView")
+        let result = HTTPCaptureResult(statusCode: 201,
+                                       backendTracingID: "BackendID",
+                                       responseSize: HTTPMarker.Size(header: 100, body: 200, bodyAfterDecoding: 300),
+                                       error: nil)
+
+        // When
+        marker.finish(result)
+
+        // Then
+        XCTAssertEqual(marker.viewName, "SomeView")
+        XCTAssertEqual(marker.trigger, .manual)
+        XCTAssertEqual(marker.responseSize?.headerBytes, 100)
+        XCTAssertEqual(marker.responseSize?.bodyBytes, 200)
+        XCTAssertEqual(marker.responseSize?.bodyBytesAfterDecoding, 300)
+        XCTAssertEqual(delegate.didFinishCount, 1)
+        XCTAssertEqual(marker.backendTracingID, "BackendID")
+        if case let .finished(responseCode) = marker.state {
+            XCTAssertEqual(responseCode, 201)
+        } else {
+            XCTFail("Wrong marker state: \(marker.state)")
+        }
+    }
+
+    func test_finish_with_HTTPCaptureResult_with_error() {
+        // Given
+        let expectedError = InstanaError.lowBattery
+        let delegate = Delegate()
+        let marker = HTTPMarker(url: URL.random, method: "GET", trigger: .manual, delegate: delegate, viewName: "SomeView")
+        let result = HTTPCaptureResult(statusCode: 403,
+                                       backendTracingID: "BackendID",
+                                       responseSize: HTTPMarker.Size(header: 100, body: 200, bodyAfterDecoding: 300),
+                                       error: expectedError)
+
+        // When
+        marker.finish(result)
+
+        // Then
+        XCTAssertEqual(marker.viewName, "SomeView")
+        XCTAssertEqual(marker.trigger, .manual)
+        XCTAssertEqual(delegate.didFinishCount, 1)
+        XCTAssertEqual(marker.backendTracingID, "BackendID")
+        if case let .failed(error: result) = marker.state {
+            XCTAssertEqual(result as? InstanaError, expectedError)
+        } else {
+            XCTFail("Wrong marker state: \(marker.state)")
+        }
+    }
+
     func test_marker_shouldNotRetainDelegate() {
         // Given
         let url: URL = .random

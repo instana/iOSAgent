@@ -3,7 +3,6 @@ import UIKit
 
 // We need an abstract state handler to make the Notifications (didBecomeActiveNotification, ...) easier to test
 class InstanaApplicationStateHandler {
-
     enum State {
         case active
         case inactive
