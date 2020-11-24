@@ -183,6 +183,36 @@ import UIKit
         Instana.current?.session.propertyHandler.properties.user = InstanaProperties.User(id: id, email: email, name: name)
     }
 
+    ///
+    /// Set an unique identifier for the User
+    /// - Parameters:
+    ///     - id: Unique identifier for the user
+    @objc
+    public static func setUser(id: String) {
+        let user = Instana.current?.session.propertyHandler.properties.user
+        setUser(id: id, email: user?.email, name: user?.name)
+    }
+
+    ///
+    /// Set user's email address
+    /// - Parameters:
+    ///     - email: User's email address
+    @objc
+    public static func setUser(email: String) {
+        let user = Instana.current?.session.propertyHandler.properties.user
+        setUser(id: user?.id ?? "", email: email, name: user?.name)
+    }
+
+    ///
+    /// Set user's name
+    /// - Parameters:
+    ///     - name: User's full name
+    @objc
+    public static func setUser(name: String) {
+        let user = Instana.current?.session.propertyHandler.properties.user
+        setUser(id: user?.id ?? "", email: user?.email, name: name)
+    }
+
     /// Set the current visible view represented by a custom name.
     ///
     /// This name will be attached to all monitored beacons until you call `setView` again with another name
