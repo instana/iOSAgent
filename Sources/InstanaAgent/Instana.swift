@@ -149,7 +149,6 @@ import UIKit
     ///     let url = URL(string: "https://www.example.com")!
     ///     let marker = Instana.startCapture(url: url, method: "GET", viewName: "Home")
     ///     YourNetworkCall(url: url, method: "GET") { (statusCode, error) in
-    ///            let backendTracingID = header[
     ///            let size = HTTPMarker.Size(header: 123, body: 1024, bodyAfterDecoding: 2048)
     ///            let result = HTTPCaptureResult(statusCode: statusCode, backendTracingID: "Instana-backend-tracing-id", responseSize: size, error: error)
     ///            marker.finish(result: result)
