@@ -11,7 +11,7 @@ class InstanaApplicationStateHandler {
 
     static let shared = InstanaApplicationStateHandler()
 
-    @Atomic var state: State = .inactive {
+    @Atomic var state: State = .active {
         didSet { stateUpdateHandler.forEach { $0(state) } }
     }
 
