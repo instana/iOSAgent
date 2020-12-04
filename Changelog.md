@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.7 Beta
+- Use active as default value for InstanaApplicationStateHandler
+- User properties can be set individually (name, id or email address)
+- Add manual HTTP monitoring for URLs (parallel to URLRequests)
+- Add HTTPCaptureResult type for finishing manual HTTP monitoring
+
 ## 1.1.6 Beta
 - Dispatch background flush on queue (synchronized)
 
