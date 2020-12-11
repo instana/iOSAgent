@@ -203,6 +203,8 @@ import UIKit
     /// Meta data information that will be attached to each transmitted data (beacon).
     /// Consider using this to track UI configuration values, settings, feature flags… any additional context that might be useful for analysis.
     ///
+    /// Note: We currently support up to 64 meta key/value pairs.
+    ///
     /// - Parameters:
     ///     - value: An arbitrary String typed value
     ///     - key: The key (String) to store the custom meta value
