@@ -233,7 +233,7 @@ class ReporterTests: InstanaTestCase {
 
         // When
         reporter.submit(AlertBeacon(alertType: .lowMemory))
-        waitForExpectations(timeout: delay * 2, handler: nil)
+        waitForExpectations(timeout: delay * 5, handler: nil)
 
         // Then
         AssertTrue(finished != nil)
