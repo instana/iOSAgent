@@ -40,9 +40,7 @@ public class Reporter {
         self.queue = queue ?? InstanaPersistableQueue<CoreBeacon>(identifier: "com.instana.ios.mainqueue", maxItems: session.configuration.maxBeaconsPerRequest)
         networkUtility.connectionUpdateHandler = { [weak self] connectionType in
             guard let self = self else { return }
-            if connectionType != .none {
-                self.scheduleFlush()
-            }
+            self.updateNetworkConnection(connectionType)
         }
         InstanaApplicationStateHandler.shared.listen { [weak self] state in
             guard let self = self else { return }
@@ -83,6 +81,15 @@ public class Reporter {
         }
     }
 
+    private func updateNetworkConnection(_ connectionType: NetworkUtility.ConnectionType) {
+        dispatchQueue.async { [weak self] in
+            guard let self = self else { return }
+            if connectionType != .none {
+                self.scheduleFlush()
+            }
+        }
+    }
+
     private func emptyPreQueueIfNeeded() {
         if preQueue.isEmpty {
             return
@@ -93,7 +100,7 @@ public class Reporter {
         scheduleFlush()
     }
 
-    func scheduleFlush() {
+    private func scheduleFlush() {
         guard !queue.items.isEmpty else { return }
         flushWorkItem?.cancel()
         let workItem = DispatchWorkItem { [weak self] in
@@ -152,7 +159,7 @@ public class Reporter {
         }
     }
 
-    func runBackgroundFlush() {
+    private func runBackgroundFlush() {
         ProcessInfo.processInfo.performExpiringActivity(withReason: "BackgroundFlush") { expired in
             guard !expired else { return }
             self.dispatchQueue.async { [weak self] in
@@ -163,7 +170,7 @@ public class Reporter {
         }
     }
 
-    func complete(_ beacons: [CoreBeacon], _ result: BeaconResult) {
+    private func complete(_ beacons: [CoreBeacon], _ result: BeaconResult) {
         let beaconsToBeRemoved: [CoreBeacon]
         switch result {
         case .success:
