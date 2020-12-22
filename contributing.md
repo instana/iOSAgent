@@ -24,7 +24,7 @@ Please make sure to follow the semantic versioning rules.
 4. Run `git tag <Your Version> && git push origin <Your Version>`
 5. Run `pod trunk push InstanaAgent.podspec --allow-warnings`
 6. Make a release note on the Github page
-7. Update cross platform frameworks accordingly (ReactNative / Xamarin)
+7. Update cross platform frameworks accordingly (Flutter / ReactNative / Xamarin)
 
 ## Code of Conduct
 
