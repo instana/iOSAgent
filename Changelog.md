@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.1.8 Beta
+- Dispatch method on serial queue
+
 ## 1.1.7 Beta
 - Use active as default value for InstanaApplicationStateHandler
 - User properties can be set individually (name, id or email address)
