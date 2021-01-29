@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.9 Beta
+- Add public getter for currentViewIdentifier (needed for ReactNative agent)
+- Example project clean up
+
 ## 1.1.8 Beta
 - Dispatch method on serial queue
 
