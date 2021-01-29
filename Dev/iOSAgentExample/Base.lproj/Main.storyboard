@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15705" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="mhx-rz-m3q">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="17506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="mhx-rz-m3q">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17505"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -14,8 +16,8 @@
                     <view key="view" contentMode="scaleToFill" id="Ldq-eB-hMu">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                         <viewLayoutGuide key="safeArea" id="yG5-Ew-gHt"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     </view>
                     <tabBarItem key="tabBarItem" systemItem="topRated" id="DIp-rK-oSV" userLabel="Image"/>
                 </viewController>
@@ -42,7 +44,7 @@
                                             <outlet property="delegate" destination="Zln-23-sBF" id="Dil-J8-hEq"/>
                                         </connections>
                                     </textField>
-                                    <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="1000" verticalHuggingPriority="1000" horizontalCompressionResistancePriority="1000" verticalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="he5-hH-Ype">
+                                    <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="1000" verticalHuggingPriority="1000" horizontalCompressionResistancePriority="1000" verticalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="he5-hH-Ype">
                                         <rect key="frame" x="331" y="0.0" width="63" height="30"/>
                                         <state key="normal" title="     GO     "/>
                                         <connections>
@@ -60,7 +62,8 @@
                                 </wkWebViewConfiguration>
                             </wkWebView>
                         </subviews>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <viewLayoutGuide key="safeArea" id="QgD-wu-sIK"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="PR1-9f-ARo" firstAttribute="top" secondItem="QgD-wu-sIK" secondAttribute="top" id="0ld-7A-jLf"/>
                             <constraint firstItem="PR1-9f-ARo" firstAttribute="leading" secondItem="QgD-wu-sIK" secondAttribute="leading" constant="10" id="9Yv-Zu-L7A"/>
@@ -70,7 +73,6 @@
                             <constraint firstItem="wPq-M5-Iei" firstAttribute="top" secondItem="PR1-9f-ARo" secondAttribute="bottom" constant="8" symbolic="YES" id="qc5-gD-wSW"/>
                             <constraint firstItem="QgD-wu-sIK" firstAttribute="trailing" secondItem="wPq-M5-Iei" secondAttribute="trailing" id="yWA-xI-b44"/>
                         </constraints>
-                        <viewLayoutGuide key="safeArea" id="QgD-wu-sIK"/>
                     </view>
                     <tabBarItem key="tabBarItem" title="Web" image="book.circle" catalog="system" id="oNQ-Z5-A2c" userLabel="Web"/>
                     <connections>
@@ -101,7 +103,7 @@
                                             <outlet property="delegate" destination="bKS-bc-wgo" id="qJo-In-0O3"/>
                                         </connections>
                                     </textField>
-                                    <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="1000" verticalHuggingPriority="1000" horizontalCompressionResistancePriority="1000" verticalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="6xA-AE-hIm">
+                                    <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="1000" verticalHuggingPriority="1000" horizontalCompressionResistancePriority="1000" verticalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="6xA-AE-hIm">
                                         <rect key="frame" x="331" y="0.0" width="63" height="30"/>
                                         <state key="normal" title="     GO     "/>
                                         <connections>
@@ -112,13 +114,14 @@
                             </stackView>
                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="23L-N3-Xne">
                                 <rect key="frame" x="0.0" y="82" width="394" height="731"/>
-                                <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
-                                <color key="textColor" systemColor="labelColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <color key="textColor" systemColor="labelColor"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                             </textView>
                         </subviews>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <viewLayoutGuide key="safeArea" id="DYh-bA-cLz"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="DYh-bA-cLz" firstAttribute="trailing" secondItem="nKb-7J-pAZ" secondAttribute="trailing" constant="10" id="NZ4-2k-uSY"/>
                             <constraint firstItem="DYh-bA-cLz" firstAttribute="bottom" secondItem="23L-N3-Xne" secondAttribute="bottom" id="RMa-4b-Yee"/>
@@ -128,7 +131,6 @@
                             <constraint firstItem="23L-N3-Xne" firstAttribute="top" secondItem="nKb-7J-pAZ" secondAttribute="bottom" constant="8" symbolic="YES" id="sbh-km-mdV"/>
                             <constraint firstAttribute="trailing" secondItem="23L-N3-Xne" secondAttribute="trailing" constant="20" symbolic="YES" id="vhI-QS-Sl1"/>
                         </constraints>
-                        <viewLayoutGuide key="safeArea" id="DYh-bA-cLz"/>
                     </view>
                     <tabBarItem key="tabBarItem" title="JSON" image="doc.text.fill" catalog="system" id="gwl-YI-2EM"/>
                     <connections>
@@ -167,7 +169,7 @@
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="Cbz-fh-6r1">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <prototypes>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="CELL" textLabel="8Nq-zT-Zaz" style="IBUITableViewCellStyleDefault" id="ijY-xX-wDq">
                                 <rect key="frame" x="0.0" y="28" width="414" height="43.5"/>
@@ -192,7 +194,7 @@
                             <outlet property="delegate" destination="ibl-qc-AXH" id="lJ3-Ay-GEr"/>
                         </connections>
                     </tableView>
-                    <tabBarItem key="tabBarItem" title="Events" image="music.house" catalog="system" id="nJ1-O2-zx5"/>
+                    <tabBarItem key="tabBarItem" title="Events" image="music.note" catalog="system" id="nJ1-O2-zx5"/>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="fL0-wW-KvU" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
@@ -200,8 +202,14 @@
         </scene>
     </scenes>
     <resources>
-        <image name="book.circle" catalog="system" width="64" height="60"/>
-        <image name="doc.text.fill" catalog="system" width="56" height="64"/>
-        <image name="music.house" catalog="system" width="64" height="52"/>
+        <image name="book.circle" catalog="system" width="128" height="121"/>
+        <image name="doc.text.fill" catalog="system" width="115" height="128"/>
+        <image name="music.note" catalog="system" width="97" height="128"/>
+        <systemColor name="labelColor">
+            <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
     </resources>
 </document>

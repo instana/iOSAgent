@@ -69,8 +69,6 @@ extension InstanaProperties {
             return "Background"
         case .inactive:
             return "Inactive"
-        @unknown default:
-            return view
         }
     }
 }
