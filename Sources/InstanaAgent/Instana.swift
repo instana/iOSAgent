@@ -31,6 +31,9 @@ import UIKit
         }
     }
 
+    @objc
+    public class var currentViewIdentifier: String { CustomBeaconDefaultViewNameID }
+
     /// Optional reporting URL used for on-premises Instana backend installations.
     @objc
     public class var reportingURL: URL? { Instana.current?.session.configuration.reportingURL }
