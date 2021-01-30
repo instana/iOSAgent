@@ -307,13 +307,15 @@ import UIKit
     ///     - error: (Optional) Error object to provide additional context.
     ///     - meta: (Optional) Key - Value data which can be used to send metadata to Instana just for this singular event
     ///     - viewName: (Optional) You can pass a String to group the request to a view.
-    ///                            If you send explicitly nil, the viewName will be ignored.
-    ///                            Alternatively you can leave out the parameter `viewName` to use the current view name you did set in `setView(name: String)`)
+    ///                            Alternatively you can leave out the parameter or send
+    ///                            nil to use the current view name implicitly you did set in `setView(name: String)`
     @objc
-    public static func reportEvent(name: String, timestamp: Instana.Types.Milliseconds = Instana.Types.Milliseconds(NSNotFound), duration: Instana.Types.Milliseconds = Instana.Types.Milliseconds(NSNotFound), backendTracingID: String? = nil, error: Error? = nil, meta: [String: String]? = nil, viewName: String? = CustomBeaconDefaultViewNameID) {
+    public static func reportEvent(name: String, timestamp: Instana.Types.Milliseconds = Instana.Types.Milliseconds(NSNotFound), duration: Instana.Types.Milliseconds = Instana.Types.Milliseconds(NSNotFound), backendTracingID: String? = nil, error: Error? = nil, meta: [String: String]? = nil, viewName: String? = nil) {
         // As a workaround for primitive values in ObjC
         let timestamp = timestamp == NSNotFound ? nil : timestamp
         let duration = duration == NSNotFound ? nil : duration
+        var viewName = viewName ?? CustomBeaconDefaultViewNameID
+        viewName = !viewName.isEmpty ? viewName : CustomBeaconDefaultViewNameID
         let beacon = CustomBeacon(timestamp: timestamp,
                                   name: name,
                                   duration: duration,
