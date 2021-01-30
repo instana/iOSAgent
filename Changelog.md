@@ -1,7 +1,7 @@
 # Changelog
 
 ## 1.1.9 Beta
-- Add public getter for currentViewIdentifier (needed for ReactNative agent)
+- ReportEvent: Use current visible view name if passed viewName is empty or nil
 - Example project clean up
 
 ## 1.1.8 Beta
