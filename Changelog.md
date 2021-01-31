@@ -1,8 +1,11 @@
 # Changelog
 
-## 1.1.9 Beta
+## 1.1.10 Beta
 - ReportEvent: Use current visible view name if passed viewName is empty or nil
 - Example project clean up
+
+## 1.1.9 Beta
+- Skipped (CocoaPods conflicts)
 
 ## 1.1.8 Beta
 - Dispatch method on serial queue
