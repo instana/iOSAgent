@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.11 Beta
+- Add 5G as carrier type
+- Update tests
+
 ## 1.1.10 Beta
 - ReportEvent: Use current visible view name if passed viewName is empty or nil
 - Example project clean up
