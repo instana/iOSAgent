@@ -1,3 +1,7 @@
+//
+//  Copyright © 2021 IBM Corp. All rights reserved.
+//
+
 import Foundation
 
 extension String {

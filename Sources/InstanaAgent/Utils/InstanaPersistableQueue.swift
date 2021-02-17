@@ -1,3 +1,7 @@
+//
+//  Copyright © 2021 IBM Corp. All rights reserved.
+//
+
 import Foundation
 
 /// To be used in an asynchronous world (i.e. via a background dispatch queue)

@@ -1,10 +1,7 @@
 //
-//  iOSAgentExampleUITests.swift
-//  iOSAgentExampleUITests
+//  Copyright © 2021 IBM Corp. All rights reserved.
 //
-//  Created by Christian Menschel on 28.01.20.
-//  Copyright © 2020 Instana Inc. All rights reserved.
-//
+
 import Foundation
 import XCTest
 @testable import iOSAgentExample

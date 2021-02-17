@@ -1,8 +1,5 @@
 //
-//  Server.swift
-//
-//
-//  Created by Christian Menschel on 27.11.19.
+//  Copyright © 2021 IBM Corp. All rights reserved.
 //
 
 import Foundation

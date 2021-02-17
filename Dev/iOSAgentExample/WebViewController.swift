@@ -1,9 +1,7 @@
 //
 //  WebViewController.swift
 //  iOSAgentExample
-//
-//  Created by Christian Menschel on 10.12.19.
-//  Copyright © 2019 Instana Inc. All rights reserved.
+//  Copyright © 2021 IBM Corp. All rights reserved.
 //
 
 import UIKit

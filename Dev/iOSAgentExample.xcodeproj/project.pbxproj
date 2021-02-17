@@ -190,7 +190,7 @@
 			attributes = {
 				LastSwiftUpdateCheck = 1130;
 				LastUpgradeCheck = 1220;
-				ORGANIZATIONNAME = "Instana Inc.";
+				ORGANIZATIONNAME = "IBM Corp.";
 				TargetAttributes = {
 					728CF9DA2387F01200BEE2F9 = {
 						CreatedOnToolsVersion = 11.2.1;

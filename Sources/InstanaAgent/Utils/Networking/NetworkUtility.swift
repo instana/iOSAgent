@@ -1,5 +1,9 @@
-import CoreTelephony
+//
+//  Copyright © 2021 IBM Corp. All rights reserved.
+//
+
 import Foundation
+import CoreTelephony
 
 class NetworkUtility {
     private(set) var connectionType: ConnectionType = .undetermined {

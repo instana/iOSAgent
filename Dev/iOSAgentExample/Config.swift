@@ -1,9 +1,5 @@
 //
-//  Config.swift
-//  iOSAgentExample
-//
-//  Created by Christian Menschel on 20.07.20.
-//  Copyright © 2020 Instana Inc. All rights reserved.
+//  Copyright © 2021 IBM Corp. All rights reserved.
 //
 
 import Foundation

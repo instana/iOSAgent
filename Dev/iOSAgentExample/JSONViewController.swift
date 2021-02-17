@@ -1,9 +1,7 @@
 //
 //  JSONViewController.swift
 //  iOSAgentExample
-//
-//  Created by Christian Menschel on 08.01.20.
-//  Copyright © 2020 Instana Inc. All rights reserved.
+//  Copyright © 2021 IBM Corp. All rights reserved.
 //
 
 import UIKit

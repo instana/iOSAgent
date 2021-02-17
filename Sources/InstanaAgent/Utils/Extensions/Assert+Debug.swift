@@ -1,3 +1,7 @@
+//
+//  Copyright © 2021 IBM Corp. All rights reserved.
+//
+
 import Foundation
 
 public func debugAssertFailure(_ message: @autoclosure () -> String = String(), file: StaticString = #file, line: UInt = #line) {

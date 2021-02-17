@@ -1,5 +1,11 @@
 # Contributing
 
+This is an open source project, and we appreciate your help!
+
+In order to clarify the intellectual property license granted with contributions from any person or entity, a Contributor License Agreement ("CLA") must be on file that has been signed by each contributor, indicating agreement to the license terms below. This license is for your protection as a contributor as well as the protection of Instana and its customers; it does not change your rights to use your own contributions for any other purpose.
+
+Please print, fill out, and sign the contributor license agreement. Once completed, please scan the document as a PDF file and email to the following email address: bastian.krol@instana.com.
+
 When contributing to this repository, please first discuss the change you wish to make via issue,
 email, or any other method with the owners of this repository before making a change.
 
@@ -7,19 +13,18 @@ Please note we have a code of conduct, please follow it in all your interactions
 
 ## Pull Request Process
 
-1. Ensure any install or build dependencies are removed before the end of the layer when doing a
-   build.
-2. Update the README.md with details of changes to the interface, this includes new environment
-   variables, exposed ports, useful file locations and container parameters.
-3. Increase the version numbers in any examples files and the README.md to the new version that this
-   Pull Request would represent. The versioning scheme we use is [SemVer](http://semver.org/).
-4. You may merge the Pull Request in once you have the sign-off of two other developers, or if you
-   do not have permission to do that, you may request the second reviewer to merge it for you.
+1. Add or update the UnitTests accordingly
+2. Make sure to follow the SwiftLint rules
+3. Avoid any build warning 
+4. Update the README.md with details of changes to the interface, this includes new environment
+   variables, exposed ports, useful file locations and parameters.
+5. Update the Changelog.md with details of changes
+
 
 ## Release version
 Please make sure to follow the semantic versioning rules.
 1. Update version in `InstanaAgent.podspec` (`s.version = "<Your Version>"`)
-2. Update version in VersionConfig.Swift and update InstanaSystemUtilsTests
+2. Update version in VersionConfig.Swift and update InstanaSystemUtilsTests. Use [SemVer](http://semver.org/).
 3. Update CHANGELOG.md accordingly
 4. Run `git tag <Your Version> && git push origin <Your Version>`
 5. Run `pod trunk push InstanaAgent.podspec --allow-warnings`
@@ -79,3 +84,4 @@ representing a project or community include using an official project e-mail
 address, posting via an official social media account, or acting as an appointed
 representative at an online or offline event. Representation of a project may be
 further defined and clarified by project maintainers.
+

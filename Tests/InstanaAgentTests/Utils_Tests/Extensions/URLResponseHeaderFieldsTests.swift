@@ -1,5 +1,10 @@
-import XCTest
+//
+//  Copyright © 2021 IBM Corp. All rights reserved.
+//
+
 import Foundation
+import XCTest
+
 @testable import InstanaAgent
 
 class URLResponseHeaderFieldsTests: InstanaTestCase {

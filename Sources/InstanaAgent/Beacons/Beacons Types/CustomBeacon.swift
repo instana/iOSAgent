@@ -1,8 +1,5 @@
 //
-//  File.swift
-//
-//
-//  Created by Christian Menschel on 07.05.20.
+//  Copyright © 2021 IBM Corp. All rights reserved.
 //
 
 import Foundation
