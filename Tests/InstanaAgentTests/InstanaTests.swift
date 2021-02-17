@@ -405,6 +405,6 @@ class InstanaTests: InstanaTestCase {
         // Then
         AssertTrue(didReport != nil)
         AssertEqualAndNotNil(didReport?.name, name)
-        AssertEqualAndNotNil(didReport?.viewName, nil)
+        AssertEqualAndNotNil(didReport?.viewName, CustomBeaconDefaultViewNameID)
     }
 }
