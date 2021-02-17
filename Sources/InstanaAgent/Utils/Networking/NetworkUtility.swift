@@ -2,8 +2,8 @@
 //  Copyright © 2021 IBM Corp. All rights reserved.
 //
 
-import Foundation
 import CoreTelephony
+import Foundation
 
 class NetworkUtility {
     private(set) var connectionType: ConnectionType = .undetermined {
@@ -56,13 +56,14 @@ extension NetworkUtility {
     }
 
     enum CellularType: String {
-        case none, twoG, threeG, fourG, unknown
+        case none, twoG, threeG, fourG, fiveG, unknown
         var rawValue: String {
             switch self {
             case .none: return "None"
             case .twoG: return "2G"
             case .threeG: return "3G"
             case .fourG: return "4G"
+            case .fiveG: return "5G"
             case .unknown: return "Unknown"
             }
         }
@@ -105,6 +106,12 @@ extension NetworkUtility {
                     case CTRadioAccessTechnologyLTE:
                         return .fourG
                     default:
+                        if #available(iOS 14.1, *) {
+                            if [CTRadioAccessTechnologyNRNSA, CTRadioAccessTechnologyNR]
+                                .contains(radioAccessTechnology) {
+                                return .fiveG
+                            }
+                        }
                         return .unknown
                     }
                 #else

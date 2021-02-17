@@ -116,9 +116,23 @@ class NetworkUtilityTests: InstanaTestCase {
         AssertEqualAndNotNil(NetworkUtility.CellularType.current, .fourG)
     }
 
+    func test_ConnectionType_5G() {
+        // Given
+        if #available(iOS 14.1, *) {
+            CTTelephonyNetworkInfo.stubRadioAccessTechnology = [CTRadioAccessTechnologyNRNSA,
+                                                                CTRadioAccessTechnologyNR].randomElement()!
+            // Then
+            AssertEqualAndNotNil(NetworkUtility.ConnectionType.wifi.cellular, .fiveG)
+            AssertEqualAndNotNil(NetworkUtility.ConnectionType.none.description, "None")
+            AssertEqualAndNotNil(NetworkUtility.ConnectionType.wifi.description, "Wifi")
+            AssertEqualAndNotNil(NetworkUtility.ConnectionType.cellular.description, "5G")
+            AssertEqualAndNotNil(NetworkUtility.ConnectionType.undetermined.description, "Unknown")
+        }
+    }
+
     func test_unknown() {
         // Given
-        CTTelephonyNetworkInfo.stubRadioAccessTechnology = "Some New 5G"
+        CTTelephonyNetworkInfo.stubRadioAccessTechnology = "Some New 10G"
 
         // Then
         AssertEqualAndNotNil(NetworkUtility.CellularType.current, .unknown)
