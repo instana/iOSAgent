@@ -141,7 +141,8 @@ extension CoreBeacon {
                    vw: String(Int(InstanaSystemUtils.screenSize.width)),
                    vh: String(Int(InstanaSystemUtils.screenSize.height)),
                    cn: connection.cellular.carrierName,
-                   ct: connection.description)
+                   ct: connection.description,
+                   ect: connection.cellular.description)
     }
 
     static func create(from httpBody: String) throws -> CoreBeacon {

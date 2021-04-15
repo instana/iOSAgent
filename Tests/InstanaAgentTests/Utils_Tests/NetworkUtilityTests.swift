@@ -21,11 +21,12 @@ class NetworkUtilityTests: InstanaTestCase {
     }
 
     func test_CellularType() {
-        AssertEqualAndNotNil(NetworkUtility.CellularType.none.rawValue, "None")
-        AssertEqualAndNotNil(NetworkUtility.CellularType.twoG.rawValue, "2G")
-        AssertEqualAndNotNil(NetworkUtility.CellularType.threeG.rawValue, "3G")
-        AssertEqualAndNotNil(NetworkUtility.CellularType.fourG.rawValue, "4G")
-        AssertEqualAndNotNil(NetworkUtility.CellularType.unknown.rawValue, "Unknown")
+        AssertEqualAndNotNil(NetworkUtility.CellularType.none.description, "")
+        AssertEqualAndNotNil(NetworkUtility.CellularType.twoG.description, "2g")
+        AssertEqualAndNotNil(NetworkUtility.CellularType.threeG.description, "3g")
+        AssertEqualAndNotNil(NetworkUtility.CellularType.fourG.description, "4g")
+        AssertEqualAndNotNil(NetworkUtility.CellularType.fiveG.description, "5g")
+        AssertEqualAndNotNil(NetworkUtility.CellularType.unknown.description, "Unknown")
     }
 
     func test_GPRS() {

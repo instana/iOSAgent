@@ -1157,8 +1157,9 @@ extension NetworkUtility {
     static var none: NetworkUtility { utility(connectionType: .none) }
 
     static func utility(connectionType: NetworkUtility.ConnectionType) -> NetworkUtility {
-        let reach = try? MockReachability(connection: connectionType)
-        return NetworkUtility(reachability: reach)
+        let util = NetworkUtility()
+        util.connectionType = connectionType
+        return util
     }
 }
 

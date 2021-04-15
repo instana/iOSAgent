@@ -243,9 +243,17 @@ struct CoreBeacon: Codable {
     /**
      * Connection type
      *
-     * For example: Wifi, 4G, 3G or Edge
+     * For example: wifi, cellular
      */
     var ct: String?
+
+    /**
+     * Effective Connection type
+     * https://wicg.github.io/netinfo/#dom-effectiveconnectiontype
+     * i.e. 5g, 4g, 3g, 2g
+     * Short serialization key: ect
+     */
+    var ect: String?
 
     /**
      * Full URL for HTTP calls of all kinds.

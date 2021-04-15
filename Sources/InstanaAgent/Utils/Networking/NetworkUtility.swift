@@ -4,9 +4,10 @@
 
 import CoreTelephony
 import Foundation
+import Network
 
 class NetworkUtility {
-    private(set) var connectionType: ConnectionType = .undetermined {
+    var connectionType: ConnectionType = .undetermined {
         didSet {
             if oldValue != .undetermined {
                 connectionUpdateHandler(connectionType)
@@ -15,24 +16,38 @@ class NetworkUtility {
     }
 
     var connectionUpdateHandler: (ConnectionType) -> Void = { _ in }
-    private let reachability: Reachability?
-
+    private var reachability: Reachability?
     static let shared = NetworkUtility()
 
-    init(reachability: Reachability? = nil) {
-        let reachability = reachability ?? (try? Reachability())
-        self.reachability = reachability
-
-        // Remove when dropping iOS 11 and NWPath (see git history)
-        reachability?.whenReachable = { [weak self] reachability in
-            guard let self = self else { return }
-            self.update(reachability.connection == .wifi ? .wifi : .cellular)
+    init() {
+        if #available(iOS 12.0, *) {
+            let nwPathMonitor = NWPathMonitor()
+            nwPathMonitor.pathUpdateHandler = { path in
+                if path.usesInterfaceType(.wifi) {
+                    self.update(.wifi)
+                } else if path.usesInterfaceType(.cellular) {
+                    self.update(.cellular)
+                } else if path.usesInterfaceType(.wiredEthernet) {
+                    self.update(.ethernet)
+                } else {
+                    self.update(.undetermined)
+                }
+            }
+            nwPathMonitor.start(queue: .main)
+        } else {
+            // Fallback on earlier versions
+            // Remove when dropping iOS 11 and use NWPath (see git history)
+            reachability = (try? Reachability())
+            reachability?.whenReachable = { [weak self] reachability in
+                guard let self = self else { return }
+                self.update(reachability.connection == .wifi ? .wifi : .cellular)
+            }
+            reachability?.whenUnreachable = { [weak self] _ in
+                guard let self = self else { return }
+                self.update(.none)
+            }
+            try? reachability?.startNotifier()
         }
-        reachability?.whenUnreachable = { [weak self] _ in
-            guard let self = self else { return }
-            self.update(.none)
-        }
-        try? reachability?.startNotifier()
     }
 
     func update(_ newType: ConnectionType) {
@@ -43,27 +58,20 @@ class NetworkUtility {
 
 extension NetworkUtility {
     enum ConnectionType: String, CustomStringConvertible {
-        case undetermined, none, wifi, cellular
+        case undetermined, none, ethernet, wifi, cellular
         var cellular: CellularType { CellularType.current }
-        var description: String {
-            switch self {
-            case .none: return "None"
-            case .wifi: return "Wifi"
-            case .cellular: return CellularType.current.rawValue
-            case .undetermined: return "Unknown"
-            }
-        }
+        var description: String { rawValue }
     }
 
-    enum CellularType: String {
+    enum CellularType: CustomStringConvertible {
         case none, twoG, threeG, fourG, fiveG, unknown
-        var rawValue: String {
+        var description: String {
             switch self {
-            case .none: return "None"
-            case .twoG: return "2G"
-            case .threeG: return "3G"
-            case .fourG: return "4G"
-            case .fiveG: return "5G"
+            case .none: return ""
+            case .twoG: return "2g"
+            case .threeG: return "3g"
+            case .fourG: return "4g"
+            case .fiveG: return "5g"
             case .unknown: return "Unknown"
             }
         }
