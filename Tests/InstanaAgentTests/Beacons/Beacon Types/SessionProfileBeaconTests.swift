@@ -18,9 +18,6 @@ class SessionProfileBeaconTests: InstanaTestCase {
 
         // Then
         AssertEqualAndNotNil(sut.t, .sessionStart)
-
-        let values = Mirror(reflecting: sut).nonNilChildren
-        XCTAssertEqual(values.count, 20)
     }
 
     func test_asString() {

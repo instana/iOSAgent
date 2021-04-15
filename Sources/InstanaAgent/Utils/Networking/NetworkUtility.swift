@@ -19,7 +19,7 @@ class NetworkUtility {
     private var reachability: Reachability?
     static let shared = NetworkUtility()
 
-    init() {
+    init(observeNetworkChanges: Bool = true) {
         if #available(iOS 12.0, *) {
             let nwPathMonitor = NWPathMonitor()
             nwPathMonitor.pathUpdateHandler = { path in
@@ -33,7 +33,9 @@ class NetworkUtility {
                     self.update(.undetermined)
                 }
             }
-            nwPathMonitor.start(queue: .main)
+            if observeNetworkChanges {
+                nwPathMonitor.start(queue: .main)
+            }
         } else {
             // Fallback on earlier versions
             // Remove when dropping iOS 11 and use NWPath (see git history)
@@ -46,7 +48,9 @@ class NetworkUtility {
                 guard let self = self else { return }
                 self.update(.none)
             }
-            try? reachability?.startNotifier()
+            if observeNetworkChanges {
+                try? reachability?.startNotifier()
+            }
         }
     }
 
@@ -63,11 +67,11 @@ extension NetworkUtility {
         var description: String { rawValue }
     }
 
-    enum CellularType: CustomStringConvertible {
+    enum CellularType {
         case none, twoG, threeG, fourG, fiveG, unknown
-        var description: String {
+        var description: String? {
             switch self {
-            case .none: return ""
+            case .none: return nil
             case .twoG: return "2g"
             case .threeG: return "3g"
             case .fourG: return "4g"

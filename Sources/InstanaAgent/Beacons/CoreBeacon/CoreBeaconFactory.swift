@@ -122,7 +122,9 @@ extension CoreBeacon {
                               timestamp: Instana.Types.Milliseconds,
                               sid: UUID,
                               id: UUID,
-                              connection: NetworkUtility.ConnectionType = InstanaSystemUtils.networkUtility.connectionType) -> CoreBeacon {
+                              connection: NetworkUtility.ConnectionType = InstanaSystemUtils.networkUtility.connectionType,
+                              ect: NetworkUtility.CellularType? = nil)
+    -> CoreBeacon {
         CoreBeacon(v: viewName,
                    k: key,
                    ti: String(timestamp),
@@ -142,7 +144,7 @@ extension CoreBeacon {
                    vh: String(Int(InstanaSystemUtils.screenSize.height)),
                    cn: connection.cellular.carrierName,
                    ct: connection.description,
-                   ect: connection.cellular.description)
+                   ect: ect?.description ?? connection.cellular.description)
     }
 
     static func create(from httpBody: String) throws -> CoreBeacon {

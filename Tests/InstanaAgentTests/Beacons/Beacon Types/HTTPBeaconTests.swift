@@ -41,9 +41,6 @@ class HTTPBeaconTests: InstanaTestCase {
         AssertTrue(sut.ec == nil)
         AssertTrue(sut.et == nil)
         AssertTrue(sut.em == nil)
-
-        let values = Mirror(reflecting: sut).nonNilChildren
-        XCTAssertEqual(values.count, 30)
     }
 
     func test_map_http_with_error() {
@@ -68,9 +65,6 @@ class HTTPBeaconTests: InstanaTestCase {
         AssertTrue(sut.ec == "1")
         AssertTrue(sut.et == "HTTPError")
         AssertTrue(sut.em == "Timeout: An asynchronous operation timed out.")
-
-        let values = Mirror(reflecting: sut).nonNilChildren
-        XCTAssertEqual(values.count, 33)
     }
 
     func test_map_http_with_code_399() {

@@ -21,7 +21,7 @@ class NetworkUtilityTests: InstanaTestCase {
     }
 
     func test_CellularType() {
-        AssertEqualAndNotNil(NetworkUtility.CellularType.none.description, "")
+        AssertEqualAndNotNil(NetworkUtility.CellularType.none.description, nil)
         AssertEqualAndNotNil(NetworkUtility.CellularType.twoG.description, "2g")
         AssertEqualAndNotNil(NetworkUtility.CellularType.threeG.description, "3g")
         AssertEqualAndNotNil(NetworkUtility.CellularType.fourG.description, "4g")
@@ -124,10 +124,11 @@ class NetworkUtilityTests: InstanaTestCase {
                                                                 CTRadioAccessTechnologyNR].randomElement()!
             // Then
             AssertEqualAndNotNil(NetworkUtility.ConnectionType.wifi.cellular, .fiveG)
-            AssertEqualAndNotNil(NetworkUtility.ConnectionType.none.description, "None")
-            AssertEqualAndNotNil(NetworkUtility.ConnectionType.wifi.description, "Wifi")
-            AssertEqualAndNotNil(NetworkUtility.ConnectionType.cellular.description, "5G")
-            AssertEqualAndNotNil(NetworkUtility.ConnectionType.undetermined.description, "Unknown")
+            AssertEqualAndNotNil(NetworkUtility.ConnectionType.none.description, "none")
+            AssertEqualAndNotNil(NetworkUtility.ConnectionType.wifi.description, "wifi")
+            AssertEqualAndNotNil(NetworkUtility.ConnectionType.cellular.description, "cellular")
+            AssertEqualAndNotNil(NetworkUtility.CellularType.current.description, "5g")
+            AssertEqualAndNotNil(NetworkUtility.ConnectionType.undetermined.description, "undetermined")
         }
     }
 
@@ -153,9 +154,12 @@ class NetworkUtilityTests: InstanaTestCase {
 
         // Then
         AssertEqualAndNotNil(NetworkUtility.ConnectionType.wifi.cellular, .fourG)
-        AssertEqualAndNotNil(NetworkUtility.ConnectionType.none.description, "None")
-        AssertEqualAndNotNil(NetworkUtility.ConnectionType.wifi.description, "Wifi")
-        AssertEqualAndNotNil(NetworkUtility.ConnectionType.cellular.description, "4G")
-        AssertEqualAndNotNil(NetworkUtility.ConnectionType.undetermined.description, "Unknown")
+        AssertEqualAndNotNil(NetworkUtility.ConnectionType.none.description, "none")
+        AssertEqualAndNotNil(NetworkUtility.ConnectionType.wifi.description, "wifi")
+        AssertEqualAndNotNil(NetworkUtility.ConnectionType.cellular.description, "cellular")
+        AssertEqualAndNotNil(NetworkUtility.ConnectionType.undetermined.description, "undetermined")
+        AssertEqualAndNotNil(NetworkUtility.CellularType.current.description, "4g")
+        AssertEqualAndNotNil(NetworkUtility.ConnectionType.undetermined.cellular,
+                             NetworkUtility.CellularType.current)
     }
 }
