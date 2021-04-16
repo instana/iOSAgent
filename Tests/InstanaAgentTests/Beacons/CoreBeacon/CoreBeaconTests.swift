@@ -27,9 +27,19 @@ class CoreBeaconTests: InstanaTestCase {
                                       user: user,
                                       currentView: viewName)
         props = session.propertyHandler.properties
-        coreBeacon = CoreBeacon.createDefault(viewName: viewName, key: key, timestamp: timestamp, sid: sessionID, id: beaconID)
+        coreBeacon = CoreBeacon.createDefault(viewName: viewName,
+                                              key: key,
+                                              timestamp: timestamp,
+                                              sid: sessionID,
+                                              id: beaconID)
         coreBeacon.append(props)
-        wifiCoreBeacon = CoreBeacon.createDefault(viewName: viewName, key: key, timestamp: timestamp, sid: sessionID, id: beaconID, connection: .wifi)
+        wifiCoreBeacon = CoreBeacon.createDefault(viewName: viewName,
+                                                  key: key,
+                                                  timestamp: timestamp,
+                                                  sid: sessionID
+                                                  , id: beaconID,
+                                                  connection: .wifi,
+                                                  ect: .fiveG)
         wifiCoreBeacon.append(props)
     }
 
@@ -51,10 +61,11 @@ class CoreBeaconTests: InstanaTestCase {
         AssertEqualAndNotNil(sut.osv, InstanaSystemUtils.systemVersion)
         AssertEqualAndNotNil(sut.dmo, InstanaSystemUtils.deviceModel)
         AssertEqualAndNotNil(sut.dma, "Apple")
+        AssertEqualAndNotNil(sut.agv, InstanaSystemUtils.agentVersion)
         AssertEqualAndNotNil(sut.ro, String(InstanaSystemUtils.isDeviceJailbroken))
         AssertEqualAndNotNil(sut.vw, String(Int(InstanaSystemUtils.screenSize.width)))
         AssertEqualAndNotNil(sut.vh, String(Int(InstanaSystemUtils.screenSize.height)))
-        AssertEqualAndNotNil(sut.cn, InstanaSystemUtils.networkUtility.connectionType.cellular.carrierName)
+        AssertEqualAndNotNil(sut.cn, NetworkUtility.CellularType.current.carrierName)
         AssertEqualAndNotNil(sut.ct, InstanaSystemUtils.networkUtility.connectionType.description)
 
         AssertEqualAndNotNil(sut.ue, user?.email)
@@ -76,7 +87,7 @@ class CoreBeaconTests: InstanaTestCase {
         let values = Mirror(reflecting: sut).children
 
         // Then
-        XCTAssertEqual(values.count, 38)
+        XCTAssertEqual(values.count, 39)
     }
 
     func testNumberOfFields_non_nil() {
@@ -95,20 +106,24 @@ class CoreBeaconTests: InstanaTestCase {
         // Given
         let sut = coreBeacon!
 
-        let expectedKeys = ["t", "v", "bt", "k" ,"ti", "sid", "bid", "bi", "m", "ui", "un", "ue", "ul", "ab", "av", "p", "osn", "osv", "dma", "dmo", "ro", "vw", "vh", "cn", "ct", "hu", "hp", "hm", "hs", "ebs", "dbs", "trs", "d", "ec", "em", "et"]
+        let expectedKeys = ["t", "v", "bt", "k" ,"ti", "sid", "bid", "bi", "m", "ui", "un", "ue", "ul", "ab", "av", "p", "osn", "osv", "dma", "dmo", "ro", "vw", "vh", "cn", "ct", "ect", "hu", "hp", "hm", "hs", "ebs", "dbs", "trs", "d", "ec", "em", "et", "agv", "cen"]
         // When
         let keys = Mirror(reflecting: sut).children.compactMap {$0.label}
 
         // Then
-        let matchingKeys = expectedKeys.filter {key in
-            keys.contains(key)
+        XCTAssertTrue(keys.count > 0)
+        keys.forEach {existingCoreBeaconKey in
+            XCTAssertTrue(expectedKeys.contains(existingCoreBeaconKey),
+                          "CoreBeacon Key \(existingCoreBeaconKey) not expected")
         }
-
-        XCTAssertEqual(expectedKeys.count, matchingKeys.count)
+        expectedKeys.forEach {expectedKey in
+            XCTAssertTrue(keys.contains(expectedKey),
+                          "Expected Key \(expectedKey) not available in CoreBeacon")
+        }
     }
 
     // MARK: Extension
-    func test_asString_Default() {
+    func test_wifi_5g_Beacon_asString_Default() {
         // Given
         let beacon = wifiCoreBeacon!
 
@@ -116,8 +131,10 @@ class CoreBeaconTests: InstanaTestCase {
         let sut = beacon.asString
 
         // Then
-        let expected = "ab\t\(beacon.ab)\nagv\t\(beacon.agv)\nav\t\(beacon.av)\nbi\t\(beacon.bi)\nbid\t\(beacon.bid)\ncn\tNone\nct\tWifi\ndma\tApple\ndmo\t\(beacon.dmo)\nk\t\(key)\nm_MetaKey\t\(metaData["MetaKey"]!)\nosn\tiOS\nosv\t\(beacon.osv)\np\tiOS\nro\tfalse\nsid\t\(sessionID.uuidString)\nti\t\(beacon.ti)\nue\t\(user.email ?? "")\nui\t\(user.id)\nul\ten\nun\t\(user.name ?? "")\nv\t\(viewName!)\nvh\t\(Int(UIScreen.main.nativeBounds.height))\nvw\t\(Int(UIScreen.main.nativeBounds.width))"
-        XCTAssertEqual(sut, expected)
+        let expected = "ab\t\(beacon.ab)\nagv\t\(beacon.agv)\nav\t\(beacon.av)\nbi\t\(beacon.bi)\nbid\t\(beacon.bid)\ncn\tNone\nct\twifi\ndma\tApple\ndmo\t\(beacon.dmo)\nect\t5g\nk\t\(key)\nm_MetaKey\t\(metaData["MetaKey"]!)\nosn\tiOS\nosv\t\(beacon.osv)\np\tiOS\nro\tfalse\nsid\t\(sessionID.uuidString)\nti\t\(beacon.ti)\nue\t\(user.email ?? "")\nui\t\(user.id)\nul\ten\nun\t\(user.name ?? "")\nv\t\(viewName!)\nvh\t\(Int(UIScreen.main.nativeBounds.height))\nvw\t\(Int(UIScreen.main.nativeBounds.width))"
+        AssertEqualAndNotNil(sut, expected)
+        AssertEqualAndNotNil(beacon.ct, "wifi")
+        AssertEqualAndNotNil(beacon.ect, "5g")
     }
 
     func test_asJSON() {

@@ -856,14 +856,14 @@ class ReporterTests: InstanaTestCase {
         }
 
         // Then
-        wait(for: [waitForSubmit1], timeout: 3.0)
+        wait(for: [waitForSubmit1], timeout: 5.0)
         AssertTrue(reporter.preQueue.first === beaconPreQueue)
         AssertTrue(reporter.preQueue.count == 1)
 
         // When
         wait(prequeueTime + 0.1)
         reporter.submit(beaconAfterQueue)
-        wait(for: [waitForSend], timeout: prequeueTime * 4)
+        wait(for: [waitForSend], timeout: prequeueTime * 8)
 
         // Then
         AssertEqualAndNotNil(sendCount, 2) // The prequeue has been flushed only
@@ -1157,8 +1157,9 @@ extension NetworkUtility {
     static var none: NetworkUtility { utility(connectionType: .none) }
 
     static func utility(connectionType: NetworkUtility.ConnectionType) -> NetworkUtility {
-        let reach = try? MockReachability(connection: connectionType)
-        return NetworkUtility(reachability: reach)
+        let util = NetworkUtility(observeNetworkChanges: false)
+        util.connectionType = connectionType
+        return util
     }
 }
 

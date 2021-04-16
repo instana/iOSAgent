@@ -7,7 +7,9 @@ import XCTest
 @testable import InstanaAgent
 
 extension URL {
-    static var random: URL { URL(string: "http://www.example.com/\((0...1000).randomElement() ?? 0)")! }
+    static var random: URL {
+        URL(string: "http://www.example.com/\((0...1000).randomElement() ?? 0)")!
+    }
 }
 
 class MockHTTPURLResponse: HTTPURLResponse {
