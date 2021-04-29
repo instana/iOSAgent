@@ -3,7 +3,12 @@
 //
 
 import Foundation
-import UIKit
+
+#if os(macOS)
+    import AppKit
+#elseif os(tvOS) || os(watchOS) || os(iOS)
+    import UIKit
+#endif
 
 class InstanaSystemUtils {
     static let battery = InstanaBatteryUtils()
@@ -22,10 +27,32 @@ class InstanaSystemUtils {
 
     static var networkUtility = { NetworkUtility.shared }()
 
-    /// Returns iOS version (for ex. "12.1")
-    static var systemVersion: String = { UIDevice.current.systemVersion }()
+    /// Returns iOS version (for ex. "14.4")
+    static var systemVersion: String = {
+        // swiftlint:disable line_length
+        "\(ProcessInfo.processInfo.operatingSystemVersion.majorVersion).\(ProcessInfo.processInfo.operatingSystemVersion.minorVersion).\(ProcessInfo.processInfo.operatingSystemVersion.patchVersion)"
+    }()
 
-    static var systemName: String = { UIDevice.current.systemName }()
+    static var systemName: String = {
+        let macOS = "macOS"
+        if #available(iOS 13.0, *) {
+            if ProcessInfo.processInfo.isMacCatalystApp {
+                return macOS
+            }
+        }
+        if #available(iOS 14.0, *) {
+            if #available(OSX 11.0, *) {
+                if ProcessInfo.processInfo.isiOSAppOnMac {
+                    return macOS
+                }
+            }
+        }
+        #if os(macOS)
+            return macOS
+        #elseif os(tvOS) || os(watchOS) || os(iOS)
+            return UIDevice.current.systemName
+        #endif
+    }()
 
     /// Returns application version (for ex. "1.1")
     static var applicationVersion: String = { Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "unknown-version" }()
@@ -39,7 +66,13 @@ class InstanaSystemUtils {
     static var agentVersion: String { VersionConfig.agentVersion }
 
     /// Returns the screen size in Pixel
-    static var screenSize: CGSize = { UIScreen.main.nativeBounds.size }()
+    static var screenSize: CGSize = {
+        #if os(macOS)
+            return NSScreen.main?.frame.size ?? .zero
+        #elseif os(tvOS) || os(watchOS) || os(iOS)
+            return UIScreen.main.bounds.size
+        #endif
+    }()
 
     static var isDeviceJailbroken: Bool = {
         var isBroken = false

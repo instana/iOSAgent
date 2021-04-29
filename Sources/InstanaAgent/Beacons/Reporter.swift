@@ -4,7 +4,6 @@
 
 import Foundation
 import Gzip
-import UIKit
 
 /// Reporter to queue and submit the Beacons
 public class Reporter {
@@ -164,14 +163,16 @@ public class Reporter {
     }
 
     private func runBackgroundFlush() {
-        ProcessInfo.processInfo.performExpiringActivity(withReason: "BackgroundFlush") { expired in
-            guard !expired else { return }
-            self.dispatchQueue.async { [weak self] in
-                guard let self = self else { return }
-                guard !self.queue.items.isEmpty else { return }
-                self.flushQueue()
+        #if os(tvOS) || os(watchOS) || os(iOS)
+            ProcessInfo.processInfo.performExpiringActivity(withReason: "BackgroundFlush") { expired in
+                guard !expired else { return }
+                self.dispatchQueue.async { [weak self] in
+                    guard let self = self else { return }
+                    guard !self.queue.items.isEmpty else { return }
+                    self.flushQueue()
+                }
             }
-        }
+        #endif
     }
 
     private func complete(_ beacons: [CoreBeacon], _ result: BeaconResult) {

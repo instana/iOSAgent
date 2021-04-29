@@ -124,7 +124,7 @@ extension CoreBeacon {
                               id: UUID,
                               connection: NetworkUtility.ConnectionType = InstanaSystemUtils.networkUtility.connectionType,
                               ect: NetworkUtility.CellularType? = nil)
-    -> CoreBeacon {
+        -> CoreBeacon {
         CoreBeacon(v: viewName,
                    k: key,
                    ti: String(timestamp),

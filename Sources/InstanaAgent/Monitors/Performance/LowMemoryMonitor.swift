@@ -3,16 +3,20 @@
 //
 
 import Foundation
-import UIKit
+#if os(tvOS) || os(watchOS) || os(iOS)
+    import UIKit
+#endif
 
 class LowMemoryMonitor {
     let reporter: Reporter
 
     init(reporter: Reporter) {
         self.reporter = reporter
-        NotificationCenter.default.addObserver(self, selector: #selector(onLowMemoryWarning(notification:)),
-                                               name: UIApplication.didReceiveMemoryWarningNotification,
-                                               object: nil)
+        #if os(tvOS) || os(watchOS) || os(iOS)
+            NotificationCenter.default.addObserver(self, selector: #selector(onLowMemoryWarning(notification:)),
+                                                   name: UIApplication.didReceiveMemoryWarningNotification,
+                                                   object: nil)
+        #endif
     }
 
     @objc func onLowMemoryWarning(notification: Notification) {
