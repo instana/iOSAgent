@@ -32,7 +32,7 @@ class InstanaIntegrationTests: InstanaTestCase {
         }.resume()
 
         // Then
-        wait(for: [waitFor], timeout: 5.0)
+        wait(for: [waitFor], timeout: 10.0)
         AssertTrue(sentBeacon != nil)
         AssertTrue(sentBeacon?.t == BeaconType.httpRequest)
         AssertEqualAndNotNil(sentBeacon?.hm, "GET")
@@ -47,7 +47,7 @@ class InstanaIntegrationTests: InstanaTestCase {
         AssertEqualAndNotNil(sentBeacon?.av, InstanaSystemUtils.applicationVersion)
         AssertEqualAndNotNil(sentBeacon?.agv, InstanaSystemUtils.agentVersion)
         AssertEqualAndNotNil(sentBeacon?.bi, "com.apple.dt.xctest.tool")
-        AssertEqualAndNotNil(sentBeacon?.ct, "Wifi")
+        AssertEqualAndNotNil(sentBeacon?.ct, "wifi")
         AssertEqualAndNotNil(sentBeacon?.t, BeaconType.httpRequest)
         AssertEqualAndNotNil(sentBeacon?.cn, "None")
         AssertEqualAndNotNil(sentBeacon?.dma, "Apple")

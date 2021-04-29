@@ -92,7 +92,7 @@ class InstanaBatteryUtilsTests: InstanaTestCase {
         batteryUtils = InstanaBatteryUtils()
 
         // Then
-        AssertTrue(batteryUtils.safeForNetworking == false)
+        AssertTrue(batteryUtils.safeForNetworking == true)
     }
 
     func test_notification_state_change() {

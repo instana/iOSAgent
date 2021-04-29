@@ -3,7 +3,13 @@
 //
 
 import Foundation
-import UIKit
+#if os(macOS)
+    import AppKit
+    typealias Application = NSApplication
+#elseif os(tvOS) || os(watchOS) || os(iOS)
+    import UIKit
+    typealias Application = UIApplication
+#endif
 
 // We need an abstract state handler to make the Notifications (didBecomeActiveNotification, ...) easier to test
 class InstanaApplicationStateHandler {
@@ -23,24 +29,34 @@ class InstanaApplicationStateHandler {
     private var stateUpdateHandler = [StateUpdater]()
 
     init() {
-        _ = NotificationCenter.default.addObserver(forName: UIApplication.didBecomeActiveNotification, object: nil, queue: nil) { _ in
+        _ = NotificationCenter.default.addObserver(forName: Application.didBecomeActiveNotification, object: nil, queue: nil) { _ in
             self.state = .active
         }
-        _ = NotificationCenter.default.addObserver(forName: NSNotification.Name.NSExtensionHostDidBecomeActive, object: nil, queue: nil) { _ in
-            self.state = .active
-        }
-        _ = NotificationCenter.default.addObserver(forName: UIApplication.didEnterBackgroundNotification, object: nil, queue: nil) { _ in
-            self.state = .background
-        }
-        _ = NotificationCenter.default.addObserver(forName: NSNotification.Name.NSExtensionHostDidEnterBackground, object: nil, queue: nil) { _ in
-            self.state = .background
-        }
-        _ = NotificationCenter.default.addObserver(forName: UIApplication.willResignActiveNotification, object: nil, queue: nil) { _ in
+        _ = NotificationCenter.default.addObserver(forName: Application.willResignActiveNotification, object: nil, queue: nil) { _ in
             self.state = .inactive
         }
-        _ = NotificationCenter.default.addObserver(forName: NSNotification.Name.NSExtensionHostWillResignActive, object: nil, queue: nil) { _ in
-            self.state = .inactive
-        }
+
+        #if os(tvOS) || os(watchOS) || os(iOS)
+            _ = NotificationCenter.default.addObserver(forName: UIApplication.didEnterBackgroundNotification, object: nil, queue: nil) { _ in
+                self.state = .background
+            }
+            _ = NotificationCenter.default.addObserver(forName: NSNotification.Name.NSExtensionHostWillResignActive, object: nil, queue: nil) { _ in
+                self.state = .inactive
+            }
+            _ = NotificationCenter.default.addObserver(forName: NSNotification.Name.NSExtensionHostDidBecomeActive, object: nil, queue: nil) { _ in
+                self.state = .active
+            }
+            _ = NotificationCenter.default.addObserver(forName: NSNotification.Name.NSExtensionHostDidEnterBackground, object: nil, queue: nil) { _ in
+                self.state = .background
+            }
+        #elseif os(macOS)
+            _ = NotificationCenter.default.addObserver(forName: NSApplication.didHideNotification, object: nil, queue: nil) { _ in
+                self.state = .background
+            }
+            _ = NotificationCenter.default.addObserver(forName: NSApplication.didUnhideNotification, object: nil, queue: nil) { _ in
+                self.state = .active
+            }
+        #endif
     }
 
     func listen(_ handler: @escaping StateUpdater) {

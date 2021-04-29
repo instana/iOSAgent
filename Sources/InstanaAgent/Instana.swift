@@ -3,7 +3,6 @@
 //
 
 import Foundation
-import UIKit
 
 // swiftlint:disable line_length
 

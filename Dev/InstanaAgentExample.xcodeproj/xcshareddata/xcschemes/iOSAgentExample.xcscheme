@@ -14,10 +14,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "InstanaAgent"
-               BuildableName = "InstanaAgent"
-               BlueprintName = "InstanaAgent"
-               ReferencedContainer = "container:">
+               BlueprintIdentifier = "727AF684263A9EBD00B9C59B"
+               BuildableName = "InstanaAgentExample.app"
+               BlueprintName = "InstanaAgentExample"
+               ReferencedContainer = "container:InstanaAgentExample.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -32,10 +32,10 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "InstanaAgentTests"
-               BuildableName = "InstanaAgentTests"
-               BlueprintName = "InstanaAgentTests"
-               ReferencedContainer = "container:">
+               BlueprintIdentifier = "727AF718263AA09C00B9C59B"
+               BuildableName = "iOSAgentUITests.xctest"
+               BlueprintName = "iOSAgentUITests"
+               ReferencedContainer = "container:InstanaAgentExample.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -50,6 +50,16 @@
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "727AF684263A9EBD00B9C59B"
+            BuildableName = "InstanaAgentExample.app"
+            BlueprintName = "InstanaAgentExample"
+            ReferencedContainer = "container:InstanaAgentExample.xcodeproj">
+         </BuildableReference>
+      </BuildableProductRunnable>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
@@ -57,15 +67,16 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
-      <MacroExpansion>
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "InstanaAgent"
-            BuildableName = "InstanaAgent"
-            BlueprintName = "InstanaAgent"
-            ReferencedContainer = "container:">
+            BlueprintIdentifier = "727AF684263A9EBD00B9C59B"
+            BuildableName = "InstanaAgentExample.app"
+            BlueprintName = "InstanaAgentExample"
+            ReferencedContainer = "container:InstanaAgentExample.xcodeproj">
          </BuildableReference>
-      </MacroExpansion>
+      </BuildableProductRunnable>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

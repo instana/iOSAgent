@@ -36,7 +36,11 @@ class InstanaPersistableQueue<T: Codable & Hashable> {
         guard let fileURL = queueJSONFileURL else { return }
         do {
             let data = try JSONEncoder().encode(items)
-            try data.write(to: fileURL, options: .completeFileProtection)
+            if #available(OSX 11.0, *) {
+                try data.write(to: fileURL, options: .completeFileProtection)
+            } else {
+                try data.write(to: fileURL)
+            }
             completion?(.success(()))
         } catch {
             completion?(.failure(error))
