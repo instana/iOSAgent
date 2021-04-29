@@ -1,0 +1,757 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 52;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		725029D2263AB32300302532 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 725029D1263AB32300302532 /* AppDelegate.swift */; };
+		725029D4263AB32300302532 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 725029D3263AB32300302532 /* ViewController.swift */; };
+		725029D6263AB32400302532 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 725029D5263AB32400302532 /* Assets.xcassets */; };
+		725029D9263AB32400302532 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 725029D7263AB32400302532 /* Main.storyboard */; };
+		725029E5263AB3ED00302532 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 727AF738263AA0FA00B9C59B /* Config.swift */; };
+		72785629263AB70A009FC945 /* InstanaAgent in Frameworks */ = {isa = PBXBuildFile; productRef = 72785628263AB70A009FC945 /* InstanaAgent */; };
+		727AF689263A9EBD00B9C59B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 727AF688263A9EBD00B9C59B /* AppDelegate.swift */; };
+		727AF68B263A9EBD00B9C59B /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 727AF68A263A9EBD00B9C59B /* SceneDelegate.swift */; };
+		727AF68D263A9EBD00B9C59B /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 727AF68C263A9EBD00B9C59B /* ViewController.swift */; };
+		727AF690263A9EBD00B9C59B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 727AF68E263A9EBD00B9C59B /* Main.storyboard */; };
+		727AF692263A9EBE00B9C59B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 727AF691263A9EBE00B9C59B /* Assets.xcassets */; };
+		727AF695263A9EBE00B9C59B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 727AF693263A9EBE00B9C59B /* LaunchScreen.storyboard */; };
+		727AF71C263AA09C00B9C59B /* iOSAgentUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 727AF71B263AA09C00B9C59B /* iOSAgentUITests.swift */; };
+		727AF73B263AA0FA00B9C59B /* ImageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 727AF736263AA0FA00B9C59B /* ImageViewController.swift */; };
+		727AF73C263AA0FA00B9C59B /* JSONViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 727AF737263AA0FA00B9C59B /* JSONViewController.swift */; };
+		727AF73D263AA0FA00B9C59B /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 727AF738263AA0FA00B9C59B /* Config.swift */; };
+		727AF73E263AA0FA00B9C59B /* WebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 727AF739263AA0FA00B9C59B /* WebViewController.swift */; };
+		727AF73F263AA0FA00B9C59B /* EventListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 727AF73A263AA0FA00B9C59B /* EventListViewController.swift */; };
+		727AF748263AA16A00B9C59B /* InstanaAgent in Frameworks */ = {isa = PBXBuildFile; productRef = 727AF747263AA16A00B9C59B /* InstanaAgent */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		727AF71E263AA09C00B9C59B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 727AF67D263A9EBD00B9C59B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 727AF684263A9EBD00B9C59B;
+			remoteInfo = InstanaAgentExample;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		725029CF263AB32300302532 /* macAgentExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = macAgentExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		725029D1263AB32300302532 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		725029D3263AB32300302532 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		725029D5263AB32400302532 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		725029D8263AB32400302532 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		725029DA263AB32400302532 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		725029DB263AB32400302532 /* macAgentExample.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = macAgentExample.entitlements; sourceTree = "<group>"; };
+		727AF685263A9EBD00B9C59B /* InstanaAgentExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = InstanaAgentExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		727AF688263A9EBD00B9C59B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		727AF68A263A9EBD00B9C59B /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
+		727AF68C263A9EBD00B9C59B /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		727AF68F263A9EBD00B9C59B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		727AF691263A9EBE00B9C59B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		727AF694263A9EBE00B9C59B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		727AF696263A9EBE00B9C59B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		727AF713263AA05B00B9C59B /* iosAgent */ = {isa = PBXFileReference; lastKnownFileType = folder; name = iosAgent; path = ..; sourceTree = "<group>"; };
+		727AF719263AA09C00B9C59B /* iOSAgentUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = iOSAgentUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		727AF71B263AA09C00B9C59B /* iOSAgentUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOSAgentUITests.swift; sourceTree = "<group>"; };
+		727AF71D263AA09C00B9C59B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		727AF736263AA0FA00B9C59B /* ImageViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageViewController.swift; sourceTree = "<group>"; };
+		727AF737263AA0FA00B9C59B /* JSONViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JSONViewController.swift; sourceTree = "<group>"; };
+		727AF738263AA0FA00B9C59B /* Config.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
+		727AF739263AA0FA00B9C59B /* WebViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WebViewController.swift; sourceTree = "<group>"; };
+		727AF73A263AA0FA00B9C59B /* EventListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventListViewController.swift; sourceTree = "<group>"; };
+		72FBE8A7263AACDB00CF2CDE /* InstanaAgentExample.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = InstanaAgentExample.entitlements; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		725029CC263AB32300302532 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				72785629263AB70A009FC945 /* InstanaAgent in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		727AF682263A9EBD00B9C59B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				727AF748263AA16A00B9C59B /* InstanaAgent in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		727AF716263AA09C00B9C59B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		725029D0263AB32300302532 /* macAgentExample */ = {
+			isa = PBXGroup;
+			children = (
+				725029D1263AB32300302532 /* AppDelegate.swift */,
+				725029D3263AB32300302532 /* ViewController.swift */,
+				725029D5263AB32400302532 /* Assets.xcassets */,
+				725029D7263AB32400302532 /* Main.storyboard */,
+				725029DA263AB32400302532 /* Info.plist */,
+				725029DB263AB32400302532 /* macAgentExample.entitlements */,
+			);
+			path = macAgentExample;
+			sourceTree = "<group>";
+		};
+		727AF67C263A9EBD00B9C59B = {
+			isa = PBXGroup;
+			children = (
+				727AF713263AA05B00B9C59B /* iosAgent */,
+				727AF687263A9EBD00B9C59B /* InstanaAgentExample */,
+				727AF71A263AA09C00B9C59B /* iOSAgentUITests */,
+				725029D0263AB32300302532 /* macAgentExample */,
+				727AF686263A9EBD00B9C59B /* Products */,
+				727AF710263A9FC800B9C59B /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		727AF686263A9EBD00B9C59B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				727AF685263A9EBD00B9C59B /* InstanaAgentExample.app */,
+				727AF719263AA09C00B9C59B /* iOSAgentUITests.xctest */,
+				725029CF263AB32300302532 /* macAgentExample.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		727AF687263A9EBD00B9C59B /* InstanaAgentExample */ = {
+			isa = PBXGroup;
+			children = (
+				72FBE8A7263AACDB00CF2CDE /* InstanaAgentExample.entitlements */,
+				727AF738263AA0FA00B9C59B /* Config.swift */,
+				727AF73A263AA0FA00B9C59B /* EventListViewController.swift */,
+				727AF736263AA0FA00B9C59B /* ImageViewController.swift */,
+				727AF737263AA0FA00B9C59B /* JSONViewController.swift */,
+				727AF739263AA0FA00B9C59B /* WebViewController.swift */,
+				727AF688263A9EBD00B9C59B /* AppDelegate.swift */,
+				727AF68A263A9EBD00B9C59B /* SceneDelegate.swift */,
+				727AF68C263A9EBD00B9C59B /* ViewController.swift */,
+				727AF68E263A9EBD00B9C59B /* Main.storyboard */,
+				727AF691263A9EBE00B9C59B /* Assets.xcassets */,
+				727AF693263A9EBE00B9C59B /* LaunchScreen.storyboard */,
+				727AF696263A9EBE00B9C59B /* Info.plist */,
+			);
+			path = InstanaAgentExample;
+			sourceTree = "<group>";
+		};
+		727AF710263A9FC800B9C59B /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		727AF71A263AA09C00B9C59B /* iOSAgentUITests */ = {
+			isa = PBXGroup;
+			children = (
+				727AF71B263AA09C00B9C59B /* iOSAgentUITests.swift */,
+				727AF71D263AA09C00B9C59B /* Info.plist */,
+			);
+			path = iOSAgentUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		725029CE263AB32300302532 /* macAgentExample */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 725029DE263AB32400302532 /* Build configuration list for PBXNativeTarget "macAgentExample" */;
+			buildPhases = (
+				725029E9263AB40000302532 /* Import secure vars */,
+				725029CB263AB32300302532 /* Sources */,
+				725029CC263AB32300302532 /* Frameworks */,
+				725029CD263AB32300302532 /* Resources */,
+				725029EA263AB41500302532 /* Reset */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = macAgentExample;
+			packageProductDependencies = (
+				72785628263AB70A009FC945 /* InstanaAgent */,
+			);
+			productName = macAgentExample;
+			productReference = 725029CF263AB32300302532 /* macAgentExample.app */;
+			productType = "com.apple.product-type.application";
+		};
+		727AF684263A9EBD00B9C59B /* InstanaAgentExample */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 727AF699263A9EBE00B9C59B /* Build configuration list for PBXNativeTarget "InstanaAgentExample" */;
+			buildPhases = (
+				72FBE8AC263AAD0900CF2CDE /* Import secure variables */,
+				72FBE8AD263AAD2000CF2CDE /* SwiftLint & SwiftFormat */,
+				727AF681263A9EBD00B9C59B /* Sources */,
+				727AF682263A9EBD00B9C59B /* Frameworks */,
+				727AF683263A9EBD00B9C59B /* Resources */,
+				72FBE8AE263AAD4C00CF2CDE /* Reset */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = InstanaAgentExample;
+			packageProductDependencies = (
+				727AF747263AA16A00B9C59B /* InstanaAgent */,
+			);
+			productName = InstanaAgentExample;
+			productReference = 727AF685263A9EBD00B9C59B /* InstanaAgentExample.app */;
+			productType = "com.apple.product-type.application";
+		};
+		727AF718263AA09C00B9C59B /* iOSAgentUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 727AF722263AA09C00B9C59B /* Build configuration list for PBXNativeTarget "iOSAgentUITests" */;
+			buildPhases = (
+				727AF715263AA09C00B9C59B /* Sources */,
+				727AF716263AA09C00B9C59B /* Frameworks */,
+				727AF717263AA09C00B9C59B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				727AF71F263AA09C00B9C59B /* PBXTargetDependency */,
+			);
+			name = iOSAgentUITests;
+			productName = InstanaAgentExampleUITests;
+			productReference = 727AF719263AA09C00B9C59B /* iOSAgentUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		727AF67D263A9EBD00B9C59B /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 1240;
+				LastUpgradeCheck = 1240;
+				TargetAttributes = {
+					725029CE263AB32300302532 = {
+						CreatedOnToolsVersion = 12.4;
+					};
+					727AF684263A9EBD00B9C59B = {
+						CreatedOnToolsVersion = 12.4;
+					};
+					727AF718263AA09C00B9C59B = {
+						CreatedOnToolsVersion = 12.4;
+						TestTargetID = 727AF684263A9EBD00B9C59B;
+					};
+				};
+			};
+			buildConfigurationList = 727AF680263A9EBD00B9C59B /* Build configuration list for PBXProject "InstanaAgentExample" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 727AF67C263A9EBD00B9C59B;
+			productRefGroup = 727AF686263A9EBD00B9C59B /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				727AF684263A9EBD00B9C59B /* InstanaAgentExample */,
+				727AF718263AA09C00B9C59B /* iOSAgentUITests */,
+				725029CE263AB32300302532 /* macAgentExample */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		725029CD263AB32300302532 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				725029D6263AB32400302532 /* Assets.xcassets in Resources */,
+				725029D9263AB32400302532 /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		727AF683263A9EBD00B9C59B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				727AF695263A9EBE00B9C59B /* LaunchScreen.storyboard in Resources */,
+				727AF692263A9EBE00B9C59B /* Assets.xcassets in Resources */,
+				727AF690263A9EBD00B9C59B /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		727AF717263AA09C00B9C59B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		725029E9263AB40000302532 /* Import secure vars */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Import secure vars";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if [ -f ../../.env-vars ]\nthen\n    echo \"Import secure variables\"\n    source ../../.env-vars\n    sed -i '' 's,INSTANA_REPORTING_KEY,'${INSTANA_REPORTING_KEY}',g' InstanaAgentExample/Config.swift\n    sed -i '' 's,INSTANA_REPORTING_URL,'${INSTANA_REPORTING_URL}',g' InstanaAgentExample/Config.swift\nfi\n";
+		};
+		725029EA263AB41500302532 /* Reset */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = Reset;
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if [ -f ../../.env-vars ]\nthen\n    echo \"Import secure variables\"\n    source ../../.env-vars\n    sed -i '' 's,'${INSTANA_REPORTING_KEY}',INSTANA_REPORTING_KEY,g' InstanaAgentExample/Config.swift\n    sed -i '' 's,'${INSTANA_REPORTING_URL}',INSTANA_REPORTING_URL,g' InstanaAgentExample/Config.swift\nfi\n";
+		};
+		72FBE8AC263AAD0900CF2CDE /* Import secure variables */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Import secure variables";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if [ -f ../../.env-vars ]\nthen\n    echo \"Import secure variables\"\n    source ../../.env-vars\n    sed -i '' 's,INSTANA_REPORTING_KEY,'${INSTANA_REPORTING_KEY}',g' InstanaAgentExample/Config.swift\n    sed -i '' 's,INSTANA_REPORTING_URL,'${INSTANA_REPORTING_URL}',g' InstanaAgentExample/Config.swift\nfi\n";
+		};
+		72FBE8AD263AAD2000CF2CDE /* SwiftLint & SwiftFormat */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "SwiftLint & SwiftFormat";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "cd ..\nif which tools/swiftlint/swiftlint >/dev/null; then\n  scripts/lint.sh\nelse\n  scripts/install_swiftlint.sh\n  scripts/lint.sh\nfi\n\nif which tools/SwiftFormat/swiftformat >/dev/null; then\n  scripts/swiftformat.sh\nelse\n  scripts/install_swiftformat.sh\n  scripts/swiftformat.sh\nfi\n";
+		};
+		72FBE8AE263AAD4C00CF2CDE /* Reset */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = Reset;
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if [ -f ../../.env-vars ]\nthen\n    echo \"Import secure variables\"\n    source ../../.env-vars\n    sed -i '' 's,'${INSTANA_REPORTING_KEY}',INSTANA_REPORTING_KEY,g' InstanaAgentExample/Config.swift\n    sed -i '' 's,'${INSTANA_REPORTING_URL}',INSTANA_REPORTING_URL,g' InstanaAgentExample/Config.swift\nfi\n\necho \"Shutdown and reset Simulators\"\nxcrun simctl shutdown all\nxcrun simctl erase all\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		725029CB263AB32300302532 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				725029D4263AB32300302532 /* ViewController.swift in Sources */,
+				725029D2263AB32300302532 /* AppDelegate.swift in Sources */,
+				725029E5263AB3ED00302532 /* Config.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		727AF681263A9EBD00B9C59B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				727AF68D263A9EBD00B9C59B /* ViewController.swift in Sources */,
+				727AF689263A9EBD00B9C59B /* AppDelegate.swift in Sources */,
+				727AF73B263AA0FA00B9C59B /* ImageViewController.swift in Sources */,
+				727AF73C263AA0FA00B9C59B /* JSONViewController.swift in Sources */,
+				727AF73E263AA0FA00B9C59B /* WebViewController.swift in Sources */,
+				727AF73F263AA0FA00B9C59B /* EventListViewController.swift in Sources */,
+				727AF68B263A9EBD00B9C59B /* SceneDelegate.swift in Sources */,
+				727AF73D263AA0FA00B9C59B /* Config.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		727AF715263AA09C00B9C59B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				727AF71C263AA09C00B9C59B /* iOSAgentUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		727AF71F263AA09C00B9C59B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 727AF684263A9EBD00B9C59B /* InstanaAgentExample */;
+			targetProxy = 727AF71E263AA09C00B9C59B /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		725029D7263AB32400302532 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				725029D8263AB32400302532 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		727AF68E263A9EBD00B9C59B /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				727AF68F263A9EBD00B9C59B /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		727AF693263A9EBE00B9C59B /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				727AF694263A9EBE00B9C59B /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		725029DC263AB32400302532 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = macAgentExample/macAgentExample.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = macAgentExample/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 11.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.instana.mac.macAgentExample;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		725029DD263AB32400302532 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = macAgentExample/macAgentExample.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = macAgentExample/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 11.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.instana.mac.macAgentExample;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		727AF697263A9EBE00B9C59B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.4;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		727AF698263A9EBE00B9C59B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.4;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		727AF69A263A9EBE00B9C59B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = InstanaAgentExample/InstanaAgentExample.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = D5PCJAP39R;
+				INFOPLIST_FILE = InstanaAgentExample/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.instana.ios.InstanaAgentExample;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTS_MACCATALYST = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		727AF69B263A9EBE00B9C59B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = InstanaAgentExample/InstanaAgentExample.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = D5PCJAP39R;
+				INFOPLIST_FILE = InstanaAgentExample/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.instana.ios.InstanaAgentExample;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTS_MACCATALYST = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		727AF720263AA09C00B9C59B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				INFOPLIST_FILE = iOSAgentUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.instana.ios.iOSAgentUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = InstanaAgentExample;
+			};
+			name = Debug;
+		};
+		727AF721263AA09C00B9C59B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				INFOPLIST_FILE = iOSAgentUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.instana.ios.iOSAgentUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = InstanaAgentExample;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		725029DE263AB32400302532 /* Build configuration list for PBXNativeTarget "macAgentExample" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				725029DC263AB32400302532 /* Debug */,
+				725029DD263AB32400302532 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		727AF680263A9EBD00B9C59B /* Build configuration list for PBXProject "InstanaAgentExample" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				727AF697263A9EBE00B9C59B /* Debug */,
+				727AF698263A9EBE00B9C59B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		727AF699263A9EBE00B9C59B /* Build configuration list for PBXNativeTarget "InstanaAgentExample" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				727AF69A263A9EBE00B9C59B /* Debug */,
+				727AF69B263A9EBE00B9C59B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		727AF722263AA09C00B9C59B /* Build configuration list for PBXNativeTarget "iOSAgentUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				727AF720263AA09C00B9C59B /* Debug */,
+				727AF721263AA09C00B9C59B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		72785628263AB70A009FC945 /* InstanaAgent */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = InstanaAgent;
+		};
+		727AF747263AA16A00B9C59B /* InstanaAgent */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = InstanaAgent;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 727AF67D263A9EBD00B9C59B /* Project object */;
+}

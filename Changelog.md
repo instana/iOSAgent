@@ -1,6 +1,8 @@
 # Changelog
 
 ## 1.1.12 
+- Improve example project
+- Add capability for macOS (AppKit)
 - Align carrier type and effective connection type with Android and Web
 
 ## 1.1.11 Beta

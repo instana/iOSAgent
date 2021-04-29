@@ -3,7 +3,6 @@
 //
 
 import Foundation
-import UIKit
 
 class ApplicationNotRespondingMonitor {
     var threshold: Instana.Types.Seconds

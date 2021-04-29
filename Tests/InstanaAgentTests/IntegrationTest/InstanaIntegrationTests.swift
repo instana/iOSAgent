@@ -32,7 +32,7 @@ class InstanaIntegrationTests: InstanaTestCase {
         }.resume()
 
         // Then
-        wait(for: [waitFor], timeout: 5.0)
+        wait(for: [waitFor], timeout: 10.0)
         AssertTrue(sentBeacon != nil)
         AssertTrue(sentBeacon?.t == BeaconType.httpRequest)
         AssertEqualAndNotNil(sentBeacon?.hm, "GET")
@@ -47,14 +47,14 @@ class InstanaIntegrationTests: InstanaTestCase {
         AssertEqualAndNotNil(sentBeacon?.av, InstanaSystemUtils.applicationVersion)
         AssertEqualAndNotNil(sentBeacon?.agv, InstanaSystemUtils.agentVersion)
         AssertEqualAndNotNil(sentBeacon?.bi, "com.apple.dt.xctest.tool")
-        AssertEqualAndNotNil(sentBeacon?.ct, "Wifi")
+        AssertEqualAndNotNil(sentBeacon?.ct, "wifi")
         AssertEqualAndNotNil(sentBeacon?.t, BeaconType.httpRequest)
         AssertEqualAndNotNil(sentBeacon?.cn, "None")
         AssertEqualAndNotNil(sentBeacon?.dma, "Apple")
         AssertEqualAndNotNil(sentBeacon?.cen, nil)
         AssertEqualAndNotNil(sentBeacon?.v, "My View") // Overrides the original
-        AssertEqualAndNotNil(sentBeacon?.vh, "\(Int(UIScreen.main.nativeBounds.size.height))")
-        AssertEqualAndNotNil(sentBeacon?.vw, "\(Int(UIScreen.main.nativeBounds.size.width))")
+        AssertEqualAndNotNil(sentBeacon?.vh, "\(Int(UIScreen.main.bounds.size.height))")
+        AssertEqualAndNotNil(sentBeacon?.vw, "\(Int(UIScreen.main.bounds.size.width))")
         AssertEqualAndNotNil(sentBeacon?.osv, InstanaSystemUtils.systemVersion)
         AssertEqualAndNotNil(sentBeacon?.osn, "iOS")
         AssertEqualAndNotNil(sentBeacon?.p, "iOS")
