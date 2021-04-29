@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.1.12 
+- Align carrier type and effective connection type with Android and Web
+
 ## 1.1.11 Beta
 - Add 5G as carrier type
 - Update tests
