@@ -61,7 +61,11 @@ class InstanaURLProtocol: URLProtocol {
 
             switch incomingTask {
             case is URLSessionUploadTask:
-                session.uploadTask(with: request, from: request.httpBody ?? Data()).resume()
+                if let data = request.httpBody {
+                    session.uploadTask(with: request, from: data).resume()
+                } else {
+                    session.dataTask(with: request).resume()
+                }
             case is URLSessionDownloadTask:
                 session.downloadTask(with: request).resume()
             default:
