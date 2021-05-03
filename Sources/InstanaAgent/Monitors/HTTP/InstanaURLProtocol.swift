@@ -52,8 +52,21 @@ class InstanaURLProtocol: URLProtocol {
             if InstanaURLProtocol.mode == .enabled, canMark {
                 marker = try? Instana.current?.monitors.http?.mark(request)
             }
-            let task = session.dataTask(with: request)
-            task.resume()
+            if #available(iOS 13.0, *), incomingTask is URLSessionWebSocketTask {
+                return session.webSocketTask(with: request).resume()
+            }
+            if request.httpBodyStream != nil {
+                return session.uploadTask(withStreamedRequest: request).resume()
+            }
+
+            switch incomingTask {
+            case is URLSessionUploadTask:
+                session.uploadTask(with: request, from: request.httpBody ?? Data()).resume()
+            case is URLSessionDownloadTask:
+                session.downloadTask(with: request).resume()
+            default:
+                session.dataTask(with: request).resume()
+            }
         }
     }
 
@@ -66,6 +79,10 @@ class InstanaURLProtocol: URLProtocol {
 }
 
 extension InstanaURLProtocol: URLSessionTaskDelegate {
+    func urlSession(_ session: URLSession, task: URLSessionTask, needNewBodyStream completionHandler: @escaping (InputStream?) -> Void) {
+        completionHandler(incomingTask?.currentRequest?.httpBodyStream)
+    }
+
     func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
         if let error = error {
             client?.urlProtocol(self, didFailWithError: error)
