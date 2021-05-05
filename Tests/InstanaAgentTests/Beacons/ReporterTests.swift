@@ -982,7 +982,7 @@ class ReporterTests: InstanaTestCase {
         mockBeaconSubmission(.success(statusCode: 200), resultCallback: verifyResult)
         mockBeaconSubmission(.success(statusCode: 204), resultCallback: verifyResult)
         mockBeaconSubmission(.success(statusCode: 299), resultCallback: verifyResult)
-        wait(for: [waitForSend], timeout: 10.0)
+        wait(for: [waitForSend], timeout: 20.0)
 
         // Then
         AssertTrue(resultSuccess == 3)
