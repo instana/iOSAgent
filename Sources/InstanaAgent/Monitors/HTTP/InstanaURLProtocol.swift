@@ -21,7 +21,7 @@ class InstanaURLProtocol: URLProtocol {
     let markerQueue = DispatchQueue(label: "com.instana.ios.agent.InstanaURLProtocol", qos: .default)
 
     convenience init(task: URLSessionTask, cachedResponse: CachedURLResponse?, client: URLProtocolClient?) {
-        guard let request = task.originalRequest else { self.init(); return }
+        guard let request = task.currentRequest else { self.init(); return }
         self.init(request: request, cachedResponse: cachedResponse, client: client)
         if let session = task.internalSession {
             incomingTask = task
