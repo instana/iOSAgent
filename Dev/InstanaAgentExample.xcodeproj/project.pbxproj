@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7248F4C92643307000DE8371 /* Webserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7248F4C82643307000DE8371 /* Webserver.swift */; };
 		725029D2263AB32300302532 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 725029D1263AB32300302532 /* AppDelegate.swift */; };
 		725029D4263AB32300302532 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 725029D3263AB32300302532 /* ViewController.swift */; };
 		725029D6263AB32400302532 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 725029D5263AB32400302532 /* Assets.xcassets */; };
@@ -39,6 +40,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		7248F4C82643307000DE8371 /* Webserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Webserver.swift; sourceTree = "<group>"; };
 		725029CF263AB32300302532 /* macAgentExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = macAgentExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		725029D1263AB32300302532 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		725029D3263AB32300302532 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -93,6 +95,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		7248F4C72643307000DE8371 /* Webserver */ = {
+			isa = PBXGroup;
+			children = (
+				7248F4C82643307000DE8371 /* Webserver.swift */,
+			);
+			name = Webserver;
+			path = ../../tools/Webserver;
+			sourceTree = "<group>";
+		};
 		725029D0263AB32300302532 /* macAgentExample */ = {
 			isa = PBXGroup;
 			children = (
@@ -158,6 +169,7 @@
 		727AF71A263AA09C00B9C59B /* iOSAgentUITests */ = {
 			isa = PBXGroup;
 			children = (
+				7248F4C72643307000DE8371 /* Webserver */,
 				727AF71B263AA09C00B9C59B /* iOSAgentUITests.swift */,
 				727AF71D263AA09C00B9C59B /* Info.plist */,
 			);
@@ -424,6 +436,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				727AF71C263AA09C00B9C59B /* iOSAgentUITests.swift in Sources */,
+				7248F4C92643307000DE8371 /* Webserver.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

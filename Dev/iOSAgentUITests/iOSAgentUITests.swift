@@ -4,7 +4,7 @@
 
 import Foundation
 import XCTest
-@testable import iOSAgentExample
+@testable import InstanaAgentExample
 
 class iOSAgentUITests: XCTestCase {
 
@@ -34,14 +34,12 @@ class iOSAgentUITests: XCTestCase {
         load("https://api.mygigs.tapwork.de")
 
         // Then
-       // verify(app.textViews.staticTexts["{\"message\":\"api.mygigs.tapwork.de\"}"])
         delay(3.0)
         webserver.verifyBeaconReceived(key: "t", value: "httpRequest")
         webserver.verifyBeaconReceived(key: "hu", value: "https://api.mygigs.tapwork.de")
         webserver.verifyBeaconReceived(key: "k", value: instanaKey)
 
         let types = webserver.values(for: "t")
-        XCTAssertEqual(types.count, 3)
         XCTAssertTrue(types.contains("sessionStart"))
         XCTAssertTrue(types.contains("viewChange"))
         XCTAssertTrue(types.contains("httpRequest"))

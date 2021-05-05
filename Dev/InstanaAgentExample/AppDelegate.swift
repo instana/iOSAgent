@@ -11,7 +11,7 @@ import InstanaAgent
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        Instana.setup(key: InstanaKey, reportingURL: URL(string: InstanaURL)!)
+        Instana.setup(key: InstanaKey, reportingURL: InstanaURL)
 
         return true
     }
