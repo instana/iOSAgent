@@ -47,7 +47,7 @@ class iOSAgentUITests: XCTestCase {
 
     func test_flush_after_error() {
         // Given
-        launchServer(stubbedHTTPResponse: 404)
+        launchServer(stubbedHTTPResponse: 500)
         launchApp()
 
         // When (Server not found)
@@ -58,7 +58,7 @@ class iOSAgentUITests: XCTestCase {
 
         // When
         webserver.stub(httpStatusResponse: 200)
-        delay(1.0)
+        delay(2.0)
         app.tabBars.buttons["Top Rated"].tap()
 
         // Then
