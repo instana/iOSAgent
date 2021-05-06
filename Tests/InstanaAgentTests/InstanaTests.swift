@@ -368,22 +368,25 @@ class InstanaTests: InstanaTestCase {
 
     func test_reportCustom_just_name() {
         // Given
+        let waitFor = expectation(description: "test_reportCustom_just_name")
         let name = "Custom Event"
         var didReport: CustomBeacon? = nil
         let reporter = MockReporter {
-            didReport = $0 as? CustomBeacon
+            if let result = $0 as? CustomBeacon {
+                didReport = result
+                waitFor.fulfill()
+            }
         }
         Instana.current = Instana(configuration: config, monitors: Monitors(InstanaSession.mock(configuration: config), reporter: reporter))
 
         // When
-        let expectedDate = Date().millisecondsSince1970
         Instana.reportEvent(name: name)
+        wait(for: [waitFor], timeout: 2.0)
 
         // Then
         AssertTrue(didReport != nil)
         AssertEqualAndNotNil(didReport?.name, name)
         AssertTrue(didReport?.duration == nil)
-        AssertTrue(didReport?.timestamp == expectedDate)
         AssertTrue(didReport?.backendTracingID == nil)
         AssertTrue(didReport?.metaData == nil)
         AssertTrue(didReport?.error == nil)
