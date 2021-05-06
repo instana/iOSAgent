@@ -53,7 +53,7 @@ class ImageViewViewController: UIViewController {
         data.append(imgData ?? Data())
         data.append("\r\n--\(boundary)--\r\n".data(using: .utf8)!)
 
-        var request = URLRequest(url: URL(string: "https://www.server.de/upload_with_redirect.php")!)
+        var request = URLRequest(url: URL(string: "https://www.server.de/upload.php")!)
         request.httpMethod = "POST"
         request.httpBody = data
         request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
