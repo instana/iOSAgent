@@ -751,20 +751,25 @@ class ReporterTests: InstanaTestCase {
     /// Expected Result - No more items should be allowed when queue is full. Items will be discarded (100 items limit reached)
     func test_full_queue_discards_new_beacons() {
         // Given
-        var shouldNotSend = true
+        let waitFor = expectation(description: "test_full_queue_discards_new_beacons")
         let reporter = ReporterDefaultWifi()
         let beacons: [HTTPBeacon] = (0..<reporter.queue.maxItems).map { _ in HTTPBeacon.createMock() }
         let corebeacons = try! CoreBeaconFactory(session).map(beacons)
         reporter.queue.add(corebeacons)
 
+        // Before
+        AssertEqualAndNotZero(reporter.queue.maxItems, InstanaConfiguration.Defaults.maxBeaconsPerRequest)
+        AssertEqualAndNotZero(reporter.queue.maxItems, reporter.queue.items.count)
+        AssertTrue(reporter.queue.maxItems > 0)
+
         // When
         reporter.submit(HTTPBeacon.createMock()) {
-            shouldNotSend = false
+            waitFor.fulfill()
         }
+        wait(for: [waitFor], timeout: 2.0)
 
         // Then
-        AssertTrue(shouldNotSend)
-        AssertEqualAndNotZero(reporter.queue.maxItems, 100)
+        AssertEqualAndNotZero(reporter.queue.maxItems, reporter.queue.items.count)
     }
 
     func test_flush_queue_when_going_into_background() {
@@ -977,7 +982,7 @@ class ReporterTests: InstanaTestCase {
         mockBeaconSubmission(.success(statusCode: 200), resultCallback: verifyResult)
         mockBeaconSubmission(.success(statusCode: 204), resultCallback: verifyResult)
         mockBeaconSubmission(.success(statusCode: 299), resultCallback: verifyResult)
-        wait(for: [waitForSend], timeout: 10.0)
+        wait(for: [waitForSend], timeout: 20.0)
 
         // Then
         AssertTrue(resultSuccess == 3)

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.13
+- Use specific URLSession Tasks
+- Update tests
+
 ## 1.1.12 
 - Improve example project
 - Add capability for macOS (AppKit)
