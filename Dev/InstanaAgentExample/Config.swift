@@ -4,5 +4,19 @@
 
 import Foundation
 
-let InstanaKey = "INSTANA_REPORTING_KEY"
-let InstanaURL = "INSTANA_REPORTING_URL"
+var InstanaKey: String {
+    if let launchArgs = UserDefaults.standard.string(forKey: "key") {
+        return launchArgs
+    }
+    return "INSTANA_REPORTING_KEY"
+}
+
+var InstanaURL: URL {
+    var value = ""
+    if let launchArgs = UserDefaults.standard.string(forKey: "reportingURL") {
+        value = launchArgs
+    } else {
+        value = "INSTANA_REPORTING_URL"
+    }
+    return URL(string: value)!
+}

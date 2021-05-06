@@ -4,7 +4,7 @@
 
 import Foundation
 import XCTest
-@testable import iOSAgentExample
+@testable import InstanaAgentExample
 
 class iOSAgentUITests: XCTestCase {
 
@@ -34,14 +34,12 @@ class iOSAgentUITests: XCTestCase {
         load("https://api.mygigs.tapwork.de")
 
         // Then
-       // verify(app.textViews.staticTexts["{\"message\":\"api.mygigs.tapwork.de\"}"])
         delay(3.0)
         webserver.verifyBeaconReceived(key: "t", value: "httpRequest")
         webserver.verifyBeaconReceived(key: "hu", value: "https://api.mygigs.tapwork.de")
         webserver.verifyBeaconReceived(key: "k", value: instanaKey)
 
         let types = webserver.values(for: "t")
-        XCTAssertEqual(types.count, 3)
         XCTAssertTrue(types.contains("sessionStart"))
         XCTAssertTrue(types.contains("viewChange"))
         XCTAssertTrue(types.contains("httpRequest"))
@@ -49,7 +47,7 @@ class iOSAgentUITests: XCTestCase {
 
     func test_flush_after_error() {
         // Given
-        launchServer(stubbedHTTPResponse: 404)
+        launchServer(stubbedHTTPResponse: 500)
         launchApp()
 
         // When (Server not found)
@@ -60,7 +58,7 @@ class iOSAgentUITests: XCTestCase {
 
         // When
         webserver.stub(httpStatusResponse: 200)
-        delay(1.0)
+        delay(2.0)
         app.tabBars.buttons["Top Rated"].tap()
 
         // Then

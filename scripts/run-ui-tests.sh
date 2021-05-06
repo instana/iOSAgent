@@ -1,4 +1,3 @@
 #!/bin/bash
 set -o pipefail
-cd Dev
-xcodebuild test -destination 'name=iPhone 11 Pro Max,OS=13.5' -scheme 'iOSAgentExample'
+(cd Dev && xcodebuild test -destination 'platform=iOS Simulator,name=iPhone 12,OS=14.5' -scheme 'iOSAgentUITests' | xcpretty --test --color)
