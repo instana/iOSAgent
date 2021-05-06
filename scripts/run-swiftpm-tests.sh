@@ -1,26 +1,21 @@
 #!/bin/bash
 set -o pipefail
 
+scheme='InstanaAgentTests'
+
 while [ $# -gt 0 ]; do
   case "$1" in
     --ios=*)
       ios_version="${1#*=}"
       ;;
-    --test=*)
-      test_env="${1#*=}"
-      ;;
     *)
       printf "* Error: Invalid arguments.*\n"
-      printf "Usage: --ios=[11.4|12.4|13.3|14.4] --test=[unit|integration]\n"
+      printf "Usage: --ios=[11|12|13|14]\n"
       exit 1
   esac
   shift
 done
 
-case "$test_env" in
-    unit)                  scheme="InstanaAgentTests";;
-    integration)           scheme="iOSAgentUITests";;
-esac
 
 echo "Running..."
 case "$ios_version" in
