@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.1.14
+- Fix instrumenting URLSessionDownloadTaskinstrumenting
+
 ## 1.1.13
 - Use specific URLSession Tasks
 - Update tests

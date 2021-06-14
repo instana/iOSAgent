@@ -66,8 +66,6 @@ class InstanaURLProtocol: URLProtocol {
                 } else {
                     session.dataTask(with: request).resume()
                 }
-            case is URLSessionDownloadTask:
-                session.downloadTask(with: request).resume()
             default:
                 session.dataTask(with: request).resume()
             }
