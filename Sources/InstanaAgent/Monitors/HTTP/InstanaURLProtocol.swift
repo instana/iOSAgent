@@ -116,6 +116,26 @@ extension InstanaURLProtocol: URLSessionDataDelegate {
         client?.urlProtocol(self, didLoad: data)
     }
 
+    func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
+        if let incomingSession = incomingTask?.internalSession,
+           let delegate = incomingSession.delegate,
+           delegate.responds(to: #selector(urlSession(_ :didReceive:completionHandler:))) {
+            delegate.urlSession?(incomingSession, didReceive: challenge, completionHandler: completionHandler)
+        } else {
+            completionHandler(.performDefaultHandling, nil)
+        }
+    }
+
+    func urlSession(_ session: URLSession, task: URLSessionTask, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
+        if let incomingSession = incomingTask?.internalSession,
+           let delegate = incomingSession.delegate as? URLSessionDataDelegate,
+           delegate.responds(to: #selector(urlSession(_ :task:didReceive:completionHandler:))) {
+            delegate.urlSession?(incomingSession, task: task, didReceive: challenge, completionHandler: completionHandler)
+        } else {
+            completionHandler(.performDefaultHandling, nil)
+        }
+    }
+
     func urlSession(_ session: URLSession,
                     task: URLSessionTask,
                     willPerformHTTPRedirection response: HTTPURLResponse,
