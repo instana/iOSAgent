@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.1.15
+- Forward URLAuthenticationChallenge properly
+
 ## 1.1.14
 - Fix instrumenting URLSessionDownloadTask
 
