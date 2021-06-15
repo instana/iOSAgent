@@ -205,14 +205,16 @@ public class Connection {
     private func setupReceive() {
         nwConnection.receive(minimumIncompleteLength: 1, maximumLength: MTU) {[weak self] (data, _, isComplete, error) in
             guard let self = self else { return }
+            var httpMethod: String?
             if self.stubbedCode.canReceive, let data = data, let received = String(data: data, encoding:.utf8) {
                 print("MockWebServer connection \(self.id) did receive: \(received)")
+                httpMethod = received.components(separatedBy: "/").first?.replacingOccurrences(of: " ", with: "")
                 self.received.append(received)
             }
-            if data?.body != nil {
-                self.respond()
-            } else if let error = error {
+            if let error = error {
                 self.connectionDidFail(error: error)
+            } else if httpMethod != nil {
+                self.respond()
             } else {
                 self.setupReceive()
             }
