@@ -24,6 +24,12 @@ extension InstanaTestCase {
         }
         wait(for: [waiting], timeout: timeout)
     }
+
+    func run(after: TimeInterval, action: @escaping () -> Void) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + after) {
+            action()
+        }
+    }
 }
 
 func AssertEqualAndNotNil<T: Equatable>(_ expression1: @autoclosure () throws -> T, _ expression2: @autoclosure () throws -> T, _ message: @autoclosure () -> String = "", file: StaticString = #file, line: UInt = #line) {
