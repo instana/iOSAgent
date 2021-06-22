@@ -69,7 +69,7 @@ import Foundation
     /// - Parameters:
     ///   - key: Instana key to identify your application.
     ///   - reportingURL: Reporting URL for the Instana backend.
-    ///   - httpCaptureConfig: HTTP monitoring configuration to set the capture behavior (automatic, manual or none) http requests & responses
+    ///   - httpCaptureConfig: HTTP monitoring configuration to set the capture behavior (automatic, manual, automaticAndManual or none) http requests & responses
     @objc
     public static func setup(key: String, reportingURL: URL, httpCaptureConfig: HTTPCaptureConfig = .automatic) {
         let config = InstanaConfiguration.default(key: key, reportingURL: reportingURL, httpCaptureConfig: httpCaptureConfig)

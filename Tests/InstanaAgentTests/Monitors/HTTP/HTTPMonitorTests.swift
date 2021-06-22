@@ -26,6 +26,102 @@ class HTTPMonitorTests: InstanaTestCase {
         AssertFalse(IgnoreURLHandler.shouldIgnore(URL(string: "https://some.instabug.de/some")!))
     }
 
+    func test_init_automatic_reporting() {
+        var installed: AnyClass?
+        var uninstalled: AnyClass?
+
+        // Before
+        AssertTrue(IgnoreURLHandler.exactURLs.count == 0)
+        AssertTrue(IgnoreURLHandler.regex.count == 0)
+
+        // When
+        _ = HTTPMonitor(InstanaSession.mockWithAutomaticHTTPCapture,
+                        installer: { result in
+                            installed = result
+                            return true
+                        }, uninstaller: { result in
+                            uninstalled = result
+                        }, reporter: instana.monitors.reporter)
+        
+        // Then
+        AssertTrue(installed != nil)
+        AssertTrue(uninstalled == nil)
+        AssertTrue(IgnoreURLHandler.exactURLs.count > 0)
+        AssertTrue(IgnoreURLHandler.regex.count > 0)
+    }
+
+    func test_init_automaticAndManual_reporting() {
+        var installed: AnyClass?
+        var uninstalled: AnyClass?
+
+        // Before
+        AssertTrue(IgnoreURLHandler.exactURLs.count == 0)
+        AssertTrue(IgnoreURLHandler.regex.count == 0)
+
+        // When
+        _ = HTTPMonitor(InstanaSession.mockWithAutomaticAndManualHTTPCapture,
+                        installer: { result in
+                            installed = result
+                            return true
+                        }, uninstaller: { result in
+                            uninstalled = result
+                        }, reporter: instana.monitors.reporter)
+
+        // Then
+        AssertTrue(installed != nil)
+        AssertTrue(uninstalled == nil)
+        AssertTrue(IgnoreURLHandler.exactURLs.count > 0)
+        AssertTrue(IgnoreURLHandler.regex.count > 0)
+    }
+
+    func test_init_manual_reporting() {
+        var installed: AnyClass?
+        var uninstalled: AnyClass?
+
+        // Before
+        AssertTrue(IgnoreURLHandler.exactURLs.count == 0)
+        AssertTrue(IgnoreURLHandler.regex.count == 0)
+
+        // When
+        _ = HTTPMonitor(InstanaSession.mockWithManualHTTPCapture,
+                        installer: { result in
+                            installed = result
+                            return true
+                        }, uninstaller: { result in
+                            uninstalled = result
+                        }, reporter: instana.monitors.reporter)
+
+        // Then
+        AssertTrue(installed == nil)
+        AssertTrue(uninstalled != nil)
+        AssertTrue(IgnoreURLHandler.exactURLs.count > 0)
+        AssertTrue(IgnoreURLHandler.regex.count > 0)
+    }
+
+    func test_init_none_reporting() {
+        var installed: AnyClass?
+        var uninstalled: AnyClass?
+
+        // Before
+        AssertTrue(IgnoreURLHandler.exactURLs.count == 0)
+        AssertTrue(IgnoreURLHandler.regex.count == 0)
+
+        // When
+        _ = HTTPMonitor(InstanaSession.mockWithNoneHTTPCapture,
+                        installer: { result in
+                            installed = result
+                            return true
+                        }, uninstaller: { result in
+                            uninstalled = result
+                        }, reporter: instana.monitors.reporter)
+
+        // Then
+        AssertTrue(installed == nil)
+        AssertTrue(uninstalled != nil)
+        AssertTrue(IgnoreURLHandler.exactURLs.count > 0)
+        AssertTrue(IgnoreURLHandler.regex.count > 0)
+    }
+
     func test_installing_shouldAddCustomProtocol() {
         var installed = false
         let monitor = HTTPMonitor(session, installer: {
@@ -167,6 +263,22 @@ class HTTPMonitorTests: InstanaTestCase {
         XCTAssertNil(expectedBeacon)
     }
 
+    func test_httpMarkerDidFinish_should_report_AutomaticAndManual() {
+        // Marker has been triggered automatically - but session allows both (manual and automatic) capturing
+        var expectedBeacon: HTTPBeacon?
+        let marker = HTTPMarker(url: .random, method: "GET", trigger: [.automatic, .manual].randomElement()!, delegate: nil)
+        let monitor = HTTPMonitor(InstanaSession.mockWithAutomaticAndManualHTTPCapture, reporter: MockReporter { submittedBeacon in
+            expectedBeacon = submittedBeacon as? HTTPBeacon
+        })
+
+        // When
+        monitor.httpMarkerDidFinish(marker)
+
+        // Then
+        AssertTrue(monitor.shouldReport(marker))
+        AssertEqualAndNotNil(expectedBeacon?.url, marker.url)
+    }
+
     func test_should_report_with_automatic_monitoring() {
         // Only automatic triggered should be tracked
 
@@ -197,6 +309,25 @@ class HTTPMonitorTests: InstanaTestCase {
 
         // Then
         XCTAssertFalse(monitor.shouldReport(automaticTriggeredMarker))
+
+        // When
+        let manualTriggeredMarker = HTTPMarker(url: .random, method: "GET", trigger: .manual, delegate: nil)
+
+        // Then
+        AssertTrue(monitor.shouldReport(manualTriggeredMarker))
+    }
+
+    func test_should_report_with_automaticAndManual_monitoring() {
+        // Only manual should be tracked
+
+        // Given
+        let monitor = HTTPMonitor(InstanaSession.mockWithAutomaticAndManualHTTPCapture, reporter: MockReporter())
+
+        // When
+        let automaticTriggeredMarker = HTTPMarker(url: .random, method: "GET", trigger: .automatic, delegate: nil)
+
+        // Then
+        AssertTrue(monitor.shouldReport(automaticTriggeredMarker))
 
         // When
         let manualTriggeredMarker = HTTPMarker(url: .random, method: "GET", trigger: .manual, delegate: nil)
@@ -296,7 +427,7 @@ class HTTPMonitorTests: InstanaTestCase {
         // Then
         XCTAssertEqual(count, 1)
 
-        // When no capture
+        // When deactivated
         config.httpCaptureConfig = .none
         monitor = HTTPMonitor(.mock(configuration: config), reporter: MockReporter { _ in
             count += 1
@@ -305,6 +436,42 @@ class HTTPMonitorTests: InstanaTestCase {
 
         // Then
         XCTAssertEqual(count, 1)
+    }
+
+    func test_manualTriggerMarker_shouldBeReportedForAutomaticAndManualReporting() {
+        // Given
+        var config = InstanaConfiguration.mock(key: "KEY")
+        var count = 0
+
+        // When automatic capture
+        config.httpCaptureConfig = .automaticAndManual
+        var monitor = HTTPMonitor(.mock(configuration: config), reporter: MockReporter { _ in
+            count += 1
+        })
+        monitor.httpMarkerDidFinish(Random.marker(monitor, trigger: .automatic))
+
+        // Then
+        XCTAssertEqual(count, 1)
+
+        // When manual capture
+        config.httpCaptureConfig = .automaticAndManual
+        monitor = HTTPMonitor(.mock(configuration: config), reporter: MockReporter { _ in
+            count += 1
+        })
+        monitor.httpMarkerDidFinish(Random.marker(monitor, trigger: .manual))
+
+        // Then
+        XCTAssertEqual(count, 2)
+
+        // When deactivated
+        config.httpCaptureConfig = .none
+        monitor = HTTPMonitor(.mock(configuration: config), reporter: MockReporter { _ in
+            count += 1
+        })
+        monitor.httpMarkerDidFinish(Random.marker(monitor, trigger: .manual))
+
+        // Then
+        XCTAssertEqual(count, 2)
     }
 
     struct Random {

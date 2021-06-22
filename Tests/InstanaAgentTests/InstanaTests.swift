@@ -42,6 +42,24 @@ class InstanaTests: InstanaTestCase {
         AssertEqualAndNotNil(Instana.current?.session.configuration, .default(key: key, reportingURL: reportingURL, httpCaptureConfig: httpCaptureConfig))
     }
 
+    func test_setup_automaticAndManual_http_capture() {
+        // Given
+        let key = "KEY"
+        let reportingURL = URL(string: "http://www.instana.com")!
+        let httpCaptureConfig: HTTPCaptureConfig = .automaticAndManual
+
+        // When
+        Instana.setup(key: key, reportingURL: reportingURL, httpCaptureConfig: httpCaptureConfig)
+
+        // Then
+        AssertEqualAndNotNil(Instana.key, key)
+        AssertEqualAndNotNil(Instana.sessionID, Instana.current?.session.id.uuidString)
+        AssertEqualAndNotNil(Instana.reportingURL, reportingURL)
+        AssertEqualAndNotNil(Instana.current?.session.configuration.reportingURL, reportingURL)
+        AssertEqualAndNotNil(Instana.current?.session.configuration.httpCaptureConfig, .automaticAndManual)
+        AssertEqualAndNotNil(Instana.current?.session.configuration, .default(key: key, reportingURL: reportingURL, httpCaptureConfig: httpCaptureConfig))
+    }
+
     func test_setup_and_expect_SessionProfileBeacon() {
         // Given
         let waitRequest = expectation(description: "test_setup_and_expect_SessionProfileBeacon")

@@ -9,6 +9,8 @@ import Foundation
     case automatic
     /// HTTP requestes & responses must be captured manually via ```Instana.startCapture(request)```
     case manual
+    /// HTTP requestes & responses can be captured automatically and manually
+    case automaticAndManual
     /// Don't capture any http requests or responses
     case none
 }
