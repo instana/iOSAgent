@@ -26,7 +26,7 @@
 		727AF73E263AA0FA00B9C59B /* WebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 727AF739263AA0FA00B9C59B /* WebViewController.swift */; };
 		727AF73F263AA0FA00B9C59B /* EventListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 727AF73A263AA0FA00B9C59B /* EventListViewController.swift */; };
 		727AF748263AA16A00B9C59B /* InstanaAgent in Frameworks */ = {isa = PBXBuildFile; productRef = 727AF747263AA16A00B9C59B /* InstanaAgent */; };
-		729F552D267880FF00F89E8A /* Webserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 729F552C267880FF00F89E8A /* Webserver.swift */; };
+		72976A9A2681C45800A284F6 /* Webserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72976A992681C45800A284F6 /* Webserver.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -64,7 +64,7 @@
 		727AF738263AA0FA00B9C59B /* Config.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
 		727AF739263AA0FA00B9C59B /* WebViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WebViewController.swift; sourceTree = "<group>"; };
 		727AF73A263AA0FA00B9C59B /* EventListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventListViewController.swift; sourceTree = "<group>"; };
-		729F552C267880FF00F89E8A /* Webserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Webserver.swift; path = "../../Tests/InstanaAgentTests/Test helpers/Webserver.swift"; sourceTree = "<group>"; };
+		72976A992681C45800A284F6 /* Webserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Webserver.swift; path = "../../Tests/InstanaAgentTests/Test helpers/Webserver.swift"; sourceTree = "<group>"; };
 		72FBE8A7263AACDB00CF2CDE /* InstanaAgentExample.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = InstanaAgentExample.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -95,15 +95,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		7248F4C72643307000DE8371 /* Webserver */ = {
-			isa = PBXGroup;
-			children = (
-				729F552C267880FF00F89E8A /* Webserver.swift */,
-			);
-			name = Webserver;
-			path = ../../tools/Webserver;
-			sourceTree = "<group>";
-		};
 		725029D0263AB32300302532 /* macAgentExample */ = {
 			isa = PBXGroup;
 			children = (
@@ -169,7 +160,7 @@
 		727AF71A263AA09C00B9C59B /* iOSAgentUITests */ = {
 			isa = PBXGroup;
 			children = (
-				7248F4C72643307000DE8371 /* Webserver */,
+				72976A992681C45800A284F6 /* Webserver.swift */,
 				727AF71B263AA09C00B9C59B /* iOSAgentUITests.swift */,
 				727AF71D263AA09C00B9C59B /* Info.plist */,
 			);
@@ -436,7 +427,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				727AF71C263AA09C00B9C59B /* iOSAgentUITests.swift in Sources */,
-				729F552D267880FF00F89E8A /* Webserver.swift in Sources */,
+				72976A9A2681C45800A284F6 /* Webserver.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
