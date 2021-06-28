@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.1.16
+- Add httpCaptureConfig: automaticAndManual to enable parallel manual and automtic http instrumentation
+
 ## 1.1.15
 - Forward URLAuthenticationChallenge properly
 

@@ -15,7 +15,7 @@ Please note we have a code of conduct, please follow it in all your interactions
 
 1. Add or update the UnitTests accordingly
 2. Make sure to follow the SwiftLint rules
-3. Avoid any build warning 
+3. Avoid any build warning
 4. Update the README.md with details of changes to the interface, this includes new environment
    variables, exposed ports, useful file locations and parameters.
 5. Update the Changelog.md with details of changes
@@ -24,8 +24,8 @@ Please note we have a code of conduct, please follow it in all your interactions
 ## Release version
 Please make sure to follow the semantic versioning rules.
 1. Update version in `InstanaAgent.podspec` (`s.version = "<Your Version>"`)
-2. Update version in VersionConfig.Swift and update InstanaSystemUtilsTests. Use [SemVer](http://semver.org/).
-3. Update test "test_AgentVersion" with the new version number
+2. Update version in VersionConfig.Swift
+3. Update InstanaSystemUtilsTests test_AgentVersion.
 4. Update CHANGELOG.md accordingly
 5. Run `git tag <Your Version> && git push origin <Your Version>`
 6. Run `pod trunk push InstanaAgent.podspec --allow-warnings`
@@ -85,4 +85,3 @@ representing a project or community include using an official project e-mail
 address, posting via an official social media account, or acting as an appointed
 representative at an online or offline event. Representation of a project may be
 further defined and clarified by project maintainers.
-
