@@ -20,7 +20,7 @@ class HTTPMonitor {
         self.reporter = reporter
         IgnoreURLHandler.loadDefaultDefaultIgnoredURLs(session: session)
         switch session.configuration.httpCaptureConfig {
-        case .automatic:
+        case .automatic, .automaticAndManual:
             install()
         case .manual, .none:
             deinstall()
@@ -52,6 +52,7 @@ extension HTTPMonitor {
         switch session.configuration.httpCaptureConfig {
         case .automatic: return marker.trigger == .automatic
         case .manual: return marker.trigger == .manual
+        case .automaticAndManual: return marker.trigger == .automatic || marker.trigger == .manual
         case .none: return false
         }
     }

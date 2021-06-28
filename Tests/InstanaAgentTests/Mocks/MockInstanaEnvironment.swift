@@ -10,6 +10,7 @@ extension InstanaSession {
     static var mock: InstanaSession { mock(configuration: InstanaConfiguration.mock) }
     static var mockWithManualHTTPCapture: InstanaSession { mock(configuration: InstanaConfiguration.mock(key: "", reportingURL: .random, httpCaptureConfig: .manual))}
     static var mockWithAutomaticHTTPCapture: InstanaSession { mock(configuration: InstanaConfiguration.mock(key: "", reportingURL: .random, httpCaptureConfig: .automatic))}
+    static var mockWithAutomaticAndManualHTTPCapture: InstanaSession { mock(configuration: InstanaConfiguration.mock(key: "", reportingURL: .random, httpCaptureConfig: .automaticAndManual))}
     static var mockWithNoneHTTPCapture: InstanaSession { mock(configuration: InstanaConfiguration.mock(key: "", reportingURL: .random, httpCaptureConfig: .none))}
 
     static func mock(configuration: InstanaConfiguration = .mock,
