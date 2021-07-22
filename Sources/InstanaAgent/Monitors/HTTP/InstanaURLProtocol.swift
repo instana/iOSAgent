@@ -74,8 +74,10 @@ class InstanaURLProtocol: URLProtocol {
 
     override func stopLoading() {
         markerQueue.sync {
-            session.invalidateAndCancel()
-            if let marker = marker, case .started = marker.state { marker.cancel() }
+            if let marker = marker, case .started = marker.state {
+                marker.cancel()
+                session.invalidateAndCancel()
+            }
         }
     }
 }
