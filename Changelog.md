@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.1.17
+- Forward all URLSession delegates to the client
+
 ## 1.1.16
 - Add httpCaptureConfig: automaticAndManual to enable parallel manual and automtic http instrumentation
 
