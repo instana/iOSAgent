@@ -17,14 +17,14 @@ class InstanaURLProtocol: URLProtocol {
 
     private(set) lazy var sessionConfiguration: URLSessionConfiguration = { .default }()
     var marker: HTTPMarker?
-    private var incomingTask: URLSessionTask?
+    private var originalTask: URLSessionTask?
     let markerQueue = DispatchQueue(label: "com.instana.ios.agent.InstanaURLProtocol", qos: .default)
 
     convenience init(task: URLSessionTask, cachedResponse: CachedURLResponse?, client: URLProtocolClient?) {
         guard let request = task.currentRequest else { self.init(); return }
         self.init(request: request, cachedResponse: cachedResponse, client: client)
         if let session = task.internalSession {
-            incomingTask = task
+            originalTask = task
             sessionConfiguration = session.configuration
             // Use the sessionConfiguration set by the incoming task for the forwading -
             // Exclude "us" from the protocolClasses to avoid "monitoring the monitor"
@@ -39,7 +39,7 @@ class InstanaURLProtocol: URLProtocol {
     }
 
     private var canMark: Bool {
-        guard let session = incomingTask?.internalSession else { return true }
+        guard let session = originalTask?.internalSession else { return true }
         return !IgnoreURLHandler.urlSessions.contains(session)
     }
 
@@ -52,14 +52,14 @@ class InstanaURLProtocol: URLProtocol {
             if InstanaURLProtocol.mode == .enabled, canMark {
                 marker = try? Instana.current?.monitors.http?.mark(request)
             }
-            if #available(iOS 13.0, *), incomingTask is URLSessionWebSocketTask {
+            if #available(iOS 13.0, *), originalTask is URLSessionWebSocketTask {
                 return session.webSocketTask(with: request).resume()
             }
             if request.httpBodyStream != nil {
                 return session.uploadTask(withStreamedRequest: request).resume()
             }
 
-            switch incomingTask {
+            switch originalTask {
             case is URLSessionUploadTask:
                 if let data = request.httpBody {
                     session.uploadTask(with: request, from: data).resume()
@@ -74,16 +74,123 @@ class InstanaURLProtocol: URLProtocol {
 
     override func stopLoading() {
         markerQueue.sync {
-            session.invalidateAndCancel()
-            if let marker = marker, case .started = marker.state { marker.cancel() }
+            if let marker = marker, case .started = marker.state {
+                marker.cancel()
+                session.invalidateAndCancel()
+            }
+        }
+    }
+}
+
+extension InstanaURLProtocol {
+    func dispatch(on queue: DispatchQueue?, code: @escaping () -> Void) {
+        if let queue = queue {
+            queue.async(execute: code)
+        } else {
+            code()
+        }
+    }
+}
+
+extension InstanaURLProtocol: URLSessionDelegate {
+    func urlSession(_ session: URLSession, didBecomeInvalidWithError error: Error?) {
+        if let originalSession = originalTask?.internalSession, let delegate = originalSession.delegate {
+            dispatch(on: originalSession.delegateQueue.underlyingQueue) {
+                delegate.urlSession?(originalSession, didBecomeInvalidWithError: error)
+            }
+        }
+    }
+
+    func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
+        if let originalSession = originalTask?.internalSession, let delegate = originalSession.delegate,
+           delegate.responds(to: #selector(urlSession(_:didReceive:completionHandler:))) {
+            dispatch(on: originalSession.delegateQueue.underlyingQueue) {
+                delegate.urlSession?(originalSession, didReceive: challenge, completionHandler: completionHandler)
+            }
+        } else {
+            completionHandler(.performDefaultHandling, nil)
+        }
+    }
+
+    func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession) {
+        if let originalSession = originalTask?.internalSession, let delegate = originalSession.delegate {
+            dispatch(on: originalSession.delegateQueue.underlyingQueue) {
+                delegate.urlSessionDidFinishEvents?(forBackgroundURLSession: originalSession)
+            }
         }
     }
 }
 
 extension InstanaURLProtocol: URLSessionTaskDelegate {
-    func urlSession(_ session: URLSession, task: URLSessionTask, needNewBodyStream completionHandler: @escaping (InputStream?) -> Void) {
-        completionHandler(incomingTask?.currentRequest?.httpBodyStream)
+
+    func urlSession(_ session: URLSession, task: URLSessionTask, willBeginDelayedRequest request: URLRequest, completionHandler: @escaping (URLSession.DelayedRequestDisposition, URLRequest?) -> Void) {
+        if let originalTask = originalTask, let originalSession = originalTask.internalSession, let delegate = originalSession.delegate as? URLSessionTaskDelegate,
+           delegate.responds(to: #selector(urlSession(_:task:willBeginDelayedRequest:completionHandler:))) {
+            dispatch(on: originalSession.delegateQueue.underlyingQueue) {
+                delegate.urlSession?(originalSession, task: originalTask, willBeginDelayedRequest: request, completionHandler: completionHandler)
+            }
+        } else {
+            completionHandler(.continueLoading, nil)
+        }
     }
+
+    func urlSession(_ session: URLSession, taskIsWaitingForConnectivity task: URLSessionTask) {
+        if let originalTask = originalTask, let originalSession = originalTask.internalSession, let delegate = originalSession.delegate as? URLSessionTaskDelegate {
+            dispatch(on: originalSession.delegateQueue.underlyingQueue) {
+                delegate.urlSession?(originalSession, taskIsWaitingForConnectivity: originalTask)
+            }
+        }
+    }
+
+    func urlSession(_ session: URLSession, task: URLSessionTask, willPerformHTTPRedirection response: HTTPURLResponse, newRequest request: URLRequest, completionHandler: @escaping (URLRequest?) -> Void) {
+        markerQueue.sync {
+            marker?.set(responseSize: HTTPMarker.Size(response))
+            marker?.finish(response: response, error: nil)
+            marker = try? Instana.current?.monitors.http?.mark(request)
+            if let originalTask = originalTask, let originalSession = originalTask.internalSession, let delegate = originalSession.delegate as? URLSessionTaskDelegate,
+               delegate.responds(to: #selector(urlSession(_:task:willPerformHTTPRedirection:newRequest:completionHandler:))) {
+                dispatch(on: originalSession.delegateQueue.underlyingQueue) {
+                    delegate.urlSession?(originalSession, task: originalTask, willPerformHTTPRedirection: response, newRequest: request, completionHandler: completionHandler)
+                }
+            } else {
+                completionHandler(request)
+            }
+        }
+    }
+
+    func urlSession(_ session: URLSession, task: URLSessionTask, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
+        if let originalTask = originalTask, let originalSession = originalTask.internalSession, let delegate = originalSession.delegate as? URLSessionTaskDelegate,
+           delegate.responds(to: #selector(urlSession(_:task:didReceive:completionHandler:))) {
+            dispatch(on: originalSession.delegateQueue.underlyingQueue) {
+                delegate.urlSession?(originalSession, task: originalTask, didReceive: challenge, completionHandler: completionHandler)
+            }
+        } else {
+            completionHandler(.performDefaultHandling, nil)
+        }
+    }
+
+    func urlSession(_ session: URLSession, task: URLSessionTask, needNewBodyStream completionHandler: @escaping (InputStream?) -> Void) {
+        if let originalTask = originalTask, let originalSession = originalTask.internalSession, let delegate = originalSession.delegate as? URLSessionTaskDelegate,
+           delegate.responds(to: #selector(urlSession(_:task:needNewBodyStream:))) {
+            dispatch(on: originalSession.delegateQueue.underlyingQueue) {
+                delegate.urlSession?(originalSession, task: originalTask, needNewBodyStream: completionHandler)
+            }
+        } else {
+            completionHandler(originalTask?.currentRequest?.httpBodyStream)
+        }
+    }
+
+    func urlSession(_ session: URLSession, task: URLSessionTask, didSendBodyData bytesSent: Int64, totalBytesSent: Int64, totalBytesExpectedToSend: Int64) {
+        if let originalTask = originalTask, let originalSession = originalTask.internalSession, let delegate = originalSession.delegate as? URLSessionTaskDelegate {
+            dispatch(on: originalSession.delegateQueue.underlyingQueue) {
+                delegate.urlSession?(originalSession, task: originalTask, didSendBodyData: bytesSent, totalBytesSent: totalBytesSent, totalBytesExpectedToSend: totalBytesExpectedToSend)
+            }
+        }
+    }
+
+//    func urlSession(_ session: URLSession, task: URLSessionTask, didFinishCollecting metrics: URLSessionTaskMetrics) {
+//     Not needed to override - will be called without forwarding via the client - Forwarding would call the delegate twice and might cause unexpected issues
+//    }
 
     func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
         if let error = error {
@@ -95,60 +202,139 @@ extension InstanaURLProtocol: URLSessionTaskDelegate {
             marker?.finish(response: task.response, error: error)
         }
     }
-
-    func urlSession(_ session: URLSession, task: URLSessionTask, didFinishCollecting metrics: URLSessionTaskMetrics) {
-        markerQueue.sync {
-            marker?.set(responseSize: HTTPMarker.Size(response: task.response ?? URLResponse(), transactionMetrics: metrics.transactionMetrics))
-        }
-    }
 }
 
 extension InstanaURLProtocol: URLSessionDataDelegate {
-    func urlSession(_ session: URLSession,
-                    dataTask: URLSessionDataTask,
-                    didReceive response: URLResponse,
-                    completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
-        completionHandler(.allow)
-        client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .allowed)
+    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse, completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
+        if let originalSession = originalTask?.internalSession, let delegate = originalSession.delegate as? URLSessionDataDelegate,
+           delegate.responds(to: #selector(urlSession(_:dataTask:didReceive:completionHandler:))) {
+            dispatch(on: originalSession.delegateQueue.underlyingQueue) {
+                delegate.urlSession?(originalSession, dataTask: dataTask, didReceive: response, completionHandler: completionHandler)
+            }
+        } else {
+            client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .allowed)
+            completionHandler(.allow)
+        }
+    }
+
+    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didBecome downloadTask: URLSessionDownloadTask) {
+        if let originalSession = originalTask?.internalSession, let delegate = originalSession.delegate as? URLSessionDataDelegate {
+            dispatch(on: originalSession.delegateQueue.underlyingQueue) {
+                delegate.urlSession?(originalSession, dataTask: dataTask, didBecome: downloadTask)
+            }
+        }
+    }
+
+    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didBecome streamTask: URLSessionStreamTask) {
+        if let originalSession = originalTask?.internalSession,
+           let delegate = originalSession.delegate as? URLSessionDataDelegate {
+            dispatch(on: originalSession.delegateQueue.underlyingQueue) {
+                delegate.urlSession?(originalSession, dataTask: dataTask, didBecome: streamTask)
+            }
+        }
     }
 
     func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
         client?.urlProtocol(self, didLoad: data)
     }
 
-    func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge,
-                    completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
-        if let incomingSession = incomingTask?.internalSession,
-            let delegate = incomingSession.delegate,
-            delegate.responds(to: #selector(urlSession(_ :didReceive:completionHandler:))) {
-            delegate.urlSession?(incomingSession, didReceive: challenge, completionHandler: completionHandler)
+    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, willCacheResponse proposedResponse: CachedURLResponse, completionHandler: @escaping (CachedURLResponse?) -> Void) {
+        if let originalSession = originalTask?.internalSession,
+           let delegate = originalSession.delegate as? URLSessionDataDelegate,
+           delegate.responds(to: #selector(urlSession(_:dataTask:willCacheResponse:completionHandler:))) {
+            dispatch(on: originalSession.delegateQueue.underlyingQueue) {
+                delegate.urlSession?(originalSession, dataTask: dataTask, willCacheResponse: proposedResponse, completionHandler: completionHandler)
+            }
         } else {
-            completionHandler(.performDefaultHandling, nil)
+            var doCache = proposedResponse.storagePolicy != .notAllowed
+            doCache = doCache && originalTask?.internalSession?.configuration.requestCachePolicy != .reloadIgnoringLocalCacheData
+            doCache = doCache && originalTask?.internalSession?.configuration.requestCachePolicy != .reloadIgnoringLocalAndRemoteCacheData
+            completionHandler(doCache ? proposedResponse : nil)
+        }
+    }
+}
+
+extension InstanaURLProtocol: URLSessionDownloadDelegate {
+    func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
+        if let originalSession = originalTask?.internalSession,
+           let delegate = originalSession.delegate as? URLSessionDownloadDelegate {
+            dispatch(on: originalSession.delegateQueue.underlyingQueue) {
+                delegate.urlSession(originalSession, downloadTask: downloadTask, didFinishDownloadingTo: location)
+            }
         }
     }
 
-    func urlSession(_ session: URLSession, task: URLSessionTask,
-                    didReceive challenge: URLAuthenticationChallenge,
-                    completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
-        if let incomingSession = incomingTask?.internalSession,
-            let delegate = incomingSession.delegate as? URLSessionDataDelegate,
-            delegate.responds(to: #selector(urlSession(_ :task:didReceive:completionHandler:))) {
-            delegate.urlSession?(incomingSession, task: task, didReceive: challenge, completionHandler: completionHandler)
-        } else {
-            completionHandler(.performDefaultHandling, nil)
+    func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
+        if let originalSession = originalTask?.internalSession,
+            let delegate = originalSession.delegate as? URLSessionDownloadDelegate {
+            dispatch(on: originalSession.delegateQueue.underlyingQueue) {
+                delegate.urlSession?(originalSession, downloadTask: downloadTask, didWriteData: bytesWritten, totalBytesWritten: totalBytesWritten, totalBytesExpectedToWrite: totalBytesExpectedToWrite)
+            }
         }
     }
 
-    func urlSession(_ session: URLSession,
-                    task: URLSessionTask,
-                    willPerformHTTPRedirection response: HTTPURLResponse,
-                    newRequest request: URLRequest,
-                    completionHandler: @escaping (URLRequest?) -> Void) {
-        markerQueue.sync {
-            marker?.set(responseSize: HTTPMarker.Size(response))
-            marker?.finish(response: response, error: nil)
-            marker = try? Instana.current?.monitors.http?.mark(request)
-            completionHandler(request)
+    func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didResumeAtOffset fileOffset: Int64, expectedTotalBytes: Int64) {
+        if let originalSession = originalTask?.internalSession,
+           let delegate = originalSession.delegate as? URLSessionDownloadDelegate {
+            dispatch(on: originalSession.delegateQueue.underlyingQueue) {
+                delegate.urlSession?(originalSession, downloadTask: downloadTask, didResumeAtOffset: fileOffset, expectedTotalBytes: expectedTotalBytes)
+            }
+        }
+    }
+}
+
+extension InstanaURLProtocol: URLSessionStreamDelegate {
+    func urlSession(_ session: URLSession, readClosedFor streamTask: URLSessionStreamTask) {
+        if let originalSession = originalTask?.internalSession, let delegate = originalSession.delegate as? URLSessionStreamDelegate {
+            dispatch(on: originalSession.delegateQueue.underlyingQueue) {
+                delegate.urlSession?(originalSession, readClosedFor: streamTask)
+            }
+        }
+    }
+
+    func urlSession(_ session: URLSession, writeClosedFor streamTask: URLSessionStreamTask) {
+        if let originalSession = originalTask?.internalSession, let delegate = originalSession.delegate as? URLSessionStreamDelegate {
+            dispatch(on: originalSession.delegateQueue.underlyingQueue) {
+                delegate.urlSession?(originalSession, writeClosedFor: streamTask)
+            }
+        }
+    }
+
+    func urlSession(_ session: URLSession, betterRouteDiscoveredFor streamTask: URLSessionStreamTask) {
+        if let originalSession = originalTask?.internalSession, let delegate = originalSession.delegate as? URLSessionStreamDelegate {
+            dispatch(on: originalSession.delegateQueue.underlyingQueue) {
+                delegate.urlSession?(originalSession, betterRouteDiscoveredFor: streamTask)
+            }
+        }
+    }
+
+    func urlSession(_ session: URLSession, streamTask: URLSessionStreamTask, didBecome inputStream: InputStream, outputStream: OutputStream) {
+        if let originalSession = originalTask?.internalSession, let delegate = originalSession.delegate as? URLSessionStreamDelegate {
+            dispatch(on: originalSession.delegateQueue.underlyingQueue) {
+                delegate.urlSession?(originalSession, streamTask: streamTask, didBecome: inputStream, outputStream: outputStream)
+            }
+        }
+    }
+}
+
+@available(iOS 13.0, *)
+extension InstanaURLProtocol: URLSessionWebSocketDelegate {
+
+    func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didOpenWithProtocol protocol: String?) {
+        if let originalSession = originalTask?.internalSession,
+           let delegate = originalSession.delegate as? URLSessionWebSocketDelegate {
+            dispatch(on: originalSession.delegateQueue.underlyingQueue) {
+                delegate.urlSession?(originalSession, webSocketTask: webSocketTask, didOpenWithProtocol: `protocol`)
+            }
+        }
+    }
+
+    func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didCloseWith closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?) {
+        if let originalSession = originalTask?.internalSession,
+           let delegate = originalSession.delegate as? URLSessionWebSocketDelegate {
+            dispatch(on: originalSession.delegateQueue.underlyingQueue) {
+                delegate.urlSession?(originalSession, webSocketTask: webSocketTask, didCloseWith: closeCode, reason: reason)
+            }
         }
     }
 }
