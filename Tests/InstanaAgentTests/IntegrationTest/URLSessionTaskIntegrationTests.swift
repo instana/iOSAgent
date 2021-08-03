@@ -115,14 +115,14 @@ class URLSessionTaskIntegrationTests: InstanaTestCase {
         request.setValue("\(data.count)", forHTTPHeaderField: "Content-Length")
 
         // When
-        URLSession.shared.uploadTask(with: request, from: data) {data, response, error in
+        URLSession(configuration: .default).uploadTask(with: request, from: data) {data, response, error in
             self.run(after: 2.0) {
                 if self.sentBeacon?.hu == self.testURL.absoluteString {
                     waitFor.fulfill()
                 }
             }
         }.resume()
-        wait(for: [waitFor], timeout: 20)
+        wait(for: [waitFor], timeout: 60)
 
         // Then verify the sent beacon body in the URLRequest going out to the server
         AssertEqualAndNotNil(sentBeacon?.hm, "POST")
