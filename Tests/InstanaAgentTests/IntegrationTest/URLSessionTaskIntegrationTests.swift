@@ -122,7 +122,7 @@ class URLSessionTaskIntegrationTests: InstanaTestCase {
                 }
             }
         }.resume()
-        wait(for: [waitFor], timeout: 10)
+        wait(for: [waitFor], timeout: 20)
 
         // Then verify the sent beacon body in the URLRequest going out to the server
         AssertEqualAndNotNil(sentBeacon?.hm, "POST")
