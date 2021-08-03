@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.18
+- Fix setting responseSize
+- Make originalTask weak
+- Always finishTasksAndInvalidate URLSession to avoid leaks
+
 ## 1.1.17
 - Forward all URLSession delegates to the client
 
