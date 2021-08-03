@@ -79,8 +79,8 @@ class InstanaURLProtocol: URLProtocol {
         markerQueue.sync {
             if let marker = marker, case .started = marker.state {
                 marker.cancel()
-                session.invalidateAndCancel()
             }
+            session.finishTasksAndInvalidate()
         }
     }
 }
@@ -97,7 +97,7 @@ extension InstanaURLProtocol {
 
 extension InstanaURLProtocol: URLSessionDelegate {
     func urlSession(_ session: URLSession, didBecomeInvalidWithError error: Error?) {
-        if let originalSession = originalTask?.internalSession, let delegate = originalSession.delegate {
+        if let marker = marker, case .canceled = marker.state, let originalSession = originalTask?.internalSession, let delegate = originalSession.delegate {
             dispatch(on: originalSession.delegateQueue.underlyingQueue) {
                 delegate.urlSession?(originalSession, didBecomeInvalidWithError: error)
             }
@@ -106,7 +106,7 @@ extension InstanaURLProtocol: URLSessionDelegate {
 
     func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         if let originalSession = originalTask?.internalSession, let delegate = originalSession.delegate,
-           delegate.responds(to: #selector(urlSession(_:didReceive:completionHandler:))) {
+            delegate.responds(to: #selector(urlSession(_:didReceive:completionHandler:))) {
             dispatch(on: originalSession.delegateQueue.underlyingQueue) {
                 delegate.urlSession?(originalSession, didReceive: challenge, completionHandler: completionHandler)
             }
@@ -125,10 +125,9 @@ extension InstanaURLProtocol: URLSessionDelegate {
 }
 
 extension InstanaURLProtocol: URLSessionTaskDelegate {
-
     func urlSession(_ session: URLSession, task: URLSessionTask, willBeginDelayedRequest request: URLRequest, completionHandler: @escaping (URLSession.DelayedRequestDisposition, URLRequest?) -> Void) {
         if let originalTask = originalTask, let originalSession = originalTask.internalSession, let delegate = originalSession.delegate as? URLSessionTaskDelegate,
-           delegate.responds(to: #selector(urlSession(_:task:willBeginDelayedRequest:completionHandler:))) {
+            delegate.responds(to: #selector(urlSession(_:task:willBeginDelayedRequest:completionHandler:))) {
             dispatch(on: originalSession.delegateQueue.underlyingQueue) {
                 delegate.urlSession?(originalSession, task: originalTask, willBeginDelayedRequest: request, completionHandler: completionHandler)
             }
@@ -147,11 +146,10 @@ extension InstanaURLProtocol: URLSessionTaskDelegate {
 
     func urlSession(_ session: URLSession, task: URLSessionTask, willPerformHTTPRedirection response: HTTPURLResponse, newRequest request: URLRequest, completionHandler: @escaping (URLRequest?) -> Void) {
         markerQueue.sync {
-            marker?.set(responseSize: HTTPMarker.Size(response))
             marker?.finish(response: response, error: nil)
             marker = try? Instana.current?.monitors.http?.mark(request)
             if let originalTask = originalTask, let originalSession = originalTask.internalSession, let delegate = originalSession.delegate as? URLSessionTaskDelegate,
-               delegate.responds(to: #selector(urlSession(_:task:willPerformHTTPRedirection:newRequest:completionHandler:))) {
+                delegate.responds(to: #selector(urlSession(_:task:willPerformHTTPRedirection:newRequest:completionHandler:))) {
                 dispatch(on: originalSession.delegateQueue.underlyingQueue) {
                     delegate.urlSession?(originalSession, task: originalTask, willPerformHTTPRedirection: response, newRequest: request, completionHandler: completionHandler)
                 }
@@ -163,7 +161,7 @@ extension InstanaURLProtocol: URLSessionTaskDelegate {
 
     func urlSession(_ session: URLSession, task: URLSessionTask, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         if let originalTask = originalTask, let originalSession = originalTask.internalSession, let delegate = originalSession.delegate as? URLSessionTaskDelegate,
-           delegate.responds(to: #selector(urlSession(_:task:didReceive:completionHandler:))) {
+            delegate.responds(to: #selector(urlSession(_:task:didReceive:completionHandler:))) {
             dispatch(on: originalSession.delegateQueue.underlyingQueue) {
                 delegate.urlSession?(originalSession, task: originalTask, didReceive: challenge, completionHandler: completionHandler)
             }
@@ -174,7 +172,7 @@ extension InstanaURLProtocol: URLSessionTaskDelegate {
 
     func urlSession(_ session: URLSession, task: URLSessionTask, needNewBodyStream completionHandler: @escaping (InputStream?) -> Void) {
         if let originalTask = originalTask, let originalSession = originalTask.internalSession, let delegate = originalSession.delegate as? URLSessionTaskDelegate,
-           delegate.responds(to: #selector(urlSession(_:task:needNewBodyStream:))) {
+            delegate.responds(to: #selector(urlSession(_:task:needNewBodyStream:))) {
             dispatch(on: originalSession.delegateQueue.underlyingQueue) {
                 delegate.urlSession?(originalSession, task: originalTask, needNewBodyStream: completionHandler)
             }
@@ -210,7 +208,7 @@ extension InstanaURLProtocol: URLSessionTaskDelegate {
 extension InstanaURLProtocol: URLSessionDataDelegate {
     func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse, completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
         if let originalSession = originalTask?.internalSession, let delegate = originalSession.delegate as? URLSessionDataDelegate,
-           delegate.responds(to: #selector(urlSession(_:dataTask:didReceive:completionHandler:))) {
+            delegate.responds(to: #selector(urlSession(_:dataTask:didReceive:completionHandler:))) {
             dispatch(on: originalSession.delegateQueue.underlyingQueue) {
                 delegate.urlSession?(originalSession, dataTask: dataTask, didReceive: response, completionHandler: completionHandler)
             }
@@ -230,7 +228,7 @@ extension InstanaURLProtocol: URLSessionDataDelegate {
 
     func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didBecome streamTask: URLSessionStreamTask) {
         if let originalSession = originalTask?.internalSession,
-           let delegate = originalSession.delegate as? URLSessionDataDelegate {
+            let delegate = originalSession.delegate as? URLSessionDataDelegate {
             dispatch(on: originalSession.delegateQueue.underlyingQueue) {
                 delegate.urlSession?(originalSession, dataTask: dataTask, didBecome: streamTask)
             }
@@ -243,8 +241,8 @@ extension InstanaURLProtocol: URLSessionDataDelegate {
 
     func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, willCacheResponse proposedResponse: CachedURLResponse, completionHandler: @escaping (CachedURLResponse?) -> Void) {
         if let originalSession = originalTask?.internalSession,
-           let delegate = originalSession.delegate as? URLSessionDataDelegate,
-           delegate.responds(to: #selector(urlSession(_:dataTask:willCacheResponse:completionHandler:))) {
+            let delegate = originalSession.delegate as? URLSessionDataDelegate,
+            delegate.responds(to: #selector(urlSession(_:dataTask:willCacheResponse:completionHandler:))) {
             dispatch(on: originalSession.delegateQueue.underlyingQueue) {
                 delegate.urlSession?(originalSession, dataTask: dataTask, willCacheResponse: proposedResponse, completionHandler: completionHandler)
             }
@@ -260,7 +258,7 @@ extension InstanaURLProtocol: URLSessionDataDelegate {
 extension InstanaURLProtocol: URLSessionDownloadDelegate {
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
         if let originalSession = originalTask?.internalSession,
-           let delegate = originalSession.delegate as? URLSessionDownloadDelegate {
+            let delegate = originalSession.delegate as? URLSessionDownloadDelegate {
             dispatch(on: originalSession.delegateQueue.underlyingQueue) {
                 delegate.urlSession(originalSession, downloadTask: downloadTask, didFinishDownloadingTo: location)
             }
@@ -278,7 +276,7 @@ extension InstanaURLProtocol: URLSessionDownloadDelegate {
 
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didResumeAtOffset fileOffset: Int64, expectedTotalBytes: Int64) {
         if let originalSession = originalTask?.internalSession,
-           let delegate = originalSession.delegate as? URLSessionDownloadDelegate {
+            let delegate = originalSession.delegate as? URLSessionDownloadDelegate {
             dispatch(on: originalSession.delegateQueue.underlyingQueue) {
                 delegate.urlSession?(originalSession, downloadTask: downloadTask, didResumeAtOffset: fileOffset, expectedTotalBytes: expectedTotalBytes)
             }
@@ -322,10 +320,9 @@ extension InstanaURLProtocol: URLSessionStreamDelegate {
 
 @available(iOS 13.0, *)
 extension InstanaURLProtocol: URLSessionWebSocketDelegate {
-
     func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didOpenWithProtocol protocol: String?) {
         if let originalSession = originalTask?.internalSession,
-           let delegate = originalSession.delegate as? URLSessionWebSocketDelegate {
+            let delegate = originalSession.delegate as? URLSessionWebSocketDelegate {
             dispatch(on: originalSession.delegateQueue.underlyingQueue) {
                 delegate.urlSession?(originalSession, webSocketTask: webSocketTask, didOpenWithProtocol: `protocol`)
             }
@@ -334,7 +331,7 @@ extension InstanaURLProtocol: URLSessionWebSocketDelegate {
 
     func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didCloseWith closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?) {
         if let originalSession = originalTask?.internalSession,
-           let delegate = originalSession.delegate as? URLSessionWebSocketDelegate {
+            let delegate = originalSession.delegate as? URLSessionWebSocketDelegate {
             dispatch(on: originalSession.delegateQueue.underlyingQueue) {
                 delegate.urlSession?(originalSession, webSocketTask: webSocketTask, didCloseWith: closeCode, reason: reason)
             }
