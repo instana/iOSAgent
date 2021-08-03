@@ -4,8 +4,6 @@
 
 import Foundation
 
-// swiftlint:disable line_length
-
 enum HTTPError: LocalizedError, RawRepresentable, CustomStringConvertible, Equatable {
     case offline
     case timeout

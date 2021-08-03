@@ -4,7 +4,7 @@
 
 import Foundation
 
-// swiftlint:disable:next line_length
+// swiftlint:disable:next
 // An identifier for using the current visible view name as default instead of nil - we need to set the current visible view later in the reporting process pipeline
 // swiftlint:disable:next identifier_name
 public let CustomBeaconDefaultViewNameID = UUID().uuidString

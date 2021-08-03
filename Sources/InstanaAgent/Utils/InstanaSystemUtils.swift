@@ -29,7 +29,6 @@ class InstanaSystemUtils {
 
     /// Returns iOS version (for ex. "14.4")
     static var systemVersion: String = {
-        // swiftlint:disable line_length
         "\(ProcessInfo.processInfo.operatingSystemVersion.majorVersion).\(ProcessInfo.processInfo.operatingSystemVersion.minorVersion).\(ProcessInfo.processInfo.operatingSystemVersion.patchVersion)"
     }()
 
