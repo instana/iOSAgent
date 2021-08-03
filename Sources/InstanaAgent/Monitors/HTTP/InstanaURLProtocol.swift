@@ -20,7 +20,7 @@ class InstanaURLProtocol: URLProtocol {
     }()
 
     var marker: HTTPMarker?
-    private (set) weak var originalTask: URLSessionTask?
+    private(set) weak var originalTask: URLSessionTask?
     let markerQueue = DispatchQueue(label: "com.instana.ios.agent.InstanaURLProtocol", qos: .default)
 
     convenience init(task: URLSessionTask, cachedResponse: CachedURLResponse?, client: URLProtocolClient?) {
@@ -189,9 +189,14 @@ extension InstanaURLProtocol: URLSessionTaskDelegate {
         }
     }
 
-//    func urlSession(_ session: URLSession, task: URLSessionTask, didFinishCollecting metrics: URLSessionTaskMetrics) {
-//     Not needed to override - will be called without forwarding via the client - Forwarding would call the delegate twice and might cause unexpected issues
-//    }
+    func urlSession(_ session: URLSession, task: URLSessionTask, didFinishCollecting metrics: URLSessionTaskMetrics) {
+        markerQueue.sync {
+            if let response = task.response {
+                marker?.set(responseSize: .init(response: response, transactionMetrics: metrics.transactionMetrics))
+            }
+        }
+//     Not needed to forward to the client - will be called without forwarding to the client - Forwarding would call the delegate twice and might cause unexpected results
+    }
 
     func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
         if let error = error {

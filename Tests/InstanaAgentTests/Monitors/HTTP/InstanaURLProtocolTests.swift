@@ -234,13 +234,13 @@ class InstanaURLProtocolTests: InstanaTestCase {
         let response = MockHTTPURLResponse(url: url, mimeType: "text/plain", expectedContentLength: 10, textEncodingName: "txt")
         response.stubbedAllHeaderFields = ["Server-Timing": "intid;desc=981d9553578fc280"]
         task.stubbedResponse = response
+        let metrics = MockURLSessionTaskMetrics.random
         let urlProtocol = InstanaURLProtocol(task: mockTask(for: url), cachedResponse: nil, client: nil)
         let marker = HTTPMarker(url: url, method: "GET", trigger: .automatic, delegate: delegate)
         urlProtocol.marker = marker
-        let expectedSize = HTTPMarker.Size(task.response!)
 
         // When
-        marker.set(responseSize: HTTPMarker.Size(task.response!))
+        urlProtocol.urlSession(URLSession.shared, task: task, didFinishCollecting: metrics)
         urlProtocol.urlSession(URLSession.shared, task: task, didCompleteWithError: nil)
         urlProtocol.markerQueue.async {
             waitFor.fulfill()
@@ -257,8 +257,16 @@ class InstanaURLProtocolTests: InstanaTestCase {
             XCTFail("Wrong state for marker")
         }
 
-        AssertEqualAndNotZero(urlProtocol.marker?.responseSize?.headerBytes ?? 0, expectedSize.headerBytes ?? 0)
-        AssertEqualAndNotZero(urlProtocol.marker?.responseSize?.bodyBytes ?? 0,expectedSize.bodyBytes ?? 0)
+        if #available(iOS 13.0, *) {
+            let metric = metrics.transactionMetrics.first
+            AssertEqualAndNotZero(urlProtocol.marker?.responseSize?.headerBytes ?? 0, metric?.countOfResponseHeaderBytesReceived ?? 0)
+            AssertEqualAndNotZero(urlProtocol.marker?.responseSize?.bodyBytes ?? 0, metric?.countOfResponseBodyBytesReceived ?? 0)
+            AssertEqualAndNotZero(urlProtocol.marker?.responseSize?.bodyBytesAfterDecoding ?? 0, metric?.countOfResponseBodyBytesAfterDecoding ?? 0)
+        } else {
+            AssertTrue(urlProtocol.marker?.responseSize?.headerBytes ?? 0 > 0)
+            AssertEqualAndNotNil(urlProtocol.marker?.responseSize?.bodyBytes, response.expectedContentLength)
+            AssertTrue(urlProtocol.marker?.responseSize?.bodyBytesAfterDecoding == nil)
+        }
     }
 
     func test_finish_success_with_http_forward_301() {
@@ -321,6 +329,7 @@ class InstanaURLProtocolTests: InstanaTestCase {
         var resultError: NSError?
 
         // When
+        urlProtocol.urlSession(URLSession.shared, task: task, didFinishCollecting: MockURLSessionTaskMetrics.random)
         urlProtocol.urlSession(URLSession.shared, task: task, didCompleteWithError: givenError)
         urlProtocol.markerQueue.async {
             waitFor.fulfill()
@@ -337,7 +346,12 @@ class InstanaURLProtocolTests: InstanaTestCase {
         }
 
         AssertEqualAndNotNil(resultError, givenError)
-        AssertTrue(urlProtocol.marker?.responseSize?.headerBytes ?? 0 > 0)
+
+        if #available(iOS 13.0, *) {
+            AssertTrue(urlProtocol.marker?.responseSize?.headerBytes ?? 0 > 0)
+        } else {
+            AssertTrue(urlProtocol.marker?.responseSize?.headerBytes ?? 0 > 0)
+        }
     }
 
     func test_stop_loading() {
