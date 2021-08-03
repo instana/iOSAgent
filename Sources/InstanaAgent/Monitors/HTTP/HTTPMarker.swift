@@ -75,9 +75,10 @@ protocol HTTPMarkerDelegate: AnyObject {
     /// Note: Make sure you don't call any methods on this HTTPMarker after you called finish
     @objc public func finish(response: URLResponse?, error: Error?) {
         let statusCode = (response as? HTTPURLResponse)?.statusCode ?? 400
+        let size = response != nil ? HTTPMarker.Size(response!) : nil
         let result = HTTPCaptureResult(statusCode: statusCode,
                                        backendTracingID: response?.backendTracingID,
-                                       responseSize: responseSize,
+                                       responseSize: responseSize ?? size,
                                        error: error)
         finish(result)
     }
