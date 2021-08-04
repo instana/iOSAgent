@@ -6,7 +6,7 @@ import Foundation
 import XCTest
 @testable import InstanaAgent
 
-class InstanaEnvironmentTests: InstanaTestCase {
+class InstanaSessionTests: InstanaTestCase {
 
     func test_defaultInit() {
         // Given
