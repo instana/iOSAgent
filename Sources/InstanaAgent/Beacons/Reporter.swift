@@ -57,6 +57,11 @@ public class Reporter {
     func submit(_ beacon: Beacon, _ completion: (() -> Void)? = nil) {
         dispatchQueue.async { [weak self] in
             guard let self = self else { return }
+            guard self.session.collectionEnabled else {
+                self.session.logger.add("Instana instrumentation is disabled. Beacon will be discarded", level: .warning)
+                completion?()
+                return
+            }
             guard self.rateLimiter.canSubmit() else {
                 self.session.logger.add("Rate Limit reached - Beacon will be discarded", level: .warning)
                 completion?()

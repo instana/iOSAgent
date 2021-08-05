@@ -866,9 +866,9 @@ class ReporterTests: InstanaTestCase {
         AssertTrue(reporter.preQueue.count == 1)
 
         // When
-        wait(prequeueTime + 0.1)
+        wait(prequeueTime + 0.5)
         reporter.submit(beaconAfterQueue)
-        wait(for: [waitForSend], timeout: prequeueTime * 8)
+        wait(for: [waitForSend], timeout: prequeueTime + 0.5)
 
         // Then
         AssertEqualAndNotNil(sendCount, 2) // The prequeue has been flushed only

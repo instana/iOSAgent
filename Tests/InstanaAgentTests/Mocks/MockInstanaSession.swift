@@ -17,7 +17,8 @@ extension InstanaSession {
                      sessionID: UUID? = nil,
                      metaData: MetaData = [:],
                      user: InstanaProperties.User? = nil,
-                     currentView: String? = nil) -> InstanaSession {
+                     currentView: String? = nil,
+                     collectionEnabled: Bool = true) -> InstanaSession {
         let sessionID = sessionID ?? UUID()
         let metaData = metaData
         let propertyHandler = InstanaPropertyHandler()
@@ -27,6 +28,6 @@ extension InstanaSession {
         }
         propertyHandler.properties = properties
 
-        return InstanaSession(configuration: configuration, propertyHandler: propertyHandler, sessionID: sessionID)
+        return InstanaSession(configuration: configuration, propertyHandler: propertyHandler, sessionID: sessionID, collectionEnabled: collectionEnabled)
     }
 }

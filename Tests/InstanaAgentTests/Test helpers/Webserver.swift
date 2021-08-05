@@ -32,9 +32,9 @@ public class Webserver {
 
     init(port: UInt16) {
         let tcpprotocol = NWProtocolTCP.Options()
-     //   tcpprotocol.enableKeepalive = true
+//        tcpprotocol.enableKeepalive = true
         tcpprotocol.connectionTimeout = 60
-     //   tcpprotocol.keepaliveIdle = 5
+//        tcpprotocol.keepaliveIdle = 5
       //  tcpprotocol.enableFastOpen = true
         listener = try! NWListener(using: NWParameters(tls: nil, tcp: tcpprotocol), on: NWEndpoint.Port(rawValue: port)!)
     }
@@ -205,15 +205,19 @@ public class Connection {
     private func setupReceive() {
         nwConnection.receive(minimumIncompleteLength: 1, maximumLength: MTU) {[weak self] (data, _, isComplete, error) in
             guard let self = self else { return }
-            var httpMethod: String?
-            if self.stubbedCode.canReceive, let data = data, let received = String(data: data, encoding:.utf8) {
-                print("MockWebServer connection \(self.id) did receive: \(received)")
-                httpMethod = received.components(separatedBy: "/").first?.replacingOccurrences(of: " ", with: "")
+            var canRespond = false
+            let received = String(data: data ?? Data(), encoding:.utf8)
+            let httpMethod = received?.components(separatedBy: "/").first?.replacingOccurrences(of: " ", with: "")
+            let expectData = (httpMethod == "POST" || httpMethod == "PUT")
+            if self.stubbedCode.canReceive && httpMethod != nil, let received = received {
+                print("\n\nMockWebServer connection \(self.id) did receive: \(received)")
+                print("------------------------------------------------------------\n\n")
+                canRespond = expectData ? !received.isEmpty: true
                 self.received.append(received)
             }
             if let error = error {
                 self.connectionDidFail(error: error)
-            } else if httpMethod != nil {
+            } else if canRespond {
                 self.respond()
             } else {
                 self.setupReceive()
@@ -223,7 +227,6 @@ public class Connection {
 }
 
 extension Data {
-
     var body: String? {
         guard let http = String(data: self, encoding:.utf8),
             let body = http.components(separatedBy: "\r\n").last,

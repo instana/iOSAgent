@@ -30,7 +30,7 @@ class InstanaURLProtocolIntegrationTests: InstanaTestCase {
             }
         }
         let monitors = Monitors(session, reporter: mockReporter)
-        Instana.current = Instana(session: session, configuration: session.configuration, monitors: monitors)
+        Instana.current = Instana(session: session, monitors: monitors)
 
         // When
         URLSession.shared.dataTask(with: givenURL) {_, _, _ in}.resume()
@@ -51,7 +51,7 @@ class InstanaURLProtocolIntegrationTests: InstanaTestCase {
             }
         }
         let monitors = Monitors(session, reporter: mockReporter)
-        Instana.current = Instana(session: session, configuration: session.configuration, monitors: monitors)
+        Instana.current = Instana(session: session, monitors: monitors)
         let config = URLSessionConfiguration.default
         config.protocolClasses?.insert(SecondURLProtocol.self, at: 0)
         urlSession = URLSession(configuration: config)
@@ -76,7 +76,7 @@ class InstanaURLProtocolIntegrationTests: InstanaTestCase {
             }
         }
         let monitors = Monitors(session, reporter: mockReporter)
-        Instana.current = Instana(session: session, configuration: session.configuration, monitors: monitors)
+        Instana.current = Instana(session: session, monitors: monitors)
         urlSession = URLSession(configuration: URLSessionConfiguration.default)
 
         // When

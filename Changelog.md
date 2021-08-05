@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.2.0
+- Added new flag `collectionEnabled` to set up Instana without data collection. Instrumentation can be enabled later using this property. This allows apps to start Instana with a delay if users are asked for consent beforehand. 
+
 ## 1.1.18
 - Fix setting responseSize
 - Make originalTask weak

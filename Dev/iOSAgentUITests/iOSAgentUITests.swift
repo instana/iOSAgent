@@ -45,32 +45,6 @@ class iOSAgentUITests: XCTestCase {
         XCTAssertTrue(types.contains("httpRequest"))
     }
 
-    func test_flush_after_error() {
-        // Given
-        launchServer(stubbedHTTPResponse: 500)
-        launchApp()
-
-        // When (Server not found)
-        load("https://api.mygigs.tapwork.de")
-
-        // Then (Beacon should not be transmitted)
-        webserver.verifyBeaconNotReceived(key: "hu", value: "https://api.mygigs.tapwork.de")
-
-        // When
-        webserver.stub(httpStatusResponse: 200)
-        delay(2.0)
-        app.tabBars.buttons["Top Rated"].tap()
-
-        // Then
-        delay(4.0)
-        verify(app.images.firstMatch)
-        delay(5.0)
-        // Check if the first beacon has been transmitted now
-        webserver.verifyBeaconReceived(key: "hu", value: "https://api.mygigs.tapwork.de")
-        // And verify the new beacon
-        webserver.verifyBeaconReceived(key: "hu", value: "https://i.picsum.photos/")
-    }
-
     func test_start_new_session_after_launch() {
         // Given
         launchServer()
@@ -115,7 +89,7 @@ class iOSAgentUITests: XCTestCase {
         webserver = Webserver(port: port)
         webserver.start()
         webserver.stub(httpStatusResponse: stubbedHTTPResponse)
-        delay(3.0)
+        delay(5.0)
     }
 
     func launchApp(ignoreQueuePersistence: Bool = true) {

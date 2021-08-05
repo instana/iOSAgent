@@ -21,15 +21,12 @@ import Foundation
 
     internal let appStateHandler = InstanaApplicationStateHandler.shared
 
-    internal init(session: InstanaSession? = nil, configuration: InstanaConfiguration, monitors: Monitors? = nil) {
-        let session = session ?? InstanaSession(configuration: configuration, propertyHandler: InstanaPropertyHandler())
+    internal init(session: InstanaSession, monitors: Monitors? = nil) {
         self.session = session
         self.monitors = monitors ?? Monitors(session)
         super.init()
 
-        if configuration.isValid {
-            self.monitors.reporter.submit(SessionProfileBeacon(state: .start))
-        } else {
+        if !session.configuration.isValid {
             session.logger.add("Instana setup is invalid. URL and key must not be empty", level: .error)
         }
     }
@@ -50,6 +47,24 @@ import Foundation
     @objc
     public class var viewName: String? { Instana.current?.session.propertyHandler.properties.view }
 
+    /// Enable or disable collection (opt-in or opt-out)
+    ///
+    /// Default: true
+    ///
+    /// Note: Any instrumentation is ignored when setting `collectionEnabled = false`.
+    /// If needed, you can set collectionEnabled to false via Instana's setup and enable the collection later.
+    /// (e.g. after giving the consent)
+    @objc
+    public static var collectionEnabled: Bool {
+        set {
+            Instana.current?.session.collectionEnabled = newValue
+            Instana.current?.monitors.submitStartBeaconIfNeeded()
+        }
+        get {
+            Instana.current?.session.collectionEnabled ?? false
+        }
+    }
+
     /// Configures and sets up the Instana agent with the default configuration.
     /// - HTTP sessions will be captured automatically by default
     ///
@@ -60,7 +75,8 @@ import Foundation
     @objc
     public static func setup(key: String, reportingURL: URL) {
         let config = InstanaConfiguration.default(key: key, reportingURL: reportingURL, httpCaptureConfig: .automatic)
-        Instana.current = Instana(configuration: config)
+        let session = InstanaSession(configuration: config, propertyHandler: InstanaPropertyHandler(), collectionEnabled: true)
+        Instana.current = Instana(session: session)
     }
 
     /// Configures and sets up the Instana agent with a custom HTTP capture configuration.
@@ -70,10 +86,12 @@ import Foundation
     ///   - key: Instana key to identify your application.
     ///   - reportingURL: Reporting URL for the Instana backend.
     ///   - httpCaptureConfig: HTTP monitoring configuration to set the capture behavior (automatic, manual, automaticAndManual or none) http requests & responses
+    ///   - collectionEnabled: Enable or disable collection (instrumentation) on setup. Can be changed later via the property `collectionEnabled` (Default: true)
     @objc
-    public static func setup(key: String, reportingURL: URL, httpCaptureConfig: HTTPCaptureConfig = .automatic) {
+    public static func setup(key: String, reportingURL: URL, httpCaptureConfig: HTTPCaptureConfig = .automatic, collectionEnabled: Bool = true) {
         let config = InstanaConfiguration.default(key: key, reportingURL: reportingURL, httpCaptureConfig: httpCaptureConfig)
-        Instana.current = Instana(configuration: config)
+        let session = InstanaSession(configuration: config, propertyHandler: InstanaPropertyHandler(), collectionEnabled: collectionEnabled)
+        Instana.current = Instana(session: session)
     }
 
     /// Manual monitoring of URLRequest.
