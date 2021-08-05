@@ -20,9 +20,12 @@ class InstanaSession {
     /// A debugging console logger using levels
     let logger = InstanaLogger()
 
-    init(configuration: InstanaConfiguration, propertyHandler: InstanaPropertyHandler, sessionID: UUID = UUID()) {
+    var collectionEnabled: Bool
+
+    init(configuration: InstanaConfiguration, propertyHandler: InstanaPropertyHandler, sessionID: UUID = UUID(), collectionEnabled: Bool) {
         self.configuration = configuration
         self.propertyHandler = propertyHandler
+        self.collectionEnabled = collectionEnabled
         id = sessionID
     }
 }

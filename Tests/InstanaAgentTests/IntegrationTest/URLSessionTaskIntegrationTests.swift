@@ -28,7 +28,7 @@ class URLSessionTaskIntegrationTests: InstanaTestCase {
             self.sentBeacon = try? CoreBeacon.create(from: value ?? "")
         })
         reporter.queue.items.removeAll()
-        Instana.current = Instana(session: session, configuration: session.configuration, monitors: Monitors(session, reporter: reporter))
+        Instana.current = Instana(session: session, monitors: Monitors(session, reporter: reporter))
 
         let waitForLaunch = expectation(description: "webserver")
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {

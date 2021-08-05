@@ -17,11 +17,28 @@ class InstanaTests: InstanaTestCase {
 
         // Then
         AssertEqualAndNotNil(Instana.key, key)
+        AssertTrue(Instana.collectionEnabled)
+        AssertTrue(Instana.current!.session.collectionEnabled)
         AssertEqualAndNotNil(Instana.sessionID, Instana.current?.session.id.uuidString)
         AssertEqualAndNotNil(Instana.reportingURL, reportingURL)
         AssertEqualAndNotNil(Instana.current?.session.configuration.reportingURL, reportingURL)
         AssertEqualAndNotNil(Instana.current?.session.configuration.httpCaptureConfig, .automatic)
         AssertEqualAndNotNil(Instana.current?.session.configuration, .default(key: key, reportingURL: reportingURL))
+    }
+
+    func test_setup_disabled() {
+        // Given
+        let key = "KEY"
+        let reportingURL = URL(string: "http://www.instana.com")!
+        let httpCaptureConfig: HTTPCaptureConfig = .manual
+
+        // When
+        Instana.setup(key: key, reportingURL: reportingURL, httpCaptureConfig: httpCaptureConfig, collectionEnabled: false)
+
+        // Then
+        AssertEqualAndNotNil(Instana.key, key)
+        AssertFalse(Instana.collectionEnabled)
+        AssertFalse(Instana.current!.session.collectionEnabled)
     }
 
     func test_setup_manual_http_capture() {
@@ -62,26 +79,69 @@ class InstanaTests: InstanaTestCase {
 
     func test_setup_and_expect_SessionProfileBeacon() {
         // Given
-        let waitRequest = expectation(description: "test_setup_and_expect_SessionProfileBeacon")
+        let session: InstanaSession = .mock(configuration: .default(key: "KEY", reportingURL: .random))
         var excpectedBeacon: SessionProfileBeacon?
         let reporter = MockReporter {
             if let beacon = $0 as? SessionProfileBeacon {
                 excpectedBeacon = beacon
-                waitRequest.fulfill()
             }
         }
 
         // When
-        Instana.current = Instana(configuration: .default(key: "KEY", reportingURL: .random), monitors: Monitors(.mock, reporter: reporter))
-        wait(for: [waitRequest], timeout: 1.0)
+        Instana.current = Instana(session: session, monitors: Monitors(.mock, reporter: reporter))
 
         // Then
         AssertEqualAndNotNil(excpectedBeacon?.state, SessionProfileBeacon.State.start)
     }
 
+    func test_setup_and_dont_expect_SessionProfileBeacon_when_disabled() {
+        // Given
+        let config = InstanaConfiguration.default(key: "KEY", reportingURL: .random)
+        let session: InstanaSession = .mock(configuration: config, collectionEnabled: false)
+        var excpectedBeacon: SessionProfileBeacon?
+        let reporter = MockReporter {
+            if let beacon = $0 as? SessionProfileBeacon {
+                excpectedBeacon = beacon
+            }
+        }
+
+        // When
+        Instana.current = Instana(session: session, monitors: Monitors(session, reporter: reporter))
+
+        // Then
+        AssertFalse(Instana.collectionEnabled)
+        AssertTrue(excpectedBeacon == nil)
+    }
+
+    func test_setup_and_expect_SessionProfileBeacon_enabled_after_setup() {
+        // Given
+        let config = InstanaConfiguration.default(key: "KEY", reportingURL: .random)
+        let session: InstanaSession = .mock(configuration: config, collectionEnabled: false)
+        var excpectedBeacon: SessionProfileBeacon?
+        let reporter = MockReporter {
+            if let beacon = $0 as? SessionProfileBeacon {
+                excpectedBeacon = beacon
+            }
+        }
+
+        // When
+        Instana.current = Instana(session: session, monitors: Monitors(session, reporter: reporter))
+
+        // Then
+        AssertFalse(Instana.collectionEnabled)
+        AssertTrue(excpectedBeacon == nil)
+
+        // When
+        Instana.collectionEnabled = true
+
+        // Then
+        AssertTrue(excpectedBeacon != nil)
+    }
+
     func test_captureHTTP_request() {
         // Given
         let config = InstanaConfiguration.default(key: "KEY", reportingURL: .random, httpCaptureConfig: .manual)
+        let session = InstanaSession.mock(configuration: config)
         let env = InstanaSession.mock(configuration: config)
         let waitRequest = expectation(description: "test_captureHTTP_request")
         var excpectedBeacon: HTTPBeacon?
@@ -93,7 +153,7 @@ class InstanaTests: InstanaTestCase {
                 waitRequest.fulfill()
             }
         }
-        Instana.current = Instana(configuration: config, monitors: Monitors(env, reporter: reporter))
+        Instana.current = Instana(session: session, monitors: Monitors(env, reporter: reporter))
 
         // When
         let sut = Instana.startCapture(request, viewName: "DetailView")
@@ -195,12 +255,13 @@ class InstanaTests: InstanaTestCase {
     func test_setViewName() {
         // Given
         let viewName = "Some View"
+        let session = InstanaSession.mock(configuration: config)
         let env = InstanaSession.mock(configuration: config)
         var didReport = false
         let reporter = MockReporter {beacon in
             didReport = (beacon is ViewChange) && beacon.viewName == viewName
         }
-        Instana.current = Instana(configuration: config, monitors: Monitors(env, reporter: reporter))
+        Instana.current = Instana(session: session, monitors: Monitors(env, reporter: reporter))
         Instana.current?.session.propertyHandler.properties.view = "Old View"
 
         // When
@@ -215,12 +276,12 @@ class InstanaTests: InstanaTestCase {
     func test_setViewName_shouldnotreport_if_view_not_changed() {
         // Given
         let viewName = "Some View"
-        let env = InstanaSession.mock(configuration: config)
+        let session = InstanaSession.mock(configuration: config)
         var didReport = false
         let reporter = MockReporter {beacon in
             didReport = (beacon is ViewChange) && beacon.viewName == viewName
         }
-        Instana.current = Instana(configuration: config, monitors: Monitors(env, reporter: reporter))
+        Instana.current = Instana(session: session, monitors: Monitors(session, reporter: reporter))
         Instana.current?.session.propertyHandler.properties.view = viewName
 
         // When
@@ -360,6 +421,7 @@ class InstanaTests: InstanaTestCase {
     func test_reportCustom_AllValues() {
         // Given
         let name = "Custom Event"
+        let session = InstanaSession.mock(configuration: config)
         let duration: Instana.Types.Milliseconds = 1
         let timestamp: Instana.Types.Milliseconds = 123
         let backendID = "B123"
@@ -368,7 +430,7 @@ class InstanaTests: InstanaTestCase {
         let viewName = "Some View"
         var didReport: CustomBeacon? = nil
         let reporter = MockReporter { didReport = $0 as? CustomBeacon }
-        Instana.current = Instana(configuration: config, monitors: Monitors(InstanaSession.mock(configuration: config), reporter: reporter))
+        Instana.current = Instana(session: session, monitors: Monitors(session, reporter: reporter))
 
         // When
         Instana.reportEvent(name: name, timestamp: timestamp, duration: duration, backendTracingID: backendID, error: error, meta: meta, viewName: viewName)
@@ -386,6 +448,7 @@ class InstanaTests: InstanaTestCase {
 
     func test_reportCustom_just_name() {
         // Given
+        let session = InstanaSession.mock(configuration: config)
         let waitFor = expectation(description: "test_reportCustom_just_name")
         let name = "Custom Event"
         var didReport: CustomBeacon? = nil
@@ -395,7 +458,7 @@ class InstanaTests: InstanaTestCase {
                 waitFor.fulfill()
             }
         }
-        Instana.current = Instana(configuration: config, monitors: Monitors(InstanaSession.mock(configuration: config), reporter: reporter))
+        Instana.current = Instana(session: session, monitors: Monitors(session, reporter: reporter))
 
         // When
         Instana.reportEvent(name: name)
@@ -413,12 +476,13 @@ class InstanaTests: InstanaTestCase {
 
     func test_reportCustom_view_nil() {
         // Given
+        let session = InstanaSession.mock(configuration: config)
         let name = "Custom Event"
         var didReport: CustomBeacon? = nil
         let reporter = MockReporter {
             didReport = $0 as? CustomBeacon
         }
-        Instana.current = Instana(configuration: config, monitors: Monitors(InstanaSession.mock(configuration: config), reporter: reporter))
+        Instana.current = Instana(session: session, monitors: Monitors(session, reporter: reporter))
 
         // When
         Instana.reportEvent(name: name, viewName: nil)

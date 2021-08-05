@@ -11,6 +11,7 @@ class Monitors {
     var http: HTTPMonitor?
     let reporter: Reporter
     private let session: InstanaSession
+    private var startBeaconTriggered = false
 
     init(_ session: InstanaSession, reporter: Reporter? = nil) {
         self.session = session
@@ -27,6 +28,15 @@ class Monitors {
             case let .alertApplicationNotResponding(threshold):
                 applicationNotResponding = ApplicationNotRespondingMonitor(threshold: threshold, reporter: reporter)
             }
+        }
+
+        submitStartBeaconIfNeeded()
+    }
+
+    func submitStartBeaconIfNeeded() {
+        if session.configuration.isValid, session.collectionEnabled, !startBeaconTriggered {
+            reporter.submit(SessionProfileBeacon(state: .start))
+            startBeaconTriggered = true
         }
     }
 }

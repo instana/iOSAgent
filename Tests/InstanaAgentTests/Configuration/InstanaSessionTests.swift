@@ -13,11 +13,12 @@ class InstanaSessionTests: InstanaTestCase {
         let propertyHandler = InstanaPropertyHandler()
 
         // When
-        let sut = InstanaSession(configuration: config, propertyHandler: propertyHandler)
+        let sut = InstanaSession(configuration: config, propertyHandler: propertyHandler, collectionEnabled: true)
 
         // Then
         AssertTrue(!sut.id.uuidString.isEmpty)
         AssertEqualAndNotNil(sut.propertyHandler, propertyHandler)
         AssertEqualAndNotNil(sut.configuration, config)
+        AssertTrue(sut.collectionEnabled)
     }
 }
