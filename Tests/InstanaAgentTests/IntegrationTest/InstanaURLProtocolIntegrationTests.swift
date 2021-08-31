@@ -12,11 +12,13 @@ class InstanaURLProtocolIntegrationTests: InstanaTestCase {
 
     var givenURL: URL!
     var urlSession: URLSession!
+    var customURLSessionDelegate: CustomURLSessionDelegate?
 
     override func setUp() {
         super.setUp()
         SecondURLProtocol.monitoredURL = nil
         givenURL = .random
+        customURLSessionDelegate = CustomURLSessionDelegate()
     }
 
     func test_urlprotocol_with_shared_URLSession_mock_report() {
@@ -87,6 +89,47 @@ class InstanaURLProtocolIntegrationTests: InstanaTestCase {
         AssertEqualAndNotNil(resultBeacon?.url, givenURL)
     }
 
+    // MARK: - URLSession Delegates
+    func test_didBecomeInvalidWithError() {
+        // Given
+        let didReportWait = expectation(description: "test_didBecomeInvalidWithError")
+        Instana.current = Instana(session: session)
+        let urlSession = URLSession(configuration: .default, delegate: customURLSessionDelegate, delegateQueue: nil)
+        var passed = false
+        customURLSessionDelegate?.passedDidBecomeInvalidWithError = {result in
+            passed = result
+            didReportWait.fulfill()
+        }
+
+        // When
+        urlSession.dataTask(with: givenURL) {_, _, _ in}.resume()
+        urlSession.invalidateAndCancel()
+        wait(for: [didReportWait], timeout: 10)
+
+        // Then
+        AssertTrue(passed)
+    }
+
+    func test_didBecomeInvalidWithError() {
+        // Given
+        let didReportWait = expectation(description: "test_didBecomeInvalidWithError")
+        Instana.current = Instana(session: session)
+        let urlSession = URLSession(configuration: .default, delegate: customURLSessionDelegate, delegateQueue: nil)
+        var passed = false
+        customURLSessionDelegate?.passedDidBecomeInvalidWithError = {result in
+            passed = result
+            didReportWait.fulfill()
+        }
+
+        // When
+        urlSession.dataTask(with: givenURL) {_, _, _ in}.resume()
+        urlSession.invalidateAndCancel()
+        wait(for: [didReportWait], timeout: 10)
+
+        // Then
+        AssertTrue(passed)
+    }
+
     // MARK: Helper
     class SecondURLProtocol: URLProtocol {
         static var monitoredURL: URL?
@@ -104,6 +147,13 @@ class InstanaURLProtocolIntegrationTests: InstanaTestCase {
         }
         override func stopLoading() {
             client?.urlProtocolDidFinishLoading(self)
+        }
+    }
+
+    class CustomURLSessionDelegate: NSObject, URLSessionDelegate {
+        var passedDidBecomeInvalidWithError: ((Bool) -> Void)?
+        func urlSession(_ session: URLSession, didBecomeInvalidWithError error: Error?) {
+            passedDidBecomeInvalidWithError?(true)
         }
     }
 }
