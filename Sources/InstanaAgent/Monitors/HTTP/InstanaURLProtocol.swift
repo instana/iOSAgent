@@ -115,6 +115,7 @@ extension InstanaURLProtocol: URLSessionDelegate {
         }
     }
 
+    @available(macOS 11.0, iOS 11, *)
     func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession) {
         if let originalSession = originalTask?.internalSession, let delegate = originalSession.delegate {
             dispatch(on: originalSession.delegateQueue.underlyingQueue) {

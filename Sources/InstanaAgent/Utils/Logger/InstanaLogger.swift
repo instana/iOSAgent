@@ -28,7 +28,7 @@ class InstanaLogger {
         guard level.rawValue >= self.level.rawValue else { return }
         #if DEBUG
             let message = "[Instana]: \(entry)"
-            if #available(iOS 14.0, *) {
+            if #available(iOS 14.0, *), #available(macOS 11.0, *) {
                 let logger = os.Logger(subsystem: "com.instana.ios.agent.logging", category: level.logTag)
                 switch level {
                 case .debug:
