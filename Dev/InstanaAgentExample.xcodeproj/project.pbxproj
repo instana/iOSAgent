@@ -27,6 +27,8 @@
 		727AF73F263AA0FA00B9C59B /* EventListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 727AF73A263AA0FA00B9C59B /* EventListViewController.swift */; };
 		727AF748263AA16A00B9C59B /* InstanaAgent in Frameworks */ = {isa = PBXBuildFile; productRef = 727AF747263AA16A00B9C59B /* InstanaAgent */; };
 		72976A9A2681C45800A284F6 /* Webserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72976A992681C45800A284F6 /* Webserver.swift */; };
+		729C88B5270DE98200492486 /* AFNetworking in Frameworks */ = {isa = PBXBuildFile; productRef = 729C88B4270DE98200492486 /* AFNetworking */; };
+		729C88B8270DF13700492486 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 729C88B7270DF13700492486 /* Alamofire */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -81,7 +83,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				729C88B8270DF13700492486 /* Alamofire in Frameworks */,
 				727AF748263AA16A00B9C59B /* InstanaAgent in Frameworks */,
+				729C88B5270DE98200492486 /* AFNetworking in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -210,6 +214,8 @@
 			name = InstanaAgentExample;
 			packageProductDependencies = (
 				727AF747263AA16A00B9C59B /* InstanaAgent */,
+				729C88B4270DE98200492486 /* AFNetworking */,
+				729C88B7270DF13700492486 /* Alamofire */,
 			);
 			productName = InstanaAgentExample;
 			productReference = 727AF685263A9EBD00B9C59B /* InstanaAgentExample.app */;
@@ -263,6 +269,10 @@
 				Base,
 			);
 			mainGroup = 727AF67C263A9EBD00B9C59B;
+			packageReferences = (
+				729C88B3270DE98200492486 /* XCRemoteSwiftPackageReference "AFNetworking" */,
+				729C88B6270DF13700492486 /* XCRemoteSwiftPackageReference "Alamofire" */,
+			);
 			productRefGroup = 727AF686263A9EBD00B9C59B /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -746,6 +756,25 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		729C88B3270DE98200492486 /* XCRemoteSwiftPackageReference "AFNetworking" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/AFNetworking/AFNetworking.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.0.0;
+			};
+		};
+		729C88B6270DF13700492486 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Alamofire/Alamofire.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
 		72785628263AB70A009FC945 /* InstanaAgent */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -754,6 +783,16 @@
 		727AF747263AA16A00B9C59B /* InstanaAgent */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = InstanaAgent;
+		};
+		729C88B4270DE98200492486 /* AFNetworking */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 729C88B3270DE98200492486 /* XCRemoteSwiftPackageReference "AFNetworking" */;
+			productName = AFNetworking;
+		};
+		729C88B7270DF13700492486 /* Alamofire */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 729C88B6270DF13700492486 /* XCRemoteSwiftPackageReference "Alamofire" */;
+			productName = Alamofire;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
