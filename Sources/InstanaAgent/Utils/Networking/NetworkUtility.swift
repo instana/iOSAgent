@@ -119,8 +119,8 @@ extension NetworkUtility {
                         return .fourG
                     default:
                         if #available(iOS 14.1, *) {
-                            if [CTRadioAccessTechnologyNRNSA, CTRadioAccessTechnologyNR]
-                                .contains(radioAccessTechnology) {
+                            // Not using the constant in order to support older Xcode versions
+                            if ["CTRadioAccessTechnologyNRNSA", "CTRadioAccessTechnologyNR"].contains(radioAccessTechnology) {
                                 return .fiveG
                             }
                         }
