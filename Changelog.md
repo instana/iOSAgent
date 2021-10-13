@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.2
+- Make compatible with older Xcode versions (prior 12.1)
+- Clean up tests and CI pipeline
+- Add AFNetworking and Alamofire to demo project
+
 ## 1.2.0
 - Added new flag `collectionEnabled` to set up Instana without data collection. Instrumentation can be enabled later using this property. This allows apps to start Instana with a delay if users are asked for consent beforehand. 
 

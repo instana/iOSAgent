@@ -27,10 +27,11 @@ Please make sure to follow the semantic versioning rules.
 2. Update version in VersionConfig.Swift
 3. Update InstanaSystemUtilsTests test_AgentVersion.
 4. Update CHANGELOG.md accordingly
-5. Run `git tag <Your Version> && git push origin <Your Version>`
-6. Run `pod trunk push InstanaAgent.podspec --allow-warnings`
-7. Make a release note on the Github page
-8. Update cross platform frameworks accordingly (Flutter / ReactNative / Xamarin)
+5. Run tests via `sh scripts/run-all-test.sh`
+6. Run `git tag <Your Version> && git push origin <Your Version>`
+7. Run `pod trunk push InstanaAgent.podspec --allow-warnings`
+8. Make a release note on the Github page
+9. Update cross platform frameworks accordingly (Flutter / ReactNative / Xamarin)
 
 ## Code of Conduct
 
