@@ -40,13 +40,16 @@ class ImageViewViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         Instana.setView(name: "ImageView")
-     //   Instana.reportEvent(name: "Custom Event", duration: 1001, backendTracingID: nil, error: NSError(domain: "Domain", code: 0, userInfo: nil), meta: ["Key": "Val"], viewName:"Image")
+        Instana.setMeta(value: "iOS", key: "OS")
     }
 
     @objc func downloadImage() {
         let url = URL(string: "https://picsum.photos/900")!
         let function = [downloadWViaAFN, downloadViaCombine, downloadViaAlamofire].randomElement()!
         function(url)
+        DispatchQueue.global().async {
+            function(url)
+        }
     }
 
     func downloadViaCombine(_ url: URL) {
