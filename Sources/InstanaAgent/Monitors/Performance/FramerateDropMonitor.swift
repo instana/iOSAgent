@@ -36,7 +36,7 @@ class FramerateDropMonitor {
             let proxy = DisplayLinkProxy()
             displayLink = CADisplayLink(target: proxy, selector: #selector(proxy.onDisplayLinkUpdate))
             proxy.proxied = self
-            displayLink.add(to: RunLoop.main, forMode: .common)
+            displayLink.add(to: .main, forMode: .default)
 
             InstanaApplicationStateHandler.shared.listen { [weak self] state in
                 guard let self = self else { return }
@@ -85,7 +85,7 @@ class FramerateDropMonitor {
                 dropStart = samplingStart
                 runningAverage = Float(fps)
                 consecutiveFrameDrop = 1
-            case (true, _?):
+            case (true, _):
                 consecutiveFrameDrop += 1
                 runningAverage -= runningAverage / Float(consecutiveFrameDrop)
                 runningAverage += Float(fps) / Float(consecutiveFrameDrop)
