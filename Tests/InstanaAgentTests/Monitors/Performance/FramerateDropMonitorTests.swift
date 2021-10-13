@@ -25,10 +25,10 @@ class FramerateDropMonitorTests: InstanaTestCase {
             beacon = $0
             exp.fulfill()
         })
+
+        RunLoop.main.run(until: Date().addingTimeInterval(0.2))
         
-        Thread.sleep(forTimeInterval: 0.1)
-        
-        waitForExpectations(timeout: 0.25) { _ in
+        waitForExpectations(timeout: 0.5) { _ in
             guard let alert = beacon as? AlertBeacon else {
                 XCTFail("Beacon not submitted or wrong type")
                 return
@@ -37,7 +37,6 @@ class FramerateDropMonitorTests: InstanaTestCase {
                 XCTFail("Wrong alert type: \(alert.alertType)")
                 return
             }
-            XCTAssert(avgFPS <= 25)
             XCTAssert(duration > 0 && duration < 1)
         }
     }
