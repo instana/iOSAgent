@@ -110,26 +110,6 @@ class InstanaURLProtocolIntegrationTests: InstanaTestCase {
         AssertTrue(passed)
     }
 
-    func test_didBecomeInvalidWithError() {
-        // Given
-        let didReportWait = expectation(description: "test_didBecomeInvalidWithError")
-        Instana.current = Instana(session: session)
-        let urlSession = URLSession(configuration: .default, delegate: customURLSessionDelegate, delegateQueue: nil)
-        var passed = false
-        customURLSessionDelegate?.passedDidBecomeInvalidWithError = {result in
-            passed = result
-            didReportWait.fulfill()
-        }
-
-        // When
-        urlSession.dataTask(with: givenURL) {_, _, _ in}.resume()
-        urlSession.invalidateAndCancel()
-        wait(for: [didReportWait], timeout: 10)
-
-        // Then
-        AssertTrue(passed)
-    }
-
     // MARK: Helper
     class SecondURLProtocol: URLProtocol {
         static var monitoredURL: URL?
