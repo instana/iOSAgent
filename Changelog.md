@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.2.2
+## 1.2.1
 - Make compatible with older Xcode versions (prior 12.1)
 - Clean up tests and CI pipeline
 - Add AFNetworking and Alamofire to demo project
