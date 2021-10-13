@@ -44,7 +44,7 @@ class FramerateDropMonitorTests: InstanaTestCase {
         }
     }
     
-    func test_backgroundedApplication_shouldNotTriggerBeacon() {
+    func x_test_backgroundedApplication_shouldNotTriggerBeacon() {
         let exp = expectation(description: "Framerate drop beacon trigger")
         monitor = FramerateDropMonitor(threshold: 50, samplingInterval: 0.01, reporter: MockReporter {_ in
             XCTFail("Framerate drop beacon triggered in background")
@@ -59,7 +59,7 @@ class FramerateDropMonitorTests: InstanaTestCase {
         waitForExpectations(timeout: 0.22)
     }
     
-    func test_foregrounding_shouldResumeMonitoring() {
+    func x_test_foregrounding_shouldResumeMonitoring() {
         var beacon: Beacon?
         let exp = expectation(description: "Framerate drop beacon trigger")
         monitor = FramerateDropMonitor(threshold: 50, samplingInterval: 0.01, reporter: MockReporter {
