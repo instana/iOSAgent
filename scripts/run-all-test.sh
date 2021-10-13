@@ -1,5 +1,8 @@
-./scripts/run-swiftpm-tests.sh --ios=14
-./scripts/run-swiftpm-tests.sh --ios=13
-./scripts/run-swiftpm-tests.sh --ios=12
+#!/bin/bash
+set -o pipefail
+set -o xtrace
+echo "Running Unit Tests"
 
-./scripts/run-ui-tests.sh
+scheme='InstanaAgentTests'
+
+xcodebuild test -destination 'name=iPhone 13,OS=15.0' -scheme ''${scheme}'' | xcpretty --color -t

@@ -48,7 +48,7 @@ class ReporterIntegrationTests: InstanaTestCase {
         }
 
         // Then
-        wait(for: [waitFor], timeout: 5.0)
+        wait(for: [waitFor], timeout: 10.0)
         AssertTrue(reporter.queue.items.isEmpty)
 
         // Then verify the sent beacon body in the URLRequest going out to the server

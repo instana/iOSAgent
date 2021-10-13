@@ -17,38 +17,10 @@ workflows:
         inputs:
         - content: scripts/lint.sh
     - script:
-        title: Run iOS 14 Unit Tests
+        title: Run iOS Unit Tests
         inputs:
         - content: |-
-            #!/usr/bin/env bash
-            echo "Run iOS 14 Unit Tests"
-            scripts/run-swiftpm-tests.sh --ios=14 --test=unit
-    - github-status@2.2.2:
-        inputs:
-        - auth_token: "$GITHUB_STATUS_TOKEN"
-  UITests:
-    steps:
-    - github-status@2.2.2:
-        inputs:
-        - auth_token: "$GITHUB_STATUS_TOKEN"
-        - set_specific_status: pending
-    - activate-ssh-key@4.0.3:
-        run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
-    - git-clone@4.0.17: {}
-    - cache-pull@2.1.1: {}
-    - script@1.1.6:
-        title: Run swift lint
-        inputs:
-        - content: scripts/lint.sh
-    - script@1.1.6:
-        title: Run iOS UI Tests
-        inputs:
-        - content: |-
-            #!/usr/bin/env bash
-            echo "Run UI Tests"
-            #scripts/run-ui-tests.sh
-            cd Dev
-            xcodebuild test -destination 'name=iPhone 11 Pro Max,OS=14.0' -scheme 'iOSAgentExample'
+            scripts/run-all-test.sh
     - github-status@2.2.2:
         inputs:
         - auth_token: "$GITHUB_STATUS_TOKEN"

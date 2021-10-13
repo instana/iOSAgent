@@ -1,3 +1,6 @@
 #!/bin/bash
 set -o pipefail
-(cd Dev && xcodebuild test -destination 'platform=iOS Simulator,name=iPhone 12,OS=14.5' -scheme 'iOSAgentUITests' | xcpretty --test --color)
+set -o xtrace
+
+echo "Running UI Tests"
+(cd Dev && xcodebuild test -destination 'platform=iOS Simulator,name=iPhone 13,OS=15.0' -scheme 'iOSAgentUITests' | xcpretty --test --color)

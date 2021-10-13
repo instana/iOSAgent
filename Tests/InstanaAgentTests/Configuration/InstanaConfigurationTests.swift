@@ -10,10 +10,10 @@ class InstanaConfigurationTests: InstanaTestCase {
         AssertEqualAndNotNil(config.httpCaptureConfig, .automatic)
         AssertTrue(config.suspendReporting.isEmpty)
         AssertTrue(config.maxBeaconsPerRequest == 100)
-        AssertTrue(config.monitorTypes.count == 4)
+        AssertTrue(config.monitorTypes.count == 1)
         AssertTrue(config.monitorTypes.contains(.http))
-        AssertTrue(config.monitorTypes.contains(.memoryWarning))
-        AssertTrue(config.monitorTypes.contains(.alertApplicationNotResponding(threshold: 2.0)))
-        AssertTrue(config.monitorTypes.contains(.framerateDrop(frameThreshold: 20)))
+//        AssertTrue(config.monitorTypes.contains(.memoryWarning))
+//        AssertTrue(config.monitorTypes.contains(.alertApplicationNotResponding(threshold: 2.0)))
+//        AssertTrue(config.monitorTypes.contains(.framerateDrop(frameThreshold: 20)))
     }
 }
