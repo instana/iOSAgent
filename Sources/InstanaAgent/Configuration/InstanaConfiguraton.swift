@@ -35,11 +35,11 @@ struct InstanaConfiguration: Equatable {
         case memoryWarning
         case framerateDrop(frameThreshold: UInt)
         case alertApplicationNotResponding(threshold: Instana.Types.Seconds)
-
-        static let defaults: Set<MonitorTypes> = [.http,
-                                                  .memoryWarning,
-                                                  .framerateDrop(frameThreshold: 20),
-                                                  .alertApplicationNotResponding(threshold: 2.0)]
+        static let current: Set<MonitorTypes> = [.http]
+        static let all: Set<MonitorTypes> = [.http,
+                                             .memoryWarning,
+                                             .framerateDrop(frameThreshold: 20),
+                                             .alertApplicationNotResponding(threshold: 2.0)]
     }
 
     struct Defaults {
@@ -74,7 +74,7 @@ struct InstanaConfiguration: Equatable {
                   key: key,
                   httpCaptureConfig: httpCaptureConfig,
                   suspendReporting: SuspendReporting.defaults,
-                  monitorTypes: MonitorTypes.defaults,
+                  monitorTypes: MonitorTypes.current,
                   transmissionDelay: Defaults.transmissionDelay,
                   transmissionLowBatteryDelay: Defaults.transmissionLowBatteryDelay,
                   gzipReport: Defaults.gzipReport,
