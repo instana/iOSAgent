@@ -1,12 +1,15 @@
 # Changelog
 
+# 1.2.2
+- Do not forward urlSession(_ session: dataTask: didReceive:completionHandler) anymore (Response might get lost)
+
 ## 1.2.1
 - Make compatible with older Xcode versions (prior 12.1)
 - Clean up tests and CI pipeline
 - Add AFNetworking and Alamofire to demo project
 
 ## 1.2.0
-- Added new flag `collectionEnabled` to set up Instana without data collection. Instrumentation can be enabled later using this property. This allows apps to start Instana with a delay if users are asked for consent beforehand. 
+- Added new flag `collectionEnabled` to set up Instana without data collection. Instrumentation can be enabled later using this property. This allows apps to start Instana with a delay if users are asked for consent beforehand.
 
 ## 1.1.18
 - Fix setting responseSize
@@ -29,7 +32,7 @@
 - Use specific URLSession Tasks
 - Update tests
 
-## 1.1.12 
+## 1.1.12
 - Improve example project
 - Add capability for macOS (AppKit)
 - Align carrier type and effective connection type with Android and Web
