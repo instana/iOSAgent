@@ -212,16 +212,13 @@ extension InstanaURLProtocol: URLSessionTaskDelegate {
 }
 
 extension InstanaURLProtocol: URLSessionDataDelegate {
-    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse, completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
-        if let originalSession = originalTask?.internalSession, let delegate = originalSession.delegate as? URLSessionDataDelegate,
-            delegate.responds(to: #selector(urlSession(_:dataTask:didReceive:completionHandler:))) {
-            dispatch(on: originalSession.delegateQueue.underlyingQueue) {
-                delegate.urlSession?(originalSession, dataTask: dataTask, didReceive: response, completionHandler: completionHandler)
-            }
-        } else {
-            client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .allowed)
-            completionHandler(.allow)
-        }
+
+    func urlSession(_ session: URLSession,
+                      dataTask: URLSessionDataTask,
+                      didReceive response: URLResponse,
+                      completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
+        client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .allowed)
+        completionHandler(.allow)
     }
 
     func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didBecome downloadTask: URLSessionDownloadTask) {
