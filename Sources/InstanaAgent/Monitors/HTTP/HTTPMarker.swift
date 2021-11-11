@@ -87,7 +87,6 @@ protocol HTTPMarkerDelegate: AnyObject {
     ///
     /// - Parameters:
     ///   - result: Pass the HTTPCaptureResult when the request has been completed.
-    ///   - error: Optional Error
     ///
     /// Note: Make sure you don't call any methods on this HTTPMarker after you called finish
     @objc public func finish(_ result: HTTPCaptureResult) {

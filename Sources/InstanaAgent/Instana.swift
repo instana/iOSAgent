@@ -176,7 +176,7 @@ import Foundation
     ///     }.resume()
     ///
     /// - Parameters:
-    ///   - request: URLRequest to capture.
+    ///   - url: URL to capture.
     ///   - method: HTTP Method (e.g. "GET" or "POST")
     ///   - viewName: (Optional) Name of the current view to group the request
     ///
