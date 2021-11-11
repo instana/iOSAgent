@@ -212,11 +212,10 @@ extension InstanaURLProtocol: URLSessionTaskDelegate {
 }
 
 extension InstanaURLProtocol: URLSessionDataDelegate {
-
     func urlSession(_ session: URLSession,
-                      dataTask: URLSessionDataTask,
-                      didReceive response: URLResponse,
-                      completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
+                    dataTask: URLSessionDataTask,
+                    didReceive response: URLResponse,
+                    completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
         client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .allowed)
         completionHandler(.allow)
     }
