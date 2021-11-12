@@ -1,6 +1,9 @@
 # Changelog
 
-# 1.2.2
+## 1.2.3
+- Some minor project clean ups
+
+## 1.2.2
 - Do not forward urlSession(_ session: dataTask: didReceive:completionHandler) anymore (Response might get lost)
 
 ## 1.2.1
