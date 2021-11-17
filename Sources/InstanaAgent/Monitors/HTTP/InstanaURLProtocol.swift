@@ -37,8 +37,11 @@ class InstanaURLProtocol: URLProtocol {
 
     override class func canInit(with request: URLRequest) -> Bool {
         guard mode == .enabled else { return false }
-        guard let url = request.url, let scheme = url.scheme, !IgnoreURLHandler.shouldIgnore(url) else { return false }
-        return ["http", "https"].contains(scheme)
+        guard request.url?.host != nil else { return false }
+        guard let url = request.url, let scheme = url.scheme else { return false }
+        guard ["http", "https"].contains(scheme) else { return false }
+        guard !IgnoreURLHandler.shouldIgnore(url) else { return false }
+        return true
     }
 
     private var canMark: Bool {

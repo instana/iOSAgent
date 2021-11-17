@@ -27,6 +27,17 @@ class InstanaURLProtocolTests: InstanaTestCase {
         XCTAssertTrue(InstanaURLProtocol.canInit(with: makeRequest("http://www.a.c")))
         XCTAssertFalse(InstanaURLProtocol.canInit(with: makeRequest("www.a.c")))
         XCTAssertFalse(InstanaURLProtocol.canInit(with: makeRequest("ws://a")))
+        XCTAssertFalse(InstanaURLProtocol.canInit(with: makeRequest("some:nohost")))
+    }
+
+    func test_urlProtocol_shouldNotInitForBase64() {
+        // Given
+        let base64 = "data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAwBQTFRF7c5J78kt+/Xm78lQ6stH5LI36bQh6rcf7sQp67="
+        let request = makeRequest(base64)
+
+        // Then
+        XCTAssertFalse(InstanaURLProtocol.canInit(with:request))
+        XCTAssertEqual(request.url?.absoluteString, base64)
     }
 
     func test_urlProtocol_shouldNotInitForIgnoredURL() {
