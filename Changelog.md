@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.2.4
+- Improve checking urls for URLProtocol usage
+
 ## 1.2.3
 - Some minor project clean ups
 

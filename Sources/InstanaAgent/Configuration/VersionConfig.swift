@@ -1,3 +1,3 @@
 struct VersionConfig {
-    static let agentVersion = "1.2.3"
+    static let agentVersion = "1.2.4"
 }
