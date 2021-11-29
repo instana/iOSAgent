@@ -104,8 +104,7 @@ class URLSessionTaskIntegrationTests: InstanaTestCase {
         }
 
         // When
-        URLSession(configuration: .default).uploadTask(with: request, from: data) {data, response, error in
-            print("Arsch")
+        URLSession(configuration: .default).uploadTask(with: request, from: data) {_, _, _ in
         }.resume()
         wait(for: [waitFor], timeout: 60)
 

@@ -8,7 +8,7 @@ import XCTest
 
 extension InstanaConfiguration {
     static var mock: InstanaConfiguration {
-        InstanaConfiguration.default(key: "KEY", reportingURL: URL.random, httpCaptureConfig: .automatic)
+        .mock(key: "KEY", reportingURL: URL.random, httpCaptureConfig: .automatic, gzipReport: false)
     }
 
     static func mock(key: String = "KEY",
