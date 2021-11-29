@@ -1014,9 +1014,157 @@ class ReporterTests: InstanaTestCase {
         XCTAssertNil(weakReporter)
     }
 
+    func test_flushQueue_success() {
+        var sentCount = 0
+        var sentResult: BeaconResult?
+        let waitFor = expectation(description: "test_flushQueue_success")
+        let reporter = Reporter(.mock, send:  { _, completion in
+            sentCount += 1
+            completion(.success(statusCode: 200))
+        })
+        let corebeacons = try! CoreBeaconFactory(session).map([HTTPBeacon.createMock(), HTTPBeacon.createMock()])
+        reporter.queue.add(corebeacons)
+        reporter.completionHandler.append {result in
+            sentResult = result
+            waitFor.fulfill()
+        }
+
+        // When
+        reporter.flushQueue()
+        wait(for: [waitFor], timeout: 4.0)
+
+        // Then
+        XCTAssertNil(sentResult?.error)
+        XCTAssertEqual(sentCount, 1)
+        XCTAssertTrue(reporter.queue.items.isEmpty)
+    }
+
+    func test_flushQueue_failure() {
+        var sentCount = 0
+        let httpError = [InstanaError.httpServerError(500), InstanaError.httpClientError(404)].randomElement()!
+        var sentResult: BeaconResult?
+        let waitFor = expectation(description: "test_flushQueue_failure")
+        let reporter = Reporter(.mock, send:  { _, completion in
+            sentCount += 1
+            completion(.failure(httpError))
+        })
+        let corebeacons = try! CoreBeaconFactory(session).map([HTTPBeacon.createMock()])
+        reporter.queue.add(corebeacons)
+        reporter.completionHandler.append {result in
+            sentResult = result
+            waitFor.fulfill()
+        }
+
+        // When
+        reporter.flushQueue()
+        wait(for: [waitFor], timeout: 4.0)
+
+        // Then
+        XCTAssertEqual(sentResult?.error as! InstanaError, httpError)
+        XCTAssertEqual(sentCount, 1)
+        XCTAssertFalse(reporter.queue.items.isEmpty)
+    }
+
+    func test_flushQueue_with_multiple_beacon_batches_to_send_success() {
+        let maxBeaconsPerRequest = 2
+        var sentCount = 0
+        var sentResult: BeaconResult?
+        let numberOfBeacons = maxBeaconsPerRequest * 2
+        let waitFor = expectation(description: "test_flushQueue_with_multiple_beacon_batches_to_send_failure")
+        let config = InstanaConfiguration.mock(maxBeaconsPerRequest: maxBeaconsPerRequest)
+        let reporter = Reporter(.mock(configuration: config), send:  { _, completion in
+            sentCount += 1
+            completion(.success(statusCode: 200))
+        })
+        let beacons = (0..<numberOfBeacons).map {_ in
+            HTTPBeacon.createMock()
+        }
+        let corebeacons = try! CoreBeaconFactory(session).map(beacons)
+        reporter.queue.add(corebeacons)
+        reporter.completionHandler.append {result in
+            sentResult = result
+            waitFor.fulfill()
+        }
+        
+        // When
+        reporter.flushQueue()
+        wait(for: [waitFor], timeout: 4.0)
+
+        // Then
+        XCTAssertNil(sentResult?.error)
+        XCTAssertEqual(sentCount, maxBeaconsPerRequest)
+        XCTAssertTrue(reporter.queue.items.isEmpty)
+    }
+
+    func test_flushQueue_with_multiple_beacon_batches_with_one_send_failure() {
+        let maxBeaconsPerRequest = 2
+        let iterations = 2
+        var sentCount = 0
+        var sentResult: BeaconResult?
+        let httpError = InstanaError.httpServerError(500)
+        let numberOfBeacons = maxBeaconsPerRequest * iterations
+        let waitFor = expectation(description: "test_flushQueue_with_multiple_beacon_batches_with_one_send_failure")
+        let config = InstanaConfiguration.mock(maxBeaconsPerRequest: maxBeaconsPerRequest)
+        let reporter = Reporter(.mock(configuration: config), send:  { _, completion in
+            sentCount += 1
+            completion(sentCount == 1 ? .success(statusCode: 200) : .failure(httpError))
+        })
+        let beacons = (0..<numberOfBeacons).map {_ in
+            HTTPBeacon.createMock()
+        }
+        let corebeacons = try! CoreBeaconFactory(session).map(beacons)
+        reporter.queue.add(corebeacons)
+        reporter.completionHandler.append {result in
+            sentResult = result
+            waitFor.fulfill()
+        }
+
+        // When
+        reporter.flushQueue()
+        wait(for: [waitFor], timeout: 4.0)
+
+        // Then
+        XCTAssertEqual(sentResult?.error as! InstanaError, httpError)
+        XCTAssertEqual(sentCount, maxBeaconsPerRequest)
+        XCTAssertEqual(reporter.queue.items.count, beacons.count / iterations)
+    }
+
+    func test_flushQueue_with_multiple_beacon_batches_with_multiple_send_failure() {
+        let maxBeaconsPerRequest = 2
+        var sentCount = 0
+        var sentResult: BeaconResult?
+        let httpError1 = InstanaError.httpServerError(401)
+        let httpError2 = InstanaError.httpServerError(500)
+        let numberOfBeacons = maxBeaconsPerRequest * 2
+        let waitFor = expectation(description: "test_flushQueue_with_multiple_beacon_batches_with_multiple_send_failure")
+        let config = InstanaConfiguration.mock(maxBeaconsPerRequest: maxBeaconsPerRequest)
+        let reporter = Reporter(.mock(configuration: config), send:  { _, completion in
+            sentCount += 1
+            completion(sentCount == 1 ? .failure(httpError1) : .failure(httpError2))
+        })
+        let beacons = (0..<numberOfBeacons).map {_ in
+            HTTPBeacon.createMock()
+        }
+        let corebeacons = try! CoreBeaconFactory(session).map(beacons)
+        reporter.queue.add(corebeacons)
+        reporter.completionHandler.append {result in
+            sentResult = result
+            waitFor.fulfill()
+        }
+
+        // When
+        reporter.flushQueue()
+        wait(for: [waitFor], timeout: 4.0)
+
+        // Then
+        XCTAssertEqual(sentResult?.error as! InstanaError, .multiple([httpError1, httpError2]))
+        XCTAssertEqual(sentCount, maxBeaconsPerRequest)
+        XCTAssertEqual(reporter.queue.items.count, beacons.count)
+    }
+
     func test_queue_should_NOT_be_cleared_after_flush_when_full_even_for_error() {
         var shouldCallCompletion = false
-        let waitFor = expectation(description: "Wait For")
+        let waitFor = expectation(description: "test_queue_should_NOT_be_cleared_after_flush_when_full_even_for_error")
         let reporter = Reporter(createMockSession(), batterySafeForNetworking: { true }, networkUtility: .wifi) { _, completion in
             completion(.failure(InstanaError.invalidResponse))
         }

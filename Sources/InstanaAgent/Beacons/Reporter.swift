@@ -131,39 +131,41 @@ public class Reporter {
     func flushQueue() {
         let connectionType = networkUtility.connectionType
         guard connectionType != .none else {
-            return complete([], .failure(InstanaError.offline))
+            return complete(error: InstanaError.offline)
         }
         if suspendReporting.contains(.cellularConnection), connectionType == .cellular {
-            return complete([], .failure(InstanaError.noWifiAvailable))
+            return complete(error: InstanaError.noWifiAvailable)
         }
         if suspendReporting.contains(.lowBattery), !batterySafeForNetworking() {
-            return complete([], .failure(InstanaError.lowBattery))
+            return complete(error: InstanaError.lowBattery)
         }
 
-        let beacons = Array(queue.items)
-        let beaconsAsString = beacons.asString
-        let request: URLRequest
-        do {
-            request = try createBatchRequest(from: beaconsAsString)
-        } catch {
-            complete([], .failure(error))
-            return
+        let beaconsBatches = Array(queue.items).chunked(size: session.configuration.maxBeaconsPerRequest)
+        let disapatchGroup = DispatchGroup()
+        var dispatchErrors = [Error]()
+        var dispatchedBeacons = [CoreBeacon]()
+        beaconsBatches.forEach { beaconBatch in
+            disapatchGroup.enter()
+            let request: URLRequest
+            do {
+                request = try createBatchRequest(from: beaconBatch.asString)
+            } catch {
+                dispatchErrors.append(error)
+                disapatchGroup.leave()
+                return
+            }
+            send(request) { sentResult in
+                switch sentResult {
+                case .success:
+                    dispatchedBeacons.append(contentsOf: beaconBatch)
+                case let .failure(error):
+                    dispatchErrors.append(error)
+                }
+                disapatchGroup.leave()
+            }
         }
-        let sentSemaphore = DispatchSemaphore(value: 0)
-        var result: InstanaNetworking.Result?
-        send(request) { sentResult in
-            result = sentResult
-            sentSemaphore.signal()
-        }
-        _ = sentSemaphore.wait(timeout: .now() + request.timeoutInterval + 1)
-        session.logger.add("Did transfer beacon\n \(beaconsAsString)")
-        switch result {
-        case let .failure(error):
-            complete(beacons, .failure(error))
-        case .success:
-            complete(beacons, .success)
-        case .none:
-            complete(beacons, .failure(HTTPError.timeout))
+        disapatchGroup.notify(queue: dispatchQueue) {
+            self.complete(sentBeacons: dispatchedBeacons, errors: dispatchErrors)
         }
     }
 
@@ -180,17 +182,24 @@ public class Reporter {
         #endif
     }
 
-    private func complete(_ beacons: [CoreBeacon], _ result: BeaconResult) {
-        let beaconsToBeRemoved: [CoreBeacon]
-        switch result {
-        case .success:
-            session.logger.add("Did successfully send beacons")
-            beaconsToBeRemoved = beacons
-        case let .failure(error):
+    private func complete(error: Error) {
+        complete(sentBeacons: [], errors: [error])
+    }
+
+    private func complete(sentBeacons: [CoreBeacon], errors: [Error]) {
+        errors.forEach { error in
             session.logger.add("Failed to send Beacon batch: \(error)", level: .warning)
-            beaconsToBeRemoved = [] // keep them in the queue
         }
-        queue.remove(beaconsToBeRemoved) { [weak self] _ in
+        let result: BeaconResult
+        if errors.isEmpty {
+            result = BeaconResult.success
+            session.logger.add("Did successfully send all beacons")
+        } else {
+            let error = errors.count == 1 ? errors.first! : InstanaError.multiple(errors)
+            result = BeaconResult.failure(error)
+        }
+
+        queue.remove(sentBeacons) { [weak self] _ in
             guard let self = self else { return }
             self.completionHandler.forEach { $0(result) }
             self.flushSemaphore?.signal()
