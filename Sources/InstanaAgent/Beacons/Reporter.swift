@@ -188,8 +188,7 @@ public class Reporter {
             beaconsToBeRemoved = beacons
         case let .failure(error):
             session.logger.add("Failed to send Beacon batch: \(error)", level: .warning)
-            let removeFromQueue = queue.isFull || (error as? InstanaError).isHTTPClientError
-            beaconsToBeRemoved = removeFromQueue ? beacons : []
+            beaconsToBeRemoved = [] // keep them in the queue
         }
         queue.remove(beaconsToBeRemoved) { [weak self] _ in
             guard let self = self else { return }

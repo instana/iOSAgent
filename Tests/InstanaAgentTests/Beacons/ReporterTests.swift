@@ -905,7 +905,7 @@ class ReporterTests: InstanaTestCase {
         AssertEqualAndNotNil(reporter.queue.items.randomElement()?.bid, givenBeacon.id.uuidString)
     }
 
-    func test_remove_from_after_http_client_error() {
+    func test_DO_NOT_remove_from_after_http_client_error() {
         // Given
         let beacon = HTTPBeacon.createMock()
         let mockQueue = MockInstanaPersistableQueue<CoreBeacon>(identifier: "", maxItems: 2)
@@ -923,32 +923,8 @@ class ReporterTests: InstanaTestCase {
         wait(for: [waitForSend], timeout: 2.0)
 
         // Then
-        AssertTrue(reporter.queue.items.isEmpty)
-        AssertTrue(mockQueue.removedItems.count == 1)
-        AssertTrue(mockQueue.removedItems.first?.bid == beacon.id.uuidString)
-    }
-
-    func test_remove_from_after_queue_full() {
-        // Given
-        let beacon = HTTPBeacon.createMock()
-        let mockQueue = MockInstanaPersistableQueue<CoreBeacon>(identifier: "", maxItems: 1)
-        let givenError = InstanaError.httpServerError(500)
-        let waitForSend = expectation(description: "Delayed sending")
-        let reporter = Reporter(session(), batterySafeForNetworking: { true }, networkUtility: .wifi, queue: mockQueue) { _, completion in
-            completion(.failure(givenError))
-        }
-
-        // When
-        reporter.completionHandler.append {result in
-            waitForSend.fulfill()
-        }
-        reporter.submit(beacon)
-        wait(for: [waitForSend], timeout: 2.0)
-
-        // Then
-        AssertTrue(reporter.queue.items.isEmpty)
-        AssertTrue(mockQueue.removedItems.count == 1)
-        AssertTrue(mockQueue.removedItems.first?.bid == beacon.id.uuidString)
+        AssertTrue(reporter.queue.items.contains(where: {$0.bid == beacon.id.uuidString}))
+        AssertTrue(mockQueue.removedItems.isEmpty)
     }
 
     func test_invalid_beacon_should_not_submitted() {
@@ -1038,7 +1014,7 @@ class ReporterTests: InstanaTestCase {
         XCTAssertNil(weakReporter)
     }
 
-    func test_queue_should_be_cleared_after_flush_when_full_even_for_error() {
+    func test_queue_should_NOT_be_cleared_after_flush_when_full_even_for_error() {
         var shouldCallCompletion = false
         let waitFor = expectation(description: "Wait For")
         let reporter = Reporter(session(), batterySafeForNetworking: { true }, networkUtility: .wifi) { _, completion in
@@ -1058,8 +1034,10 @@ class ReporterTests: InstanaTestCase {
 
         // Then
         AssertTrue(shouldCallCompletion)
-        AssertTrue(reporter.queue.items.isEmpty)
-        AssertTrue(reporter.queue.isFull == false)
+        corebeacons.forEach {
+            AssertTrue(reporter.queue.items.contains($0))
+        }
+        AssertTrue(reporter.queue.isFull)
     }
 }
 
