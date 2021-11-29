@@ -164,7 +164,7 @@ public class Reporter {
                 disapatchGroup.leave()
             }
         }
-        disapatchGroup.notify(queue: dispatchQueue) {
+        disapatchGroup.notify(queue: .main) {
             self.complete(sentBeacons: dispatchedBeacons, errors: dispatchErrors)
         }
     }
