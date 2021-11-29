@@ -128,7 +128,7 @@ public class Reporter {
         dispatchQueue.asyncAfter(deadline: .now() + interval, execute: workItem)
     }
 
-    func flushQueue() {
+    func flushQueue(retry: Int = 0) {
         let connectionType = networkUtility.connectionType
         guard connectionType != .none else {
             return complete(error: InstanaError.offline)
@@ -166,6 +166,18 @@ public class Reporter {
         }
         disapatchGroup.notify(queue: .main) {
             self.complete(sentBeacons: dispatchedBeacons, errors: dispatchErrors)
+            if !dispatchErrors.isEmpty {
+                self.retryFlush(last: retry)
+            }
+        }
+    }
+
+    private func retryFlush(last: Int) {
+        guard last < session.configuration.maxRetries else { return }
+        let next = last + 1
+        self.runExponentialBackoffRetry(on: self.dispatchQueue, retry: next) {[weak self] in
+            guard let self = self else { return }
+            self.flushQueue(retry: next)
         }
     }
 
@@ -204,6 +216,14 @@ public class Reporter {
             self.completionHandler.forEach { $0(result) }
             self.flushSemaphore?.signal()
         }
+    }
+
+    private func runExponentialBackoffRetry(on queue: DispatchQueue, retry: Int = 1, closure: @escaping () -> Void) {
+        let maxDelay = 60 * 5
+        var delay = Int(pow(2.0, Double(retry))) * 1000
+        let jitter = Int.random(in: 0...1000)
+        delay = min(delay + jitter, maxDelay)
+        queue.asyncAfter(deadline: DispatchTime.now() + .milliseconds(delay), execute: closure)
     }
 }
 

@@ -16,7 +16,8 @@ extension InstanaConfiguration {
                      httpCaptureConfig: HTTPCaptureConfig = .automatic,
                      gzipReport: Bool = false,
                      maxBeaconsPerRequest: Int = 100,
-                     maxQueueSize: Int = 80) -> InstanaConfiguration {
+                     maxQueueSize: Int = 80,
+                     maxRetries: Int = 3) -> InstanaConfiguration {
         InstanaConfiguration(reportingURL: reportingURL,
                              key: key,
                              httpCaptureConfig: httpCaptureConfig,
@@ -27,6 +28,7 @@ extension InstanaConfiguration {
                                             .alertApplicationNotResponding(threshold: 2.0)],
                              reporterSendDebounce: 0.0,
                              reporterSendLowBatteryDebounce: 0.0,
+                             maxRetries: maxRetries,
                              gzipReport: gzipReport,
                              maxBeaconsPerRequest: maxBeaconsPerRequest,
                              maxQueueSize: maxQueueSize,
