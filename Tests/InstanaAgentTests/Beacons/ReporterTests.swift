@@ -173,7 +173,7 @@ class ReporterTests: InstanaTestCase {
 
     /// Criteria:
     ///  - Suspend Sending: Never
-    ///   - TransmissionDelay: 0.4
+    ///   - reporterSendDebounce: 0.4
     ///  - Battery: Good
     ///  - WIFI: NO
     ///
@@ -215,7 +215,7 @@ class ReporterTests: InstanaTestCase {
 
     /// Criteria:
     ///  - Suspend Sending: Never
-    ///  - Low Battery TransmissionDelay: 0.4
+    ///  - Low Battery reporterSendDebounce: 0.4
     ///  - Battery: low
     ///  - WIFI: NO
     ///
@@ -242,7 +242,7 @@ class ReporterTests: InstanaTestCase {
 
     /// Don't send when offline
     /// Criteria:
-    ///  - TransmissionDelay: 0.0
+    ///  - reporterSendDebounce: 0.0
     ///  - Battery: Good
     ///  - Network: Offline
     ///
@@ -271,7 +271,7 @@ class ReporterTests: InstanaTestCase {
 
     /// Send when coming back offline again (starting offline
     /// Criteria:
-    ///  - TransmissionDelay: 0.0
+    ///  - reporterSendDebounce: 0.0
     ///  - Battery: Good
     ///  - Network: Offline and online delayed
     ///
@@ -1086,8 +1086,8 @@ extension ReporterTests {
 
     func session(_ delay: Instana.Types.Seconds = 0.0, preQueueUsageTime: Instana.Types.Seconds = 0.0, suspend: Set<InstanaConfiguration.SuspendReporting> = []) -> InstanaSession {
         var config = InstanaConfiguration.mock
-        config.transmissionDelay = delay
-        config.transmissionLowBatteryDelay = delay
+        config.reporterSendDebounce = delay
+        config.reporterSendLowBatteryDebounce = delay
         config.preQueueUsageTime = preQueueUsageTime
         config.suspendReporting = suspend
         return InstanaSession.mock(configuration: config)
@@ -1120,8 +1120,8 @@ extension ReporterTests {
 
     func mockBeaconSubmission(_ loadResult: InstanaNetworking.Result, resultCallback: @escaping (BeaconResult) -> Void) {
         var config = InstanaConfiguration.mock
-        config.transmissionDelay = 0.0
-        config.transmissionLowBatteryDelay = 0.0
+        config.reporterSendDebounce = 0.0
+        config.reporterSendLowBatteryDebounce = 0.0
         let reporter = Reporter(.mock(configuration: config),
                                 batterySafeForNetworking: { true },
                                 networkUtility: .wifi) { _, callback in

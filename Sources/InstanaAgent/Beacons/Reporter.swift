@@ -123,7 +123,7 @@ public class Reporter {
             self.flushSemaphore = nil
         }
         flushWorkItem = workItem
-        var interval = batterySafeForNetworking() ? session.configuration.transmissionDelay : session.configuration.transmissionLowBatteryDelay
+        var interval = batterySafeForNetworking() ? session.configuration.reporterSendDebounce : session.configuration.reporterSendLowBatteryDebounce
         interval = queue.isFull ? 0.0 : interval
         dispatchQueue.asyncAfter(deadline: .now() + interval, execute: workItem)
     }

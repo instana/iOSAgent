@@ -43,8 +43,8 @@ struct InstanaConfiguration: Equatable {
     }
 
     struct Defaults {
-        static let transmissionDelay: Instana.Types.Seconds = 1.0
-        static let transmissionLowBatteryDelay: Instana.Types.Seconds = 10.0
+        static let reporterSendDebounce: Instana.Types.Seconds = 1.0
+        static let reporterSendLowBatteryDebounce: Instana.Types.Seconds = 10.0
         static let gzipReport = ProcessInfo.ignoreZIPReporting ? false : true
         static let maxBeaconsPerRequest = 100
         static let preQueueUsageTime: TimeInterval = 2.0
@@ -57,8 +57,8 @@ struct InstanaConfiguration: Equatable {
     var httpCaptureConfig: HTTPCaptureConfig
     var suspendReporting: Set<SuspendReporting>
     var monitorTypes: Set<MonitorTypes>
-    var transmissionDelay: Instana.Types.Seconds
-    var transmissionLowBatteryDelay: Instana.Types.Seconds
+    var reporterSendDebounce: Instana.Types.Seconds
+    var reporterSendLowBatteryDebounce: Instana.Types.Seconds
     var gzipReport: Bool
     var maxBeaconsPerRequest: Int
     var preQueueUsageTime: TimeInterval
@@ -75,8 +75,8 @@ struct InstanaConfiguration: Equatable {
                   httpCaptureConfig: httpCaptureConfig,
                   suspendReporting: SuspendReporting.defaults,
                   monitorTypes: MonitorTypes.current,
-                  transmissionDelay: Defaults.transmissionDelay,
-                  transmissionLowBatteryDelay: Defaults.transmissionLowBatteryDelay,
+                  reporterSendDebounce: Defaults.reporterSendDebounce,
+                  reporterSendLowBatteryDebounce: Defaults.reporterSendLowBatteryDebounce,
                   gzipReport: Defaults.gzipReport,
                   maxBeaconsPerRequest: Defaults.maxBeaconsPerRequest,
                   preQueueUsageTime: Defaults.preQueueUsageTime,
