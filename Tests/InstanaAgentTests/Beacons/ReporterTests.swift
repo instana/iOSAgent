@@ -1162,6 +1162,80 @@ class ReporterTests: InstanaTestCase {
         XCTAssertEqual(reporter.queue.items.count, beacons.count)
     }
 
+    func test_retry_flushQueue_after_failure() {
+        var sentCount = 0
+        let httpError = InstanaError.httpServerError(500)
+        var sentResult: BeaconResult?
+        let waitFor = expectation(description: "test_retry_flushQueue_after_failure")
+        let reporter = Reporter(.mock, send:  { _, completion in
+            sentCount += 1
+            if sentCount == 1 {
+                // First connection has error
+                completion(.failure(httpError))
+            } else {
+                // second connection: First retry
+                completion(.success(statusCode: 200))
+            }
+        })
+        let corebeacons = try! CoreBeaconFactory(session).map([HTTPBeacon.createMock()])
+        reporter.queue.add(corebeacons)
+        reporter.completionHandler.append {result in
+            sentResult = result
+            if sentCount == 2 {
+                waitFor.fulfill()
+            } else if sentCount == 1 {
+                XCTAssertEqual(sentResult?.error as! InstanaError, httpError)
+                XCTAssertEqual(reporter.queue.items.count, 1)
+            }
+        }
+
+        // When
+        reporter.flushQueue()
+        wait(for: [waitFor], timeout: 4.0)
+
+        // Then
+        XCTAssertNil(sentResult?.error)
+        XCTAssertEqual(sentCount, 2)
+        XCTAssertTrue(reporter.queue.items.isEmpty)
+    }
+
+    func test_complete_ExponentialBackoffRetry() {
+        var sentCount = 0
+        let start = Date()
+        let maxRetries = 2
+        let config = InstanaConfiguration.mock(maxRetries: maxRetries)
+        let session: InstanaSession = .mock(configuration: config)
+        let maxSentCount = maxRetries + 1
+        let minimumTotalRetryDelay = pow(2.0, Double(maxRetries))
+        let httpError = InstanaError.httpServerError(500)
+        var sentResult: BeaconResult?
+        let waitFor = expectation(description: "test_complete_ExponentialBackoffRetry")
+        let reporter = Reporter(session, send:  { _, completion in
+            completion(.failure(httpError))
+            sentCount += 1
+        })
+        let corebeacons = try! CoreBeaconFactory(session).map([HTTPBeacon.createMock()])
+        reporter.queue.add(corebeacons)
+        reporter.completionHandler.append {result in
+            sentResult = result
+            if sentCount == maxSentCount { // Also consider the intial submission
+                waitFor.fulfill()
+            }
+        }
+
+        // When
+        reporter.flushQueue()
+        wait(for: [waitFor], timeout: minimumTotalRetryDelay + 10.0)
+
+        // Then
+        let duration = Date().timeIntervalSince(start)
+        XCTAssertEqual(sentCount, maxSentCount)
+        XCTAssertEqual(sentResult?.error as! InstanaError, httpError)
+        XCTAssertEqual(reporter.queue.items.count, 1)
+        XCTAssertTrue(duration >= minimumTotalRetryDelay)
+        XCTAssertTrue(duration < minimumTotalRetryDelay * 2)
+    }
+
     func test_queue_should_NOT_be_cleared_after_flush_when_full_even_for_error() {
         var shouldCallCompletion = false
         let waitFor = expectation(description: "test_queue_should_NOT_be_cleared_after_flush_when_full_even_for_error")

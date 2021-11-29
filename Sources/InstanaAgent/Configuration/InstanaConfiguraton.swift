@@ -46,6 +46,7 @@ struct InstanaConfiguration: Equatable {
         static let reporterSendDebounce: Instana.Types.Seconds = 1.0
         static let reporterSendLowBatteryDebounce: Instana.Types.Seconds = 10.0
         static let gzipReport = ProcessInfo.ignoreZIPReporting ? false : true
+        static let maxRetries = 3
         static let maxBeaconsPerRequest = 100
         static let maxQueueSize = 50000
         static let preQueueUsageTime: TimeInterval = 2.0
@@ -60,6 +61,7 @@ struct InstanaConfiguration: Equatable {
     var monitorTypes: Set<MonitorTypes>
     var reporterSendDebounce: Instana.Types.Seconds
     var reporterSendLowBatteryDebounce: Instana.Types.Seconds
+    var maxRetries: Int
     var gzipReport: Bool
     var maxBeaconsPerRequest: Int
     var maxQueueSize: Int
@@ -79,6 +81,7 @@ struct InstanaConfiguration: Equatable {
                   monitorTypes: MonitorTypes.current,
                   reporterSendDebounce: Defaults.reporterSendDebounce,
                   reporterSendLowBatteryDebounce: Defaults.reporterSendLowBatteryDebounce,
+                  maxRetries: Defaults.maxRetries,
                   gzipReport: Defaults.gzipReport,
                   maxBeaconsPerRequest: Defaults.maxBeaconsPerRequest,
                   maxQueueSize: Defaults.maxQueueSize,

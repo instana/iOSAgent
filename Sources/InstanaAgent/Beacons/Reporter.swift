@@ -20,7 +20,6 @@ public class Reporter {
     private var suspendReporting: Set<InstanaConfiguration.SuspendReporting> { session.configuration.suspendReporting }
     private let session: InstanaSession
     private var flushWorkItem: DispatchWorkItem?
-    private var flushSemaphore: DispatchSemaphore?
 
     // Prequeue handling
     private(set) var preQueue = [Beacon]()
@@ -114,13 +113,7 @@ public class Reporter {
         let workItem = DispatchWorkItem { [weak self] in
             guard let self = self else { return }
             guard let flushWorkItem = self.flushWorkItem, !flushWorkItem.isCancelled else { return }
-            let start = Date()
-            self.flushSemaphore = DispatchSemaphore(value: 0)
             self.flushQueue()
-            let passed = Date().timeIntervalSince(start)
-            self.session.logger.add("Flushing and writing the queue took \(passed * 1000) ms")
-            _ = self.flushSemaphore?.wait(timeout: .now() + 20)
-            self.flushSemaphore = nil
         }
         flushWorkItem = workItem
         var interval = batterySafeForNetworking() ? session.configuration.reporterSendDebounce : session.configuration.reporterSendLowBatteryDebounce
@@ -128,7 +121,7 @@ public class Reporter {
         dispatchQueue.asyncAfter(deadline: .now() + interval, execute: workItem)
     }
 
-    func flushQueue() {
+    func flushQueue(retry: Int = 0) {
         let connectionType = networkUtility.connectionType
         guard connectionType != .none else {
             return complete(error: InstanaError.offline)
@@ -139,7 +132,7 @@ public class Reporter {
         if suspendReporting.contains(.lowBattery), !batterySafeForNetworking() {
             return complete(error: InstanaError.lowBattery)
         }
-
+        let start = Date()
         let beaconsBatches = Array(queue.items).chunked(size: session.configuration.maxBeaconsPerRequest)
         let disapatchGroup = DispatchGroup()
         var dispatchErrors = [Error]()
@@ -165,7 +158,23 @@ public class Reporter {
             }
         }
         disapatchGroup.notify(queue: .main) {
+            let end = Date().timeIntervalSince(start)
+            self.session.logger.add("Flushing and writing the queue took \(end * 1000) ms")
             self.complete(sentBeacons: dispatchedBeacons, errors: dispatchErrors)
+            if !dispatchErrors.isEmpty {
+                self.retryFlush(last: retry)
+            }
+        }
+    }
+
+    private func retryFlush(last: Int) {
+        guard last < session.configuration.maxRetries else {
+            return
+        }
+        let next = last + 1
+        runExponentialBackoffRetry(on: dispatchQueue, retry: next) {[weak self] in
+            guard let self = self else { return }
+            self.flushQueue(retry: next)
         }
     }
 
@@ -202,8 +211,15 @@ public class Reporter {
         queue.remove(sentBeacons) { [weak self] _ in
             guard let self = self else { return }
             self.completionHandler.forEach { $0(result) }
-            self.flushSemaphore?.signal()
         }
+    }
+
+    private func runExponentialBackoffRetry(on queue: DispatchQueue, retry: Int = 1, closure: @escaping () -> Void) {
+        let maxDelay = 60 * 5 * 1000
+        var delay = Int(pow(2.0, Double(retry))) * 1000
+        let jitter = Int.random(in: 0...1000)
+        delay = min(delay + jitter, maxDelay)
+        queue.asyncAfter(deadline: DispatchTime.now() + .milliseconds(delay), execute: closure)
     }
 }
 
