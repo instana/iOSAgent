@@ -47,6 +47,7 @@ struct InstanaConfiguration: Equatable {
         static let reporterSendLowBatteryDebounce: Instana.Types.Seconds = 10.0
         static let gzipReport = ProcessInfo.ignoreZIPReporting ? false : true
         static let maxBeaconsPerRequest = 100
+        static let maxQueueSize = 50_000
         static let preQueueUsageTime: TimeInterval = 2.0
         static let reporterRateLimits = [ReporterRateLimitConfig(timeout: 10, maxItems: 20),
                                          ReporterRateLimitConfig(timeout: 60 * 5, maxItems: 500)]
@@ -61,6 +62,7 @@ struct InstanaConfiguration: Equatable {
     var reporterSendLowBatteryDebounce: Instana.Types.Seconds
     var gzipReport: Bool
     var maxBeaconsPerRequest: Int
+    var maxQueueSize: Int
     var preQueueUsageTime: TimeInterval
     var reporterRateLimits: [ReporterRateLimitConfig]
     var isValid: Bool { !key.isEmpty && !reportingURL.absoluteString.isEmpty }
@@ -79,6 +81,7 @@ struct InstanaConfiguration: Equatable {
                   reporterSendLowBatteryDebounce: Defaults.reporterSendLowBatteryDebounce,
                   gzipReport: Defaults.gzipReport,
                   maxBeaconsPerRequest: Defaults.maxBeaconsPerRequest,
+                  maxQueueSize: Defaults.maxQueueSize,
                   preQueueUsageTime: Defaults.preQueueUsageTime,
                   reporterRateLimits: Defaults.reporterRateLimits)
     }

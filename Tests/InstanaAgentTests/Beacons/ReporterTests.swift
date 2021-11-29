@@ -758,7 +758,7 @@ class ReporterTests: InstanaTestCase {
         reporter.queue.add(corebeacons)
 
         // Before
-        AssertEqualAndNotZero(reporter.queue.maxItems, InstanaConfiguration.Defaults.maxBeaconsPerRequest)
+        AssertEqualAndNotZero(reporter.queue.maxItems, InstanaConfiguration.Defaults.maxQueueSize)
         AssertEqualAndNotZero(reporter.queue.maxItems, reporter.queue.items.count)
         AssertTrue(reporter.queue.maxItems > 0)
 

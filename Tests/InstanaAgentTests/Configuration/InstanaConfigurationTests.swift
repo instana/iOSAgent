@@ -10,6 +10,7 @@ class InstanaConfigurationTests: InstanaTestCase {
         AssertEqualAndNotNil(config.httpCaptureConfig, .automatic)
         AssertTrue(config.suspendReporting.isEmpty)
         AssertTrue(config.maxBeaconsPerRequest == 100)
+        AssertTrue(config.maxQueueSize == 50_000)
         AssertTrue(config.monitorTypes.count == 1)
         AssertTrue(config.monitorTypes.contains(.http))
 //        AssertTrue(config.monitorTypes.contains(.memoryWarning))
