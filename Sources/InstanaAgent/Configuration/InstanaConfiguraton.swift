@@ -43,12 +43,12 @@ struct InstanaConfiguration: Equatable {
     }
 
     struct Defaults {
-        static let reporterSendDebounce: Instana.Types.Seconds = 1.0
+        static let reporterSendDebounce: Instana.Types.Seconds = 2.0
         static let reporterSendLowBatteryDebounce: Instana.Types.Seconds = 10.0
         static let gzipReport = ProcessInfo.ignoreZIPReporting ? false : true
         static let maxRetries = 3
         static let maxBeaconsPerRequest = 100
-        static let maxQueueSize = 50000
+        static let maxQueueSize = 1000
         static let preQueueUsageTime: TimeInterval = 2.0
         static let reporterRateLimits = [ReporterRateLimitConfig(timeout: 10, maxItems: 20),
                                          ReporterRateLimitConfig(timeout: 60 * 5, maxItems: 500)]

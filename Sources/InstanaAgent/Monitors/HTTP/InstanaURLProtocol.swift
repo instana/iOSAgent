@@ -46,7 +46,7 @@ class InstanaURLProtocol: URLProtocol {
 
     private var canMark: Bool {
         guard let session = originalTask?.internalSession else { return true }
-        return !IgnoreURLHandler.urlSessions.contains(session)
+        return !IgnoreURLHandler.shouldIgnore(session)
     }
 
     override class func canonicalRequest(for request: URLRequest) -> URLRequest {

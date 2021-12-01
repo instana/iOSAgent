@@ -50,10 +50,11 @@ class BeaconPerformanceTests: InstanaTestCase {
     func testSubmitCoreBeacons_10_times() {
         var done = false
         let waitFor = expectation(description: "testSubmitCoreBeacons_10_times")
-
+        let config = InstanaConfiguration.mock(debounce: 1.0)
         // Given
-        reporter = Reporter(.mock(configuration: .mock), batterySafeForNetworking: { true }) { _, _ in
+        reporter = Reporter(.mock(configuration: config), batterySafeForNetworking: { true }) { _, _ in
             done = true
+            // Must fire only once since we have a debounce of one second
             waitFor.fulfill()
         }
 

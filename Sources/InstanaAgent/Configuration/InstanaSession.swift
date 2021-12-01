@@ -5,6 +5,7 @@
 import Foundation
 
 class InstanaSession {
+    let lock = NSLock()
     /// The current Instana configuration
     let configuration: InstanaConfiguration
 
@@ -20,12 +21,26 @@ class InstanaSession {
     /// A debugging console logger using levels
     let logger = InstanaLogger()
 
-    var collectionEnabled: Bool
+    private var unsafe_collectionEnabled: Bool
+    var collectionEnabled: Bool {
+        get {
+            lock.lock()
+            defer {
+                lock.unlock()
+            }
+            return unsafe_collectionEnabled
+        }
+        set {
+            lock.lock()
+            unsafe_collectionEnabled = newValue
+            lock.unlock()
+        }
+    }
 
     init(configuration: InstanaConfiguration, propertyHandler: InstanaPropertyHandler, sessionID: UUID = UUID(), collectionEnabled: Bool) {
         self.configuration = configuration
         self.propertyHandler = propertyHandler
-        self.collectionEnabled = collectionEnabled
+        self.unsafe_collectionEnabled = collectionEnabled
         id = sessionID
     }
 }

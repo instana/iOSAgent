@@ -7,7 +7,8 @@ import XCTest
 @testable import InstanaAgent
 
 extension InstanaSession {
-    static var mock: InstanaSession { mock(configuration: .mock) }
+    static var mock: InstanaSession { mock(configuration: .mock(maxRetries: 0)) }
+    static func mock(retries: Int) -> InstanaSession { mock(configuration: .mock(maxRetries: retries)) }
     static var mockWithManualHTTPCapture: InstanaSession { mock(configuration: InstanaConfiguration.mock(key: "", reportingURL: .random, httpCaptureConfig: .manual))}
     static var mockWithAutomaticHTTPCapture: InstanaSession { mock(configuration: InstanaConfiguration.mock(key: "", reportingURL: .random, httpCaptureConfig: .automatic))}
     static var mockWithAutomaticAndManualHTTPCapture: InstanaSession { mock(configuration: InstanaConfiguration.mock(key: "", reportingURL: .random, httpCaptureConfig: .automaticAndManual))}

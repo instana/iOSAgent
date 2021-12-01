@@ -35,7 +35,7 @@ class ReporterIntegrationTests: InstanaTestCase {
         var sentBeaconData: Data?
         reporter = Reporter(session, networkUtility: networkUtil) {request, completion   in
             sentBeaconData = request.httpBody
-            completion(.success(statusCode: 200))
+            completion(.success(200))
         }
 
         // When
@@ -83,7 +83,7 @@ class ReporterIntegrationTests: InstanaTestCase {
 
         reporter = Reporter(session, networkUtility: networkUtil) {request, completion   in
             sentBeaconData = request.httpBody
-            completion(.success(statusCode: 200))
+            completion(.success(200))
         }
 
         // When
