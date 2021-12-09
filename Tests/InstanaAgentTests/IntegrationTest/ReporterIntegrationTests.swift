@@ -15,8 +15,8 @@ class ReporterIntegrationTests: InstanaTestCase {
         super.setUp()
         var config = InstanaConfiguration.mock(key: "KEY")
         config.reportingURL = .random
-        config.transmissionDelay = 0.0
-        config.transmissionLowBatteryDelay = 0.0
+        config.reporterSendDebounce = 0.0
+        config.reporterSendLowBatteryDebounce = 0.0
         config.gzipReport = false
         session = InstanaSession.mock(configuration: config)
     }
@@ -33,19 +33,18 @@ class ReporterIntegrationTests: InstanaTestCase {
         let expectedBeacon = try? CoreBeaconFactory(session).map(submittingBeacon)
         let waitFor = expectation(description: "Wait For")
         var sentBeaconData: Data?
-
         reporter = Reporter(session, networkUtility: networkUtil) {request, completion   in
             sentBeaconData = request.httpBody
             completion(.success(statusCode: 200))
         }
 
         // When
-        reporter.submit(submittingBeacon)
         reporter.completionHandler.append {_ in
             DispatchQueue.main.async {
                 waitFor.fulfill()
             }
         }
+        reporter.submit(submittingBeacon)
 
         // Then
         wait(for: [waitFor], timeout: 10.0)

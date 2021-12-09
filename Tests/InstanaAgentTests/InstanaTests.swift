@@ -96,7 +96,7 @@ class InstanaTests: InstanaTestCase {
 
     func test_setup_and_dont_expect_SessionProfileBeacon_when_disabled() {
         // Given
-        let config = InstanaConfiguration.default(key: "KEY", reportingURL: .random)
+        let config = InstanaConfiguration.mock
         let session: InstanaSession = .mock(configuration: config, collectionEnabled: false)
         var excpectedBeacon: SessionProfileBeacon?
         let reporter = MockReporter {
@@ -115,7 +115,7 @@ class InstanaTests: InstanaTestCase {
 
     func test_setup_and_expect_SessionProfileBeacon_enabled_after_setup() {
         // Given
-        let config = InstanaConfiguration.default(key: "KEY", reportingURL: .random)
+        let config = InstanaConfiguration.mock
         let session: InstanaSession = .mock(configuration: config, collectionEnabled: false)
         var excpectedBeacon: SessionProfileBeacon?
         let reporter = MockReporter {
@@ -140,7 +140,7 @@ class InstanaTests: InstanaTestCase {
 
     func test_captureHTTP_request() {
         // Given
-        let config = InstanaConfiguration.default(key: "KEY", reportingURL: .random, httpCaptureConfig: .manual)
+        let config = InstanaConfiguration.mock(key: "KEY", reportingURL: .random, httpCaptureConfig: .manual)
         let session = InstanaSession.mock(configuration: config)
         let env = InstanaSession.mock(configuration: config)
         let waitRequest = expectation(description: "test_captureHTTP_request")

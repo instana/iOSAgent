@@ -40,7 +40,7 @@ public class Reporter {
         self.batterySafeForNetworking = batterySafeForNetworking
         self.send = send
         self.rateLimiter = rateLimiter ?? ReporterRateLimiter(configs: session.configuration.reporterRateLimits)
-        self.queue = queue ?? InstanaPersistableQueue<CoreBeacon>(identifier: "com.instana.ios.mainqueue", maxItems: session.configuration.maxBeaconsPerRequest)
+        self.queue = queue ?? InstanaPersistableQueue<CoreBeacon>(identifier: "com.instana.ios.mainqueue", maxItems: session.configuration.maxQueueSize)
         networkUtility.connectionUpdateHandler = { [weak self] connectionType in
             guard let self = self else { return }
             self.updateNetworkConnection(connectionType)
@@ -123,47 +123,61 @@ public class Reporter {
             self.flushSemaphore = nil
         }
         flushWorkItem = workItem
-        var interval = batterySafeForNetworking() ? session.configuration.transmissionDelay : session.configuration.transmissionLowBatteryDelay
+        var interval = batterySafeForNetworking() ? session.configuration.reporterSendDebounce : session.configuration.reporterSendLowBatteryDebounce
         interval = queue.isFull ? 0.0 : interval
         dispatchQueue.asyncAfter(deadline: .now() + interval, execute: workItem)
     }
 
-    func flushQueue() {
+    func flushQueue(retry: Int = 0) {
         let connectionType = networkUtility.connectionType
         guard connectionType != .none else {
-            return complete([], .failure(InstanaError.offline))
+            return complete(error: InstanaError.offline)
         }
         if suspendReporting.contains(.cellularConnection), connectionType == .cellular {
-            return complete([], .failure(InstanaError.noWifiAvailable))
+            return complete(error: InstanaError.noWifiAvailable)
         }
         if suspendReporting.contains(.lowBattery), !batterySafeForNetworking() {
-            return complete([], .failure(InstanaError.lowBattery))
+            return complete(error: InstanaError.lowBattery)
         }
 
-        let beacons = Array(queue.items)
-        let beaconsAsString = beacons.asString
-        let request: URLRequest
-        do {
-            request = try createBatchRequest(from: beaconsAsString)
-        } catch {
-            complete([], .failure(error))
-            return
+        let beaconsBatches = Array(queue.items).chunked(size: session.configuration.maxBeaconsPerRequest)
+        let disapatchGroup = DispatchGroup()
+        var dispatchErrors = [Error]()
+        var dispatchedBeacons = [CoreBeacon]()
+        beaconsBatches.forEach { beaconBatch in
+            disapatchGroup.enter()
+            let request: URLRequest
+            do {
+                request = try createBatchRequest(from: beaconBatch.asString)
+            } catch {
+                dispatchErrors.append(error)
+                disapatchGroup.leave()
+                return
+            }
+            send(request) { sentResult in
+                switch sentResult {
+                case .success:
+                    dispatchedBeacons.append(contentsOf: beaconBatch)
+                case let .failure(error):
+                    dispatchErrors.append(error)
+                }
+                disapatchGroup.leave()
+            }
         }
-        let sentSemaphore = DispatchSemaphore(value: 0)
-        var result: InstanaNetworking.Result?
-        send(request) { sentResult in
-            result = sentResult
-            sentSemaphore.signal()
+        disapatchGroup.notify(queue: .main) {
+            self.complete(sentBeacons: dispatchedBeacons, errors: dispatchErrors)
+            if !dispatchErrors.isEmpty {
+                self.retryFlush(last: retry)
+            }
         }
-        _ = sentSemaphore.wait(timeout: .now() + request.timeoutInterval + 1)
-        session.logger.add("Did transfer beacon\n \(beaconsAsString)")
-        switch result {
-        case let .failure(error):
-            complete(beacons, .failure(error))
-        case .success:
-            complete(beacons, .success)
-        case .none:
-            complete(beacons, .failure(HTTPError.timeout))
+    }
+
+    private func retryFlush(last: Int) {
+        guard last < session.configuration.maxRetries else { return }
+        let next = last + 1
+        self.runExponentialBackoffRetry(on: self.dispatchQueue, retry: next) {[weak self] in
+            guard let self = self else { return }
+            self.flushQueue(retry: next)
         }
     }
 
@@ -180,22 +194,36 @@ public class Reporter {
         #endif
     }
 
-    private func complete(_ beacons: [CoreBeacon], _ result: BeaconResult) {
-        let beaconsToBeRemoved: [CoreBeacon]
-        switch result {
-        case .success:
-            session.logger.add("Did successfully send beacons")
-            beaconsToBeRemoved = beacons
-        case let .failure(error):
+    private func complete(error: Error) {
+        complete(sentBeacons: [], errors: [error])
+    }
+
+    private func complete(sentBeacons: [CoreBeacon], errors: [Error]) {
+        errors.forEach { error in
             session.logger.add("Failed to send Beacon batch: \(error)", level: .warning)
-            let removeFromQueue = queue.isFull || (error as? InstanaError).isHTTPClientError
-            beaconsToBeRemoved = removeFromQueue ? beacons : []
         }
-        queue.remove(beaconsToBeRemoved) { [weak self] _ in
+        let result: BeaconResult
+        if errors.isEmpty {
+            result = BeaconResult.success
+            session.logger.add("Did successfully send all beacons")
+        } else {
+            let error = errors.count == 1 ? errors.first! : InstanaError.multiple(errors)
+            result = BeaconResult.failure(error)
+        }
+
+        queue.remove(sentBeacons) { [weak self] _ in
             guard let self = self else { return }
             self.completionHandler.forEach { $0(result) }
             self.flushSemaphore?.signal()
         }
+    }
+
+    private func runExponentialBackoffRetry(on queue: DispatchQueue, retry: Int = 1, closure: @escaping () -> Void) {
+        let maxDelay = 60 * 5
+        var delay = Int(pow(2.0, Double(retry))) * 1000
+        let jitter = Int.random(in: 0...1000)
+        delay = min(delay + jitter, maxDelay)
+        queue.asyncAfter(deadline: DispatchTime.now() + .milliseconds(delay), execute: closure)
     }
 }
 

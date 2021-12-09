@@ -8,13 +8,16 @@ import XCTest
 
 extension InstanaConfiguration {
     static var mock: InstanaConfiguration {
-        InstanaConfiguration.default(key: "KEY", reportingURL: URL.random, httpCaptureConfig: .automatic)
+        .mock()
     }
 
     static func mock(key: String = "KEY",
                      reportingURL: URL = .random,
                      httpCaptureConfig: HTTPCaptureConfig = .automatic,
-                     gzipReport: Bool = false) -> InstanaConfiguration {
+                     gzipReport: Bool = false,
+                     maxBeaconsPerRequest: Int = 100,
+                     maxQueueSize: Int = 80,
+                     maxRetries: Int = 3) -> InstanaConfiguration {
         InstanaConfiguration(reportingURL: reportingURL,
                              key: key,
                              httpCaptureConfig: httpCaptureConfig,
@@ -23,10 +26,12 @@ extension InstanaConfiguration {
                                             .memoryWarning,
                                             .framerateDrop(frameThreshold: 20),
                                             .alertApplicationNotResponding(threshold: 2.0)],
-                             transmissionDelay: 0.0,
-                             transmissionLowBatteryDelay: 0.0,
+                             reporterSendDebounce: 0.0,
+                             reporterSendLowBatteryDebounce: 0.0,
+                             maxRetries: maxRetries,
                              gzipReport: gzipReport,
-                             maxBeaconsPerRequest: 100,
+                             maxBeaconsPerRequest: maxBeaconsPerRequest,
+                             maxQueueSize: maxQueueSize,
                              preQueueUsageTime: 0.0,
                              reporterRateLimits: [.init(timeout: 10.0, maxItems: 10), .init(timeout: 60.0, maxItems: 20)])
     }

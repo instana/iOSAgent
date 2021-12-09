@@ -21,6 +21,7 @@ enum InstanaError: LocalizedError, Equatable {
     case offline
     case lowBattery
     case underlying(Error)
+    case multiple([Error])
 
     var localizedDescription: String {
         switch self {
@@ -46,6 +47,8 @@ enum InstanaError: LocalizedError, Equatable {
             return "Battery too low for flushing"
         case let .underlying(error):
             return "Underlying error \(error)"
+        case let .multiple(errors):
+            return "Underlying errors \(errors)"
         }
     }
 
