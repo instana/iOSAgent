@@ -54,7 +54,7 @@ class BeaconFlusher {
     private let queue: DispatchQueue
     private let externalSend: Sender? // Used for Unit Testing
     private var sentBeacons = Set<CoreBeacon>()
-    private (set) var urlTasks = [URLSessionTask]()
+    private(set) var urlTasks = [URLSessionTask]()
     var shouldPerformRetry: Bool {
         !errors.isEmpty && retryStep < config.maxRetries
     }
@@ -80,7 +80,7 @@ class BeaconFlusher {
     }
 
     func schedule() {
-        let flushItem = DispatchWorkItem {[weak self] in
+        let flushItem = DispatchWorkItem { [weak self] in
             guard let self = self else { return }
             self.flush()
         }
@@ -130,7 +130,7 @@ class BeaconFlusher {
     }
 
     private func complete() {
-        if !errors.isEmpty && !sentBeacons.isEmpty {
+        if !errors.isEmpty, !sentBeacons.isEmpty {
             completion(.either(sent: Array(sentBeacons), errors: errors))
         } else if !errors.isEmpty {
             completion(.failure(errors))

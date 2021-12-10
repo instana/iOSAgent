@@ -40,7 +40,7 @@ class InstanaSession {
     init(configuration: InstanaConfiguration, propertyHandler: InstanaPropertyHandler, sessionID: UUID = UUID(), collectionEnabled: Bool) {
         self.configuration = configuration
         self.propertyHandler = propertyHandler
-        self.unsafe_collectionEnabled = collectionEnabled
+        unsafe_collectionEnabled = collectionEnabled
         id = sessionID
     }
 }

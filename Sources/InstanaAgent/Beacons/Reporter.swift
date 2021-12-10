@@ -122,7 +122,7 @@ public class Reporter {
         if suspendReporting.contains(.lowBattery), !batterySafeForNetworking() {
             return handle(flushResult: .failure([InstanaError.lowBattery]))
         }
-        let flusher = BeaconFlusher(items: queue.items, debounce: debounce, config: session.configuration, queue: dispatchQueue, send: send) {[weak self] result in
+        let flusher = BeaconFlusher(items: queue.items, debounce: debounce, config: session.configuration, queue: dispatchQueue, send: send) { [weak self] result in
             guard let self = self else { return }
             self.handle(flushResult: result, start)
         }

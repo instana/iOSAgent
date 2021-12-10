@@ -11,7 +11,6 @@ import Foundation
 ///
 /// - Important: Before using any of Instana's features, it is necessary to invoke one of its setup methods.
 @objc public class Instana: NSObject {
-
     /// The Container for all Instana monitors (Network, HTTP, Framedrop, ...)
     internal let monitors: Monitors
 
