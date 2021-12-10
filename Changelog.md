@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.0
+- Update flushing mechanism (align with Android)
+- Add retry with exponential backoff
+
 ## 1.2.4
 - Improve checking urls for URLProtocol usage
 
