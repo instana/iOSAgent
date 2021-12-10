@@ -33,7 +33,7 @@ class ImageViewViewController: UIViewController {
         imageView.isUserInteractionEnabled = true
         imageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(downloadImage)))
 
-        timer = Timer.scheduledTimer(timeInterval: 5.0, target: self, selector: #selector(downloadImage), userInfo: nil, repeats: true)
+        timer = Timer.scheduledTimer(timeInterval: 35.0, target: self, selector: #selector(downloadImage), userInfo: nil, repeats: true)
         timer?.fire()
     }
 
