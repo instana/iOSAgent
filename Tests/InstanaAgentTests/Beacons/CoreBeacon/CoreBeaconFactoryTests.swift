@@ -4,7 +4,6 @@
 
 import Foundation
 import XCTest
-import UIKit
 @testable import InstanaAgent
 
 class CoreBeaconFactoryTests: InstanaTestCase {

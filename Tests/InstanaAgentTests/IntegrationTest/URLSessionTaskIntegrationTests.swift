@@ -116,7 +116,7 @@ class URLSessionTaskIntegrationTests: InstanaTestCase {
 
     func createInstana(done: @escaping (CoreBeacon?) -> Void) {
         reporter = Reporter(session, send: { request, completion in
-            completion(.success(statusCode: 200))
+            completion(.success(200))
             let value = String(data: request.httpBody ?? Data(), encoding: .utf8)
             let sentBeacon = try? CoreBeacon.create(from: value ?? "")
             done(sentBeacon)

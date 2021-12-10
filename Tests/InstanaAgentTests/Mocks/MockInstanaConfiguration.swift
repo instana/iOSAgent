@@ -17,7 +17,8 @@ extension InstanaConfiguration {
                      gzipReport: Bool = false,
                      maxBeaconsPerRequest: Int = 100,
                      maxQueueSize: Int = 80,
-                     maxRetries: Int = 3) -> InstanaConfiguration {
+                     debounce: Instana.Types.Seconds = 0.0,
+                     maxRetries: Int = 0) -> InstanaConfiguration {
         InstanaConfiguration(reportingURL: reportingURL,
                              key: key,
                              httpCaptureConfig: httpCaptureConfig,
@@ -26,8 +27,8 @@ extension InstanaConfiguration {
                                             .memoryWarning,
                                             .framerateDrop(frameThreshold: 20),
                                             .alertApplicationNotResponding(threshold: 2.0)],
-                             reporterSendDebounce: 0.0,
-                             reporterSendLowBatteryDebounce: 0.0,
+                             reporterSendDebounce: debounce,
+                             reporterSendLowBatteryDebounce: debounce,
                              maxRetries: maxRetries,
                              gzipReport: gzipReport,
                              maxBeaconsPerRequest: maxBeaconsPerRequest,

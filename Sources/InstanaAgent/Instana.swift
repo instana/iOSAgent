@@ -11,6 +11,7 @@ import Foundation
 ///
 /// - Important: Before using any of Instana's features, it is necessary to invoke one of its setup methods.
 @objc public class Instana: NSObject {
+
     /// The Container for all Instana monitors (Network, HTTP, Framedrop, ...)
     internal let monitors: Monitors
 
@@ -197,7 +198,7 @@ import Foundation
     ///     - urls: URLs that will ignored from the Instana monitoring
     @objc
     public static func setIgnore(urls: [URL]) {
-        IgnoreURLHandler.exactURLs = IgnoreURLHandler.exactURLs.union(urls)
+        IgnoreURLHandler.ignore(urls: urls)
     }
 
     ///
@@ -207,7 +208,7 @@ import Foundation
     ///     - regex: URLs that match with the given regular expressions will be ignored from monitoring
     @objc
     public static func setIgnoreURLs(matching regex: [NSRegularExpression]) {
-        IgnoreURLHandler.regex = IgnoreURLHandler.regex.union(regex)
+        IgnoreURLHandler.ignore(regularExpressions: regex)
     }
 
     ///
@@ -217,7 +218,7 @@ import Foundation
     ///     - session: URLSession to ignore from HTTP monitoring
     @objc
     public static func ignore(_ session: URLSession) {
-        IgnoreURLHandler.urlSessions.insert(session)
+        IgnoreURLHandler.ignore(session: session)
         session.configuration.removeInstanaURLProtocol()
     }
 
