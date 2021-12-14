@@ -85,8 +85,8 @@ enum HTTPError: LocalizedError, RawRepresentable, CustomStringConvertible, Equat
         case .userAuthenticationRequired: return "User Authentication Required"
         case .userCancelledAuthentication: return "User Cancelled Authentication"
         case let .statusCode(code): return "HTTP \(code)"
-        case .unknownHTTPError: return "Some URL Error"
-        case .unknown: return "Some underlying Error"
+        case .unknownHTTPError: return "URL Error"
+        case .unknown: return "Error"
         }
     }
 
@@ -136,8 +136,8 @@ enum HTTPError: LocalizedError, RawRepresentable, CustomStringConvertible, Equat
         case .userAuthenticationRequired: return "Authentication was required to access a resource."
         case .userCancelledAuthentication: return "An asynchronous request for authentication has been canceled by the user."
         case let .statusCode(code): return "HTTP Error with status code \(code)"
-        case let .unknownHTTPError(error): return "URL Error: \(error.localizedDescription)"
-        case let .unknown(error): return "Underlying Error \(error.localizedDescription)"
+        case let .unknownHTTPError(error): return "\(error.localizedDescription)"
+        case let .unknown(error): return "\(error.localizedDescription)"
         }
     }
 

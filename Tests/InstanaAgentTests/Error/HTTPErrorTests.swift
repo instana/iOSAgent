@@ -385,8 +385,8 @@ class HTTPErrorTests: InstanaTestCase {
 
         // Then
         AssertEqualAndNotNil(sut, HTTPError.unknownHTTPError(theError))
-        AssertEqualAndNotNil(sut?.description, "URL Error: \(theError.localizedDescription)")
-        AssertEqualAndNotNil(sut?.rawValue, "Some URL Error")
+        AssertEqualAndNotNil(sut?.description, "\(theError.localizedDescription)")
+        AssertEqualAndNotNil(sut?.rawValue, "URL Error")
     }
 
     func test_unknownError() {
@@ -396,8 +396,8 @@ class HTTPErrorTests: InstanaTestCase {
 
         // Then
         AssertEqualAndNotNil(sut, HTTPError.unknown(error))
-        AssertEqualAndNotNil(sut?.description, "Underlying Error \(error.localizedDescription)")
-        AssertEqualAndNotNil(sut?.rawValue, "Some underlying Error")
+        AssertEqualAndNotNil(sut?.description, "\(error.localizedDescription)")
+        AssertEqualAndNotNil(sut?.rawValue, "Error")
     }
 
     // MARK: Helper
