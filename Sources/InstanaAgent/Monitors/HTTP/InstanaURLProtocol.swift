@@ -107,16 +107,8 @@ extension InstanaURLProtocol: URLSessionDelegate {
         }
     }
 
-    func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
-        if let originalSession = originalTask?.internalSession, let delegate = originalSession.delegate,
-            delegate.responds(to: #selector(urlSession(_:didReceive:completionHandler:))) {
-            dispatch(on: originalSession.delegateQueue.underlyingQueue) {
-                delegate.urlSession?(originalSession, didReceive: challenge, completionHandler: completionHandler)
-            }
-        } else {
-            completionHandler(.performDefaultHandling, nil)
-        }
-    }
+    // Don't implement this method, otherwise the task-level authentication challenge delegate method won't get called - We handle both cases via the task-level delegate method
+    //  func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void)
 
     @available(macOS 11.0, iOS 11, *)
     func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession) {
@@ -164,10 +156,19 @@ extension InstanaURLProtocol: URLSessionTaskDelegate {
     }
 
     func urlSession(_ session: URLSession, task: URLSessionTask, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
-        if let originalTask = originalTask, let originalSession = originalTask.internalSession, let delegate = originalSession.delegate as? URLSessionTaskDelegate,
-            delegate.responds(to: #selector(urlSession(_:task:didReceive:completionHandler:))) {
+        guard let originalSession = originalTask?.internalSession, let delegate = originalSession.delegate else {
+            return completionHandler(.performDefaultHandling, nil)
+        }
+        if let taskDelegate = delegate as? URLSessionTaskDelegate, let task = originalTask,
+            taskDelegate.responds(to: #selector(urlSession(_:task:didReceive:completionHandler:))) {
             dispatch(on: originalSession.delegateQueue.underlyingQueue) {
-                delegate.urlSession?(originalSession, task: originalTask, didReceive: challenge, completionHandler: completionHandler)
+                taskDelegate.urlSession?(originalSession, task: task, didReceive: challenge, completionHandler: completionHandler)
+            }
+        }
+        // Check if the delegate at least responds to session-level based authentication challenges
+        else if delegate.responds(to: #selector(URLSessionDelegate.urlSession(_:didReceive:completionHandler:))) {
+            dispatch(on: originalSession.delegateQueue.underlyingQueue) {
+                delegate.urlSession?(originalSession, didReceive: challenge, completionHandler: completionHandler)
             }
         } else {
             completionHandler(.performDefaultHandling, nil)
