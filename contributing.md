@@ -27,7 +27,7 @@ Please make sure to follow the semantic versioning rules.
 2. Update version in VersionConfig.Swift
 3. Update InstanaSystemUtilsTests test_AgentVersion.
 4. Update CHANGELOG.md accordingly
-5. Run tests via `sh scripts/run-all-test.sh`
+5. Run tests via `sh scripts/run-unit-tests.sh`
 6. Run `git tag <Your Version> && git push origin <Your Version>`
 7. Run `pod trunk push InstanaAgent.podspec --allow-warnings`
 8. Make a release note on the Github page

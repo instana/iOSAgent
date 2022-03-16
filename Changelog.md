@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.3.1
+- Implement task-based authentication challenge method and forward to session-based if needed
+
 ## 1.3.0
 - Update flushing mechanism (align with Android)
 - Add retry with exponential backoff
