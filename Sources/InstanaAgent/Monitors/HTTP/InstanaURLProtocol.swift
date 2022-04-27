@@ -355,23 +355,7 @@ extension URLSessionConfiguration {
         }
     }
 
-    private static let lock = NSLock()
-    private static var _unsafe_allSessionConfigs = [URLSessionConfiguration]()
-    static var all: [URLSessionConfiguration] {
-        // swiftlint:disable:next implicit_getter
-        get {
-            lock.lock()
-            defer {
-                lock.unlock()
-            }
-            return _unsafe_allSessionConfigs
-        }
-        set {
-            lock.lock()
-            _unsafe_allSessionConfigs = newValue
-            lock.unlock()
-        }
-    }
+    @Atomic static var all = [URLSessionConfiguration]()
 
     static func removeAllInstanaURLProtocol() {
         all.forEach { $0.protocolClasses?.removeAll(where: { (protocolClass) -> Bool in
