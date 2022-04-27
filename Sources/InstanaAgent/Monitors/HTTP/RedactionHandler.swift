@@ -11,23 +11,8 @@ class RedactionHandler {
         return RedactionHandler(regex: regex)
     }
 
-    private let lock = NSLock()
-    private var unsafe_regex = Set<NSRegularExpression>()
-    var regex: Set<NSRegularExpression> {
-        get {
-            lock.lock()
-            defer {
-                lock.unlock()
-            }
-            return unsafe_regex
-        }
-        set {
-            lock.lock()
-            unsafe_regex = newValue
-            lock.unlock()
-        }
-    }
-
+    @Atomic var regex = Set<NSRegularExpression>()
+  
     init(regex: [NSRegularExpression]) {
         self.regex = Set(regex)
     }
