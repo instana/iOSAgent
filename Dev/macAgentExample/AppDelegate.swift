@@ -12,13 +12,14 @@ import InstanaAgent
 class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
-        Instana.setup(key: InstanaKey, reportingURL: URL(string: InstanaURL)!)
+        Instana.setup(key: InstanaKey, reportingURL: InstanaURL, httpCaptureConfig: .automatic)
 
-        URLSession.shared.dataTask(with: URL(string: "https://www.instana.com")!).resume()
+        let url = URL(string: "https://www.instana.com")!
+        URLSession.shared.dataTask(with: url) { _, _, _ in
+        }.resume()
     }
 
     func applicationWillTerminate(_ aNotification: Notification) {
         // Insert code here to tear down your application
     }
 }
-

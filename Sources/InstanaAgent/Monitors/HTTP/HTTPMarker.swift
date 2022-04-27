@@ -122,7 +122,7 @@ protocol HTTPMarkerDelegate: AnyObject {
 }
 
 extension HTTPMarker {
-    func createBeacon() -> Beacon {
+    func createBeacon(redactionHandler: RedactionHandler = .default) -> Beacon {
         var error: Error?
         var responseCode: Int?
 
@@ -136,11 +136,11 @@ extension HTTPMarker {
         case let .failed(theError):
             error = theError
         }
-
+        let redacted = redactionHandler.redact(url: url)
         return HTTPBeacon(timestamp: startTime,
                           duration: duration,
                           method: method,
-                          url: url,
+                          url: redacted,
                           responseCode: responseCode ?? -1,
                           responseSize: responseSize,
                           error: error,
