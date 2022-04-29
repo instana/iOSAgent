@@ -31,7 +31,7 @@ class RedactionHandler {
 
     private func redact(path: String, matching regex: NSRegularExpression) -> String {
         let range = NSRange(location: 0, length: path.utf16.count)
-        let substitution = #"$1redacted"#
+        let substitution = #"$1<redacted>"#
         return regex.stringByReplacingMatches(in: path, range: range, withTemplate: substitution)
     }
 }

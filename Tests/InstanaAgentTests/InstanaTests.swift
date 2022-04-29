@@ -512,7 +512,7 @@ class InstanaTests: InstanaTestCase {
         wait(for: [waitReport], timeout: 5.0)
 
         // Then
-        XCTAssertEqual(expectedBeacon?.url.query, "secret=redacted&Password=redacted&KEY=redacted")
+        XCTAssertEqual(expectedBeacon?.url.query, "secret=%3Credacted%3E&Password=%3Credacted%3E&KEY=%3Credacted%3E")
     }
 
     func test_redactSecretsMatchingRegex_explizit() {
@@ -537,6 +537,6 @@ class InstanaTests: InstanaTestCase {
         wait(for: [waitReport], timeout: 5.0)
 
         // Then
-        XCTAssertEqual(expectedBeacon?.url.absoluteString, "https://www.instana.com/Key/?Password=redacted&key=123")
+        XCTAssertEqual(expectedBeacon?.url.absoluteString, "https://www.instana.com/Key/?Password=%3Credacted%3E&key=123")
     }
 }

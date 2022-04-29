@@ -269,7 +269,7 @@ class HTTPMarkerTests: InstanaTestCase {
         }
 
         // Then
-        XCTAssertEqual(beacon.url, URL(string: "https://www.instana.com/Key/?secret=redacted&Password=redacted&KEY=redacted")!)
+        XCTAssertEqual(beacon.url, URL(string: "https://www.instana.com/Key/?secret=%3Credacted%3E&Password=%3Credacted%3E&KEY=%3Credacted%3E")!)
     }
 
     func test_createBeacon_finishedMarker() {

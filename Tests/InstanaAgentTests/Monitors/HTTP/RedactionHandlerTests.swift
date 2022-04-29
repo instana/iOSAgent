@@ -12,7 +12,7 @@ class RedactionHandlerTests: InstanaTestCase {
         let redacted = redactionHandler.redact(url: url)
 
         // Then
-        XCTAssertEqual(redacted, URL(string: "https://www.instana.com/one/?secret=redacted&Password=redacted&KEY=redacted&aKey=redacted&myPassword=redacted")!)
+        XCTAssertEqual(redacted, URL(string: "https://www.instana.com/one/?secret=%3Credacted%3E&Password=%3Credacted%3E&KEY=%3Credacted%3E&aKey=%3Credacted%3E&myPassword=%3Credacted%3E")!)
     }
 
     func test_redact_own_regex() {
@@ -25,6 +25,6 @@ class RedactionHandlerTests: InstanaTestCase {
         let redacted = redactionHandler.redact(url: url)
 
         // Then
-        XCTAssertEqual(redacted, URL(string: "https://www.instana.com/one/?thePassword=redacted&Password=redacted&PasSword=redacted")!)
+        XCTAssertEqual(redacted, URL(string: "https://www.instana.com/one/?thePassword=%3Credacted%3E&Password=%3Credacted%3E&PasSword=%3Credacted%3E")!)
     }
 }
