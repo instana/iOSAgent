@@ -5,6 +5,7 @@ excluded: # paths to ignore during linting. Takes precedence over `included`.
 
 disabled_rules: # rule identifiers to exclude from running
   - nesting
+  - no_space_in_method_call
   - todo
 
 # configurable rules can be customized from this configuration file
