@@ -356,7 +356,7 @@ import Foundation
     /// - Parameters:
     ///     - regex: Array of NSRegularExpression that is used for the redaction
     @objc
-    public static func redactSecrets(for regex: [NSRegularExpression]) {
+    public static func redactHTTPQuery(matching regex: [NSRegularExpression]) {
         Instana.current?.monitors.http?.redactionHandler.regex = Set(regex)
     }
 }

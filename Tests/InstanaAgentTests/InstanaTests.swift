@@ -491,10 +491,10 @@ class InstanaTests: InstanaTestCase {
         AssertEqualAndNotNil(didReport?.viewName, CustomBeaconDefaultViewNameID)
     }
 
-    func test_redactSecretsMatchingRegex_default_manual() {
+    func test_redactHTTPQueryMatchingRegex_default_manual() {
         // Given
         let url = URL(string: "https://www.instana.com/Key/?secret=secret&Password=test&KEY=123")!
-        let waitReport = expectation(description: "test_redactSecretsMatchingRegex_default")
+        let waitReport = expectation(description: "test_redactHTTPQueryMatchingRegex_default")
         let session = InstanaSession.mock(configuration: .mock(httpCaptureConfig: .manual))
         var expectedBeacon: HTTPBeacon?
         let reporter = MockReporter {
@@ -515,11 +515,11 @@ class InstanaTests: InstanaTestCase {
         XCTAssertEqual(expectedBeacon?.url.query, "secret=%3Credacted%3E&Password=%3Credacted%3E&KEY=%3Credacted%3E")
     }
 
-    func test_redactSecretsMatchingRegex_explizit() {
+    func test_redactHTTPQueryQueryMatchingRegex_explizit() {
         // Given
         let url = URL(string: "https://www.instana.com/Key/?Password=test&key=123")!
         let regex = try! NSRegularExpression(pattern: #"\b([?&]?"# + "password" + #"=)[^&< ]*"#, options: [.anchorsMatchLines, .caseInsensitive])
-        let waitReport = expectation(description: "test_redactSecretsMatchingRegex_default")
+        let waitReport = expectation(description: "test_redactHTTPQueryQueryMatchingRegex_explizit")
         let session = InstanaSession.mock(configuration: .mock(httpCaptureConfig: .manual))
         var expectedBeacon: HTTPBeacon?
         let reporter = MockReporter {
@@ -531,7 +531,7 @@ class InstanaTests: InstanaTestCase {
         Instana.current = Instana(session: session, monitors: Monitors(session, reporter: reporter))
 
         // When
-        Instana.redactSecrets(for: [regex])
+        Instana.redactHTTPQuery(matching: [regex])
         let marker = Instana.startCapture(url: url, method: "GET")
         marker.finish(.init(statusCode: 200))
         wait(for: [waitReport], timeout: 5.0)
