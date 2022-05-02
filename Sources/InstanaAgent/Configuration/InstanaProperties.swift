@@ -78,22 +78,7 @@ extension InstanaProperties {
 }
 
 class InstanaPropertyHandler: NSObject {
-    private var unsafe_properties = InstanaProperties()
-    private let lock = NSLock()
-    var properties: InstanaProperties {
-        get {
-            lock.lock()
-            defer {
-                lock.unlock()
-            }
-            return unsafe_properties
-        }
-        set {
-            lock.lock()
-            unsafe_properties = newValue
-            lock.unlock()
-        }
-    }
+    @Atomic var properties = InstanaProperties()
 }
 
 extension MetaData {
