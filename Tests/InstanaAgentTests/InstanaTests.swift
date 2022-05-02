@@ -515,11 +515,11 @@ class InstanaTests: InstanaTestCase {
         XCTAssertEqual(expectedBeacon?.url.query, "secret=%3Credacted%3E&Password=%3Credacted%3E&KEY=%3Credacted%3E")
     }
 
-    func test_redactHTTPQueryQueryMatchingRegex_explizit() {
+    func test_redactHTTPQueryQueryMatchingRegex_explicit() {
         // Given
-        let url = URL(string: "https://www.instana.com/Key/?Password=test&key=123")!
-        let regex = try! NSRegularExpression(pattern: #"\b([?&]?"# + "password" + #"=)[^&< ]*"#, options: [.anchorsMatchLines, .caseInsensitive])
-        let waitReport = expectation(description: "test_redactHTTPQueryQueryMatchingRegex_explizit")
+        let url = URL(string: "https://www.instana.com/Key/?Password=test&key=123&thePAssWord=123495")!
+        let regex = try! NSRegularExpression(pattern: "password", options: [.caseInsensitive])
+        let waitReport = expectation(description: "test_redactHTTPQueryQueryMatchingRegex_explicit")
         let session = InstanaSession.mock(configuration: .mock(httpCaptureConfig: .manual))
         var expectedBeacon: HTTPBeacon?
         let reporter = MockReporter {
@@ -537,6 +537,6 @@ class InstanaTests: InstanaTestCase {
         wait(for: [waitReport], timeout: 5.0)
 
         // Then
-        XCTAssertEqual(expectedBeacon?.url.absoluteString, "https://www.instana.com/Key/?Password=%3Credacted%3E&key=123")
+        XCTAssertEqual(expectedBeacon?.url.absoluteString, "https://www.instana.com/Key/?Password=%3Credacted%3E&key=123&thePAssWord=%3Credacted%3E")
     }
 }

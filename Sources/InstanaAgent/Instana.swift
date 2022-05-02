@@ -349,7 +349,7 @@ import Foundation
 
     ///
     /// Provide an array of NSRegularExpression to redact values from the captured http query
-    /// Example: try? NSRegularExpression(pattern: #"(?<=password=)[^&]+"#, options: [.caseInsensitive]) to redact the password parameter
+    /// Example: try? NSRegularExpression(pattern: #"pass(word|wort)"#, options: [.caseInsensitive]) to redact the password or passwort parameter
     ///
     /// Default: We redact all query values matching the parameter: key, secret, password (also myKey or Password)
     ///

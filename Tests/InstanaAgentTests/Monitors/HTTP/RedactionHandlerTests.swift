@@ -17,14 +17,14 @@ class RedactionHandlerTests: InstanaTestCase {
 
     func test_redact_own_regex() {
         // Given
-        let regex = try! NSRegularExpression(pattern: #"(?<=password=)[^&]+"#, options: [.caseInsensitive])
+        let regex = try! NSRegularExpression(pattern: #"pass(word|wort)"#, options: [.caseInsensitive])
         let redactionHandler = RedactionHandler(regex: [regex])
-        let url = URL(string: "https://www.instana.com/one/?thePassword=secret&Password=test&PasSword=123")!
+        let url = URL(string: "https://www.instana.com/one/?thePassword=secret&Passwort=test&PasSword=123")!
 
         // When
         let redacted = redactionHandler.redact(url: url)
 
         // Then
-        XCTAssertEqual(redacted, URL(string: "https://www.instana.com/one/?thePassword=%3Credacted%3E&Password=%3Credacted%3E&PasSword=%3Credacted%3E")!)
+        XCTAssertEqual(redacted, URL(string: "https://www.instana.com/one/?thePassword=%3Credacted%3E&Passwort=%3Credacted%3E&PasSword=%3Credacted%3E")!)
     }
 }
