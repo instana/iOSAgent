@@ -258,6 +258,20 @@ class HTTPMarkerTests: InstanaTestCase {
         XCTAssertNil(beacon.error)
     }
 
+    func test_createBeacon_redacted() {
+        // Given
+        let url = URL(string: "https://www.instana.com/Key/?secret=secret&Password=test&KEY=123")!
+        let marker = HTTPMarker(url: url, method: "c", trigger: .automatic, delegate: Delegate())
+
+        // When
+        guard let beacon = marker.createBeacon() as? HTTPBeacon else {
+            XCTFail("Beacon type missmatch"); return
+        }
+
+        // Then
+        XCTAssertEqual(beacon.url, URL(string: "https://www.instana.com/Key/?secret=%3Credacted%3E&Password=%3Credacted%3E&KEY=%3Credacted%3E")!)
+    }
+
     func test_createBeacon_finishedMarker() {
         // Given
         let url: URL = .random

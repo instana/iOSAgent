@@ -9,8 +9,10 @@ class HTTPMonitor {
     private let uninstaller: (AnyClass) -> Void
     private let reporter: Reporter
     private let session: InstanaSession
+    let redactionHandler: RedactionHandler
 
     init(_ session: InstanaSession,
+         redactionHandler: RedactionHandler = .default,
          installer: @escaping (AnyClass) -> Bool = URLProtocol.registerClass,
          uninstaller: @escaping (AnyClass) -> Void = URLProtocol.unregisterClass,
          reporter: Reporter) {
@@ -18,6 +20,7 @@ class HTTPMonitor {
         self.installer = installer
         self.uninstaller = uninstaller
         self.reporter = reporter
+        self.redactionHandler = redactionHandler
         IgnoreURLHandler.loadDefaultDefaultIgnoredURLs(session: session)
         switch session.configuration.httpCaptureConfig {
         case .automatic, .automaticAndManual:
@@ -62,6 +65,6 @@ extension HTTPMonitor: HTTPMarkerDelegate {
     func httpMarkerDidFinish(_ marker: HTTPMarker) {
         guard shouldReport(marker) else { return }
         marker.viewName = marker.viewName ?? session.propertyHandler.properties.viewNameForCurrentAppState
-        reporter.submit(marker.createBeacon())
+        reporter.submit(marker.createBeacon(redactionHandler: redactionHandler))
     }
 }

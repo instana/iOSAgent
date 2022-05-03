@@ -80,10 +80,10 @@ class InstanaTests: InstanaTestCase {
     func test_setup_and_expect_SessionProfileBeacon() {
         // Given
         let session: InstanaSession = .mock(configuration: .default(key: "KEY", reportingURL: .random))
-        var excpectedBeacon: SessionProfileBeacon?
+        var expectedBeacon: SessionProfileBeacon?
         let reporter = MockReporter {
             if let beacon = $0 as? SessionProfileBeacon {
-                excpectedBeacon = beacon
+                expectedBeacon = beacon
             }
         }
 
@@ -91,17 +91,17 @@ class InstanaTests: InstanaTestCase {
         Instana.current = Instana(session: session, monitors: Monitors(.mock, reporter: reporter))
 
         // Then
-        AssertEqualAndNotNil(excpectedBeacon?.state, SessionProfileBeacon.State.start)
+        AssertEqualAndNotNil(expectedBeacon?.state, SessionProfileBeacon.State.start)
     }
 
     func test_setup_and_dont_expect_SessionProfileBeacon_when_disabled() {
         // Given
         let config = InstanaConfiguration.mock
         let session: InstanaSession = .mock(configuration: config, collectionEnabled: false)
-        var excpectedBeacon: SessionProfileBeacon?
+        var expectedBeacon: SessionProfileBeacon?
         let reporter = MockReporter {
             if let beacon = $0 as? SessionProfileBeacon {
-                excpectedBeacon = beacon
+                expectedBeacon = beacon
             }
         }
 
@@ -110,17 +110,17 @@ class InstanaTests: InstanaTestCase {
 
         // Then
         AssertFalse(Instana.collectionEnabled)
-        AssertTrue(excpectedBeacon == nil)
+        AssertTrue(expectedBeacon == nil)
     }
 
     func test_setup_and_expect_SessionProfileBeacon_enabled_after_setup() {
         // Given
         let config = InstanaConfiguration.mock
         let session: InstanaSession = .mock(configuration: config, collectionEnabled: false)
-        var excpectedBeacon: SessionProfileBeacon?
+        var expectedBeacon: SessionProfileBeacon?
         let reporter = MockReporter {
             if let beacon = $0 as? SessionProfileBeacon {
-                excpectedBeacon = beacon
+                expectedBeacon = beacon
             }
         }
 
@@ -129,31 +129,29 @@ class InstanaTests: InstanaTestCase {
 
         // Then
         AssertFalse(Instana.collectionEnabled)
-        AssertTrue(excpectedBeacon == nil)
+        AssertTrue(expectedBeacon == nil)
 
         // When
         Instana.collectionEnabled = true
 
         // Then
-        AssertTrue(excpectedBeacon != nil)
+        AssertTrue(expectedBeacon != nil)
     }
 
     func test_captureHTTP_request() {
         // Given
-        let config = InstanaConfiguration.mock(key: "KEY", reportingURL: .random, httpCaptureConfig: .manual)
-        let session = InstanaSession.mock(configuration: config)
-        let env = InstanaSession.mock(configuration: config)
         let waitRequest = expectation(description: "test_captureHTTP_request")
-        var excpectedBeacon: HTTPBeacon?
+        let session = InstanaSession.mock(configuration: .mock(httpCaptureConfig: .manual))
+        var expectedBeacon: HTTPBeacon?
         var request = URLRequest(url: URL(string: "https://www.instana.com")!)
         request.httpMethod = "PUT"
         let reporter = MockReporter {
             if let beacon = $0 as? HTTPBeacon {
-                excpectedBeacon = beacon
+                expectedBeacon = beacon
                 waitRequest.fulfill()
             }
         }
-        Instana.current = Instana(session: session, monitors: Monitors(env, reporter: reporter))
+        Instana.current = Instana(session: session, monitors: Monitors(session, reporter: reporter))
 
         // When
         let sut = Instana.startCapture(request, viewName: "DetailView")
@@ -163,10 +161,10 @@ class InstanaTests: InstanaTestCase {
         // Then
         AssertEqualAndNotNil(sut.url, request.url)
         AssertEqualAndNotNil(sut.trigger, .manual)
-        AssertEqualAndNotNil(excpectedBeacon?.url, request.url)
-        AssertEqualAndNotNil(excpectedBeacon?.method, "PUT")
-        AssertEqualAndNotNil(excpectedBeacon?.responseCode, 200)
-        AssertEqualAndNotNil(excpectedBeacon?.viewName, "DetailView")
+        AssertEqualAndNotNil(expectedBeacon?.url, request.url)
+        AssertEqualAndNotNil(expectedBeacon?.method, "PUT")
+        AssertEqualAndNotNil(expectedBeacon?.responseCode, 200)
+        AssertEqualAndNotNil(expectedBeacon?.viewName, "DetailView")
     }
 
     func test_captureHTTP_request_missing_method_should_fall_to_default_GET() {
@@ -491,5 +489,54 @@ class InstanaTests: InstanaTestCase {
         AssertTrue(didReport != nil)
         AssertEqualAndNotNil(didReport?.name, name)
         AssertEqualAndNotNil(didReport?.viewName, CustomBeaconDefaultViewNameID)
+    }
+
+    func test_redactHTTPQueryMatchingRegex_default_manual() {
+        // Given
+        let url = URL(string: "https://www.instana.com/Key/?secret=secret&Password=test&KEY=123")!
+        let waitReport = expectation(description: "test_redactHTTPQueryMatchingRegex_default")
+        let session = InstanaSession.mock(configuration: .mock(httpCaptureConfig: .manual))
+        var expectedBeacon: HTTPBeacon?
+        let reporter = MockReporter {
+            if let beacon = $0 as? HTTPBeacon {
+                expectedBeacon = beacon
+                waitReport.fulfill()
+            }
+        }
+        Instana.current = Instana(session: session, monitors: Monitors(session, reporter: reporter))
+
+        // When
+        // just using default behavior
+        let marker = Instana.startCapture(url: url, method: "GET")
+        marker.finish(.init(statusCode: 200))
+        wait(for: [waitReport], timeout: 5.0)
+
+        // Then
+        XCTAssertEqual(expectedBeacon?.url.query, "secret=%3Credacted%3E&Password=%3Credacted%3E&KEY=%3Credacted%3E")
+    }
+
+    func test_redactHTTPQueryQueryMatchingRegex_explicit() {
+        // Given
+        let url = URL(string: "https://www.instana.com/Key/?Password=test&key=123&thePAssWord=123495")!
+        let regex = try! NSRegularExpression(pattern: "password", options: [.caseInsensitive])
+        let waitReport = expectation(description: "test_redactHTTPQueryQueryMatchingRegex_explicit")
+        let session = InstanaSession.mock(configuration: .mock(httpCaptureConfig: .manual))
+        var expectedBeacon: HTTPBeacon?
+        let reporter = MockReporter {
+            if let beacon = $0 as? HTTPBeacon {
+                expectedBeacon = beacon
+                waitReport.fulfill()
+            }
+        }
+        Instana.current = Instana(session: session, monitors: Monitors(session, reporter: reporter))
+
+        // When
+        Instana.redactHTTPQuery(matching: [regex])
+        let marker = Instana.startCapture(url: url, method: "GET")
+        marker.finish(.init(statusCode: 200))
+        wait(for: [waitReport], timeout: 5.0)
+
+        // Then
+        XCTAssertEqual(expectedBeacon?.url.absoluteString, "https://www.instana.com/Key/?Password=%3Credacted%3E&key=123&thePAssWord=%3Credacted%3E")
     }
 }
