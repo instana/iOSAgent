@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.0
+- Add new feature to redact password, key, secrets from HTTP query parameters
+- Improve thread safety
+
 ## 1.3.1
 - Implement task-based authentication challenge method and forward to session-based if needed
 
