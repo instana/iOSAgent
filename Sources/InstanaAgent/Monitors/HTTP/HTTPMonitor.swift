@@ -9,10 +9,11 @@ class HTTPMonitor {
     private let uninstaller: (AnyClass) -> Void
     private let reporter: Reporter
     private let session: InstanaSession
-    let redactionHandler: RedactionHandler
+    let filter: HTTPMonitorFilter
+    var headerFieldsToMonitorRegEx = [NSRegularExpression]()
 
     init(_ session: InstanaSession,
-         redactionHandler: RedactionHandler = .default,
+         filter: HTTPMonitorFilter = .default,
          installer: @escaping (AnyClass) -> Bool = URLProtocol.registerClass,
          uninstaller: @escaping (AnyClass) -> Void = URLProtocol.unregisterClass,
          reporter: Reporter) {
@@ -20,7 +21,7 @@ class HTTPMonitor {
         self.installer = installer
         self.uninstaller = uninstaller
         self.reporter = reporter
-        self.redactionHandler = redactionHandler
+        self.filter = filter
         IgnoreURLHandler.loadDefaultDefaultIgnoredURLs(session: session)
         switch session.configuration.httpCaptureConfig {
         case .automatic, .automaticAndManual:
@@ -48,7 +49,8 @@ extension HTTPMonitor {
         guard let url = request.url, let method = request.httpMethod else {
             throw InstanaError.invalidRequest
         }
-        return HTTPMarker(url: url, method: method, trigger: .automatic, delegate: self)
+        let header = request.allHTTPHeaderFields ?? [:]
+        return HTTPMarker(url: url, method: method, trigger: .automatic, header: header, delegate: self)
     }
 
     func shouldReport(_ marker: HTTPMarker) -> Bool {
@@ -65,6 +67,6 @@ extension HTTPMonitor: HTTPMarkerDelegate {
     func httpMarkerDidFinish(_ marker: HTTPMarker) {
         guard shouldReport(marker) else { return }
         marker.viewName = marker.viewName ?? session.propertyHandler.properties.viewNameForCurrentAppState
-        reporter.submit(marker.createBeacon(redactionHandler: redactionHandler))
+        reporter.submit(marker.createBeacon(filter: filter))
     }
 }

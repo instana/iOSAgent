@@ -83,7 +83,7 @@ class InstanaURLProtocolIntegrationTests: InstanaTestCase {
 
         // When
         urlSession.dataTask(with: givenURL) {_, _, _ in}.resume()
-        wait(for: [didReportWait], timeout: 10)
+        wait(for: [didReportWait], timeout: 20)
 
         // Then
         AssertEqualAndNotNil(resultBeacon?.url, givenURL)

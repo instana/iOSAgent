@@ -13,14 +13,17 @@ protocol HTTPMarkerDelegate: AnyObject {
     let backendTracingID: String?
     let responseSize: HTTPMarker.Size?
     let error: Error?
+    let header: HTTPHeader?
     @objc public init(statusCode: Int,
                       backendTracingID: String? = nil,
+                      header: [String: String]? = nil,
                       responseSize: HTTPMarker.Size? = nil,
                       error: Error? = nil) {
         self.statusCode = statusCode
         self.backendTracingID = backendTracingID
         self.responseSize = responseSize
         self.error = error
+        self.header = header
     }
 }
 
@@ -36,6 +39,7 @@ protocol HTTPMarkerDelegate: AnyObject {
     }
 
     let url: URL
+    var header: [String: String]?
     let method: String
     let trigger: Trigger
     let startTime: Instana.Types.Milliseconds
@@ -46,13 +50,19 @@ protocol HTTPMarkerDelegate: AnyObject {
     private(set) var state: State = .started
     private weak var delegate: HTTPMarkerDelegate?
 
-    init(url: URL, method: String, trigger: Trigger, delegate: HTTPMarkerDelegate?, viewName: String? = nil) {
+    init(url: URL,
+         method: String,
+         trigger: Trigger,
+         header: [String: String]? = nil,
+         delegate: HTTPMarkerDelegate?,
+         viewName: String? = nil) {
         startTime = Date().millisecondsSince1970
         self.url = url
         self.method = method
         self.delegate = delegate
         self.trigger = trigger
         self.viewName = viewName
+        self.header = header
     }
 
     /// Invoke this method when the reponse size has been determined.
@@ -78,6 +88,7 @@ protocol HTTPMarkerDelegate: AnyObject {
         let size = response != nil ? HTTPMarker.Size(response!) : nil
         let result = HTTPCaptureResult(statusCode: statusCode,
                                        backendTracingID: response?.backendTracingID,
+                                       header: header,
                                        responseSize: responseSize ?? size,
                                        error: error)
         finish(result)
@@ -99,6 +110,9 @@ protocol HTTPMarkerDelegate: AnyObject {
         endTime = Date().millisecondsSince1970
         if let bid = result.backendTracingID {
             backendTracingID = bid
+        }
+        if let responseHeader = result.header {
+            header = responseHeader
         }
         responseSize = result.responseSize
         delegate?.httpMarkerDidFinish(self)
@@ -122,7 +136,7 @@ protocol HTTPMarkerDelegate: AnyObject {
 }
 
 extension HTTPMarker {
-    func createBeacon(redactionHandler: RedactionHandler = .default) -> Beacon {
+    func createBeacon(filter: HTTPMonitorFilter = .default) -> Beacon {
         var error: Error?
         var responseCode: Int?
 
@@ -136,11 +150,13 @@ extension HTTPMarker {
         case let .failed(theError):
             error = theError
         }
-        let redacted = redactionHandler.redact(url: url)
+        let header = filter.filterHeaderFields(header)
+        let redacted = filter.redact(url: url)
         return HTTPBeacon(timestamp: startTime,
                           duration: duration,
                           method: method,
                           url: redacted,
+                          header: header,
                           responseCode: responseCode ?? -1,
                           responseSize: responseSize,
                           error: error,

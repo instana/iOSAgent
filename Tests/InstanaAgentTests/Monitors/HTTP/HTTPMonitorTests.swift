@@ -213,7 +213,8 @@ class HTTPMonitorTests: InstanaTestCase {
         // Given
         var expectedBeacon: HTTPBeacon?
         session.propertyHandler.properties.view = "SomeView"
-        let marker = HTTPMarker(url: .random, method: "GET", trigger: .automatic, delegate: nil)
+        let header = ["X-K": "Val"]
+        let marker = HTTPMarker(url: .random, method: "GET", trigger: .automatic, header: header, delegate: nil)
         let monitor = HTTPMonitor(session, reporter: MockReporter { submittedBeacon in
             expectedBeacon = submittedBeacon as? HTTPBeacon
         })
@@ -225,13 +226,14 @@ class HTTPMonitorTests: InstanaTestCase {
         AssertEqualAndNotNil(marker.viewName, "SomeView")
         AssertEqualAndNotNil(expectedBeacon?.viewName, "SomeView")
         AssertEqualAndNotNil(expectedBeacon?.url, marker.url)
+        AssertEqualAndNotNil(expectedBeacon?.header, marker.header)
     }
 
     func test_httpMarkerDidFinish_viewName_explicitly_given() {
         // Given
         var expectedBeacon: HTTPBeacon?
         session.propertyHandler.properties.view = nil
-        let marker = HTTPMarker(url: .random, method: "GET", trigger: .automatic, delegate: nil, viewName: "MoreView")
+        let marker = HTTPMarker(url: .random, method: "GET", trigger: .automatic, header: nil, delegate: nil, viewName: "MoreView")
         let monitor = HTTPMonitor(session, reporter: MockReporter { submittedBeacon in
             expectedBeacon = submittedBeacon as? HTTPBeacon
         })
@@ -249,7 +251,7 @@ class HTTPMonitorTests: InstanaTestCase {
         // Marker has been triggered automatically - but session allows only manual capturing
         Instana.current?.session.propertyHandler.properties.view = "SomeView"
         var expectedBeacon: HTTPBeacon?
-        let marker = HTTPMarker(url: .random, method: "GET", trigger: .automatic, delegate: nil)
+        let marker = HTTPMarker(url: .random, method: "GET", trigger: .automatic, header: nil, delegate: nil)
         let monitor = HTTPMonitor(InstanaSession.mockWithManualHTTPCapture, reporter: MockReporter { submittedBeacon in
             expectedBeacon = submittedBeacon as? HTTPBeacon
         })
@@ -266,7 +268,8 @@ class HTTPMonitorTests: InstanaTestCase {
     func test_httpMarkerDidFinish_should_report_AutomaticAndManual() {
         // Marker has been triggered automatically - but session allows both (manual and automatic) capturing
         var expectedBeacon: HTTPBeacon?
-        let marker = HTTPMarker(url: .random, method: "GET", trigger: [.automatic, .manual].randomElement()!, delegate: nil)
+        let header = ["X": "V"]
+        let marker = HTTPMarker(url: .random, method: "GET", trigger: [.automatic, .manual].randomElement()!, header: header, delegate: nil)
         let monitor = HTTPMonitor(InstanaSession.mockWithAutomaticAndManualHTTPCapture, reporter: MockReporter { submittedBeacon in
             expectedBeacon = submittedBeacon as? HTTPBeacon
         })
@@ -277,6 +280,7 @@ class HTTPMonitorTests: InstanaTestCase {
         // Then
         AssertTrue(monitor.shouldReport(marker))
         AssertEqualAndNotNil(expectedBeacon?.url, marker.url)
+        AssertEqualAndNotNil(expectedBeacon?.header, marker.header)
     }
 
     func test_should_report_with_automatic_monitoring() {
