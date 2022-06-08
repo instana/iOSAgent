@@ -138,7 +138,12 @@ import Foundation
         if delegate == nil {
             Instana.current?.session.logger.add("No valid Instance instance found. Please call setup to create an instance first!", level: .error)
         }
-        return HTTPMarker(url: request.url!, method: method, trigger: .manual, delegate: delegate, viewName: viewName)
+        return HTTPMarker(url: request.url!,
+                          method: method,
+                          trigger: .manual,
+                          header: request.allHTTPHeaderFields,
+                          delegate: delegate,
+                          viewName: viewName)
     }
 
     /// Manual monitoring of URL calls.
@@ -182,12 +187,17 @@ import Foundation
     ///
     /// - Returns: HTTP marker to set the response size, finish state or error when the request has been completed.
     @objc
-    public static func startCapture(url: URL, method: String, viewName: String? = nil) -> HTTPMarker {
+    public static func startCapture(url: URL, method: String, header: [String: String]? = nil, viewName: String? = nil) -> HTTPMarker {
         let delegate = Instana.current?.monitors.http
         if delegate == nil {
             Instana.current?.session.logger.add("No valid Instance instance found. Please call setup to create an instance first!", level: .error)
         }
-        return HTTPMarker(url: url, method: method, trigger: .manual, delegate: delegate, viewName: viewName)
+        return HTTPMarker(url: url,
+                          method: method,
+                          trigger: .manual,
+                          header: header,
+                          delegate: delegate,
+                          viewName: viewName)
     }
 
     ///
@@ -357,6 +367,11 @@ import Foundation
     ///     - regex: Array of NSRegularExpression that is used for the redaction
     @objc
     public static func redactHTTPQuery(matching regex: [NSRegularExpression]) {
-        Instana.current?.monitors.http?.redactionHandler.regex = Set(regex)
+        Instana.current?.monitors.http?.filter.setRedaction(regex: regex)
+    }
+
+    @objc
+    public static func setCaptureHeaders(matching regex: [NSRegularExpression]) {
+        Instana.current?.monitors.http?.filter.headerFieldsRegEx = regex
     }
 }

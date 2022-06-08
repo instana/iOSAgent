@@ -263,6 +263,16 @@ struct CoreBeacon: Codable {
     var hu: String?
 
     /**
+     * HTTP header fields
+     *
+     * Will be converted at transmission to separated string prefixed by `h_`
+     * For example: `h_X-email   some@example.com`
+     *
+     * optional
+     */
+    var h: HTTPHeader?
+
+    /**
      * The path of the full URL
      *
      * For example: /questions/4604486/how-do-i-move-an-existing-git-submodule-within-a-git-repository

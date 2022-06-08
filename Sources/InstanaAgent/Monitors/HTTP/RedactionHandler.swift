@@ -1,5 +1,4 @@
 import Foundation
-import SwiftUI
 
 class RedactionHandler {
     static var `default`: RedactionHandler {

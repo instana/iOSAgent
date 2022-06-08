@@ -5,6 +5,7 @@
 import Foundation
 
 typealias MetaData = [String: String]
+typealias HTTPHeader = [String: String]
 
 struct InstanaProperties: Equatable {
     struct User: Equatable {

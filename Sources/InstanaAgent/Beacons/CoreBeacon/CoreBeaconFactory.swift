@@ -55,6 +55,7 @@ extension CoreBeacon {
         bt = beacon.backendTracingID
         hu = beacon.url.absoluteString
         hp = beacon.path
+        h = beacon.header
         hs = String(beacon.responseCode)
         hm = beacon.method
         d = String(beacon.duration)
@@ -145,27 +146,5 @@ extension CoreBeacon {
                    cn: connection.cellular.carrierName,
                    ct: connection.description,
                    ect: ect?.description ?? connection.cellular.description)
-    }
-
-    static func create(from httpBody: String) throws -> CoreBeacon {
-        var metaPairs = [String: String]()
-        let lines = httpBody.components(separatedBy: "\n")
-        var kvPairs = lines.reduce([String: Any]()) { result, line -> [String: Any] in
-            let components = line.components(separatedBy: "\t")
-            guard let key = components.first, let value = components.last else { return result }
-            var newResult = result
-            newResult[key] = value
-            if key.hasPrefix("m_") {
-                let newKey = key.replacingOccurrences(of: "m_", with: "")
-                metaPairs[newKey] = value
-            }
-            return newResult
-        }
-        if metaPairs.count > 0 {
-            kvPairs["m"] = metaPairs
-        }
-        let jsonData = try JSONSerialization.data(withJSONObject: kvPairs, options: .prettyPrinted)
-        let beacon = try JSONDecoder().decode(CoreBeacon.self, from: jsonData)
-        return beacon
     }
 }

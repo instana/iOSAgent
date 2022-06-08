@@ -29,7 +29,6 @@ class CustomBeaconTests: InstanaTestCase {
 
         // Then
         AssertEqualAndNotNil(sut.name, name)
-        AssertEqualAndNotNil(sut.timestamp, Date().millisecondsSince1970)
         XCTAssertNil(sut.backendTracingID)
         AssertEqualAndNotNil(sut.viewName, viewName)
         XCTAssertNil(sut.duration)

@@ -15,7 +15,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         Instana.setup(key: InstanaKey, reportingURL: InstanaURL, httpCaptureConfig: .automatic)
 
         let url = URL(string: "https://www.instana.com")!
-        URLSession.shared.dataTask(with: url) { _, _, _ in
+        var request = URLRequest(url: url)
+        request.addValue("Key", forHTTPHeaderField: "X-Auth")
+        URLSession.shared.dataTask(with: request) { _, _, _ in
         }.resume()
     }
 
