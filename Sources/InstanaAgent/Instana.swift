@@ -85,7 +85,7 @@ import Foundation
     /// - Parameters:
     ///   - key: Instana key to identify your application.
     ///   - reportingURL: Reporting URL for the Instana backend.
-    ///   - httpCaptureConfig: HTTP monitoring configuration to set the capture behavior (automatic, manual, automaticAndManual or none) http requests & responses
+    ///   - httpCaptureConfig: HTTP monitoring configuration to set the capture behavior (automatic, manual, automaticAndManual or none) HTTP requests & responses
     ///   - collectionEnabled: Enable or disable collection (instrumentation) on setup. Can be changed later via the property `collectionEnabled` (Default: true)
     @objc
     public static func setup(key: String, reportingURL: URL, httpCaptureConfig: HTTPCaptureConfig = .automatic, collectionEnabled: Bool = true) {
@@ -96,7 +96,7 @@ import Foundation
 
     /// Manual monitoring of URLRequest.
     ///
-    /// Start the capture of the http session before using the URLRequest in a URLSession
+    /// Start the capture of the HTTP session before using the URLRequest in a URLSession
     ///
     ///     let marker = Instana.startCapture(urlRequest)
     ///
@@ -148,7 +148,7 @@ import Foundation
 
     /// Manual monitoring of URL calls.
     ///
-    /// Start the capture of the http session before call the URL (Optionally: Pass a viewName):
+    /// Start the capture of the HTTP session before call the URL (Optionally: Pass a viewName):
     ///
     ///     let marker = Instana.startCapture(url: URL(string: "https://www.example.com")!, method: "GET", viewName: "Home")
     ///
@@ -358,18 +358,28 @@ import Foundation
     }
 
     ///
-    /// Provide an array of NSRegularExpression to redact values from the captured http query
+    /// Redaction of keys and secrets from captured HTTP requests by providing an
+    /// array of NSRegularExpression that match the keywords from the captured HTTP request.
     /// Example: try? NSRegularExpression(pattern: #"pass(word|wort)"#, options: [.caseInsensitive]) to redact the password or passwort parameter
     ///
-    /// Default: We redact all query values matching the parameter: key, secret, password (also myKey or Password)
+    /// Default: Instana applies the redaction to all query values corresponding to the parameter: key, secret, password (also myKey or Password)
     ///
     /// - Parameters:
-    ///     - regex: Array of NSRegularExpression that is used for the redaction
+    ///     - regex: Array of NSRegularExpression to find matching keywords for redaction.
     @objc
     public static func redactHTTPQuery(matching regex: [NSRegularExpression]) {
         Instana.current?.monitors.http?.filter.setRedaction(regex: regex)
     }
 
+    ///
+    /// Capture HTTP header fields by providing an array
+    /// of NSRegularExpression that match the HTTP field keys.
+    /// Example: try? NSRegularExpression(pattern: #"X-Key"#, options: [.caseInsensitive]) to capture the X-Key or X-KEY
+    ///
+    /// Default: No HTTP header fields are captured. Keywords must be provided explicitly
+    ///
+    /// - Parameters:
+    ///     - regex: Array of NSRegularExpression to capture matching HTTP header field keywords
     @objc
     public static func setCaptureHeaders(matching regex: [NSRegularExpression]) {
         Instana.current?.monitors.http?.filter.headerFieldsRegEx = regex
