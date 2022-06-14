@@ -23,7 +23,7 @@ extension CoreBeacon {
 
     func formattedKVPair(key: String, value: Any) -> String? {
         guard Mirror.isNotNil(value: value) else { return nil }
-        if let dict = value as? MetaData {
+        if let dict = value as? [String: String] {
             return dict.asString(prefix: key)
         }
         let value = "\(value)".coreBeaconClean()
@@ -35,7 +35,7 @@ extension CoreBeacon {
 extension MetaData {
     func asString(prefix: String) -> String? {
         guard count > 0 else { return nil }
-        return compactMap {
+        return sorted { $0.0 < $1.0 }.compactMap {
             guard !$0.value.isEmpty else { return nil }
             return "\(prefix)_\($0.key)\t\($0.value.coreBeaconClean())"
         }.joined(separator: "\n")

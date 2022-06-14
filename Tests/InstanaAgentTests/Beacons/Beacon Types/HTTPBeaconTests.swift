@@ -9,11 +9,13 @@ class HTTPBeaconTests: InstanaTestCase {
         let responseSize = HTTPMarker.Size(header: 4, body: 5, bodyAfterDecoding: 6)
         let url = URL.random
         let method = "POST"
+        let header = ["X-Key1": "Sec", "X-Key2": "P"]
         let backendTracingID = "BackendTID"
         let timestamp = Date().millisecondsSince1970
         let http = HTTPBeacon(timestamp: timestamp,
                               method: method,
                               url: url,
+                              header: header,
                               responseCode: 200,
                               responseSize: responseSize,
                               backendTracingID: backendTracingID,
@@ -34,6 +36,7 @@ class HTTPBeaconTests: InstanaTestCase {
         AssertEqualAndNotNil(sut.hp, url.path)
         AssertEqualAndNotNil(sut.hs, String(http.responseCode))
         AssertEqualAndNotNil(sut.hm, method)
+        AssertEqualAndNotNil(sut.h, header)
         AssertEqualAndNotNil(sut.d, String(http.duration))
         AssertEqualAndNotNil(sut.ebs, String(responseSize.bodyBytes!))
         AssertEqualAndNotNil(sut.trs, String(responseSize.headerBytes! + responseSize.bodyBytes!))
@@ -126,8 +129,9 @@ class HTTPBeaconTests: InstanaTestCase {
         let timestamp: Instana.Types.Milliseconds = 1000
         let duration: Instana.Types.Milliseconds = 1
         let backendTracingID = "BackendTID"
+        let header = ["X-Key1": "Sec", "X-Key2": "P"]
         let viewName = "View"
-        let http = HTTPBeacon(timestamp: timestamp, duration: duration, method: method, url: url, responseCode: responseCode, responseSize: responseSize, error: timeout, backendTracingID: backendTracingID, viewName: viewName)
+        let http = HTTPBeacon(timestamp: timestamp, duration: duration, method: method, url: url, header: header, responseCode: responseCode, responseSize: responseSize, error: timeout, backendTracingID: backendTracingID, viewName: viewName)
         var beacon: CoreBeacon!
         do {
             beacon = try CoreBeaconFactory(.mock(configuration: .mock)).map(http)
@@ -140,7 +144,7 @@ class HTTPBeaconTests: InstanaTestCase {
 
         // When
         let expectedErrorMessage = "\(HTTPError.timeout.rawValue): \(HTTPError.timeout.errorDescription)"
-        let expected = "ab\t\(beacon.ab)\nagv\t\(beacon.agv)\nav\t\(beacon.av)\nbi\t\(beacon.bi)\nbid\t\(beacon.bid)\nbt\t\(backendTracingID)\ncn\t\(beacon.cn ?? "")\nct\t\(beacon.ct ?? "")\nd\t\(duration)\ndbs\t\(responseSize.bodyBytesAfterDecoding!)\ndma\tApple\ndmo\t\(beacon.dmo)\nebs\t\(responseSize.bodyBytes!)\nec\t1\nem\t\(expectedErrorMessage)\net\tHTTPError\nhm\t\(method)\nhp\t\(url.path)\nhs\t\(responseCode)\nhu\t\(url.absoluteString)\nk\t\(key)\nosn\tiOS\nosv\t\(beacon.osv)\np\tiOS\nro\tfalse\nsid\t\(beacon.sid)\nt\thttpRequest\nti\t\(timestamp)\ntrs\t\(responseSize.headerBytes! + responseSize.bodyBytes!)\nul\ten\nv\t\(viewName)\nvh\t\(Int(UIScreen.main.bounds.height))\nvw\t\(Int(UIScreen.main.bounds.width))"
+        let expected = "ab\t\(beacon.ab)\nagv\t\(beacon.agv)\nav\t\(beacon.av)\nbi\t\(beacon.bi)\nbid\t\(beacon.bid)\nbt\t\(backendTracingID)\ncn\t\(beacon.cn ?? "")\nct\t\(beacon.ct ?? "")\nd\t\(duration)\ndbs\t\(responseSize.bodyBytesAfterDecoding!)\ndma\tApple\ndmo\t\(beacon.dmo)\nebs\t\(responseSize.bodyBytes!)\nec\t1\nem\t\(expectedErrorMessage)\net\tHTTPError\nh_X-Key1\tSec\nh_X-Key2\tP\nhm\t\(method)\nhp\t\(url.path)\nhs\t\(responseCode)\nhu\t\(url.absoluteString)\nk\t\(key)\nosn\tiOS\nosv\t\(beacon.osv)\np\tiOS\nro\tfalse\nsid\t\(beacon.sid)\nt\thttpRequest\nti\t\(timestamp)\ntrs\t\(responseSize.headerBytes! + responseSize.bodyBytes!)\nul\ten\nv\t\(viewName)\nvh\t\(Int(UIScreen.main.bounds.height))\nvw\t\(Int(UIScreen.main.bounds.width))"
         XCTAssertEqual(sut, expected)
     }
 
@@ -148,7 +152,8 @@ class HTTPBeaconTests: InstanaTestCase {
         // Given
         let responseSize = HTTPMarker.Size.random
         let backendTracingID = "BackendTID"
-        let http = HTTPBeacon(timestamp: 1000, duration: 10, method: "M", url: URL.random, responseCode: 200, responseSize: responseSize, error: timeout, backendTracingID: backendTracingID)
+        let header = ["X-Key1": "Sec", "X-Key2": "P"]
+        let http = HTTPBeacon(timestamp: 1000, duration: 10, method: "M", url: URL.random, header: header, responseCode: 200, responseSize: responseSize, error: timeout, backendTracingID: backendTracingID)
 
         // When
         var beacon: CoreBeacon!
@@ -166,7 +171,9 @@ class HTTPBeaconTests: InstanaTestCase {
 
         mirror.nonNilChildren.forEach { child in
             let value = child.value as AnyObject
-            AssertEqualAndNotNil(sut[child.label] as? String, value.description, "Values for \(child.0) must be same")
+            AssertEqualAndNotNil(String(describing: sut[child.label]!),
+                                 String(describing: value),
+                                 "Values for \(child.0) must be same")
         }
     }
 

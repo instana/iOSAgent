@@ -7,15 +7,17 @@ class HTTPMarkerTests: InstanaTestCase {
     func test_marker_defaultValues() {
         // Given
         let url: URL = .random
+        let header = ["K": "V"]
         let start = Date().millisecondsSince1970
 
         // When
-        let marker = HTTPMarker(url: url, method: "GET", trigger: .automatic, delegate: Delegate())
+        let marker = HTTPMarker(url: url, method: "GET", trigger: .automatic, header: header, delegate: Delegate())
 
         // Then
         XCTAssertEqual(marker.url, url)
         XCTAssertEqual(marker.method, "GET")
         XCTAssertEqual(marker.trigger, .automatic)
+        XCTAssertEqual(marker.header, header)
         XCTAssertTrue(marker.startTime >= start)
     }
 
@@ -110,12 +112,49 @@ class HTTPMarkerTests: InstanaTestCase {
         XCTAssertEqual(marker.responseSize?.bodyBytes, 200)
         XCTAssertEqual(marker.responseSize?.bodyBytesAfterDecoding, 300)
         XCTAssertEqual(delegate.didFinishCount, 1)
+        XCTAssertEqual(marker.header, nil)
         XCTAssertEqual(marker.backendTracingID, "BackendID")
         if case let .finished(responseCode) = marker.state {
             XCTAssertEqual(responseCode, 201)
         } else {
             XCTFail("Wrong marker state: \(marker.state)")
         }
+    }
+
+    func test_responseHeader_overrides_requestHeader() {
+        // Given
+        let delegate = Delegate()
+        let requestHeader = ["XR": "A", "E": "P"]
+        let responseHeader = ["X": "Q", "K": "A"]
+        let marker = HTTPMarker(url: URL.random, method: "POST", trigger: .manual, header: requestHeader, delegate: delegate, viewName: "SomeView")
+        let result = HTTPCaptureResult(statusCode: 200,
+                                       backendTracingID: "BackendID",
+                                       header: responseHeader,
+                                       responseSize: HTTPMarker.Size(header: 100, body: 200, bodyAfterDecoding: 300),
+                                       error: nil)
+
+        // When
+        marker.finish(result)
+
+        // Then
+        XCTAssertEqual(marker.header, responseHeader)
+    }
+
+    func test_use_requestHeader_if_responseHeader_empty() {
+        // Given
+        let delegate = Delegate()
+        let requestHeader = ["XR": "A", "E": "P"]
+        let marker = HTTPMarker(url: URL.random, method: "POST", trigger: .manual, header: requestHeader, delegate: delegate, viewName: "SomeView")
+        let result = HTTPCaptureResult(statusCode: 200,
+                                       backendTracingID: "BackendID",
+                                       responseSize: HTTPMarker.Size(header: 100, body: 200, bodyAfterDecoding: 300),
+                                       error: nil)
+
+        // When
+        marker.finish(result)
+
+        // Then
+        XCTAssertEqual(marker.header, requestHeader)
     }
 
     func test_finish_with_HTTPCaptureResult_with_error() {
@@ -243,7 +282,7 @@ class HTTPMarkerTests: InstanaTestCase {
         let marker = HTTPMarker(url: url, method: "c", trigger: .automatic, delegate: Delegate())
 
         // When
-        guard let beacon = marker.createBeacon() as? HTTPBeacon else {
+        guard let beacon = marker.createBeacon(filter: .init()) as? HTTPBeacon else {
             XCTFail("Beacon type missmatch"); return
         }
 
@@ -264,7 +303,7 @@ class HTTPMarkerTests: InstanaTestCase {
         let marker = HTTPMarker(url: url, method: "c", trigger: .automatic, delegate: Delegate())
 
         // When
-        guard let beacon = marker.createBeacon() as? HTTPBeacon else {
+        guard let beacon = marker.createBeacon(filter: .init()) as? HTTPBeacon else {
             XCTFail("Beacon type missmatch"); return
         }
 
@@ -282,7 +321,7 @@ class HTTPMarkerTests: InstanaTestCase {
         // When
         marker.set(responseSize: responseSize)
         marker.finish(response: createMockResponse(204), error: nil)
-        guard let beacon = marker.createBeacon() as? HTTPBeacon else {
+        guard let beacon = marker.createBeacon(filter: .init()) as? HTTPBeacon else {
             XCTFail("Beacon type missmatch"); return
         }
 
@@ -308,7 +347,7 @@ class HTTPMarkerTests: InstanaTestCase {
         // When
         marker.set(responseSize: responseSize)
         marker.finish(response: createMockResponse(409), error: error)
-        guard let beacon = marker.createBeacon() as? HTTPBeacon else {
+        guard let beacon = marker.createBeacon(filter: .init()) as? HTTPBeacon else {
             XCTFail("Beacon type missmatch"); return
         }
 
@@ -333,7 +372,7 @@ class HTTPMarkerTests: InstanaTestCase {
         marker.cancel()
 
         // When
-        guard let beacon = marker.createBeacon() as? HTTPBeacon else {
+        guard let beacon = marker.createBeacon(filter: .init()) as? HTTPBeacon else {
             XCTFail("Beacon type missmatch"); return
         }
 

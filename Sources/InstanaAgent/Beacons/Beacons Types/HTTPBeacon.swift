@@ -11,6 +11,7 @@ class HTTPBeacon: Beacon {
     let method: String
     let url: URL
     let path: String?
+    let header: [String: String]?
     let responseCode: Int
     let responseSize: HTTPMarker.Size?
     var backendTracingID: String?
@@ -20,6 +21,7 @@ class HTTPBeacon: Beacon {
          duration: Instana.Types.Milliseconds = 0,
          method: String,
          url: URL,
+         header: [String: String]? = nil,
          responseCode: Int,
          responseSize: HTTPMarker.Size? = nil,
          error: Error? = nil,
@@ -30,6 +32,7 @@ class HTTPBeacon: Beacon {
         self.method = method
         let urlString = url.absoluteString.cleanEscapeAndTruncate(at: Self.maxLengthURL, trailing: "")
         self.url = URL(string: urlString) ?? url
+        self.header = header
         self.path = path
         self.responseCode = responseCode
         self.responseSize = responseSize

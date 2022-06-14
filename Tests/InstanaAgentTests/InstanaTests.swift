@@ -539,4 +539,33 @@ class InstanaTests: InstanaTestCase {
         // Then
         XCTAssertEqual(expectedBeacon?.url.absoluteString, "https://www.instana.com/Key/?Password=%3Credacted%3E&key=123&thePAssWord=%3Credacted%3E")
     }
+
+    func test_setCaptureHeaders() {
+        // Given
+        let url = URL(string: "https://www.instana.com/Key/?Password=test&key=123&thePAssWord=123495")!
+        var request = URLRequest(url: url)
+        request.addValue("should_be_monitored", forHTTPHeaderField: "x_key")
+        request.addValue("should_not_be_monitored", forHTTPHeaderField: "password")
+        let regex = try! NSRegularExpression(pattern: "X_Key", options: [.caseInsensitive])
+        let waitReport = expectation(description: "test_setCaptureHeaders")
+        let session = InstanaSession.mock(configuration: .mock(httpCaptureConfig: .manual))
+        var expectedBeacon: HTTPBeacon?
+        let reporter = MockReporter {
+            if let beacon = $0 as? HTTPBeacon {
+                expectedBeacon = beacon
+                waitReport.fulfill()
+            }
+        }
+        Instana.current = Instana(session: session, monitors: Monitors(session, reporter: reporter))
+
+        // When
+        Instana.setCaptureHeaders(matching: [regex])
+        let marker = Instana.startCapture(request)
+        marker.finish(.init(statusCode: 200))
+        wait(for: [waitReport], timeout: 5.0)
+
+        // Then
+        XCTAssertEqual(expectedBeacon?.header?["x_key"], "should_be_monitored")
+        XCTAssertEqual(expectedBeacon?.header?.count, 1)
+    }
 }

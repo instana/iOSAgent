@@ -75,6 +75,7 @@ class BeaconPerformanceTests: InstanaTestCase {
         HTTPBeacon(timestamp: Date().millisecondsSince1970,
                    method: "POST",
                    url: URL.random,
+                   header: nil,
                    responseCode: 0,
                    responseSize: HTTPMarker.Size(header: 4, body: 5, bodyAfterDecoding: 6),
                    error: nil,

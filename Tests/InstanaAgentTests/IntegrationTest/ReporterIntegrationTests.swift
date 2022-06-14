@@ -33,7 +33,7 @@ class ReporterIntegrationTests: InstanaTestCase {
         let expectedBeacon = try? CoreBeaconFactory(session).map(submittingBeacon)
         let waitFor = expectation(description: "Wait For")
         var sentBeaconData: Data?
-        reporter = Reporter(session, networkUtility: networkUtil) {request, completion   in
+        reporter = Reporter(session, networkUtility: networkUtil) {request, completion in
             sentBeaconData = request.httpBody
             completion(.success(200))
         }
@@ -68,7 +68,6 @@ class ReporterIntegrationTests: InstanaTestCase {
         }
     }
 
-    //
     func test_report_offline_and_online() {
         // Given
         networkUtil = NetworkUtility.none

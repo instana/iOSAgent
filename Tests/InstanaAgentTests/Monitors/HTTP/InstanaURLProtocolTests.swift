@@ -246,8 +246,9 @@ class InstanaURLProtocolTests: InstanaTestCase {
         response.stubbedAllHeaderFields = ["Server-Timing": "intid;desc=981d9553578fc280"]
         task.stubbedResponse = response
         let metrics = MockURLSessionTaskMetrics.random
+        let header = ["X-Key": "Value"]
         let urlProtocol = InstanaURLProtocol(task: mockTask(for: url), cachedResponse: nil, client: nil)
-        let marker = HTTPMarker(url: url, method: "GET", trigger: .automatic, delegate: delegate)
+        let marker = HTTPMarker(url: url, method: "GET", trigger: .automatic, header: header, delegate: delegate)
         urlProtocol.marker = marker
 
         // When
@@ -261,6 +262,7 @@ class InstanaURLProtocolTests: InstanaTestCase {
         wait(for: [waitFor], timeout: 3.0)
         AssertEqualAndNotNil(urlProtocol.marker?.backendTracingID, backendTracingID)
         AssertEqualAndNotNil(urlProtocol.marker, marker)
+        AssertEqualAndNotNil(urlProtocol.marker?.header, header)
         AssertTrue(delegate.calledFinalized)
         if case let .finished(responseCode) = urlProtocol.marker?.state {
             AssertTrue(responseCode == 200)
@@ -331,11 +333,12 @@ class InstanaURLProtocolTests: InstanaTestCase {
         let backendTracingID = "981d9553578fc280"
         let task = MockURLSessionTask()
         let url = URL.random
+        let header = ["X-Key": "Val"]
         let response = MockHTTPURLResponse(url: url, mimeType: "text/plain", expectedContentLength: 10, textEncodingName: "txt")
         response.stubbedAllHeaderFields = ["Server-Timing": "intid;desc=981d9553578fc280"]
         task.stubbedResponse = response
         let urlProtocol = InstanaURLProtocol(request: URLRequest(url: url), cachedResponse: nil, client: nil)
-        urlProtocol.marker = HTTPMarker(url: url, method: "GET", trigger: .automatic, delegate: delegate)
+        urlProtocol.marker = HTTPMarker(url: url, method: "GET", trigger: .automatic, header: header, delegate: delegate)
         let givenError = NSError(domain: NSURLErrorDomain, code: NSURLErrorDataNotAllowed, userInfo: nil)
         var resultError: NSError?
 
