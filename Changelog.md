@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.5.0
+- Add new feature to capture HTTP header fields by providing an array of NSRegularExpression
+
 ## 1.4.0
 - Add new feature to redact password, key, secrets from HTTP query parameters
 - Improve thread safety
