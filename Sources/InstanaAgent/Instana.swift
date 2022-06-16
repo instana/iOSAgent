@@ -372,14 +372,13 @@ import Foundation
     }
 
     ///
-    /// Capture HTTP header fields by providing an array
-    /// of NSRegularExpression that match the HTTP field keys.
+    /// HTTP request and response headers can be captured by the iOS agent. You can use regular expressions to define the keys of the HTTP header fields that the iOS agent should capture.
     /// Example: try? NSRegularExpression(pattern: #"X-Key"#, options: [.caseInsensitive]) to capture the X-Key or X-KEY
     ///
     /// Default: No HTTP header fields are captured. Keywords must be provided explicitly
     ///
     /// - Parameters:
-    ///     - regex: Array of NSRegularExpression to capture matching HTTP header field keywords
+    ///     - regex: An array of NSRegularExpression objects to match the key of HTTP request/response headers that you want to capture. 
     @objc
     public static func setCaptureHeaders(matching regex: [NSRegularExpression]) {
         Instana.current?.monitors.http?.filter.headerFieldsRegEx = regex
