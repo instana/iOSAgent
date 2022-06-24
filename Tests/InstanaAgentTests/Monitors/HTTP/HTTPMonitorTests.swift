@@ -13,7 +13,7 @@ class HTTPMonitorTests: InstanaTestCase {
         // Then
         AssertTrue(IgnoreURLHandler.shouldIgnore(reportingURL))
         AssertTrue(IgnoreURLHandler.exactURLs.count == 1)
-        AssertTrue(IgnoreURLHandler.exactURLs.first == reportingURL)
+        XCTAssertEqual(IgnoreURLHandler.exactURLs.first, reportingURL)
     }
 
     func test_load_default_DefaultIgnoredURLs() {
@@ -399,7 +399,7 @@ class HTTPMonitorTests: InstanaTestCase {
     
     func test_automaticTriggerMarker_shouldBeReportedOnlyForAutomatedReporting() {
         // Given
-        var config = InstanaConfiguration.mock(key: "KEY")
+        let config = InstanaConfiguration.mock(key: "KEY")
         var count = 0
 
         // Automatic
@@ -446,7 +446,7 @@ class HTTPMonitorTests: InstanaTestCase {
     
     func test_manualTriggerMarker_shouldBeReportedOnlyForManualReporting() {
         // Given
-        var config = InstanaConfiguration.mock(key: "KEY")
+        let config = InstanaConfiguration.mock(key: "KEY")
         var count = 0
 
         // When automatic capture
@@ -482,7 +482,7 @@ class HTTPMonitorTests: InstanaTestCase {
 
     func test_manualTriggerMarker_shouldBeReportedForAutomaticAndManualReporting() {
         // Given
-        var config = InstanaConfiguration.mock(key: "KEY")
+        let config = InstanaConfiguration.mock(key: "KEY")
         var count = 0
 
         // When automatic capture

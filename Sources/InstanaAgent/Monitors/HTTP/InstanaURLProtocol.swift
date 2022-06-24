@@ -355,7 +355,7 @@ extension URLSessionConfiguration {
         }
     }
 
-    @Atomic static var all = [URLSessionConfiguration]()
+    static var all = AtomicArray<URLSessionConfiguration>()
 
     static func removeAllInstanaURLProtocol() {
         all.forEach { $0.protocolClasses?.removeAll(where: { (protocolClass) -> Bool in

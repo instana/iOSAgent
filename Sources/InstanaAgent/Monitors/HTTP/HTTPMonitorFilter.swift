@@ -2,7 +2,7 @@ import Foundation
 
 class HTTPMonitorFilter {
     private let redactionHandler: RedactionHandler
-    @Atomic var headerFieldsRegEx = [NSRegularExpression]()
+    var headerFieldsRegEx = AtomicArray<NSRegularExpression>()
 
     init(redactionHandler: RedactionHandler = .default) {
         self.redactionHandler = redactionHandler
@@ -13,7 +13,7 @@ class HTTPMonitorFilter {
     }
 
     func setRedaction(regex: [NSRegularExpression]) {
-        redactionHandler.regex = Set(regex)
+        redactionHandler.regex = AtomicSet(regex)
     }
 
     func filterHeaderFields(_ header: HTTPHeader?) -> HTTPHeader? {

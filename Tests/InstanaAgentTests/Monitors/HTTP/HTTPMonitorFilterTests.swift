@@ -27,7 +27,7 @@ class HTTPMonitorFilterTests: InstanaTestCase {
         filter.setRedaction(regex: regex)
 
         // Then
-        AssertEqualAndNotNil(redactionHandler.regex, Set(regex))
+        AssertEqualAndNotNil(redactionHandler.regex, AtomicSet(regex))
     }
 
     func test_filterHeaderFields_none() {
@@ -49,7 +49,7 @@ class HTTPMonitorFilterTests: InstanaTestCase {
         let filter = HTTPMonitorFilter()
 
         // When
-        filter.headerFieldsRegEx = [regex]
+        filter.headerFieldsRegEx = AtomicArray([regex])
         let sut = filter.filterHeaderFields(header)!
 
         // Then
@@ -64,7 +64,7 @@ class HTTPMonitorFilterTests: InstanaTestCase {
         let filter = HTTPMonitorFilter()
 
         // When
-        filter.headerFieldsRegEx = [regex]
+        filter.headerFieldsRegEx = AtomicArray([regex])
         let sut = filter.filterHeaderFields(header)!
 
         // Then

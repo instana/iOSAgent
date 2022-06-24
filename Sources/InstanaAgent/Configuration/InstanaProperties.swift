@@ -7,7 +7,8 @@ import Foundation
 typealias MetaData = [String: String]
 typealias HTTPHeader = [String: String]
 
-struct InstanaProperties: Equatable {
+// Make this a reference type to avoid a copy for concurrency
+class InstanaProperties {
     struct User: Equatable {
         static let userValueMaxLength = 128
 
@@ -51,7 +52,7 @@ struct InstanaProperties: Equatable {
         self.view = Self.validate(view: view)
     }
 
-    mutating func appendMetaData(_ key: String, _ value: String) {
+    func appendMetaData(_ key: String, _ value: String) {
         let key = MetaData.validate(key: key)
         let value = MetaData.validate(value: value)
         if metaData.count < MetaData.Max.numberOfMetaEntries {
