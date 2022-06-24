@@ -26,7 +26,7 @@ class InstanaApplicationStateHandler {
     }
 
     typealias StateUpdater = (State) -> Void
-    private var stateUpdateHandler = [StateUpdater]()
+    private var stateUpdateHandler = AtomicArray<StateUpdater>()
 
     init() {
         _ = NotificationCenter.default.addObserver(forName: Application.didBecomeActiveNotification, object: nil, queue: nil) { _ in

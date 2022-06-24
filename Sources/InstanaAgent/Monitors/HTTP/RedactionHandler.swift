@@ -9,10 +9,10 @@ class RedactionHandler {
         return RedactionHandler(regex: regex)
     }
 
-    @Atomic var regex = Set<NSRegularExpression>()
+    var regex = AtomicSet<NSRegularExpression>()
 
     init(regex: [NSRegularExpression]) {
-        self.regex = Set(regex)
+        self.regex = AtomicSet(regex)
     }
 
     func redact(url: URL) -> URL {

@@ -15,7 +15,8 @@ import Foundation
     case none
 }
 
-struct InstanaConfiguration: Equatable {
+// Use a reference type to avoid a copy when having concurrency
+class InstanaConfiguration {
     enum SuspendReporting {
         /// Reporting is suspended while the device battery is low.
         case lowBattery
@@ -63,7 +64,7 @@ struct InstanaConfiguration: Equatable {
     var reporterSendLowBatteryDebounce: Instana.Types.Seconds
     var maxRetries: Int
     var gzipReport: Bool
-    var maxBeaconsPerRequest: Int
+    var maxBeaconsPerRequest: Int = 0
     var maxQueueSize: Int
     var preQueueUsageTime: TimeInterval
     var reporterRateLimits: [ReporterRateLimitConfig]
@@ -73,19 +74,23 @@ struct InstanaConfiguration: Equatable {
         .default(key: "", reportingURL: URL(string: "https://www.instana.com")!, httpCaptureConfig: .none)
     }
 
+    required init(reportingURL: URL, key: String, httpCaptureConfig: HTTPCaptureConfig) {
+        self.reportingURL = reportingURL
+        self.key = key
+        self.httpCaptureConfig = httpCaptureConfig
+        suspendReporting = SuspendReporting.defaults
+        monitorTypes = MonitorTypes.current
+        reporterSendDebounce = Defaults.reporterSendDebounce
+        reporterSendLowBatteryDebounce = Defaults.reporterSendLowBatteryDebounce
+        maxRetries = Defaults.maxRetries
+        gzipReport = Defaults.gzipReport
+        maxBeaconsPerRequest = Defaults.maxBeaconsPerRequest
+        maxQueueSize = Defaults.maxQueueSize
+        preQueueUsageTime = Defaults.preQueueUsageTime
+        reporterRateLimits = Defaults.reporterRateLimits
+    }
+
     static func `default`(key: String, reportingURL: URL, httpCaptureConfig: HTTPCaptureConfig = .automatic) -> InstanaConfiguration {
-        self.init(reportingURL: reportingURL,
-                  key: key,
-                  httpCaptureConfig: httpCaptureConfig,
-                  suspendReporting: SuspendReporting.defaults,
-                  monitorTypes: MonitorTypes.current,
-                  reporterSendDebounce: Defaults.reporterSendDebounce,
-                  reporterSendLowBatteryDebounce: Defaults.reporterSendLowBatteryDebounce,
-                  maxRetries: Defaults.maxRetries,
-                  gzipReport: Defaults.gzipReport,
-                  maxBeaconsPerRequest: Defaults.maxBeaconsPerRequest,
-                  maxQueueSize: Defaults.maxQueueSize,
-                  preQueueUsageTime: Defaults.preQueueUsageTime,
-                  reporterRateLimits: Defaults.reporterRateLimits)
+        self.init(reportingURL: reportingURL, key: key, httpCaptureConfig: httpCaptureConfig)
     }
 }

@@ -5,7 +5,7 @@ class IgnoreURLHandlerTests: InstanaTestCase {
 
     func test_ignore_exact_URL() {
         // Given
-        IgnoreURLHandler.exactURLs = [URL(string: "http://www.example.com")!]
+        IgnoreURLHandler.exactURLs = AtomicSet([URL(string: "http://www.example.com")!])
 
         // When
         let sut = IgnoreURLHandler.shouldIgnore(URL(string: "http://www.example.com")!)
@@ -16,7 +16,7 @@ class IgnoreURLHandlerTests: InstanaTestCase {
 
     func test_not_ignoring_exact_URL() {
         // Given
-        IgnoreURLHandler.exactURLs = [URL(string: "http://www.example.com/some")!]
+        IgnoreURLHandler.exactURLs = AtomicSet([URL(string: "http://www.example.com/some")!])
 
         // When
         let sut = IgnoreURLHandler.shouldIgnore(URL(string: "http://www.example.com")!)
@@ -27,8 +27,8 @@ class IgnoreURLHandlerTests: InstanaTestCase {
 
     func test_empty_ignore() {
         // Given
-        IgnoreURLHandler.regex = []
-        IgnoreURLHandler.exactURLs = []
+        IgnoreURLHandler.regex = AtomicSet()
+        IgnoreURLHandler.exactURLs = AtomicSet()
 
         // When
         let sut = IgnoreURLHandler.shouldIgnore(URL(string: "http://www.example.com/start?secret=Key")!)
@@ -39,7 +39,7 @@ class IgnoreURLHandlerTests: InstanaTestCase {
 
     func test_not_ignoring_exact_URL_2() {
         // Given
-        IgnoreURLHandler.exactURLs = [URL(string: "http://www.example.com")!]
+        IgnoreURLHandler.exactURLs = AtomicSet([URL(string: "http://www.example.com")!])
 
         // When
         let sut = IgnoreURLHandler.shouldIgnore(URL(string: "http://www.example.com/some")!)
@@ -51,7 +51,7 @@ class IgnoreURLHandlerTests: InstanaTestCase {
     func test_ignore_regex_pattern() {
         // Given
         let regex = try! NSRegularExpression(pattern: ".*(&|\\?)password=.*")
-        IgnoreURLHandler.regex = [regex]
+        IgnoreURLHandler.regex = AtomicSet([regex])
 
         // When
         let sut = IgnoreURLHandler.shouldIgnore(URL(string: "http://www.example.com/?password=Key")!)

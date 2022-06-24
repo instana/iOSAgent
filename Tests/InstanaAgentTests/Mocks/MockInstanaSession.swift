@@ -23,7 +23,7 @@ extension InstanaSession {
         let sessionID = sessionID ?? UUID()
         let metaData = metaData
         let propertyHandler = InstanaPropertyHandler()
-        var properties = InstanaProperties(user: user, view: currentView)
+        let properties = InstanaProperties(user: user, view: currentView)
         metaData.forEach { (key, value) in
             properties.appendMetaData(key, value)
         }

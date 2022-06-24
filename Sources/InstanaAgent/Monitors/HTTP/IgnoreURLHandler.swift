@@ -6,13 +6,13 @@ import Foundation
 
 struct IgnoreURLHandler {
     /// Monitor ignores URLs that match the given regular expressions
-    @Atomic static var regex = Set<NSRegularExpression>()
+    static var regex = AtomicSet<NSRegularExpression>()
 
     /// Monitor ignores the exact URLs given in this collection
-    @Atomic static var exactURLs = Set<URL>()
+    static var exactURLs = AtomicSet<URL>()
 
     /// All sessions will be ignored from HTTP monitoring
-    @Atomic static var urlSessions = Set<URLSession>()
+    static var urlSessions = AtomicSet<URLSession>()
 
     static func ignore(session: URLSession) {
         urlSessions.insert(session)

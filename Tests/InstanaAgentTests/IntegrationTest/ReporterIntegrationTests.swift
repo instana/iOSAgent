@@ -13,7 +13,7 @@ class ReporterIntegrationTests: InstanaTestCase {
 
     override func setUp() {
         super.setUp()
-        var config = InstanaConfiguration.mock(key: "KEY")
+        let config = InstanaConfiguration.mock(key: "KEY")
         config.reportingURL = .random
         config.reporterSendDebounce = 0.0
         config.reporterSendLowBatteryDebounce = 0.0

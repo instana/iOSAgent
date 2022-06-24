@@ -25,7 +25,7 @@ class InstanaPropertyHandlerTests: InstanaTestCase {
         let max = MetaData.Max.numberOfMetaEntries
         let keys = (0..<max).map { "key \($0)" }
         let values = (0..<max).map { "value \($0)" }
-        var properties = InstanaProperties()
+        let properties = InstanaProperties()
 
         // When
         (0..<max).forEach {index in
@@ -42,7 +42,7 @@ class InstanaPropertyHandlerTests: InstanaTestCase {
         let max = MetaData.Max.numberOfMetaEntries
         let keys = (0...max).map { "key \($0)" }
         let values = (0...max).map { "value \($0)" }
-        var properties = InstanaProperties()
+        let properties = InstanaProperties()
 
         // When
         (0..<max).forEach {index in
@@ -88,7 +88,7 @@ class InstanaPropertiesTests: XCTestCase {
 
     func test_appendMetaData() {
         // Given
-        var properties = InstanaProperties()
+        let properties = InstanaProperties()
 
         // When
         properties.appendMetaData("Key", "Value")
@@ -103,7 +103,7 @@ class InstanaPropertiesTests: XCTestCase {
         let key = (0...MetaData.Max.lengthMetaKey).map {_ in "K" }.joined()
         let value = (0...MetaData.Max.lengthMetaValue).map {_ in "V" }.joined()
 
-        var properties = InstanaProperties()
+        let properties = InstanaProperties()
 
         // When
         properties.appendMetaData(key, value)
@@ -120,7 +120,7 @@ class InstanaPropertiesTests: XCTestCase {
         // Given
         let maxLength = InstanaProperties.viewMaxLength
         let view = (0..<maxLength).map {_ in "V" }.joined()
-        var properties = InstanaProperties()
+        let properties = InstanaProperties()
 
         // When
         properties.view = view
@@ -148,7 +148,7 @@ class InstanaPropertiesTests: XCTestCase {
         // Given
         let maxLength = InstanaProperties.viewMaxLength
         let view = (0...maxLength).map {_ in "V" }.joined()
-        var properties = InstanaProperties()
+        let properties = InstanaProperties()
 
         // When
         properties.view = view

@@ -378,9 +378,9 @@ import Foundation
     /// Default: No HTTP header fields are captured. Keywords must be provided explicitly
     ///
     /// - Parameters:
-    ///     - regex: An array of NSRegularExpression objects to match the key of HTTP request/response headers that you want to capture. 
+    ///     - regex: An array of NSRegularExpression objects to match the key of HTTP request/response headers that you want to capture.
     @objc
     public static func setCaptureHeaders(matching regex: [NSRegularExpression]) {
-        Instana.current?.monitors.http?.filter.headerFieldsRegEx = regex
+        Instana.current?.monitors.http?.filter.headerFieldsRegEx = AtomicArray(regex)
     }
 }

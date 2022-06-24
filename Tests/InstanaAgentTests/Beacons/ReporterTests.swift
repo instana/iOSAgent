@@ -1174,7 +1174,7 @@ extension ReporterTests {
 extension ReporterTests {
 
     func createMockSession(_ delay: Instana.Types.Seconds = 0.0, preQueueUsageTime: Instana.Types.Seconds = 0.0, suspend: Set<InstanaConfiguration.SuspendReporting> = [], gzip: Bool = false) -> InstanaSession {
-        var config = InstanaConfiguration.mock(gzipReport: gzip)
+        let config = InstanaConfiguration.mock(gzipReport: gzip)
         config.reporterSendDebounce = delay
         config.reporterSendLowBatteryDebounce = delay
         config.preQueueUsageTime = preQueueUsageTime
@@ -1208,7 +1208,7 @@ extension ReporterTests {
     }
 
     func mockBeaconSubmission(_ loadResult: Swift.Result<Int, Error>, resultCallback: @escaping (BeaconResult) -> Void) {
-        var config = InstanaConfiguration.mock
+        let config = InstanaConfiguration.mock
         config.reporterSendDebounce = 0.0
         config.reporterSendLowBatteryDebounce = 0.0
         let reporter = Reporter(.mock(configuration: config),

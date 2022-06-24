@@ -45,7 +45,7 @@ class InstanaURLProtocolTests: InstanaTestCase {
         InstanaURLProtocol.mode = .enabled
 
         // When
-        IgnoreURLHandler.exactURLs = [URL(string: "https://www.url.to/ignore")!]
+        IgnoreURLHandler.exactURLs = AtomicSet([URL(string: "https://www.url.to/ignore")!])
 
         // Then
         XCTAssertFalse(InstanaURLProtocol.canInit(with: makeRequest("https://www.url.to/ignore")))
@@ -57,7 +57,7 @@ class InstanaURLProtocolTests: InstanaTestCase {
 
         // When
         let regex = try! NSRegularExpression(pattern: ".*(&|\\?)password=.*")
-        IgnoreURLHandler.regex = [regex]
+        IgnoreURLHandler.regex = AtomicSet([regex])
 
         // Then
         XCTAssertFalse(InstanaURLProtocol.canInit(with: makeRequest("https://www.a.b/?password=abc")))
