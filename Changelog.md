@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.5.2
+- Add new atomic types for some collections to improve thread safety
+
 ## 1.5.1
 - Improve thread safety
 
