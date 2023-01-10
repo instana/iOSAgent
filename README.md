@@ -53,5 +53,5 @@ func application(_ application: UIApplication, didFinishLaunchingWithOptions lau
 
 ### API
 
-See [API page](https://docs.instana.io/products/mobile_app_monitoring/ios_api/).
+See [API page](https://www.ibm.com/docs/en/instana-observability/current?topic=monitoring-ios-api#instana-ios-agent-api).
 
