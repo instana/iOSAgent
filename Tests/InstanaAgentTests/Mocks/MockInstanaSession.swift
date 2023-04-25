@@ -8,7 +8,6 @@ import XCTest
 
 extension InstanaSession {
     static var mock: InstanaSession { mock(configuration: .mock(maxRetries: 0)) }
-    static func mock(retries: Int) -> InstanaSession { mock(configuration: .mock(maxRetries: retries)) }
     static var mockWithManualHTTPCapture: InstanaSession { mock(configuration: InstanaConfiguration.mock(key: "", reportingURL: .random, httpCaptureConfig: .manual))}
     static var mockWithAutomaticHTTPCapture: InstanaSession { mock(configuration: InstanaConfiguration.mock(key: "", reportingURL: .random, httpCaptureConfig: .automatic))}
     static var mockWithAutomaticAndManualHTTPCapture: InstanaSession { mock(configuration: InstanaConfiguration.mock(key: "", reportingURL: .random, httpCaptureConfig: .automaticAndManual))}
@@ -19,7 +18,8 @@ extension InstanaSession {
                      metaData: MetaData = [:],
                      user: InstanaProperties.User? = nil,
                      currentView: String? = nil,
-                     collectionEnabled: Bool = true) -> InstanaSession {
+                     collectionEnabled: Bool = true,
+                     previousSession: PreviousSession? = nil) -> InstanaSession {
         let sessionID = sessionID ?? UUID()
         let metaData = metaData
         let propertyHandler = InstanaPropertyHandler()

@@ -8,6 +8,7 @@ import UIKit
 import Combine
 import InstanaAgent
 
+@available(iOS 13.0, *)
 class JSONViewController: UIViewController {
 
     @IBOutlet var searchTextField: UITextField!
@@ -45,6 +46,7 @@ class JSONViewController: UIViewController {
     }
 }
 
+@available(iOS 13.0, *)
 extension JSONViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         loadJSON()
@@ -52,6 +54,7 @@ extension JSONViewController: UITextFieldDelegate {
     }
 }
 
+@available(iOS 13.0, *)
 extension Subscribers.Completion {
     var error: Error? {
         switch self {

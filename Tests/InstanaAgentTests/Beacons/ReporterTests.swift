@@ -26,7 +26,7 @@ class ReporterTests: InstanaTestCase {
         let reporter = createReporterDefaultWifi()
 
         // When
-        reporter.submit(AlertBeacon(alertType: .lowMemory)) {
+        reporter.submit(AlertBeacon(alertType: .lowMemory)) {_ in
             didSubmit = true
             submittedToQueue.fulfill()
         }
@@ -45,13 +45,13 @@ class ReporterTests: InstanaTestCase {
         let reporter = createReporterDefaultWifi(delay: 10.0, rateLimiter: rateLimiter)
 
         // When
-        reporter.submit(AlertBeacon(alertType: .lowMemory)) {
+        reporter.submit(AlertBeacon(alertType: .lowMemory)) {_ in
             submittedToQueue1.fulfill()
         }
         wait(for: [submittedToQueue1], timeout: 3.0)
 
         // Submit another beacon that should be rejected
-        reporter.submit(AlertBeacon(alertType: .lowMemory)) {
+        reporter.submit(AlertBeacon(alertType: .lowMemory)) {_ in
             submittedToQueue2.fulfill()
         }
         wait(for: [submittedToQueue2], timeout: 3.0)
@@ -68,13 +68,13 @@ class ReporterTests: InstanaTestCase {
         let reporter = createReporterDefaultWifi(delay: 10.0, rateLimiter: rateLimiter)
 
         // When
-        reporter.submit(AlertBeacon(alertType: .lowMemory)) {
+        reporter.submit(AlertBeacon(alertType: .lowMemory)) {_ in
             submittedToQueue1.fulfill()
         }
         wait(for: [submittedToQueue1], timeout: 3.0)
 
         // Submit another beacon that should be rejected
-        reporter.submit(AlertBeacon(alertType: .lowMemory)) {
+        reporter.submit(AlertBeacon(alertType: .lowMemory)) {_ in
             submittedToQueue2.fulfill()
         }
         wait(for: [submittedToQueue2], timeout: 3.0)
@@ -92,11 +92,11 @@ class ReporterTests: InstanaTestCase {
         let reporter = createReporterDefaultWifi()
 
         // When
-        reporter.submit(AlertBeacon(alertType: .lowMemory)) {
+        reporter.submit(AlertBeacon(alertType: .lowMemory)) {_ in
             didSubmitFirst = true
             firstSubmittedToQueue.fulfill()
         }
-        reporter.submit(AlertBeacon(alertType: .lowMemory)) {
+        reporter.submit(AlertBeacon(alertType: .lowMemory)) {_ in
             didSubmitSecond = true
             secondSubmittedToQueue.fulfill()
         }
@@ -193,7 +193,7 @@ class ReporterTests: InstanaTestCase {
         }
 
         // When
-        reporter.submit(givenBeacon) {
+        reporter.submit(givenBeacon) {_ in
             submitExp.fulfill()
         }
         wait(for: [submitExp], timeout: 3.0)
@@ -763,7 +763,7 @@ class ReporterTests: InstanaTestCase {
         AssertTrue(reporter.queue.maxItems > 0)
 
         // When
-        reporter.submit(HTTPBeacon.createMock()) {
+        reporter.submit(HTTPBeacon.createMock()) {_ in
             waitFor.fulfill()
         }
         wait(for: [waitFor], timeout: 2.0)
@@ -803,7 +803,7 @@ class ReporterTests: InstanaTestCase {
         }
 
         // When
-        reporter.submit(beacon) {
+        reporter.submit(beacon) {_ in
             waitForSubmit.fulfill()
         }
         reporter.completionHandler.append {result in
@@ -856,7 +856,7 @@ class ReporterTests: InstanaTestCase {
         }
 
         // When
-        reporter.submit(beaconPreQueue) {
+        reporter.submit(beaconPreQueue) {_ in
             waitForSubmit1.fulfill()
         }
 
@@ -933,7 +933,7 @@ class ReporterTests: InstanaTestCase {
         let reporter = createReporterDefaultWifi()
 
         // When
-        reporter.submit(Beacon(timestamp: 1000000)) {
+        reporter.submit(Beacon(timestamp: 1000000)) {_ in
             waitForSubmit.fulfill()
         }
 

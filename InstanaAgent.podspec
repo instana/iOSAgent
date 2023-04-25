@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
   #
 
   s.name         = "InstanaAgent"
-  s.version      = "1.5.2"
+  s.version      = "1.6.0"
   s.summary      = "Instana iOS agent."
 
   # This description is used to generate tags and improve search results.
@@ -81,9 +81,9 @@ Pod::Spec.new do |s|
   #  Not including the public_header_files will make all headers public.
   #
 
-  s.source_files  = "Sources/InstanaAgent/**/*.{swift}"
+  s.source_files  = "Sources/**/*.{swift,h,m}"
   s.exclude_files = "Dev"
-
+  s.public_header_files = 'Sources/ImageTracker/**/*.h'
 
   # ――― Project Linking ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
   #

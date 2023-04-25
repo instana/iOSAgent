@@ -19,12 +19,15 @@ extension InstanaConfiguration {
                      maxQueueSize: Int = 80,
                      debounce: Instana.Types.Seconds = 0.0,
                      maxRetries: Int = 0) -> InstanaConfiguration {
-        let config = InstanaConfiguration(reportingURL: reportingURL, key: key, httpCaptureConfig: httpCaptureConfig)
+        let config = InstanaConfiguration(reportingURL: reportingURL, key: key,
+                                          httpCaptureConfig: httpCaptureConfig,
+                                          enableCrashReporting: true)
         config.suspendReporting = []
         config.monitorTypes = [.http,
                                .memoryWarning,
                                .framerateDrop(frameThreshold: 20),
-                               .alertApplicationNotResponding(threshold: 2.0)]
+                               .alertApplicationNotResponding(threshold: 2.0),
+                               MonitorTypes.crash]
         config.reporterSendDebounce = debounce
         config.reporterSendLowBatteryDebounce = debounce
         config.maxRetries = maxRetries

@@ -11,10 +11,10 @@ public extension ProcessInfo {
 
     static var ignoreZIPReporting: Bool {
         var ignore = ""
-        if let ignoreViaLaunchArguments = UserDefaults.standard.string(forKey: "IgnoreZIPReporting") {
+        if let ignoreViaLaunchArguments = UserDefaults.standard.string(forKey: ignoreZipReportingKey) {
             ignore = ignoreViaLaunchArguments
         } else {
-            ignore = ProcessInfo.processInfo.environment["IgnoreZIPReporting"] ?? ""
+            ignore = ProcessInfo.processInfo.environment[ignoreZipReportingKey] ?? ""
         }
         return ignore == "true"
     }

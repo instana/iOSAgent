@@ -10,6 +10,7 @@ import InstanaAgent
 import AFNetworking
 import Alamofire
 
+@available(iOS 13.0, *)
 class ImageViewViewController: UIViewController {
 
     lazy var imageView = UIImageView()

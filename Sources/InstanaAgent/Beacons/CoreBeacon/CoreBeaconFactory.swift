@@ -27,6 +27,10 @@ class CoreBeaconFactory {
             cbeacon.append(item)
         case let item as AlertBeacon:
             cbeacon.append(item)
+        case let item as DiagnosticBeacon:
+            if #available(iOS 14.0, macOS 12, *) {
+                cbeacon.append(item, session: session)
+            }
         case let item as SessionProfileBeacon:
             cbeacon.append(item)
         case let item as CustomBeacon:
@@ -83,6 +87,54 @@ extension CoreBeacon {
     mutating func append(_ beacon: AlertBeacon) {
         t = .alert
         // nothing yet defined
+    }
+
+    @available(iOS 14.0, macOS 12.0, *)
+    mutating func append(_ beacon: DiagnosticBeacon, session: InstanaSession) {
+        t = .crash
+
+        let currentSID = sid
+        let currentCN = cn
+        let currentCT = ct
+        let currentUI = ui
+        let currentUN = un
+        let currentUE = ue
+
+        cti = String(beacon.crashTime)
+        d = String(beacon.duration)
+        ast = beacon.crashPayload
+        if beacon.formatted != nil {
+            st = beacon.formatted
+        }
+        if beacon.errorType != nil {
+            et = String(beacon.errorType!)
+        }
+        if beacon.errorMessage != nil {
+            em = beacon.errorMessage
+        }
+
+        sid = beacon.crashSession.id.uuidString
+        v = beacon.crashSession.viewName
+        cn = beacon.crashSession.carrier
+        ct = beacon.crashSession.connectionType
+        ui = beacon.crashSession.userID
+        un = beacon.crashSession.userName
+        ue = beacon.crashSession.userEmail
+
+        m = MetaData()
+        m![crashMetaKeyIsSymbolicated] = String(beacon.isSymbolicated)
+        m![crashMetaKeyInstanaPayloadVersion] = currentInstanaCrashPayloadVersion
+        m![crashMetaKeyCrashType] = beacon.crashType?.rawValue
+        m![crashMetaKeyGroupID] = beacon.crashGroupID.uuidString
+        m![crashMetaKeySessionID] = currentSID
+        if session.propertyHandler.properties.view != nil {
+            m![crashMetaKeyViewName] = session.propertyHandler.properties.view
+        }
+        m![crashMetaKeyCarrier] = currentCN
+        m![crashMetaKeyConnectionType] = currentCT
+        m![crashMetaKeyUserID] = currentUI
+        m![crashMetaKeyUserName] = currentUN
+        m![crashMetaKeyUserEmail] = currentUE
     }
 
     mutating func append(_ beacon: SessionProfileBeacon) {

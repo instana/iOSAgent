@@ -54,28 +54,28 @@ public class Reporter {
         dispatchQueue.asyncAfter(deadline: .now() + session.configuration.preQueueUsageTime, execute: emptyPreQueueIfNeeded)
     }
 
-    func submit(_ beacon: Beacon, _ completion: (() -> Void)? = nil) {
+    func submit(_ beacon: Beacon, _ completion: ((Bool) -> Void)? = nil) {
         dispatchQueue.async { [weak self] in
             guard let self = self else { return }
             guard self.session.collectionEnabled else {
-                self.session.logger.add("Instana instrumentation is disabled. Beacon will be discarded", level: .warning)
-                completion?()
+                self.session.logger.add("Instana instrumentation is disabled. Beacon might be discarded", level: .warning)
+                completion?(false)
                 return
             }
             guard self.rateLimiter.canSubmit() else {
-                self.session.logger.add("Rate Limit reached - Beacon will be discarded", level: .warning)
-                completion?()
+                self.session.logger.add("Rate Limit reached - Beacon might be discarded", level: .warning)
+                completion?(false)
                 return
             }
             if self.mustUsePrequeue {
                 self.preQueue.append(beacon)
-                completion?()
+                completion?(true)
                 return
             }
 
             guard !self.queue.isFull else {
-                self.session.logger.add("Queue is full - Beacon will be discarded", level: .warning)
-                completion?()
+                self.session.logger.add("Queue is full - Beacon might be discarded", level: .warning)
+                completion?(false)
                 return
             }
             let start = Date()
@@ -85,7 +85,7 @@ public class Reporter {
                 self.session.logger.add("\(Date().millisecondsSince1970) Creating the CoreBeacon took \(passed * 1000) ms")
                 self.scheduleFlush()
             }
-            completion?()
+            completion?(true)
         }
     }
 

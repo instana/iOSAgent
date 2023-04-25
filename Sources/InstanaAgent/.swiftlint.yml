@@ -16,12 +16,12 @@ force_try:
 # rules that have both warning and error levels, can set just the warning level
 # implicitly
 line_length: 260
-function_body_length: 60
+function_body_length: 80
 type_body_length:
-  - 300 # warning
-  - 400 # error
+  - 400 # warning
+  - 500 # error
 file_length:
-  warning: 500
+  warning: 600
   error: 1200
 identifier_name:
   allowed_symbols: ["_"] # these are allowed in type names

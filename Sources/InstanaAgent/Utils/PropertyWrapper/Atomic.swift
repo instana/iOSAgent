@@ -47,7 +47,7 @@ class AtomicDictionary<Key: Hashable, Value>: CustomDebugStringConvertible {
     }
 }
 
-extension AtomicDictionary where Value: Equatable {
+extension AtomicDictionary: Equatable where Value: Equatable {
     static func == <Key: Hashable, Value: Equatable>(lhs: AtomicDictionary<Key, Value>, rhs: AtomicDictionary<Key, Value>) -> Bool {
         lhs.dict == rhs.dict
     }
@@ -111,7 +111,7 @@ class AtomicArray<T>: CustomDebugStringConvertible, Sequence, Collection {
     }
 }
 
-extension AtomicArray where T: Equatable {
+extension AtomicArray: Equatable where T: Equatable {
     func contains(_ element: T) -> Bool {
         lock.atomic { array.contains(element) }
     }
@@ -153,6 +153,12 @@ class AtomicSet<T: Hashable>: CustomDebugStringConvertible, Sequence {
 
     func removeAll() {
         lock.atomic { set.removeAll() }
+    }
+
+    @discardableResult func remove(_ toRemove: T) -> T? {
+        var removed: T?
+        lock.atomic { removed = set.remove(toRemove) }
+        return removed
     }
 
     var count: Int {

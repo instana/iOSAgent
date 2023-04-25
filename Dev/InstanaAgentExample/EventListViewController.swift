@@ -16,6 +16,7 @@ struct DataSource: Codable {
     let results: [Event]
 }
 
+@available(iOS 13.0, *)
 class EventListViewController: UITableViewController {
 
     private var publisher: AnyCancellable?
@@ -71,6 +72,7 @@ class EventListViewController: UITableViewController {
     }
 }
 
+@available(iOS 13.0, *)
 class DetailViewController: UIViewController {
 
     let label = UILabel()

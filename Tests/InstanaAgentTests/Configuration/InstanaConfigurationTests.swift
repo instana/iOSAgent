@@ -4,7 +4,9 @@ import XCTest
 class InstanaConfigurationTests: InstanaTestCase {
     
     func test_defaultValues() {
-        let config = InstanaConfiguration.default(key: "a", reportingURL: URL(string: "http://localhost:3000")!)
+        let config = InstanaConfiguration.default(key: "a",
+                                                  reportingURL: URL(string: "http://localhost:3000")!,
+                                                  enableCrashReporting: true)
         AssertEqualAndNotNil(config.key, "a")
         AssertEqualAndNotNil(config.reportingURL, URL(string: "http://localhost:3000")!)
         AssertEqualAndNotNil(config.httpCaptureConfig, .automatic)
@@ -16,7 +18,7 @@ class InstanaConfigurationTests: InstanaTestCase {
         AssertTrue(config.maxRetries == 3)
         AssertTrue(config.preQueueUsageTime == 2)
         AssertTrue(config.reporterSendLowBatteryDebounce == 10)
-        AssertTrue(config.monitorTypes.count == 1)
+        AssertTrue(config.monitorTypes.count == 2)
         AssertTrue(config.monitorTypes.contains(.http))
         AssertTrue(config.reporterRateLimits.count == 2)
         AssertTrue(config.reporterRateLimits.first?.maxItems == 20)

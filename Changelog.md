@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.6.0
+- Refactor code and add more unit test cases
+
 ## 1.5.2
 - Add new atomic types for some collections to improve thread safety
 
