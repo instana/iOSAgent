@@ -89,7 +89,7 @@ class BeaconFlusher {
     }
 
     private func flush() {
-        let batches = Array(items).chunked(size: config.maxBeaconsPerRequest)
+        let batches = items.chunkedBeacons(size: config.maxBeaconsPerRequest)
         let disapatchGroup = DispatchGroup()
         batches.forEach { beaconBatch in
             disapatchGroup.enter()

@@ -9,6 +9,10 @@ extension String {
         cleanEscapeAndTruncate(at: CoreBeacon.maxLengthPerField)
     }
 
+    func crashBeaconClean() -> String {
+        cleanEscapeAndTruncate(at: CoreBeacon.maxLengthCrashPayload)
+    }
+
     func cleanEscapeAndTruncate(at length: Int, trailing: String = "…") -> String {
         return cleanEscape().maxLength(length, trailing: trailing)
     }

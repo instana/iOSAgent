@@ -5,7 +5,7 @@
 import Foundation
 
 class AlertBeacon: Beacon {
-    enum AlertType {
+    enum AlertType: Equatable {
         case anr(duration: Instana.Types.Seconds)
         case lowMemory
         case framerateDrop(duration: Instana.Types.Seconds, averageFramerate: Float)

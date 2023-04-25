@@ -17,6 +17,9 @@ Optionally:
 - Set user specific data (like id, name and email)
 - Set the current visible view to match with the HTTP sessions  
 
+## Requirements
+- iOS 11+
+- Swift 5.1+
 
 ## Installation
 
@@ -43,7 +46,6 @@ Just initialize the Instana iOS agent with the following setup. Make sure to cal
 import InstanaAgent
 
 func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
-
 	Instana.setup(key: <Your Instana Key>, reportingURL: <Your Instana instance URL>)
 
 	....
@@ -51,7 +53,13 @@ func application(_ application: UIApplication, didFinishLaunchingWithOptions lau
 }
 ```
 
+### Notes on diagnostic log report
+
+1. Diagnostic test, crash as an example, needs to be done on physical devices: iPhone, iPad etc. Simulator is of no help.
+2. The lowest versions that support crash reporting are iOS 14.0 and macOS 12.0.
+3. A valid bundle id other than com.instana.ios.InstanaAgentExample for your test app is also a must.
+
 ### API
 
-See [API page](https://docs.instana.io/products/mobile_app_monitoring/ios_api/).
+See [API page](https://www.ibm.com/docs/en/instana-observability/current?topic=monitoring-ios-api)
 

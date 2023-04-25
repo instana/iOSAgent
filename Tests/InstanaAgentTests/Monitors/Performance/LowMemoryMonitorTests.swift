@@ -17,14 +17,9 @@ class LowMemoryMonitorTests: InstanaTestCase {
         })
         
         NotificationCenter.default.post(name: UIApplication.didReceiveMemoryWarningNotification, object: nil)
-        
-        guard let alert = beacon as? AlertBeacon else {
-            XCTFail("Beacon not submitted or wrong type")
-            return
-        }
-        guard case .lowMemory = alert.alertType else {
-            XCTFail("Wrong alert type: \(alert.alertType)")
-            return
-        }
+
+        let alert = beacon as? AlertBeacon
+        XCTAssertNotNil(alert)
+        XCTAssertEqual(alert!.alertType, .lowMemory)
     }
 }

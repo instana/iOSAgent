@@ -31,6 +31,11 @@ import Foundation
         }
     }
 
+    @objc
+    deinit {
+        self.monitors.metric?.stopCrashReporting()
+    }
+
     /// Optional reporting URL used for on-premises Instana backend installations.
     @objc
     public class var reportingURL: URL? { Instana.current?.session.configuration.reportingURL }
@@ -72,9 +77,13 @@ import Foundation
     /// - Parameters:
     ///   - key: Instana key to identify your application.
     ///   - reportingURL: Reporting URL for the Instana backend.
+    ///   - enableCrashReporting: Subscribe to metricKit events so as to enable crash reporting.
+    ///                      App must have explicitly asked user permission to subscribe before this call.
     @objc
-    public static func setup(key: String, reportingURL: URL) {
-        let config = InstanaConfiguration.default(key: key, reportingURL: reportingURL, httpCaptureConfig: .automatic)
+    public static func setup(key: String, reportingURL: URL, enableCrashReporting: Bool = false) {
+        let config = InstanaConfiguration.default(key: key, reportingURL: reportingURL,
+                                                  httpCaptureConfig: .automatic,
+                                                  enableCrashReporting: enableCrashReporting)
         let session = InstanaSession(configuration: config, propertyHandler: InstanaPropertyHandler(), collectionEnabled: true)
         Instana.current = Instana(session: session)
     }
@@ -87,9 +96,16 @@ import Foundation
     ///   - reportingURL: Reporting URL for the Instana backend.
     ///   - httpCaptureConfig: HTTP monitoring configuration to set the capture behavior (automatic, manual, automaticAndManual or none) HTTP requests & responses
     ///   - collectionEnabled: Enable or disable collection (instrumentation) on setup. Can be changed later via the property `collectionEnabled` (Default: true)
+    ///   - enableCrashReporting: Subscribe to metricKit events so as to enable crash reporting.
+    ///                      App must have explicitly asked user permission to subscribe before this call.
     @objc
-    public static func setup(key: String, reportingURL: URL, httpCaptureConfig: HTTPCaptureConfig = .automatic, collectionEnabled: Bool = true) {
-        let config = InstanaConfiguration.default(key: key, reportingURL: reportingURL, httpCaptureConfig: httpCaptureConfig)
+    public static func setup(key: String, reportingURL: URL,
+                             httpCaptureConfig: HTTPCaptureConfig = .automatic,
+                             collectionEnabled: Bool = true,
+                             enableCrashReporting: Bool = false) {
+        let config = InstanaConfiguration.default(key: key, reportingURL: reportingURL,
+                                                  httpCaptureConfig: httpCaptureConfig,
+                                                  enableCrashReporting: enableCrashReporting)
         let session = InstanaSession(configuration: config, propertyHandler: InstanaPropertyHandler(), collectionEnabled: collectionEnabled)
         Instana.current = Instana(session: session)
     }
@@ -382,5 +398,49 @@ import Foundation
     @objc
     public static func setCaptureHeaders(matching regex: [NSRegularExpression]) {
         Instana.current?.monitors.http?.filter.headerFieldsRegEx = AtomicArray(regex)
+    }
+
+    ///
+    /// Can catch app crash payloads or not
+    ///
+    @objc
+    public static func canSubscribeCrashReporting() -> Bool {
+        if #available(iOS 14.0, *), #available(macOS 12.0, *) {
+            return true
+        }
+        return false
+    }
+
+    ///
+    /// Setup app crash payloads catching and reporting to server
+    /// Warning: If you call this function from a method that deallocates Instana object, your app might crash.
+    ///
+    @objc
+    public static func subscribeCrashReporting() {
+        Instana.current?.monitors.subscribeCrashReporting()
+    }
+
+    ///
+    /// Stop app crash payloads catching
+    ///
+    @objc
+    public static func stopCrashReporting() {
+        Instana.current?.monitors.stopCrashReporting()
+    }
+
+    ///
+    /// Cancel crash (aka diagnostic) reporting
+    ///
+    /// Diagnostic payloads sent by MetricKit are saved immediately into diagnostic files by Instana agent.
+    /// Instana agent finds approriate time to symbolicate the files and send them as beacons to server.
+    /// This call cancels symbolicating and beacon reporting process. Diagnostic files are not affected.
+    /// Next time when app starts, those cancelled files will be symbolicated again and reported to server.
+    ///
+    /// - Returns: true if symbolication and beaconizing operation is executing at time of call otherwise false.
+    ///
+    @objc
+    public static func cancelCrashReporting() -> Bool {
+        if Instana.current == nil { return false }
+        return Instana.current!.monitors.cancelCrashReporting()
     }
 }

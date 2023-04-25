@@ -28,6 +28,7 @@ struct CoreBeacon: Codable {
      * Default: To be discussed if it can be dynamic
      */
     static let maxLengthPerField: Int = 16384
+    static let maxLengthCrashPayload: Int = (maxLengthPerField * 3)
 
     /**
      * The type of the beacon.
@@ -349,6 +350,51 @@ struct CoreBeacon: Codable {
      * For example: "Timeout"
      */
     var et: String?
+
+    /**
+     * Crash Timestamp
+     *
+     * The timestamp in ms since 1970 when the crash happened.
+     *
+     * Note: Accuracy from MetricKit payload is up to seconds. It's converted to ms for this field.
+     */
+    var cti: String?
+
+    /**
+     * Formatted (Symbolicated sometimes) Crash Payload in JSON format
+     *
+     * called stackTrace from server side
+     *
+     */
+    var st: String?
+
+    /**
+     * Raw Crash Payload in JSON format
+     *
+     * called allStackTraces from server side
+     *
+     */
+    var ast: String?
+
+    /**
+     * Crash Payload Connection ID (send as meta data)
+     *
+     * Note: UUID in string format
+     *
+     */
+    var cid: String?
+
+    /**
+     * Crash Payload Type (send as meta data)
+     *
+     * Example: .hang
+     *
+     */
+    var dt: CrashType?
+
+    func isCrashPayloadField(fieldKey: String) -> Bool {
+        return fieldKey == "st" || fieldKey == "ast"
+    }
 }
 
 extension CoreBeacon: Hashable {

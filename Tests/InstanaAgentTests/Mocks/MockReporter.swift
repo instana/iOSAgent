@@ -17,7 +17,15 @@ class MockReporter: Reporter {
         super.init(InstanaSession.mock)
     }
 
-    override func submit(_ b: Beacon, _ completion: (() -> Void)? = nil) {
+    override func submit(_ b: Beacon, _ completion: ((Bool) -> Void)? = nil) {
         submitter(b)
+        completion?(true)
+    }
+}
+
+class MockReporterDiagnostic_beaconSubmissionFailed: MockReporter {
+    override func submit(_ b: Beacon, _ completion: ((Bool) -> Void)? = nil) {
+        submitter(b)
+        completion?(false)
     }
 }

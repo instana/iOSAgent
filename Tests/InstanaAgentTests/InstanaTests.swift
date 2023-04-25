@@ -23,7 +23,8 @@ class InstanaTests: InstanaTestCase {
         AssertEqualAndNotNil(Instana.reportingURL, reportingURL)
         AssertEqualAndNotNil(Instana.current?.session.configuration.reportingURL, reportingURL)
         AssertEqualAndNotNil(Instana.current?.session.configuration.httpCaptureConfig, .automatic)
-        AssertEqualAndNotNil(Instana.current?.session.configuration, .default(key: key, reportingURL: reportingURL))
+        AssertEqualAndNotNil(Instana.current?.session.configuration,
+                             .default(key: key, reportingURL: reportingURL, enableCrashReporting: false))
     }
 
     func test_setup_disabled() {
@@ -56,7 +57,10 @@ class InstanaTests: InstanaTestCase {
         AssertEqualAndNotNil(Instana.reportingURL, reportingURL)
         AssertEqualAndNotNil(Instana.current?.session.configuration.reportingURL, reportingURL)
         AssertEqualAndNotNil(Instana.current?.session.configuration.httpCaptureConfig, .manual)
-        AssertEqualAndNotNil(Instana.current?.session.configuration, .default(key: key, reportingURL: reportingURL, httpCaptureConfig: httpCaptureConfig))
+        AssertEqualAndNotNil(Instana.current?.session.configuration,
+                             .default(key: key, reportingURL: reportingURL,
+                                      httpCaptureConfig: httpCaptureConfig,
+                                      enableCrashReporting: false))
     }
 
     func test_setup_automaticAndManual_http_capture() {
@@ -74,12 +78,16 @@ class InstanaTests: InstanaTestCase {
         AssertEqualAndNotNil(Instana.reportingURL, reportingURL)
         AssertEqualAndNotNil(Instana.current?.session.configuration.reportingURL, reportingURL)
         AssertEqualAndNotNil(Instana.current?.session.configuration.httpCaptureConfig, .automaticAndManual)
-        AssertEqualAndNotNil(Instana.current?.session.configuration, .default(key: key, reportingURL: reportingURL, httpCaptureConfig: httpCaptureConfig))
+        AssertEqualAndNotNil(Instana.current?.session.configuration,
+                             .default(key: key, reportingURL: reportingURL,
+                                      httpCaptureConfig: httpCaptureConfig,
+                                      enableCrashReporting: false))
     }
 
     func test_setup_and_expect_SessionProfileBeacon() {
         // Given
-        let session: InstanaSession = .mock(configuration: .default(key: "KEY", reportingURL: .random))
+        let session: InstanaSession = .mock(configuration:
+                .default(key: "KEY",reportingURL: .random, enableCrashReporting: true))
         var expectedBeacon: SessionProfileBeacon?
         let reporter = MockReporter {
             if let beacon = $0 as? SessionProfileBeacon {
@@ -567,5 +575,51 @@ class InstanaTests: InstanaTestCase {
         // Then
         XCTAssertEqual(expectedBeacon?.header?["x_key"], "should_be_monitored")
         XCTAssertEqual(expectedBeacon?.header?.count, 1)
+    }
+
+    func test_canSubscribeCrashReporting() {
+        // When
+        let canSubscribe = Instana.canSubscribeCrashReporting()
+
+        // Then
+        // These test cases need to run on iOS simulator 16.0 or above!
+        XCTAssertTrue(canSubscribe)
+    }
+
+    func test_subscribeCrashReportings() {
+        // Covers negative case of Monitors subscribeCrashReporting()
+        Instana.subscribeCrashReporting()
+    }
+
+    func test_stopCrashReporting() {
+        Instana.stopCrashReporting()
+    }
+
+    func test_cancelCrashReporting() {
+        // case 1
+        // When
+        var cancelled = Instana.cancelCrashReporting()
+
+        // Then
+        // No operation going on, nothing to cancel
+        XCTAssertFalse(cancelled)
+
+        // case 2
+        // When
+        Instana.current?.monitors.metric = nil
+        cancelled = Instana.cancelCrashReporting()
+
+        // Then
+        // Covers negative case when metric variable in Monitors is nil
+        XCTAssertFalse(cancelled)
+
+        // case 3
+        // When
+        Instana.current = nil
+        cancelled = Instana.cancelCrashReporting()
+
+        // Then
+        // Covers negative case for empty current of Instana
+        XCTAssertFalse(cancelled)
     }
 }

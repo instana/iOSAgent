@@ -31,6 +31,7 @@ class InstanaProperties {
             self.id = Self.validate(value: id) ?? id
             self.email = Self.validate(value: email)
             self.name = Self.validate(value: name)
+            PreviousSession.persistUser(id: self.id, email: self.email, name: self.name)
         }
 
         static func validate(value: String?) -> String? {
@@ -44,7 +45,10 @@ class InstanaProperties {
 
     static let viewMaxLength = 256
     var view: String? {
-        didSet { view = Self.validate(view: view) }
+        didSet {
+            view = Self.validate(view: view)
+            PreviousSession.persistView(viewName: view)
+        }
     }
 
     init(user: User? = nil, view: String? = nil) {

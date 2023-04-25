@@ -36,6 +36,8 @@ class InstanaConfiguration {
         case memoryWarning
         case framerateDrop(frameThreshold: UInt)
         case alertApplicationNotResponding(threshold: Instana.Types.Seconds)
+        case crash
+
         static let current: Set<MonitorTypes> = [.http]
         static let all: Set<MonitorTypes> = [.http,
                                              .memoryWarning,
@@ -70,16 +72,15 @@ class InstanaConfiguration {
     var reporterRateLimits: [ReporterRateLimitConfig]
     var isValid: Bool { !key.isEmpty && !reportingURL.absoluteString.isEmpty }
 
-    static var empty: InstanaConfiguration {
-        .default(key: "", reportingURL: URL(string: "https://www.instana.com")!, httpCaptureConfig: .none)
-    }
-
-    required init(reportingURL: URL, key: String, httpCaptureConfig: HTTPCaptureConfig) {
+    required init(reportingURL: URL, key: String, httpCaptureConfig: HTTPCaptureConfig, enableCrashReporting: Bool) {
         self.reportingURL = reportingURL
         self.key = key
         self.httpCaptureConfig = httpCaptureConfig
         suspendReporting = SuspendReporting.defaults
         monitorTypes = MonitorTypes.current
+        if enableCrashReporting {
+            monitorTypes.insert(.crash)
+        }
         reporterSendDebounce = Defaults.reporterSendDebounce
         reporterSendLowBatteryDebounce = Defaults.reporterSendLowBatteryDebounce
         maxRetries = Defaults.maxRetries
@@ -90,7 +91,9 @@ class InstanaConfiguration {
         reporterRateLimits = Defaults.reporterRateLimits
     }
 
-    static func `default`(key: String, reportingURL: URL, httpCaptureConfig: HTTPCaptureConfig = .automatic) -> InstanaConfiguration {
-        self.init(reportingURL: reportingURL, key: key, httpCaptureConfig: httpCaptureConfig)
+    static func `default`(key: String, reportingURL: URL, httpCaptureConfig: HTTPCaptureConfig = .automatic,
+                          enableCrashReporting: Bool) -> InstanaConfiguration {
+        self.init(reportingURL: reportingURL, key: key, httpCaptureConfig: httpCaptureConfig,
+                  enableCrashReporting: enableCrashReporting)
     }
 }

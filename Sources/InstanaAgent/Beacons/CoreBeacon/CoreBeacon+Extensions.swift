@@ -26,7 +26,7 @@ extension CoreBeacon {
         if let dict = value as? [String: String] {
             return dict.asString(prefix: key)
         }
-        let value = "\(value)".coreBeaconClean()
+        let value = isCrashPayloadField(fieldKey: key) ? "\(value)".crashBeaconClean() : "\(value)".coreBeaconClean()
         guard !value.isEmpty else { return nil }
         return "\(key)\t\(value)"
     }

@@ -8,6 +8,7 @@ class Monitors {
     var applicationNotResponding: ApplicationNotRespondingMonitor?
     var lowMemory: LowMemoryMonitor?
     var framerateDrop: FramerateDropMonitor?
+    var metric: MetricMonitor?
     var http: HTTPMonitor?
     let reporter: Reporter
     private let session: InstanaSession
@@ -27,10 +28,29 @@ class Monitors {
                 framerateDrop = FramerateDropMonitor(threshold: threshold, reporter: reporter)
             case let .alertApplicationNotResponding(threshold):
                 applicationNotResponding = ApplicationNotRespondingMonitor(threshold: threshold, reporter: reporter)
+            case .crash:
+                subscribeCrashReporting()
             }
         }
 
         submitStartBeaconIfNeeded()
+    }
+
+    func subscribeCrashReporting() {
+        guard metric == nil else {
+            return
+        }
+        metric = MetricMonitor(session, reporter: reporter)
+        metric!.convertDiagnosticsToBeacons()
+    }
+
+    func stopCrashReporting() {
+        metric?.stopCrashReporting()
+    }
+
+    func cancelCrashReporting() -> Bool {
+        guard let metric = self.metric else { return false }
+        return metric.cancelDiagnosticReporting()
     }
 
     func submitStartBeaconIfNeeded() {
