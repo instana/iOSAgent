@@ -51,7 +51,8 @@ extension CoreBeacon {
         ui = properties.user?.id
         un = properties.user?.name
         ue = properties.user?.email
-        m = !properties.metaData.isEmpty ? properties.metaData : nil
+        let localMeta = properties.getMetaData()
+        m = !localMeta.isEmpty ? localMeta : nil
     }
 
     mutating func append(_ beacon: HTTPBeacon) {

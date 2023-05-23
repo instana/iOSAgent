@@ -41,7 +41,8 @@ class InstanaProperties {
     }
 
     var user: User?
-    private(set) var metaData = MetaData()
+    private var metaData = MetaData()
+    private let queueMetaData = DispatchQueue(label: "com.instana.ios.agent.metadata", attributes: .concurrent)
 
     static let viewMaxLength = 256
     var view: String? {
@@ -59,8 +60,19 @@ class InstanaProperties {
     func appendMetaData(_ key: String, _ value: String) {
         let key = MetaData.validate(key: key)
         let value = MetaData.validate(value: value)
-        if metaData.count < MetaData.Max.numberOfMetaEntries {
-            metaData[key] = value
+        queueMetaData.async(flags: .barrier) { [weak self] in
+            guard let self = self else {
+                return
+            }
+            if self.metaData.count < MetaData.Max.numberOfMetaEntries {
+                self.metaData[key] = value
+            }
+        }
+    }
+
+    func getMetaData() -> MetaData {
+        return queueMetaData.sync {
+            self.metaData
         }
     }
 
