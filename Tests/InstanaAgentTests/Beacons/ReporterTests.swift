@@ -816,7 +816,7 @@ class ReporterTests: InstanaTestCase {
         AssertTrue(beacon.viewName == nil)
         AssertTrue(mockSession.propertyHandler.properties.view == nil)
         AssertTrue(mockSession.propertyHandler.properties.user == nil)
-        AssertTrue(mockSession.propertyHandler.properties.metaData.isEmpty)
+        AssertTrue(mockSession.propertyHandler.properties.getMetaData().isEmpty)
         AssertTrue(reporter.preQueue.count == 1)
 
         // When

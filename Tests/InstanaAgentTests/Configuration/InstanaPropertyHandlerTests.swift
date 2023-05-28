@@ -33,8 +33,8 @@ class InstanaPropertyHandlerTests: InstanaTestCase {
         }
 
         // Then
-        AssertTrue(properties.metaData.keys.count == max)
-        AssertTrue(properties.metaData.values.count == max)
+        AssertTrue(properties.getMetaData().keys.count == max)
+        AssertTrue(properties.getMetaData().values.count == max)
     }
 
     func test_validate_keys_one_overflow() {
@@ -50,8 +50,8 @@ class InstanaPropertyHandlerTests: InstanaTestCase {
         }
 
         // Then
-        AssertTrue(properties.metaData.keys.count == keys.count - 1)
-        AssertTrue(properties.metaData.keys.count == max)
+        AssertTrue(properties.getMetaData().keys.count == keys.count - 1)
+        AssertTrue(properties.getMetaData().keys.count == max)
     }
 
     func test_validate_value_valid() {
@@ -94,8 +94,8 @@ class InstanaPropertiesTests: XCTestCase {
         properties.appendMetaData("Key", "Value")
 
         // Then
-        XCTAssertEqual(properties.metaData["Key"], "Value")
-        XCTAssertTrue(properties.metaData.count == 1)
+        XCTAssertEqual(properties.getMetaData()["Key"], "Value")
+        XCTAssertTrue(properties.getMetaData().count == 1)
     }
 
     func test_appendMetaData_exceeds_length() {
@@ -111,9 +111,9 @@ class InstanaPropertiesTests: XCTestCase {
         // Then
         let expectedKey = key.cleanEscapeAndTruncate(at: key.count - 1)
         let expectedValue = value.cleanEscapeAndTruncate(at: value.count - 1)
-        XCTAssertEqual(properties.metaData[expectedKey], expectedValue)
-        XCTAssertEqual(properties.metaData[expectedKey]?.last, "…")
-        XCTAssertTrue(properties.metaData.count == 1)
+        XCTAssertEqual(properties.getMetaData()[expectedKey], expectedValue)
+        XCTAssertEqual(properties.getMetaData()[expectedKey]?.last, "…")
+        XCTAssertTrue(properties.getMetaData().count == 1)
     }
 
     func test_view_valid_length() {

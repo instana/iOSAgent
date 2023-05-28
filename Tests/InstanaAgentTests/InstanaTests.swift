@@ -306,7 +306,7 @@ class InstanaTests: InstanaTestCase {
         Instana.setMeta(value: given["Key2"]!, key: "Key2")
 
         // Then
-        AssertEqualAndNotNil(Instana.current?.session.propertyHandler.properties.metaData, given)
+        AssertEqualAndNotNil(Instana.current?.session.propertyHandler.properties.getMetaData(), given)
     }
 
     func test_setMetaData_value_exceeds_max() {
@@ -320,9 +320,9 @@ class InstanaTests: InstanaTestCase {
         Instana.setMeta(value: exceeds, key: "exceeds")
 
         // Then
-        AssertEqualAndNotNil(Instana.current?.session.propertyHandler.properties.metaData["valid"], valid)
-        AssertEqualAndNotNil(Instana.current?.session.propertyHandler.properties.metaData["exceeds"], exceeds.cleanEscapeAndTruncate(at: max))
-        AssertTrue(Instana.current?.session.propertyHandler.properties.metaData.count == 2)
+        AssertEqualAndNotNil(Instana.current?.session.propertyHandler.properties.getMetaData()["valid"], valid)
+        AssertEqualAndNotNil(Instana.current?.session.propertyHandler.properties.getMetaData()["exceeds"], exceeds.cleanEscapeAndTruncate(at: max))
+        AssertTrue(Instana.current?.session.propertyHandler.properties.getMetaData().count == 2)
     }
 
     func test_setMetaData_key_exceeds_max() {
@@ -336,9 +336,9 @@ class InstanaTests: InstanaTestCase {
         Instana.setMeta(value: "exceeds", key: exceeds)
 
         // Then
-        AssertEqualAndNotNil(Instana.current?.session.propertyHandler.properties.metaData[valid], "valid")
-        AssertEqualAndNotNil(Instana.current?.session.propertyHandler.properties.metaData[exceeds.cleanEscapeAndTruncate(at: max)], "exceeds")
-        AssertTrue(Instana.current?.session.propertyHandler.properties.metaData.count == 2)
+        AssertEqualAndNotNil(Instana.current?.session.propertyHandler.properties.getMetaData()[valid], "valid")
+        AssertEqualAndNotNil(Instana.current?.session.propertyHandler.properties.getMetaData()[exceeds.cleanEscapeAndTruncate(at: max)], "exceeds")
+        AssertTrue(Instana.current?.session.propertyHandler.properties.getMetaData().count == 2)
     }
 
     func test_setMetaData_ignore_too_many_fields() {
@@ -351,14 +351,14 @@ class InstanaTests: InstanaTestCase {
         }
 
         // Then
-        let values = Array(Instana.current!.session.propertyHandler.properties.metaData.values)
-        let keys = Array(Instana.current!.session.propertyHandler.properties.metaData.keys)
+        let values = Array(Instana.current!.session.propertyHandler.properties.getMetaData().values)
+        let keys = Array(Instana.current!.session.propertyHandler.properties.getMetaData().keys)
         AssertTrue(values.contains("V-0") == true)
         AssertTrue(values.contains("V-63") == true)
         AssertTrue(values.contains("V-64") == false)
         AssertTrue(keys.contains("63") == true)
         AssertTrue(keys.contains("64") == false)
-        AssertTrue(Instana.current!.session.propertyHandler.properties.metaData.count == max)
+        AssertTrue(Instana.current!.session.propertyHandler.properties.getMetaData().count == max)
     }
 
     func test_setIgnoreURLs() {
