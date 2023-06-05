@@ -70,7 +70,46 @@ import Foundation
         }
     }
 
-    /// Configures and sets up the Instana agent with the default configuration.
+    /// Configures and sets up the Instana agent.
+    ///
+    /// - Note: Should be called only once, as soon as posible. Preferably in `application(_:, didFinishLaunchingWithOptions:)`
+    /// - Parameters:
+    ///   - key: Instana key to identify your application.
+    ///   - reportingURL: Reporting URL for the Instana backend.
+    ///   - options: InstanaSetupOptions which includes collectionEnabled, enableCrashReporting,  slowSendInterval etc.
+    ///
+    /// - Returns: true on success, false on error
+    @objc
+    public static func setup(key: String, reportingURL: URL, options: InstanaSetupOptions?) -> Bool {
+        var httpCaptureConfig = HTTPCaptureConfig.automatic
+        var collectionEnabled = true
+        var enableCrashReporting = false
+        var slowSendInterval = 0.0
+        if let options = options {
+            httpCaptureConfig = options.httpCaptureConfig
+            collectionEnabled = options.collectionEnabled
+            enableCrashReporting = options.enableCrashReporting
+
+            let debounce = InstanaConfiguration.Defaults.reporterSendDebounce
+            if options.slowSendInterval != 0.0,
+                options.slowSendInterval < debounce || options.slowSendInterval > InstanaConfiguration.maxSlowSendInterval {
+                // Illegal slowSendInterval. Expected value 2 ~ 3600 in seconds
+                return false
+            }
+            slowSendInterval = options.slowSendInterval
+        }
+        let config = InstanaConfiguration.default(key: key, reportingURL: reportingURL,
+                                                  httpCaptureConfig: httpCaptureConfig,
+                                                  enableCrashReporting: enableCrashReporting,
+                                                  slowSendInterval: slowSendInterval)
+        let session = InstanaSession(configuration: config, propertyHandler: InstanaPropertyHandler(),
+                                     collectionEnabled: collectionEnabled)
+        Instana.current = Instana(session: session)
+        return true
+    }
+
+    /// Deprecated! Use setup( ) with InstanaSetupOptions instead.
+    /// Configures and sets up the Instana agent with the default configuration. (deprecated)
     /// - HTTP sessions will be captured automatically by default
     ///
     /// - Note: Should be called only once, as soon as posible. Preferably in `application(_:, didFinishLaunchingWithOptions:)`
@@ -88,6 +127,7 @@ import Foundation
         Instana.current = Instana(session: session)
     }
 
+    /// Deprecated! Use setup( ) with InstanaSetupOptions instead.
     /// Configures and sets up the Instana agent with a custom HTTP capture configuration.
     ///
     /// - Note: Should be called only once, as soon as posible. Preferably in `application(_:, didFinishLaunchingWithOptions:)`

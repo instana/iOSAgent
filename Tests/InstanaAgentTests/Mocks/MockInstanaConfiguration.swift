@@ -18,10 +18,12 @@ extension InstanaConfiguration {
                      maxBeaconsPerRequest: Int = 100,
                      maxQueueSize: Int = 80,
                      debounce: Instana.Types.Seconds = 0.0,
+                     slowSendInterval: Instana.Types.Seconds = 0.0,
                      maxRetries: Int = 0) -> InstanaConfiguration {
         let config = InstanaConfiguration(reportingURL: reportingURL, key: key,
                                           httpCaptureConfig: httpCaptureConfig,
-                                          enableCrashReporting: true)
+                                          enableCrashReporting: true,
+                                          slowSendInterval: slowSendInterval)
         config.suspendReporting = []
         config.monitorTypes = [.http,
                                .memoryWarning,

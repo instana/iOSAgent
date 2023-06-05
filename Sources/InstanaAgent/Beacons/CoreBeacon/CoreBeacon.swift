@@ -120,6 +120,18 @@ struct CoreBeacon: Codable {
      */
     var m: MetaData?
 
+    mutating func updateMetaDataWithSlowSendStartTime(_ time: Date?) {
+        let key = "slowSendStartTime"
+        if time == nil {
+            m?.removeValue(forKey: key)
+        } else {
+            if m == nil {
+                m = [:]
+            }
+            m![key] = String(time!.millisecondsSince1970)
+        }
+    }
+
     /**
      * User ID
      *

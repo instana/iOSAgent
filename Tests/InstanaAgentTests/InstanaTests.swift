@@ -8,6 +8,83 @@ import XCTest
 
 class InstanaTests: InstanaTestCase {
 
+    func test_setup_with_options_default_success() {
+        // Given
+        let key = "KEY"
+        let reportingURL = URL(string: "http://www.instana.com")!
+
+        let ret = Instana.setup(key: key, reportingURL: reportingURL, options: nil)
+
+        // Then
+        AssertTrue(ret)
+        AssertEqualAndNotNil(Instana.key, key)
+        AssertEqualAndNotNil(Instana.reportingURL, reportingURL)
+        AssertTrue(Instana.collectionEnabled)
+        AssertTrue(Instana.current!.session.collectionEnabled)
+        AssertEqualAndNotNil(Instana.sessionID, Instana.current?.session.id.uuidString)
+
+        let config = Instana.current?.session.configuration
+        XCTAssertNotNil(config)
+        AssertEqualAndNotNil(config!.key, key)
+        AssertEqualAndNotNil(config!.reportingURL, reportingURL)
+        AssertEqualAndNotNil(config!.httpCaptureConfig, .automatic)
+        AssertEqualAndNotNil(config!.slowSendInterval, 0.0)
+        AssertFalse(config!.monitorTypes.contains(.crash))
+
+        let session = Instana.current?.session
+        XCTAssertNotNil(session)
+        AssertTrue(session!.collectionEnabled)
+    }
+
+    func test_setup_with_options_custom_success() {
+        // Given
+        let key = "KEY"
+        let reportingURL = URL(string: "http://www.instana.com")!
+
+        let options = InstanaSetupOptions(httpCaptureConfig: .automaticAndManual,
+                                          collectionEnabled: false)
+        options.enableCrashReporting = true
+        options.slowSendInterval = 20.0
+        let ret = Instana.setup(key: key, reportingURL: reportingURL, options: options)
+
+        // Then
+        AssertTrue(ret)
+        AssertEqualAndNotNil(Instana.key, key)
+        AssertEqualAndNotNil(Instana.reportingURL, reportingURL)
+        AssertFalse(Instana.collectionEnabled)
+        AssertFalse(Instana.current!.session.collectionEnabled)
+        AssertEqualAndNotNil(Instana.sessionID, Instana.current?.session.id.uuidString)
+        AssertEqualAndNotNil(Instana.reportingURL, reportingURL)
+
+        let config = Instana.current?.session.configuration
+        XCTAssertNotNil(config)
+        AssertEqualAndNotNil(config!.key, key)
+        AssertEqualAndNotNil(config!.reportingURL, reportingURL)
+        AssertEqualAndNotNil(config!.httpCaptureConfig, .automaticAndManual)
+        AssertEqualAndNotNil(config!.slowSendInterval, options.slowSendInterval)
+        AssertTrue(config!.monitorTypes.contains(.crash))
+
+        AssertEqualAndNotNil(Instana.current?.session.collectionEnabled, options.collectionEnabled)
+        AssertFalse(options.collectionEnabled)
+    }
+
+    func test_setup_with_options_failure() {
+        // Given
+        let key = "KEY"
+        let reportingURL = URL(string: "http://www.instana.com")!
+
+        let options = InstanaSetupOptions(slowSendInterval: -1.0)
+        let ret1 = Instana.setup(key: key, reportingURL: reportingURL, options: options)
+
+        // Then
+        AssertFalse(ret1)
+
+        // case 2
+        let ret2 = Instana.setup(key: key, reportingURL: reportingURL, options: InstanaSetupOptions(slowSendInterval: 7777))
+        // Then
+        AssertFalse(ret2)
+    }
+
     func test_setup() {
         // Given
         let key = "KEY"

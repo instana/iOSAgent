@@ -2,6 +2,7 @@
 
 ## 1.6.1
 - Fix crash caused by appendMetaData() inside InstanaProperties class
+- Improve error handling on beacon send failure
 
 ## 1.6.0
 - Refactor code and add more unit test cases

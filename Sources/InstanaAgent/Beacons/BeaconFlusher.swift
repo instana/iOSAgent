@@ -42,6 +42,7 @@ class BeaconFlusher {
     }
 
     typealias Sender = (URLRequest, @escaping (Swift.Result<Int, Error>) -> Void) -> Void
+    weak var reporter: Reporter?
     let config: InstanaConfiguration
     let debounce: TimeInterval
     let items: Set<CoreBeacon>
@@ -55,16 +56,15 @@ class BeaconFlusher {
     private let externalSend: Sender? // Used for Unit Testing
     private var sentBeacons = Set<CoreBeacon>()
     private(set) var urlTasks = [URLSessionTask]()
-    var shouldPerformRetry: Bool {
-        !errors.isEmpty && retryStep < config.maxRetries
-    }
 
-    init(items: Set<CoreBeacon>,
+    init(reporter: Reporter?,
+         items: Set<CoreBeacon>,
          debounce: TimeInterval,
          config: InstanaConfiguration,
          queue: DispatchQueue,
          send: Sender? = nil,
          completion: @escaping ((BeaconFlusher.Result) -> Void)) {
+        self.reporter = reporter
         self.items = items
         self.config = config
         self.debounce = debounce
@@ -115,13 +115,32 @@ class BeaconFlusher {
         disapatchGroup.notify(queue: queue) { [weak self] in
             guard let self = self else { return }
             self.urlTasks.removeAll()
-            if self.shouldPerformRetry {
+            if self.shouldPerformRetry() {
                 self.retry()
             } else {
                 self.complete()
             }
         }
         didStartFlush?()
+    }
+
+    // When error occurred, either goes into slow send mode, or retry sending.
+    internal func shouldPerformRetry() -> Bool {
+        let canDoSlowSend = config.slowSendInterval > 0
+
+        guard !errors.isEmpty else {
+            if canDoSlowSend {
+                // No error, reset the flag
+                reporter?.setSlowSendStartTime(nil)
+            }
+            return false
+        }
+
+        if canDoSlowSend {
+            reporter?.setSlowSendStartTime(Date())
+            return false
+        }
+        return retryStep < config.maxRetries
     }
 
     private func retry() {

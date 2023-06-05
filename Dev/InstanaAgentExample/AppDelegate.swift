@@ -6,13 +6,19 @@
 
 import UIKit
 import InstanaAgent
+import OSLog
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?   // needed on iOS 12 or lower
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        Instana.setup(key: InstanaKey, reportingURL: InstanaURL)
+        let options = InstanaSetupOptions(enableCrashReporting: true)
+//        options.slowSendInterval = 60.0
+        if !Instana.setup(key: InstanaKey, reportingURL: InstanaURL, options: options) {
+            let myLog = OSLog(subsystem: "com.instana.ios.InstanaAgentExample", category: "Instana")
+            os_log("Instana setup failed", log: myLog, type: .error)
+        }
         return true
     }
 

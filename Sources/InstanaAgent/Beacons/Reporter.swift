@@ -11,8 +11,10 @@ public class Reporter {
     var completionHandler = [Completion]()
     let queue: InstanaPersistableQueue<CoreBeacon>
     private let dispatchQueue = DispatchQueue(label: "com.instana.ios.agent.reporter", qos: .utility)
+    private var sendFirstBeacon = true // first beacon is sent all by itself, not in a batch
+    private var slowSendStartTime: Date?
     private var flusher: BeaconFlusher?
-    private let send: BeaconFlusher.Sender?
+    internal var send: BeaconFlusher.Sender?
     private let rateLimiter: ReporterRateLimiter
     private let batterySafeForNetworking: () -> Bool
     private let networkUtility: NetworkUtility
@@ -108,10 +110,27 @@ public class Reporter {
         scheduleFlush()
     }
 
+    internal var isInSlowSendMode: Bool {
+        session.configuration.slowSendInterval > 0 && (sendFirstBeacon || slowSendStartTime != nil)
+    }
+
+    internal func setSlowSendStartTime(_ time: Date?) {
+        if time == nil {
+            if slowSendStartTime != nil {
+                session.logger.add("Slow send ended at \(String(describing: Date()))")
+                slowSendStartTime = nil
+            }
+        } else if slowSendStartTime == nil {
+            // if slow send started, do not update so as to keep the earliest time
+            slowSendStartTime = time
+            session.logger.add("Slow send started at \(String(describing: time!))")
+        }
+    }
+
     func scheduleFlush() {
         guard !queue.items.isEmpty else { return }
         let start = Date()
-        let debounce = queue.isFull ? 0.0 : flushDebounce
+        var debounce: TimeInterval
         let connectionType = networkUtility.connectionType
         guard connectionType != .none else {
             return handle(flushResult: .failure([InstanaError.offline]))
@@ -122,7 +141,24 @@ public class Reporter {
         if suspendReporting.contains(.lowBattery), !batterySafeForNetworking() {
             return handle(flushResult: .failure([InstanaError.lowBattery]))
         }
-        let flusher = BeaconFlusher(items: queue.items, debounce: debounce, config: session.configuration, queue: dispatchQueue, send: send) { [weak self] result in
+        var beacons: Set<CoreBeacon> = Set([])
+        if isInSlowSendMode {
+            if sendFirstBeacon {
+                debounce = flushDebounce
+                sendFirstBeacon = false
+            } else {
+                debounce = session.configuration.slowSendInterval
+            }
+            var beacon = queue.items.first!
+            beacon.updateMetaDataWithSlowSendStartTime(slowSendStartTime)
+            beacons.insert(beacon)
+        } else {
+            debounce = queue.isFull ? 0.0 : flushDebounce
+            beacons = queue.items
+        }
+        let flusher = BeaconFlusher(reporter: self, items: beacons, debounce: debounce,
+                                    config: session.configuration, queue: dispatchQueue,
+                                    send: send) { [weak self] result in
             guard let self = self else { return }
             self.handle(flushResult: result, start)
         }

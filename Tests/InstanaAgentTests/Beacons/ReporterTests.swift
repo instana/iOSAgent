@@ -1065,6 +1065,96 @@ class ReporterTests: InstanaTestCase {
         XCTAssertFalse(reporter.queue.items.isEmpty)
     }
 
+    func test_flushQueue_failure_gotoSlowSendMode() {
+        let slowSendInterval = 1.0
+        let httpError = [InstanaError.invalidRequest, InstanaError.missingAppKey].randomElement()!
+        let waitFor = expectation(description: "test_flushQueue_failure")
+        let reporter = Reporter(.mock(configuration: .mock(slowSendInterval: slowSendInterval)),
+                                send:  { _, completion in
+            completion(.failure(httpError))
+        })
+        let corebeacons = try! CoreBeaconFactory(session).map([HTTPBeacon.createMock()])
+        reporter.queue.add(corebeacons)
+        reporter.completionHandler.append {result in
+            waitFor.fulfill()
+        }
+
+        // When
+        reporter.scheduleFlush()
+        wait(for: [waitFor], timeout: 1.0)
+
+        // Then
+        XCTAssertTrue(reporter.isInSlowSendMode)
+        XCTAssertFalse(reporter.queue.items.isEmpty)
+
+        // case 2, the reporter is now in slow send mode
+        // a successful beacon send turns slow send mode off
+        reporter.send = { _, completion in
+            completion(.success(200))
+        }
+        reporter.queue.add(corebeacons)
+        let waitFor2 = expectation(description: "test_flushQueue_success_turnsOffSlowSendMode")
+        reporter.completionHandler.removeAll()
+        reporter.completionHandler.append {result in
+            waitFor2.fulfill()
+        }
+
+        // When
+        reporter.scheduleFlush()
+        wait(for: [waitFor2], timeout: (slowSendInterval + 1.0))  // wait time should be greater than slowSendInterval
+
+        // Then
+        XCTAssertFalse(reporter.isInSlowSendMode)
+    }
+
+    func test_flushQueue_debounceInterval() {
+        let slowSendInterval = 3.0
+        let httpError = [InstanaError.httpServerError(504), InstanaError.invalidResponse].randomElement()!
+        let waitFor = expectation(description: "test_flushQueue_failure")
+        let reporter = Reporter(.mock(configuration: .mock(slowSendInterval: slowSendInterval)),
+                                send:  { _, completion in
+            completion(.failure(httpError))
+        })
+        let corebeacons = try! CoreBeaconFactory(session).map([HTTPBeacon.createMock()])
+        reporter.queue.add(corebeacons)
+        reporter.completionHandler.append {result in
+            waitFor.fulfill()
+        }
+
+        // When
+        reporter.scheduleFlush()
+        wait(for: [waitFor], timeout: 1.0)
+
+        // Then
+        XCTAssertTrue(reporter.isInSlowSendMode)
+        XCTAssertFalse(reporter.queue.items.isEmpty)
+
+        // case 2, the reporter is now in slow send mode with debounce interval set to slowSendInterval
+        var beaconFlushed = false
+        reporter.send = { _, completion in
+            beaconFlushed = true
+            completion(.success(200))
+        }
+        reporter.queue.add(corebeacons)
+        let waitFor2 = expectation(description: "test_flushQueue_debounceSEtTo_slowSendInterval")
+        reporter.completionHandler.removeAll()
+        reporter.completionHandler.append {result in
+            waitFor2.fulfill()
+        }
+
+        // When
+        reporter.scheduleFlush()
+        Thread.sleep(forTimeInterval: (slowSendInterval / 2.0)) // wait time is less than than slowSendInterval
+
+        // Then
+        XCTAssertFalse(beaconFlushed)
+
+        // case 3, wait long enough now
+        wait(for: [waitFor2], timeout: (slowSendInterval + 2.0))
+        // Then
+        XCTAssertTrue(beaconFlushed)
+    }
+
     func test_retry_flushQueue_after_failure() {
         var sentCount = 0
         let retries = 1
@@ -1140,7 +1230,7 @@ extension ReporterTests {
         let config: InstanaConfiguration = .mock(gzipReport: true)
         let beacons = [HTTPBeacon.createMock(), HTTPBeacon.createMock()]
         let cbeacons = try! CoreBeaconFactory(session).map(beacons)
-        let flusher = BeaconFlusher(items: [], debounce: 0, config: config, queue: .main, send: nil) { _ in}
+        let flusher = BeaconFlusher(reporter: nil, items: [], debounce: 0, config: config, queue: .main, send: nil) { _ in}
         let data = cbeacons.asString.data(using: .utf8)
         let gzippedData = try? data?.gzipped(level: .bestCompression)
 
@@ -1159,7 +1249,7 @@ extension ReporterTests {
     func test_createBatchRequest_invalid_key() {
         // Given
         let invalidConfig = InstanaConfiguration.mock(key: "")
-        let flusher = BeaconFlusher(items: [], debounce: 0, config: invalidConfig, queue: .main, send: nil) { _ in}
+        let flusher = BeaconFlusher(reporter: nil, items: [], debounce: 0, config: invalidConfig, queue: .main, send: nil) { _ in}
         let beacons = [HTTPBeacon.createMock(), HTTPBeacon.createMock()]
         let corebeacons = try! CoreBeaconFactory(session).map(beacons)
 

@@ -17,6 +17,8 @@ import Foundation
 
 // Use a reference type to avoid a copy when having concurrency
 class InstanaConfiguration {
+    static let maxSlowSendInterval = 3600.0
+
     enum SuspendReporting {
         /// Reporting is suspended while the device battery is low.
         case lowBattery
@@ -46,6 +48,8 @@ class InstanaConfiguration {
     }
 
     struct Defaults {
+        // 0 seconds means disable network probing
+        static let slowSendInterval: Instana.Types.Seconds = 0.0
         static let reporterSendDebounce: Instana.Types.Seconds = 2.0
         static let reporterSendLowBatteryDebounce: Instana.Types.Seconds = 10.0
         static let gzipReport = ProcessInfo.ignoreZIPReporting ? false : true
@@ -62,6 +66,7 @@ class InstanaConfiguration {
     var httpCaptureConfig: HTTPCaptureConfig
     var suspendReporting: Set<SuspendReporting>
     var monitorTypes: Set<MonitorTypes>
+    var slowSendInterval: Instana.Types.Seconds
     var reporterSendDebounce: Instana.Types.Seconds
     var reporterSendLowBatteryDebounce: Instana.Types.Seconds
     var maxRetries: Int
@@ -72,7 +77,8 @@ class InstanaConfiguration {
     var reporterRateLimits: [ReporterRateLimitConfig]
     var isValid: Bool { !key.isEmpty && !reportingURL.absoluteString.isEmpty }
 
-    required init(reportingURL: URL, key: String, httpCaptureConfig: HTTPCaptureConfig, enableCrashReporting: Bool) {
+    required init(reportingURL: URL, key: String, httpCaptureConfig: HTTPCaptureConfig,
+                  enableCrashReporting: Bool, slowSendInterval: Double) {
         self.reportingURL = reportingURL
         self.key = key
         self.httpCaptureConfig = httpCaptureConfig
@@ -81,6 +87,7 @@ class InstanaConfiguration {
         if enableCrashReporting {
             monitorTypes.insert(.crash)
         }
+        self.slowSendInterval = slowSendInterval
         reporterSendDebounce = Defaults.reporterSendDebounce
         reporterSendLowBatteryDebounce = Defaults.reporterSendLowBatteryDebounce
         maxRetries = Defaults.maxRetries
@@ -92,8 +99,8 @@ class InstanaConfiguration {
     }
 
     static func `default`(key: String, reportingURL: URL, httpCaptureConfig: HTTPCaptureConfig = .automatic,
-                          enableCrashReporting: Bool) -> InstanaConfiguration {
+                          enableCrashReporting: Bool, slowSendInterval: Double = 0.0) -> InstanaConfiguration {
         self.init(reportingURL: reportingURL, key: key, httpCaptureConfig: httpCaptureConfig,
-                  enableCrashReporting: enableCrashReporting)
+                  enableCrashReporting: enableCrashReporting, slowSendInterval: slowSendInterval)
     }
 }

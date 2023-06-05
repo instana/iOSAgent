@@ -18,7 +18,8 @@ class BeaconFlusherTests: InstanaTestCase {
         let flushStart = Date()
         var flushResult: BeaconFlusher.Result?
         let waitFor = expectation(description: "test_schedule_no_debounce_success")
-        let flusher = BeaconFlusher(items: Set(corebeacons), debounce: debounce, config: .mock, queue: .main, send: { _, completion in
+        let flusher = BeaconFlusher(reporter: nil, items: Set(corebeacons), debounce: debounce,
+                                    config: .mock, queue: .main, send: { _, completion in
             completion(.success(200))
         }, completion: { result in
             flushResult = result
@@ -41,7 +42,8 @@ class BeaconFlusherTests: InstanaTestCase {
         let flushStart = Date()
         var flushResult: BeaconFlusher.Result?
         let waitFor = expectation(description: "test_schedule_1sec_debounce_success")
-        let flusher = BeaconFlusher(items: Set(corebeacons), debounce: debounce, config: .mock, queue: .main, send: { _, completion in
+        let flusher = BeaconFlusher(reporter: nil, items: Set(corebeacons), debounce: debounce,
+                                    config: .mock, queue: .main, send: { _, completion in
             completion(.success(200))
         }, completion: { result in
             flushResult = result
@@ -65,7 +67,8 @@ class BeaconFlusherTests: InstanaTestCase {
         let error = InstanaError.httpClientError(402)
         var flushResult: BeaconFlusher.Result?
         let waitFor = expectation(description: "test_schedule_flush_failure")
-        let flusher = BeaconFlusher(items: Set(corebeacons), debounce: debounce, config: .mock, queue: .main, send: { _, completion in
+        let flusher = BeaconFlusher(reporter: nil, items: Set(corebeacons), debounce: debounce,
+                                    config: .mock, queue: .main, send: { _, completion in
             completion(.failure(error))
         }, completion: { result in
             flushResult = result
@@ -91,7 +94,8 @@ class BeaconFlusherTests: InstanaTestCase {
         let error = InstanaError.httpClientError(402)
         var flushResult: BeaconFlusher.Result?
         let waitFor = expectation(description: "test_schedule_flush_success_and_failure")
-        let flusher = BeaconFlusher(items: Set(corebeacons), debounce: 0.0, config: config, queue: .main, send: { request, completion in
+        let flusher = BeaconFlusher(reporter: nil, items: Set(corebeacons), debounce: 0.0,
+                                    config: config, queue: .main, send: { request, completion in
             sentCount += 1
             let content = String(decoding: request.httpBody ?? Data(), as: UTF8.self)
             content.contains("\(secondBeacon.id)") ? completion(.success(200)) : completion(.failure(error))
@@ -116,7 +120,8 @@ class BeaconFlusherTests: InstanaTestCase {
         let config = InstanaConfiguration.mock(maxBeaconsPerRequest: 1, maxQueueSize: 1, debounce: 0, maxRetries: 0)
         var flushResult: BeaconFlusher.Result?
         let waitFor = expectation(description: "test_schedule_flush_success_and_failure")
-        let flusher = BeaconFlusher(items: Set(corebeacons), debounce: 0.0, config: config, queue: .main, send: { _, completion in
+        let flusher = BeaconFlusher(reporter: nil, items: Set(corebeacons), debounce: 0.0,
+                                    config: config, queue: .main, send: { _, completion in
             sentCount += 1
             completion(.success(200))
         }, completion: { result in
@@ -147,7 +152,8 @@ class BeaconFlusherTests: InstanaTestCase {
         let error = InstanaError.httpClientError(402)
         var flushResult: BeaconFlusher.Result?
         let waitFor = expectation(description: "test_schedule_flush_success_and_failure")
-        let flusher = BeaconFlusher(items: Set(corebeacons), debounce: 0.0, config: config, queue: .main, send: { _, completion in
+        let flusher = BeaconFlusher(reporter: nil, items: Set(corebeacons), debounce: 0.0,
+                                    config: config, queue: .main, send: { _, completion in
             sentCount += 1
             completion(.failure(error))
         }, completion: { result in
@@ -176,7 +182,8 @@ class BeaconFlusherTests: InstanaTestCase {
 
         var flushResult: BeaconFlusher.Result?
         let waitFor = expectation(description: "test_schedule_flush_failure_retry")
-        let flusher = BeaconFlusher(items: Set(corebeacons), debounce: 0.0, config: config, queue: .main, send: { _, completion in
+        let flusher = BeaconFlusher(reporter: nil, items: Set(corebeacons), debounce: 0.0,
+                                    config: config, queue: .main, send: { _, completion in
             sentCount += 1
             completion(.failure(error))
         }, completion: { result in
@@ -197,7 +204,7 @@ class BeaconFlusherTests: InstanaTestCase {
     func test_cancel() {
         // Given
         let waitFor = expectation(description: "waitForFlushStart")
-        let flusher = BeaconFlusher(items: Set(corebeacons), debounce: 0.0, config: .mock, queue: .main) { _ in }
+        let flusher = BeaconFlusher(reporter: nil, items: Set(corebeacons), debounce: 0.0, config: .mock, queue: .main) { _ in }
         flusher.schedule()
         flusher.didStartFlush = {
             waitFor.fulfill()
@@ -217,7 +224,7 @@ class BeaconFlusherTests: InstanaTestCase {
 
     func test_urlsession_isIgnored() {
         // Given
-        let flusher = BeaconFlusher(items: Set(corebeacons), debounce: 0.0, config: .mock, queue: .main) { _ in }
+        let flusher = BeaconFlusher(reporter: nil, items: Set(corebeacons), debounce: 0.0, config: .mock, queue: .main) { _ in }
 
         // When
         let isIgnored = IgnoreURLHandler.shouldIgnore(flusher.urlSession)
@@ -228,7 +235,7 @@ class BeaconFlusherTests: InstanaTestCase {
 
     func test_retryDelay() {
         // Given
-        let flusher = BeaconFlusher(items: Set(corebeacons), debounce: 0.0, config: .mock, queue: .main) { _ in }
+        let flusher = BeaconFlusher(reporter: nil, items: Set(corebeacons), debounce: 0.0, config: .mock, queue: .main) { _ in }
         let steps = (1...3)
         let maxDelay = 60 * 10 * 1000
 
@@ -251,7 +258,8 @@ class BeaconFlusherTests: InstanaTestCase {
         let max = 3
         let steps = (1...max)
         let config = InstanaConfiguration.mock(maxRetries: max)
-        let flusher = BeaconFlusher(items: Set(corebeacons), debounce: 0.0, config: config, queue: .main) { _ in }
+        let flusher = BeaconFlusher(reporter: nil, items: Set(corebeacons), debounce: 0.0,
+                                    config: config, queue: .main) { _ in }
         flusher.errors.append(InstanaError.invalidResponse)
 
         steps.forEach { step in
@@ -259,7 +267,7 @@ class BeaconFlusherTests: InstanaTestCase {
             let sut = flusher.shouldPerformRetry
 
             // Then
-            XCTAssertTrue(sut)
+            XCTAssertTrue(sut())
 
             // After
             flusher.retryStep = step
@@ -270,38 +278,39 @@ class BeaconFlusherTests: InstanaTestCase {
     func test_shouldPerformRetry_no_error() {
         // Given
         let config = InstanaConfiguration.mock(maxRetries: 10)
-        let flusher = BeaconFlusher(items: Set(corebeacons), debounce: 0.0, config: config, queue: .main) { _ in }
+        let flusher = BeaconFlusher(reporter: nil, items: Set(corebeacons), debounce: 0.0, config: config, queue: .main) { _ in }
 
         // Then
-        XCTAssertFalse(flusher.shouldPerformRetry)
+        XCTAssertFalse(flusher.shouldPerformRetry())
     }
 
     func test_shouldPerformRetry_no() {
         // Given
         let config = InstanaConfiguration.mock(maxRetries: 0)
-        let flusher = BeaconFlusher(items: Set(corebeacons), debounce: 0.0, config: config, queue: .main) { _ in }
+        let flusher = BeaconFlusher(reporter: nil, items: Set(corebeacons), debounce: 0.0, config: config, queue: .main) { _ in }
         flusher.errors.append(InstanaError.invalidResponse)
 
         // Then
-        XCTAssertFalse(flusher.shouldPerformRetry)
+        XCTAssertFalse(flusher.shouldPerformRetry())
     }
 
     func test_shouldPerformRetry_no_after_last_step() {
         // Given
         let max = 3
         let config = InstanaConfiguration.mock(maxRetries: max)
-        let flusher = BeaconFlusher(items: Set(corebeacons), debounce: 0.0, config: config, queue: .main) { _ in }
+        let flusher = BeaconFlusher(reporter: nil, items: Set(corebeacons), debounce: 0.0, config: config, queue: .main) { _ in }
         flusher.errors.append(InstanaError.invalidResponse)
         flusher.retryStep = max
 
         // Then
-        XCTAssertFalse(flusher.shouldPerformRetry)
+        XCTAssertFalse(flusher.shouldPerformRetry())
     }
 
     func test_no_retainCycle() {
         // Given
         let waitFor = expectation(description: "test_no_retainCycle")
-        var flusher: BeaconFlusher? = BeaconFlusher(items: Set(corebeacons), debounce: 0.0, config: config, queue: .main, send: { _, completion in
+        var flusher: BeaconFlusher? = BeaconFlusher(reporter: nil, items: Set(corebeacons), debounce: 0.0,
+                                                    config: config, queue: .main, send: { _, completion in
             completion(.success(200))
         }, completion: { result in
             waitFor.fulfill()

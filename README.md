@@ -59,6 +59,28 @@ func application(_ application: UIApplication, didFinishLaunchingWithOptions lau
 2. The lowest versions that support crash reporting are iOS 14.0 and macOS 12.0.
 3. A valid bundle id other than com.instana.ios.InstanaAgentExample for your test app is also a must.
 
+### How to enable slow send mode on beacon send failure
+
+By default, when beacon send failed, Instana agent tries to resend it until succeed. Beacons are also sent in batches (maximum 100 beacons) every 2 seconds. For certain cellular network, this is not an ideal option.
+An alternative way, slow send mode, is introduced since version 1.6.1. This mode could be turned on by providing a positive slowSendInterval number (in seconds) in setup() call. Then if beacon send failed, Instana agent only sends out one beacon every \(slowSendInterval) seconds. If succeeded, beacon sending restores to normal mode, ie. in batches every 2 seconds. Otherwise sending stays in slow send mode.
+Slow send mode is disabled by default. Here is the example code to set slowSendInterval to 60 seconds:
+
+```
+import InstanaAgent
+
+func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+    let options = InstanaSetupOptions(options.slowSendInterval: 60.0)
+    if !Instana.setup(key: InstanaKey, reportingURL: InstanaURL, options: options) {
+        // Error handling here
+        // Most likely slowSendInterval is invalid. Expected value is 2 ~ 3600 seconds
+    }
+    Instana.setup(key: <Your Instana Key>, reportingURL: <Your Instana instance URL>, options: options)
+
+    ....
+    return true
+}
+```
+
 ### API
 
 See [API page](https://www.ibm.com/docs/en/instana-observability/current?topic=monitoring-ios-api#instana-ios-agent-api).
