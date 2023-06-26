@@ -10,6 +10,7 @@ iOS agent to use Instana for your iOS app. The monitoring currently supports:
 - Capture HTTP sessions automatically or manually
 - Automatic delivery of device & app information (like bundle identifer, version, language, iOS device information)
 - Send custom event (This can be especially helpful to send logs, to track additional performance metrics or errors.)
+- [Tech Preview] Crash reporting, plus CPU exception, disk write exception, hang diagnostics and app launch diagnostics
 
 Optionally:
 - Ignore full URLs by regex or full URLs
@@ -46,7 +47,8 @@ Just initialize the Instana iOS agent with the following setup. Make sure to cal
 import InstanaAgent
 
 func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
-	Instana.setup(key: <Your Instana Key>, reportingURL: <Your Instana instance URL>)
+    let options = InstanaSetupOptions(enableCrashReporting: <true or false>)
+	Instana.setup(key: <Your Instana Key>, reportingURL: <Your Instana instance URL>, options: options)
 
 	....
 	return true

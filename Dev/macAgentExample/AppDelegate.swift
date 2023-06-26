@@ -11,7 +11,9 @@ import InstanaAgent
 class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
-        Instana.setup(key: InstanaKey, reportingURL: InstanaURL, httpCaptureConfig: .automatic)
+        // todo: explicitly get user permission before set enableCrashReporting to true
+        let options = InstanaSetupOptions(enableCrashReporting: true)
+        _ = Instana.setup(key: InstanaKey, reportingURL: InstanaURL, options: options)
 
         let url = URL(string: "https://www.instana.com")!
         let request = URLRequest(url: url)

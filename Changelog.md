@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.6.2
+- [Tech Preview] Add sample code in InstanaAgentExample app on how to enable crash reporting to Instana backend
+
 ## 1.6.1
 - Fix crash caused by appendMetaData() inside InstanaProperties class
 - Improve error handling on beacon send failure

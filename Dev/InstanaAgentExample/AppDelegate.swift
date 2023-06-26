@@ -13,7 +13,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?   // needed on iOS 12 or lower
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        let options = InstanaSetupOptions(enableCrashReporting: true)
+        // App needs to explicitly get user consent for metric events subscription before catching crash payloads.
+        let userYes = Instana.canSubscribeCrashReporting() &&
+            (UserDefaults.standard.integer(forKey: metricSubscriptionKey) == metricSubscriptionFlagYes)
+
+        let options = InstanaSetupOptions(enableCrashReporting: userYes)
 //        options.slowSendInterval = 60.0
         if !Instana.setup(key: InstanaKey, reportingURL: InstanaURL, options: options) {
             let myLog = OSLog(subsystem: "com.instana.ios.InstanaAgentExample", category: "Instana")
