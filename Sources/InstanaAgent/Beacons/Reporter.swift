@@ -13,6 +13,7 @@ public class Reporter {
     private let dispatchQueue = DispatchQueue(label: "com.instana.ios.agent.reporter", qos: .utility)
     private var sendFirstBeacon = true // first beacon is sent all by itself, not in a batch
     private var slowSendStartTime: Date?
+    private var inSlowModeBeforeFlush = false
     private var flusher: BeaconFlusher?
     internal var send: BeaconFlusher.Sender?
     private let rateLimiter: ReporterRateLimiter
@@ -142,7 +143,8 @@ public class Reporter {
             return handle(flushResult: .failure([InstanaError.lowBattery]))
         }
         var beacons: Set<CoreBeacon> = Set([])
-        if isInSlowSendMode {
+        inSlowModeBeforeFlush = isInSlowSendMode
+        if inSlowModeBeforeFlush {
             if sendFirstBeacon {
                 debounce = flushDebounce
                 sendFirstBeacon = false
@@ -197,6 +199,19 @@ public class Reporter {
         queue.remove(sent) { [weak self] _ in
             guard let self = self else { return }
             self.completionHandler.forEach { $0(result) }
+        }
+
+        if inSlowModeBeforeFlush {
+            // Another flush either resend 1 beacon (still in slow mode currently)
+            // or flush remaing beacons (got out of slow send mode already)
+            var msg: String
+            if isInSlowSendMode {
+                msg = "schedule flush to send 1 beacon in slow send mode"
+            } else {
+                msg = "flush all beacons after out of slow send mode"
+            }
+            session.logger.add(msg)
+            scheduleFlush()
         }
     }
 }
