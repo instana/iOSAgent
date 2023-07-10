@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.6.3
+- Fix duplicated beacons issue
+
 ## 1.6.2
 - [Tech Preview] Add sample code in InstanaAgentExample app on how to enable crash reporting to Instana backend
 - Once in slow send mode, periodically resend 1 beacon. Once out of slow send mode, flush all beacons immediately.

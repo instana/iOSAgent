@@ -145,7 +145,7 @@ class ReporterTests: InstanaTestCase {
 
         // Then - Should only flush once when getting more beacons before flushing occured
         AssertEqualAndNotZero(sendCount, 1)
-        AssertTrue(reporter.queue.items.isEmpty)
+        AssertEqualAndNotNil(reporter.queue.items.count, 5)
     }
 
     func test_schedule_and_flush_twice() {

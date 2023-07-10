@@ -14,6 +14,7 @@ public class Reporter {
     private var sendFirstBeacon = true // first beacon is sent all by itself, not in a batch
     private var slowSendStartTime: Date?
     private var inSlowModeBeforeFlush = false
+    private var lastFlushStartTime: Double?
     private var flusher: BeaconFlusher?
     internal var send: BeaconFlusher.Sender?
     private let rateLimiter: ReporterRateLimiter
@@ -128,8 +129,34 @@ public class Reporter {
         }
     }
 
+    func canScheduleFlush() -> Bool {
+        if flusher == nil {
+            return true
+        }
+        if lastFlushStartTime == nil {
+            return true
+        }
+
+        var maxFlushingTimeAllowed = 10.0 // in seconds
+        if isInSlowSendMode {
+            maxFlushingTimeAllowed += session.configuration.slowSendInterval
+        }
+
+        let diff = Date().timeIntervalSince1970 - lastFlushStartTime!
+        if diff > maxFlushingTimeAllowed {
+            // Previous flushing takes too long, force a new flush to prevent
+            // too many beacons accumulated locally thus lead to beacon loss.
+            session.logger.add("Previous flushing takes more than \(diff) seconds. Force another flushing now")
+            return true
+        }
+        return false
+    }
+
     func scheduleFlush() {
         guard !queue.items.isEmpty else { return }
+
+        if !canScheduleFlush() { return }
+
         let start = Date()
         var debounce: TimeInterval
         let connectionType = networkUtility.connectionType
@@ -162,10 +189,14 @@ public class Reporter {
                                     config: session.configuration, queue: dispatchQueue,
                                     send: send) { [weak self] result in
             guard let self = self else { return }
-            self.handle(flushResult: result, start)
+            self.dispatchQueue.async { [weak self] in
+                guard let self = self else { return }
+                self.handle(flushResult: result, start, fromBeaconFlusherCompletion: true)
+            }
         }
         flusher.schedule()
         self.flusher = flusher
+        lastFlushStartTime = Date().timeIntervalSince1970
     }
 
     func runBackgroundFlush() {
@@ -180,7 +211,9 @@ public class Reporter {
         #endif
     }
 
-    private func handle(flushResult: BeaconFlusher.Result, _ start: Date = Date()) {
+    private func handle(flushResult: BeaconFlusher.Result,
+                        _ start: Date = Date(),
+                        fromBeaconFlusherCompletion: Bool = false) {
         let result: BeaconResult
         let errors = flushResult.errors
         let sent = flushResult.sentBeacons
@@ -201,16 +234,20 @@ public class Reporter {
             self.completionHandler.forEach { $0(result) }
         }
 
-        if inSlowModeBeforeFlush {
-            // Another flush either resend 1 beacon (still in slow mode currently)
-            // or flush remaing beacons (got out of slow send mode already)
-            var msg: String
-            if isInSlowSendMode {
-                msg = "schedule flush to send 1 beacon in slow send mode"
-            } else {
-                msg = "flush all beacons after out of slow send mode"
+        if fromBeaconFlusherCompletion {
+            flusher = nil // mark this round flush done
+            if inSlowModeBeforeFlush {
+                // Another flush either resend 1 beacon (still in slow mode currently)
+                // or flush remaining beacons (got out of slow send mode already)
+                var msg: String
+                if isInSlowSendMode {
+                    msg = "schedule flush to send 1 beacon in slow send mode"
+                } else {
+                    msg = "flush all beacons after out of slow send mode"
+                }
+                session.logger.add(msg)
             }
-            session.logger.add(msg)
+            // schedule next round flush
             scheduleFlush()
         }
     }
