@@ -13,6 +13,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?   // needed on iOS 12 or lower
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        let myLog = OSLog(subsystem: "com.instana.ios.InstanaAgentExample", category: "Instana")
+
         // App needs to explicitly get user consent for metric events subscription before catching crash payloads.
         let userYes = Instana.canSubscribeCrashReporting() &&
             (UserDefaults.standard.integer(forKey: metricSubscriptionKey) == metricSubscriptionFlagYes)
@@ -20,9 +22,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let options = InstanaSetupOptions(enableCrashReporting: userYes)
 //        options.slowSendInterval = 60.0
         if !Instana.setup(key: InstanaKey, reportingURL: InstanaURL, options: options) {
-            let myLog = OSLog(subsystem: "com.instana.ios.InstanaAgentExample", category: "Instana")
             os_log("Instana setup failed", log: myLog, type: .error)
         }
+
+        var headerFilterReg: [NSRegularExpression] = []
+        do {
+            let regex = try NSRegularExpression(pattern: "Content-Type", options: .caseInsensitive)
+            headerFilterReg.append(regex)
+        } catch {
+            os_log("Error creating regular expression", log: myLog, type: .error)
+        }
+        Instana.setCaptureHeaders(matching: headerFilterReg)
+
         return true
     }
 

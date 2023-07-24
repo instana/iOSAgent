@@ -84,11 +84,32 @@ protocol HTTPMarkerDelegate: AnyObject {
     ///
     /// Note: Make sure you don't call any methods on this HTTPMarker after you called finish
     @objc public func finish(response: URLResponse?, error: Error?) {
-        let statusCode = (response as? HTTPURLResponse)?.statusCode ?? 400
+        let httpURLResponse = (response as? HTTPURLResponse)
+        let statusCode = httpURLResponse?.statusCode ?? 400
         let size = response != nil ? HTTPMarker.Size(response!) : nil
+
+        var bothHeaders: HTTPHeader = [:]
+        let filter = Instana.current?.monitors.http?.filter
+        if filter != nil, filter!.needHeaderFields() {
+            // this header means http request header
+            header?.forEach { key, value in
+                if filter!.shouldUseHeaderField(key: key) {
+                    bothHeaders[key] = value
+                }
+            }
+
+            (httpURLResponse?.allHeaderFields)?.forEach { key, value in
+                let key = key as? String
+                let value = value as? String
+                if key != nil, value != nil, filter!.shouldUseHeaderField(key: key!) {
+                    bothHeaders[key!] = value!
+                }
+            }
+        }
+
         let result = HTTPCaptureResult(statusCode: statusCode,
                                        backendTracingID: response?.backendTracingID,
-                                       header: header,
+                                       header: bothHeaders,
                                        responseSize: responseSize ?? size,
                                        error: error)
         finish(result)

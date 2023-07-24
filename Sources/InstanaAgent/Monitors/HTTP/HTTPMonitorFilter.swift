@@ -27,7 +27,11 @@ class HTTPMonitorFilter {
         return filtered
     }
 
-    private func shouldUseHeaderField(key: String) -> Bool {
+    func needHeaderFields() -> Bool {
+        return !headerFieldsRegEx.isEmpty
+    }
+
+    func shouldUseHeaderField(key: String) -> Bool {
         for regex in headerFieldsRegEx {
             let range = NSRange(location: 0, length: key.utf16.count)
             if !regex.matches(in: key, range: range).isEmpty {

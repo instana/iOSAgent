@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.6.4
+- Fix issue for setCaptureHeaders method not capture http response headers
+
 ## 1.6.3
 - Fix duplicated beacons issue
 

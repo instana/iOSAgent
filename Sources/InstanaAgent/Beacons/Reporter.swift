@@ -137,10 +137,7 @@ public class Reporter {
             return true
         }
 
-        var maxFlushingTimeAllowed = 10.0 // in seconds
-        if isInSlowSendMode {
-            maxFlushingTimeAllowed += session.configuration.slowSendInterval
-        }
+        let maxFlushingTimeAllowed = 10.0 // in seconds
 
         let diff = Date().timeIntervalSince1970 - lastFlushStartTime!
         if diff > maxFlushingTimeAllowed {
