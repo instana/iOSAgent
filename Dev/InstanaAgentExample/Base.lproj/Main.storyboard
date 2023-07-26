@@ -1,40 +1,68 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="17506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="mhx-rz-m3q">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="mhx-rz-m3q">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
-        <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17505"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21679"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
+        <!--Top Rated View Controller-->
+        <scene sceneID="aj1-9k-4c8">
+            <objects>
+                <tableViewController id="f8Y-SU-JHe" customClass="TopRatedViewController" customModule="InstanaAgentExample" customModuleProvider="target" sceneMemberID="viewController">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" id="qDW-wD-Oon">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <prototypes>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="cell" id="ti5-fd-cdd">
+                                <rect key="frame" x="0.0" y="50" width="414" height="43.5"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="ti5-fd-cdd" id="VaX-iC-EkA">
+                                    <rect key="frame" x="0.0" y="0.0" width="414" height="43.5"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                </tableViewCellContentView>
+                            </tableViewCell>
+                        </prototypes>
+                        <connections>
+                            <outlet property="dataSource" destination="f8Y-SU-JHe" id="Bdi-wI-q8N"/>
+                            <outlet property="delegate" destination="f8Y-SU-JHe" id="JLP-a8-Wua"/>
+                        </connections>
+                    </tableView>
+                    <tabBarItem key="tabBarItem" systemItem="topRated" id="D1h-mH-8CQ"/>
+                </tableViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="VVI-5Z-Izn" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-564" y="885"/>
+        </scene>
         <!--Image-->
         <scene sceneID="UY8-mG-yZv">
             <objects>
-                <viewController id="tfq-rx-y0c" userLabel="Image" customClass="ImageViewViewController" customModule="iOSAgentExample" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="tfq-rx-y0c" userLabel="Image" customClass="ImageViewViewController" customModule="InstanaAgentExample" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="Ldq-eB-hMu">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <viewLayoutGuide key="safeArea" id="yG5-Ew-gHt"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     </view>
-                    <tabBarItem key="tabBarItem" systemItem="topRated" id="DIp-rK-oSV" userLabel="Image"/>
+                    <tabBarItem key="tabBarItem" title="Image" image="photo" catalog="system" id="DIp-rK-oSV" userLabel="Image"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ufa-gq-mog" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="226" y="889"/>
+            <point key="canvasLocation" x="224.63768115942031" y="888.61607142857144"/>
         </scene>
         <!--Web-->
         <scene sceneID="YLV-Na-a0i">
             <objects>
-                <viewController id="Zln-23-sBF" userLabel="Web" customClass="WebViewController" customModule="iOSAgentExample" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="Zln-23-sBF" userLabel="Web" customClass="WebViewController" customModule="InstanaAgentExample" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="xQ6-RD-6M2">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="PR1-9f-ARo">
-                                <rect key="frame" x="10" y="44" width="394" height="30"/>
+                                <rect key="frame" x="10" y="48" width="394" height="30"/>
                                 <subviews>
                                     <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="URL" textAlignment="natural" minimumFontSize="17" clearButtonMode="whileEditing" translatesAutoresizingMaskIntoConstraints="NO" id="2EI-Pb-NKT">
                                         <rect key="frame" x="0.0" y="0.0" width="331" height="30"/>
@@ -54,7 +82,7 @@
                                 </subviews>
                             </stackView>
                             <wkWebView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="wPq-M5-Iei">
-                                <rect key="frame" x="0.0" y="82" width="414" height="731"/>
+                                <rect key="frame" x="0.0" y="86" width="414" height="727"/>
                                 <color key="backgroundColor" red="0.36078431370000003" green="0.38823529410000002" blue="0.4039215686" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <wkWebViewConfiguration key="configuration">
                                     <audiovisualMediaTypes key="mediaTypesRequiringUserActionForPlayback" none="YES"/>
@@ -87,13 +115,13 @@
         <!--JSON-->
         <scene sceneID="EQL-Kl-Rsi">
             <objects>
-                <viewController id="bKS-bc-wgo" customClass="JSONViewController" customModule="iOSAgentExample" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="bKS-bc-wgo" customClass="JSONViewController" customModule="InstanaAgentExample" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="9MU-Cp-bjW">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="nKb-7J-pAZ">
-                                <rect key="frame" x="10" y="44" width="394" height="30"/>
+                                <rect key="frame" x="10" y="48" width="394" height="30"/>
                                 <subviews>
                                     <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="URL" textAlignment="natural" minimumFontSize="17" clearButtonMode="whileEditing" translatesAutoresizingMaskIntoConstraints="NO" id="wYO-bZ-GLE">
                                         <rect key="frame" x="0.0" y="0.0" width="331" height="30"/>
@@ -113,7 +141,7 @@
                                 </subviews>
                             </stackView>
                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="23L-N3-Xne">
-                                <rect key="frame" x="0.0" y="82" width="394" height="731"/>
+                                <rect key="frame" x="0.0" y="86" width="394" height="727"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <color key="textColor" systemColor="labelColor"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
@@ -145,7 +173,7 @@
         <!--View Controller-->
         <scene sceneID="Hsd-Md-ksL">
             <objects>
-                <tabBarController id="mhx-rz-m3q" customClass="ViewController" customModule="iOSAgentExample" customModuleProvider="target" sceneMemberID="viewController">
+                <tabBarController id="mhx-rz-m3q" customClass="ViewController" customModule="InstanaAgentExample" customModuleProvider="target" sceneMemberID="viewController">
                     <tabBar key="tabBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="ovM-dO-odB">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="49"/>
                         <autoresizingMask key="autoresizingMask"/>
@@ -155,6 +183,7 @@
                         <segue destination="bKS-bc-wgo" kind="relationship" relationship="viewControllers" id="I1e-55-bpM"/>
                         <segue destination="tfq-rx-y0c" kind="relationship" relationship="viewControllers" id="hI3-zU-ZDx"/>
                         <segue destination="ibl-qc-AXH" kind="relationship" relationship="viewControllers" id="ZZK-8X-yXu"/>
+                        <segue destination="f8Y-SU-JHe" kind="relationship" relationship="viewControllers" id="UXh-Uy-4jT"/>
                         <segue destination="Zln-23-sBF" kind="relationship" relationship="viewControllers" id="nr5-du-OvB"/>
                     </connections>
                 </tabBarController>
@@ -165,14 +194,14 @@
         <!--Events-->
         <scene sceneID="toK-9M-EzV">
             <objects>
-                <tableViewController title="Events" id="ibl-qc-AXH" customClass="EventListViewController" customModule="iOSAgentExample" customModuleProvider="target" sceneMemberID="viewController">
+                <tableViewController title="Events" id="ibl-qc-AXH" customClass="EventListViewController" customModule="InstanaAgentExample" customModuleProvider="target" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="Cbz-fh-6r1">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <prototypes>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="CELL" textLabel="8Nq-zT-Zaz" style="IBUITableViewCellStyleDefault" id="ijY-xX-wDq">
-                                <rect key="frame" x="0.0" y="28" width="414" height="43.5"/>
+                                <rect key="frame" x="0.0" y="50" width="414" height="43.5"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="ijY-xX-wDq" id="ngc-6y-K6C">
                                     <rect key="frame" x="0.0" y="0.0" width="414" height="43.5"/>
@@ -202,11 +231,12 @@
         </scene>
     </scenes>
     <resources>
-        <image name="book.circle" catalog="system" width="128" height="121"/>
+        <image name="book.circle" catalog="system" width="128" height="123"/>
         <image name="doc.text.fill" catalog="system" width="115" height="128"/>
-        <image name="music.note" catalog="system" width="97" height="128"/>
+        <image name="music.note" catalog="system" width="96" height="128"/>
+        <image name="photo" catalog="system" width="128" height="93"/>
         <systemColor name="labelColor">
-            <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+            <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>

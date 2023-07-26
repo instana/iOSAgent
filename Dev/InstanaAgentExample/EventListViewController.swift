@@ -16,12 +16,39 @@ struct DataSource: Codable {
     let results: [Event]
 }
 
+var selectedContent: [String] = []
+
+var dataSource: DataSource?
+
 @available(iOS 13.0, *)
 class EventListViewController: UITableViewController {
+    
+    class RateButtonCell: UITableViewCell {
+        let rateButton = UIButton(type: .system)
+
+        override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+            super.init(style: style, reuseIdentifier: reuseIdentifier)
+            
+            rateButton.setImage(UIImage(systemName: "star"), for: .normal)
+            rateButton.setImage(UIImage(systemName: "star.fill"), for: .selected)
+            accessoryView = rateButton
+        }
+        
+        
+        override func layoutSubviews() {
+            super.layoutSubviews()
+            rateButton.frame = CGRect(x: contentView.bounds.width - 60, y: 10, width: 60, height: contentView.bounds.height - 20)
+        }
+        
+        required init?(coder aDecoder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+    }
+    
+
 
     private var publisher: AnyCancellable?
     lazy var session = { URLSession(configuration: URLSessionConfiguration.default) }()
-    private var dataSource: DataSource?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -29,6 +56,7 @@ class EventListViewController: UITableViewController {
         let refreshControl = UIRefreshControl()
         refreshControl.addTarget(self, action: #selector(refresh), for: .valueChanged)
         self.refreshControl = refreshControl
+        tableView.register(RateButtonCell.self, forCellReuseIdentifier: "CELL")
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -48,7 +76,7 @@ class EventListViewController: UITableViewController {
             .decode(type: DataSource.self, decoder: JSONDecoder())
             .sink(receiveCompletion: { _ in }, receiveValue: {[weak self] model in
                 guard let self = self else { return }
-                self.dataSource = model
+                dataSource = model
                 self.tableView.reloadData()
                 self.refreshControl?.endRefreshing()
             })
@@ -59,10 +87,32 @@ class EventListViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "CELL", for: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: "CELL", for: indexPath) as! RateButtonCell
         cell.textLabel?.text = dataSource?.results[indexPath.row].name
+        cell.rateButton.tag = indexPath.row
+        cell.rateButton.addTarget(self, action: #selector(buttonTapped(_:)), for: .touchUpInside)
         return cell
     }
+    
+    
+    @objc func buttonTapped(_ rateButton: UIButton) {
+        rateButton.isSelected.toggle()
+        let selectIndex = rateButton.tag
+        let eventText = dataSource?.results[selectIndex].name
+        if let index = selectedContent.firstIndex(of: eventText!){
+            selectedContent.remove(at: index)
+        }
+        else{
+            selectedContent.append(eventText!)
+        }
+
+        if rateButton.tag == 0{
+            fatalError("App Crash")
+        }
+
+        print(selectedContent)
+    }
+    
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard let event = dataSource?.results[indexPath.row] else { return }

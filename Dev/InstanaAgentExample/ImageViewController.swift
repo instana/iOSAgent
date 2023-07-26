@@ -12,7 +12,7 @@ import Alamofire
 
 @available(iOS 13.0, *)
 class ImageViewViewController: UIViewController {
-
+        
     lazy var imageView = UIImageView()
     lazy var session = { URLSession(configuration: URLSessionConfiguration.default) }()
     private var publisher: AnyCancellable?
@@ -20,7 +20,7 @@ class ImageViewViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         view.backgroundColor = .white
         view.addSubview(imageView)
         imageView.contentMode = .scaleAspectFill
@@ -36,6 +36,7 @@ class ImageViewViewController: UIViewController {
 
         timer = Timer.scheduledTimer(timeInterval: 35.0, target: self, selector: #selector(downloadImage), userInfo: nil, repeats: true)
         timer?.fire()
+
     }
 
     override func viewDidAppear(_ animated: Bool) {
