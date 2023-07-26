@@ -8,6 +8,9 @@ class CoreBeaconFactory {
     private let session: InstanaSession
     private var conf: InstanaConfiguration { session.configuration }
     private var properties: InstanaProperties { session.propertyHandler.properties }
+    private var mobileFeatures: String? {
+        if conf.monitorTypes.contains(.crash) { return "c" } else { return nil }
+    }
 
     init(_ session: InstanaSession) {
         self.session = session
@@ -18,7 +21,10 @@ class CoreBeaconFactory {
     }
 
     func map(_ beacon: Beacon) throws -> CoreBeacon {
-        var cbeacon = CoreBeacon.createDefault(viewName: beacon.viewName, key: conf.key, timestamp: beacon.timestamp, sid: session.id, id: beacon.id)
+        var cbeacon = CoreBeacon.createDefault(viewName: beacon.viewName, key: conf.key,
+                                               timestamp: beacon.timestamp,
+                                               sid: session.id, id: beacon.id,
+                                               mobileFeatures: mobileFeatures)
         cbeacon.append(properties)
         switch beacon {
         case let item as HTTPBeacon:
@@ -176,6 +182,7 @@ extension CoreBeacon {
                               timestamp: Instana.Types.Milliseconds,
                               sid: UUID,
                               id: UUID,
+                              mobileFeatures: String?,
                               connection: NetworkUtility.ConnectionType = InstanaSystemUtils.networkUtility.connectionType,
                               ect: NetworkUtility.CellularType? = nil)
         -> CoreBeacon {
@@ -184,6 +191,7 @@ extension CoreBeacon {
                    ti: String(timestamp),
                    sid: sid.uuidString,
                    bid: id.uuidString,
+                   uf: mobileFeatures,
                    bi: InstanaSystemUtils.applicationBundleIdentifier,
                    ul: Locale.current.languageCode,
                    ab: InstanaSystemUtils.applicationBuildNumber,

@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.6.5
+- Add crash to mobile feature list and send to Instana backend
+
 ## 1.6.4
 - Fix issue for setCaptureHeaders method not capture http response headers
 

@@ -25,14 +25,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             os_log("Instana setup failed", log: myLog, type: .error)
         }
 
-        var headerFilterReg: [NSRegularExpression] = []
-        do {
-            let regex = try NSRegularExpression(pattern: "Content-Type", options: .caseInsensitive)
-            headerFilterReg.append(regex)
-        } catch {
-            os_log("Error creating regular expression", log: myLog, type: .error)
-        }
-        Instana.setCaptureHeaders(matching: headerFilterReg)
+        let headerFilterReg = try! NSRegularExpression(pattern: "Content-Type", options: .caseInsensitive)
+        Instana.setCaptureHeaders(matching: [headerFilterReg])
 
         return true
     }

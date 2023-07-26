@@ -128,7 +128,7 @@ import Foundation
     }
 
     /// Deprecated! Use setup( ) with InstanaSetupOptions instead.
-    /// Configures and sets up the Instana agent with a custom HTTP capture configuration.
+    /// Configures and sets up the Instana agent with a custom HTTP capture configuration. (deprecated)
     ///
     /// - Note: Should be called only once, as soon as posible. Preferably in `application(_:, didFinishLaunchingWithOptions:)`
     /// - Parameters:

@@ -237,6 +237,9 @@ class InstanaURLProtocolTests: InstanaTestCase {
     // Integration Tests
     func test_finish_success() {
         // Given
+        let headerFilterRegex = try! NSRegularExpression(pattern: "X-Key", options: .caseInsensitive)
+        Instana.setCaptureHeaders(matching: [headerFilterRegex])
+
         let waitFor = expectation(description: "Wait for")
         let delegate = Delegate()
         let backendTracingID = "981d9553578fc280"

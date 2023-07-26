@@ -70,7 +70,7 @@ class DiagnosticBeaconTests: InstanaTestCase {
         let sut = beacon.asString
         // When
         let conn = InstanaSystemUtils.networkUtility.connectionType
-        let expected = "ab\t\(beacon.ab)\nagv\t\(beacon.agv)\nast\tmockCrashPayload\nav\t\(beacon.av)\nbi\t\(beacon.bi)\nbid\t\(beacon.bid)\ncn\tmockCarrier\nct\tmockConnectionType\ncti\t\(crashTime)\nd\t0\ndma\tApple\ndmo\t\(beacon.dmo)\nem\tmockErrorMessage\net\t1\nk\t\(key)\nm_cn\t\(conn.cellular.carrierName)\nm_ct\t\(conn.description)\nm_id\t\(mockSession.id)\nm_mg\t\(crashGroupID.uuidString)\nm_mt\tcrash\nm_sym\ttrue\nm_ver\t\(currentInstanaCrashPayloadVersion)\nosn\tiOS\nosv\t\(beacon.osv)\np\tiOS\nro\tfalse\nsid\t\(crashSession.id)\nst\tmockSymbolicated\nt\tcrash\nti\t\(crashBeacon.timestamp)\nue\tmockEmail\nui\tmockUserID\nul\ten\nun\tmockUserName\nv\tmockViewName\nvh\t\(Int(UIScreen.main.bounds.height))\nvw\t\(Int(UIScreen.main.bounds.width))"
+        let expected = "ab\t\(beacon.ab)\nagv\t\(beacon.agv)\nast\tmockCrashPayload\nav\t\(beacon.av)\nbi\t\(beacon.bi)\nbid\t\(beacon.bid)\ncn\tmockCarrier\nct\tmockConnectionType\ncti\t\(crashTime)\nd\t0\ndma\tApple\ndmo\t\(beacon.dmo)\nem\tmockErrorMessage\net\t1\nk\t\(key)\nm_cn\t\(conn.cellular.carrierName)\nm_ct\t\(conn.description)\nm_id\t\(mockSession.id)\nm_mg\t\(crashGroupID.uuidString)\nm_mt\tcrash\nm_sym\ttrue\nm_ver\t\(currentInstanaCrashPayloadVersion)\nosn\tiOS\nosv\t\(beacon.osv)\np\tiOS\nro\tfalse\nsid\t\(crashSession.id)\nst\tmockSymbolicated\nt\tcrash\nti\t\(crashBeacon.timestamp)\nue\tmockEmail\nuf\tc\nui\tmockUserID\nul\ten\nun\tmockUserName\nv\tmockViewName\nvh\t\(Int(UIScreen.main.bounds.height))\nvw\t\(Int(UIScreen.main.bounds.width))"
         XCTAssertEqual(sut, expected)
     }
 }

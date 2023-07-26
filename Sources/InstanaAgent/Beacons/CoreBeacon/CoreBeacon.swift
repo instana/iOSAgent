@@ -95,6 +95,14 @@ struct CoreBeacon: Codable {
     var bid: String
 
     /**
+     * Mobile Feature list
+     *
+     * Example: c for crash
+     *
+     */
+    var uf: String?
+
+    /**
      * Bundle ID
      *
      * The unique bundle identifier for the app.

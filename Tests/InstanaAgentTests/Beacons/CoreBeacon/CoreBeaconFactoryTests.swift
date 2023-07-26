@@ -41,6 +41,7 @@ class CoreBeaconFactoryTests: InstanaTestCase {
         AssertEqualAndNotNil(sut.k, key)
         AssertEqualAndNotNil(sut.ti, "\(beacon.timestamp)")
         AssertEqualAndNotNil(sut.bid, "\(beacon.id)")
+        AssertEqualAndNotNil(sut.uf, "c")
         AssertEqualAndNotNil(sut.bi, "\(InstanaSystemUtils.applicationBundleIdentifier)")
         AssertEqualAndNotNil(sut.ul, "en")
         AssertEqualAndNotNil(sut.agv, InstanaSystemUtils.agentVersion)
@@ -62,7 +63,7 @@ class CoreBeaconFactoryTests: InstanaTestCase {
         AssertTrue(sut.em == nil)
 
         let values = Mirror(reflecting: sut).nonNilChildren
-        XCTAssertEqual(values.count, 21)
+        XCTAssertEqual(values.count, 22)
     }
 
     func test_map_beacon_implicit_values() {
@@ -105,7 +106,7 @@ class CoreBeaconFactoryTests: InstanaTestCase {
 
     func test_create_from_string() {
         // Given
-        let httpBody = "ab\t15702\nav\tunknown-version\nbid\tB5FAF31C-FE37-482E-97F2-20D49C506586\nbt\tBackendTracingID\nbi\tcom.apple.dt.xctest.tool\ncn\tNone\nct\tWifi\nd\t1578569955952\ndma\tApple\ndmo\tx86_64\nec\t1\nem\tA client or server connection was severed in the middle of an in-progress load.\net\tNetwork Connection Lost\nhm\tPOST\nhs\t200\nhu\thttps://www.example.com\nk\tKEY\np\tiOS\nosn\tiOS\nosv\t13.3\nagv\t1.0.4\nro\tfalse\nsid\t70BED140-D947-4EC7-ADE9-8F1F7C6955D0\nt\thttpRequest\nti\t1578569955952\nul\ten\nvh\t1792\nvw\t828\nm_meta1\tV\nm_meta2\tL\nh_X_K\tV"
+        let httpBody = "ab\t15702\nav\tunknown-version\nbid\tB5FAF31C-FE37-482E-97F2-20D49C506586\nbt\tBackendTracingID\nbi\tcom.apple.dt.xctest.tool\ncn\tNone\nct\tWifi\nd\t1578569955952\ndma\tApple\ndmo\tx86_64\nec\t1\nem\tA client or server connection was severed in the middle of an in-progress load.\net\tNetwork Connection Lost\nhm\tPOST\nhs\t200\nhu\thttps://www.example.com\nk\tKEY\np\tiOS\nosn\tiOS\nosv\t13.3\nagv\t1.0.4\nro\tfalse\nsid\t70BED140-D947-4EC7-ADE9-8F1F7C6955D0\nt\thttpRequest\nti\t1578569955952\nuf\tc\nul\ten\nvh\t1792\nvw\t828\nm_meta1\tV\nm_meta2\tL\nh_X_K\tV"
 
         // When
         let sut: CoreBeacon
@@ -142,6 +143,7 @@ class CoreBeaconFactoryTests: InstanaTestCase {
         AssertEqualAndNotNil(sut.ro, "false")
         AssertEqualAndNotNil(sut.sid, "70BED140-D947-4EC7-ADE9-8F1F7C6955D0")
         AssertEqualAndNotNil(sut.ti, "1578569955952")
+        AssertEqualAndNotNil(sut.uf, "c")
         AssertEqualAndNotNil(sut.ul, "en")
         AssertEqualAndNotNil(sut.vh, "1792")
         AssertEqualAndNotNil(sut.vw, "828")
@@ -149,7 +151,7 @@ class CoreBeaconFactoryTests: InstanaTestCase {
         AssertEqualAndNotNil(sut.h, ["X_K": "V"])
 
         let mirror = Mirror(reflecting: sut)
-        AssertEqualAndNotZero(mirror.nonNilChildren.count, 30)
+        AssertEqualAndNotZero(mirror.nonNilChildren.count, 31)
     }
 
     /// All other beacon mapping will be tested in the 'Beacon Types' Tests (-> HTTPBeaconTests or CustomBeaconTests)
