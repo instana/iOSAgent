@@ -29,3 +29,5 @@ identifier_name:
     error: 3 # only error
   excluded: # excluded via string array
     - id
+large_tuple: 3
+

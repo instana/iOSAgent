@@ -9,6 +9,7 @@ import Foundation
     public var collectionEnabled: Bool
     public var enableCrashReporting: Bool
     public var slowSendInterval: Instana.Types.Seconds
+    public var usiRefreshTimeIntervalInHrs: Double
 
     /// Instana custom configuration for setup.
     ///
@@ -21,10 +22,12 @@ import Foundation
     @objc public
     init(httpCaptureConfig: HTTPCaptureConfig = .automatic,
          collectionEnabled: Bool = true, enableCrashReporting: Bool = false,
-         slowSendInterval: Instana.Types.Seconds = 0.0) {
+         slowSendInterval: Instana.Types.Seconds = 0.0,
+         usiRefreshTimeIntervalInHrs: Double = defaultUsiRefreshTimeIntervalInHrs) {
         self.httpCaptureConfig = httpCaptureConfig
         self.collectionEnabled = collectionEnabled
         self.enableCrashReporting = enableCrashReporting
         self.slowSendInterval = slowSendInterval
+        self.usiRefreshTimeIntervalInHrs = usiRefreshTimeIntervalInHrs
     }
 }

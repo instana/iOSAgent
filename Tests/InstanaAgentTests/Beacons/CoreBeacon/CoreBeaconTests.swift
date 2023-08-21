@@ -31,14 +31,16 @@ class CoreBeaconTests: InstanaTestCase {
                                               key: key,
                                               timestamp: timestamp,
                                               sid: sessionID,
+                                              usi: session.usi,
                                               id: beaconID,
                                               mobileFeatures: "c")
         coreBeacon.append(props)
         wifiCoreBeacon = CoreBeacon.createDefault(viewName: viewName,
                                                   key: key,
                                                   timestamp: timestamp,
-                                                  sid: sessionID
-                                                  , id: beaconID,
+                                                  sid: sessionID,
+                                                  usi: session.usi,
+                                                  id: beaconID,
                                                   mobileFeatures: "c",
                                                   connection: .wifi,
                                                   ect: .fiveG)
@@ -53,6 +55,7 @@ class CoreBeaconTests: InstanaTestCase {
         AssertEqualAndNotNil(sut.k, key)
         AssertEqualAndNotNil(sut.ti, String(timestamp))
         AssertEqualAndNotNil(sut.sid, sessionID.uuidString)
+        XCTAssertNotNil(sut.usi)
         AssertEqualAndNotNil(sut.bid, beaconID.uuidString)
         AssertEqualAndNotNil(sut.bi, InstanaSystemUtils.applicationBundleIdentifier)
         AssertEqualAndNotNil(sut.uf, "c")
@@ -90,7 +93,7 @@ class CoreBeaconTests: InstanaTestCase {
         let values = Mirror(reflecting: sut).children
 
         // Then
-        XCTAssertEqual(values.count, 46)
+        XCTAssertEqual(values.count, 47)
     }
 
     func testNumberOfFields_non_nil() {
@@ -101,7 +104,7 @@ class CoreBeaconTests: InstanaTestCase {
         let values = Array(Mirror(reflecting: sut).nonNilChildren)
 
         // Then
-        XCTAssertEqual(values.count, 25)
+        XCTAssertEqual(values.count, 26)
     }
 
 
@@ -109,8 +112,8 @@ class CoreBeaconTests: InstanaTestCase {
         // Given
         let sut = coreBeacon!
 
-        let expectedKeys = ["t", "v", "bt", "k" ,"ti", "sid", "bid", "uf", "bi", "m", "ui", "un", "ue",
-                            "ul", "ab", "av", "p", "osn", "osv", "dma", "dmo", "ro", "vw", "vh",
+        let expectedKeys = ["t", "v", "bt", "k" ,"ti", "sid", "usi", "bid", "uf", "bi", "m", "ui", "un",
+                            "ue", "ul", "ab", "av", "p", "osn", "osv", "dma", "dmo", "ro", "vw", "vh",
                             "cn", "ct", "ect", "hu", "hp", "hm", "hs", "ebs", "dbs", "trs", "d",
                             "ec", "em", "et", "agv", "cen", "h", "ast", "cid", "cti", "dt", "st"]
         // When
@@ -128,6 +131,35 @@ class CoreBeaconTests: InstanaTestCase {
         }
     }
 
+    func test_usiNotAllowed() {
+        // Given
+        let configUsi = InstanaConfiguration(reportingURL: .random, key: "KEY", httpCaptureConfig: .automatic,
+                                             enableCrashReporting: false, slowSendInterval: 0.0,
+                                             usiRefreshTimeIntervalInHrs: usiTrackingNotAllowed)
+        let sessionUsi = InstanaSession.mock(configuration: configUsi,
+                                      sessionID: sessionID,
+                                      metaData: metaData,
+                                      user: user,
+                                      currentView: viewName)
+        var beacon = CoreBeacon.createDefault(viewName: viewName,
+                                      key: key,
+                                      timestamp: timestamp,
+                                      sid: sessionID,
+                                      usi: sessionUsi.usi,
+                                      id: beaconID,
+                                      mobileFeatures: "c",
+                                      connection: .wifi,
+                                      ect: .fiveG)
+        beacon.append(props)
+
+        // When
+        let sut = beacon.asString
+
+        // Then
+        let expected = "ab\t\(beacon.ab)\nagv\t\(beacon.agv)\nav\t\(beacon.av)\nbi\t\(beacon.bi)\nbid\t\(beacon.bid)\ncn\tNone\nct\twifi\ndma\tApple\ndmo\t\(beacon.dmo)\nect\t5g\nk\t\(key)\nm_MetaKey\t\(metaData["MetaKey"]!)\nosn\tiOS\nosv\t\(beacon.osv)\np\tiOS\nro\tfalse\nsid\t\(sessionID.uuidString)\nti\t\(beacon.ti)\nue\t\(user.email ?? "")\nuf\tc\nui\t\(user.id)\nul\ten\nun\t\(user.name ?? "")\nv\t\(viewName!)\nvh\t\(Int(UIScreen.main.bounds.height))\nvw\t\(Int(UIScreen.main.bounds.width))"
+        AssertEqualAndNotNil(sut, expected)
+    }
+
     // MARK: Extension
     func test_wifi_5g_Beacon_asString_Default() {
         // Given
@@ -137,7 +169,7 @@ class CoreBeaconTests: InstanaTestCase {
         let sut = beacon.asString
 
         // Then
-        let expected = "ab\t\(beacon.ab)\nagv\t\(beacon.agv)\nav\t\(beacon.av)\nbi\t\(beacon.bi)\nbid\t\(beacon.bid)\ncn\tNone\nct\twifi\ndma\tApple\ndmo\t\(beacon.dmo)\nect\t5g\nk\t\(key)\nm_MetaKey\t\(metaData["MetaKey"]!)\nosn\tiOS\nosv\t\(beacon.osv)\np\tiOS\nro\tfalse\nsid\t\(sessionID.uuidString)\nti\t\(beacon.ti)\nue\t\(user.email ?? "")\nuf\tc\nui\t\(user.id)\nul\ten\nun\t\(user.name ?? "")\nv\t\(viewName!)\nvh\t\(Int(UIScreen.main.bounds.height))\nvw\t\(Int(UIScreen.main.bounds.width))"
+        let expected = "ab\t\(beacon.ab)\nagv\t\(beacon.agv)\nav\t\(beacon.av)\nbi\t\(beacon.bi)\nbid\t\(beacon.bid)\ncn\tNone\nct\twifi\ndma\tApple\ndmo\t\(beacon.dmo)\nect\t5g\nk\t\(key)\nm_MetaKey\t\(metaData["MetaKey"]!)\nosn\tiOS\nosv\t\(beacon.osv)\np\tiOS\nro\tfalse\nsid\t\(sessionID.uuidString)\nti\t\(beacon.ti)\nue\t\(user.email ?? "")\nuf\tc\nui\t\(user.id)\nul\ten\nun\t\(user.name ?? "")\nusi\t\(beacon.usi!)\nv\t\(viewName!)\nvh\t\(Int(UIScreen.main.bounds.height))\nvw\t\(Int(UIScreen.main.bounds.width))"
         AssertEqualAndNotNil(sut, expected)
         AssertEqualAndNotNil(beacon.ct, "wifi")
         AssertEqualAndNotNil(beacon.ect, "5g")

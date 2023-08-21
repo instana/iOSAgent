@@ -4,7 +4,19 @@
 
 import Foundation
 
+// Default user_session_id reresh time interval as negative number means never refresh
+// ie. keep the same user_session_id forever
+public let defaultUsiRefreshTimeIntervalInHrs: Double = -1.0
+
+// Do not allow user_session_id tracking
+public let usiTrackingNotAllowed: Double = 0.0
+
+let userSessionIDKey = "Instana_UserSessionIDKey"
+let usi_startTimeKey = "Instana_usiStartTimeKey"
+
 let ignoreZipReportingKey = "IgnoreZIPReporting"
+
+let maxSlowSendInterval: Instana.Types.Seconds = 3600.0
 
 let maxDaysToKeepCrashLog = 90
 

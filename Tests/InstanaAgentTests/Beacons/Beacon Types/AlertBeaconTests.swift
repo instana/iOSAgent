@@ -22,7 +22,7 @@ class AlertBeaconTests: InstanaTestCase {
         AssertTrue(sut.em == nil)
 
         let values = Mirror(reflecting: sut).nonNilChildren
-        XCTAssertEqual(values.count, 21)
+        XCTAssertEqual(values.count, 22)
     }
 
     func test_asString() {
@@ -30,8 +30,9 @@ class AlertBeaconTests: InstanaTestCase {
         let alertType = AlertBeacon.AlertType.lowMemory
         let alert = AlertBeacon(alertType: alertType)
         var beacon: CoreBeacon!
+        let mockedInstanaSession = InstanaSession.mock(configuration: .mock)
         do {
-            beacon = try CoreBeaconFactory(.mock(configuration: .mock)).map(alert)
+            beacon = try CoreBeaconFactory(mockedInstanaSession).map(alert)
         } catch {
             XCTFail("Could not create CoreBeacon")
         }
@@ -40,7 +41,7 @@ class AlertBeaconTests: InstanaTestCase {
         let sut = beacon.asString
 
         // When
-        let expected = "ab\t\(beacon.ab)\nagv\t\(beacon.agv)\nav\t\(beacon.av)\nbi\t\(beacon.bi)\nbid\t\(beacon.bid)\ncn\t\(beacon.cn ?? "")\nct\t\(beacon.ct ?? "")\ndma\tApple\ndmo\t\(beacon.dmo)\nk\t\(key)\nosn\tiOS\nosv\t\(beacon.osv)\np\tiOS\nro\tfalse\nsid\t\(beacon.sid)\nt\talert\nti\t\(alert.timestamp)\nuf\tc\nul\ten\nvh\t\(Int(UIScreen.main.bounds.height))\nvw\t\(Int(UIScreen.main.bounds.width))"
+        let expected = "ab\t\(beacon.ab)\nagv\t\(beacon.agv)\nav\t\(beacon.av)\nbi\t\(beacon.bi)\nbid\t\(beacon.bid)\ncn\t\(beacon.cn ?? "")\nct\t\(beacon.ct ?? "")\ndma\tApple\ndmo\t\(beacon.dmo)\nk\t\(key)\nosn\tiOS\nosv\t\(beacon.osv)\np\tiOS\nro\tfalse\nsid\t\(beacon.sid)\nt\talert\nti\t\(alert.timestamp)\nuf\tc\nul\ten\nusi\t\(mockedInstanaSession.usi!.uuidString)\nvh\t\(Int(UIScreen.main.bounds.height))\nvw\t\(Int(UIScreen.main.bounds.width))"
         XCTAssertEqual(sut, expected)
     }
 

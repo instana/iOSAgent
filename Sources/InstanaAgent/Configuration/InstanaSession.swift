@@ -16,6 +16,16 @@ class InstanaSession {
     /// The Session ID created on each app launch
     let id: UUID
 
+    /// A unique ID that represents the device
+    private var userSessionID: UUID?
+    var usiStartTime: TimeInterval?
+    var usi: UUID? {
+        if !isSessionValid() {
+            (userSessionID, usiStartTime) = InstanaSession.usiNew(configuration)
+        }
+        return userSessionID
+    }
+
     /// Session information for previous app launch
     /// so as to assist metric kit payload analyse
     var previousSession: PreviousSession?
@@ -33,6 +43,78 @@ class InstanaSession {
 
         previousSession = PreviousSession.readInPreviousSessionData()
         id = sessionID
+        (userSessionID, usiStartTime) = InstanaSession.usiRetrieve(configuration)
         PreviousSession.persistSessionID(sid: sessionID)
+    }
+
+    private func isSessionValid() -> Bool {
+        // Do now allow user_session_id tracking
+        if configuration.usiRefreshTimeIntervalInHrs == usiTrackingNotAllowed {
+            return true
+        }
+
+        // user_session_id never expires
+        if configuration.usiRefreshTimeIntervalInHrs < 0 {
+            return userSessionID != nil
+        }
+
+        guard let usiStartTime = usiStartTime else { return false }
+        let usiTimeElapse = Date().timeIntervalSince1970 - usiStartTime
+        if usiTimeElapse > Double(configuration.usiRefreshTimeIntervalInHrs) * 3600.0 {
+            return false
+        }
+        return true
+    }
+
+    private static func usiRetrieve(_ config: InstanaConfiguration) -> (UUID?, TimeInterval?) {
+        if config.usiRefreshTimeIntervalInHrs == usiTrackingNotAllowed {
+            UserDefaults.standard.removeObject(forKey: userSessionIDKey)
+            UserDefaults.standard.removeObject(forKey: usi_startTimeKey)
+            return (nil, nil)
+        }
+
+        var usiActive: UUID?
+        var startTime: TimeInterval?
+
+        let idStr = UserDefaults.standard.string(forKey: userSessionIDKey)
+        if idStr != nil {
+            usiActive = UUID(uuidString: idStr!)
+            if usiActive == nil {
+                UserDefaults.standard.removeObject(forKey: userSessionIDKey)
+            } else {
+                let startTimeRead = UserDefaults.standard.double(forKey: usi_startTimeKey)
+                let now = Date().timeIntervalSince1970
+                if startTimeRead > 0, startTimeRead <= now {
+                    startTime = startTimeRead
+                } else {
+                    usiActive = nil
+                }
+            }
+        }
+
+        if usiActive == nil {
+            return usiNew(config)
+        }
+        return (usiActive!, startTime!)
+    }
+
+    private static func usiNew(_ config: InstanaConfiguration) -> (UUID?, TimeInterval?) {
+        if config.usiRefreshTimeIntervalInHrs == usiTrackingNotAllowed {
+            UserDefaults.standard.removeObject(forKey: userSessionIDKey)
+            UserDefaults.standard.removeObject(forKey: usi_startTimeKey)
+            return (nil, nil)
+        }
+
+        let usiActive = UUID()
+        UserDefaults.standard.setValue(usiActive.uuidString, forKey: userSessionIDKey)
+
+        var startTime: TimeInterval?
+        if config.usiRefreshTimeIntervalInHrs > 0 {
+            startTime = Date().timeIntervalSince1970
+            UserDefaults.standard.setValue(startTime, forKey: usi_startTimeKey)
+        } else {
+            UserDefaults.standard.removeObject(forKey: usi_startTimeKey)
+        }
+        return (usiActive, startTime)
     }
 }

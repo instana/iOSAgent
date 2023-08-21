@@ -10,6 +10,8 @@ class InstanaConfigurationTests: InstanaTestCase {
         AssertEqualAndNotNil(config.key, "a")
         AssertEqualAndNotNil(config.reportingURL, URL(string: "http://localhost:3000")!)
         AssertEqualAndNotNil(config.httpCaptureConfig, .automatic)
+        AssertEqualAndNotNil(config.slowSendInterval, 0.0)
+        AssertEqualAndNotNil(config.usiRefreshTimeIntervalInHrs, defaultUsiRefreshTimeIntervalInHrs)
         AssertTrue(config.suspendReporting.isEmpty)
         AssertEqualAndNotNil(config.maxRetries, 3)
         AssertTrue(config.maxBeaconsPerRequest == 100)

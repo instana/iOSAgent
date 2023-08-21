@@ -27,19 +27,23 @@ struct PreviousSession: Codable {
         self.userName = userName
     }
 
+    static func cleanupPreviousSessionUserDefaults() {
+        UserDefaults.standard.removeObject(forKey: sessionIDKey)
+        UserDefaults.standard.removeObject(forKey: sessionStartTimeKey)
+        UserDefaults.standard.removeObject(forKey: viewNameKey)
+        UserDefaults.standard.removeObject(forKey: carrierKey)
+        UserDefaults.standard.removeObject(forKey: connectionTypeKey)
+        UserDefaults.standard.removeObject(forKey: userIDKey)
+        UserDefaults.standard.removeObject(forKey: userNameKey)
+        UserDefaults.standard.removeObject(forKey: userEmailKey)
+    }
+
     ///
     /// Read in and parse saved previous session id, session start time etc.
     ///
     static func readInPreviousSessionData() -> PreviousSession? {
         defer {
-            UserDefaults.standard.removeObject(forKey: sessionIDKey)
-            UserDefaults.standard.removeObject(forKey: sessionStartTimeKey)
-            UserDefaults.standard.removeObject(forKey: viewNameKey)
-            UserDefaults.standard.removeObject(forKey: carrierKey)
-            UserDefaults.standard.removeObject(forKey: connectionTypeKey)
-            UserDefaults.standard.removeObject(forKey: userIDKey)
-            UserDefaults.standard.removeObject(forKey: userNameKey)
-            UserDefaults.standard.removeObject(forKey: userEmailKey)
+            cleanupPreviousSessionUserDefaults()
         }
 
         guard let sidStr = UserDefaults.standard.string(forKey: sessionIDKey),

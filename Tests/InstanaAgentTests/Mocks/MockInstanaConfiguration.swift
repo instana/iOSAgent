@@ -19,11 +19,13 @@ extension InstanaConfiguration {
                      maxQueueSize: Int = 80,
                      debounce: Instana.Types.Seconds = 0.0,
                      slowSendInterval: Instana.Types.Seconds = 0.0,
+                     usiRefreshTimeIntervalInHrs: Double = defaultUsiRefreshTimeIntervalInHrs,
                      maxRetries: Int = 0) -> InstanaConfiguration {
         let config = InstanaConfiguration(reportingURL: reportingURL, key: key,
                                           httpCaptureConfig: httpCaptureConfig,
                                           enableCrashReporting: true,
-                                          slowSendInterval: slowSendInterval)
+                                          slowSendInterval: slowSendInterval,
+                                          usiRefreshTimeIntervalInHrs: usiRefreshTimeIntervalInHrs)
         config.suspendReporting = []
         config.monitorTypes = [.http,
                                .memoryWarning,

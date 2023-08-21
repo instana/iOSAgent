@@ -23,8 +23,8 @@ class CoreBeaconFactory {
     func map(_ beacon: Beacon) throws -> CoreBeacon {
         var cbeacon = CoreBeacon.createDefault(viewName: beacon.viewName, key: conf.key,
                                                timestamp: beacon.timestamp,
-                                               sid: session.id, id: beacon.id,
-                                               mobileFeatures: mobileFeatures)
+                                               sid: session.id, usi: session.usi,
+                                               id: beacon.id, mobileFeatures: mobileFeatures)
         cbeacon.append(properties)
         switch beacon {
         case let item as HTTPBeacon:
@@ -177,10 +177,12 @@ extension CoreBeacon {
         ec = String(1)
     }
 
+    // swiftlint:disable function_parameter_count
     static func createDefault(viewName: String?,
                               key: String,
                               timestamp: Instana.Types.Milliseconds,
                               sid: UUID,
+                              usi: UUID?,
                               id: UUID,
                               mobileFeatures: String?,
                               connection: NetworkUtility.ConnectionType = InstanaSystemUtils.networkUtility.connectionType,
@@ -190,6 +192,7 @@ extension CoreBeacon {
                    k: key,
                    ti: String(timestamp),
                    sid: sid.uuidString,
+                   usi: usi?.uuidString,
                    bid: id.uuidString,
                    uf: mobileFeatures,
                    bi: InstanaSystemUtils.applicationBundleIdentifier,

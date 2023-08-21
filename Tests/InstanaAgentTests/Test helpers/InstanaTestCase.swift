@@ -51,5 +51,8 @@ class InstanaTestCase: XCTestCase {
         IgnoreURLHandler.exactURLs.removeAll()
         IgnoreURLHandler.regex.removeAll()
         IgnoreURLHandler.urlSessions.removeAll()
+        PreviousSession.cleanupPreviousSessionUserDefaults()
+        UserDefaults.standard.removeObject(forKey: userSessionIDKey)
+        UserDefaults.standard.removeObject(forKey: usi_startTimeKey)
     }
 }

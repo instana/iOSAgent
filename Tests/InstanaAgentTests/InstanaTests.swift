@@ -29,6 +29,7 @@ class InstanaTests: InstanaTestCase {
         AssertEqualAndNotNil(config!.reportingURL, reportingURL)
         AssertEqualAndNotNil(config!.httpCaptureConfig, .automatic)
         AssertEqualAndNotNil(config!.slowSendInterval, 0.0)
+        AssertEqualAndNotNil(config!.usiRefreshTimeIntervalInHrs, defaultUsiRefreshTimeIntervalInHrs)
         AssertFalse(config!.monitorTypes.contains(.crash))
 
         let session = Instana.current?.session
@@ -62,6 +63,7 @@ class InstanaTests: InstanaTestCase {
         AssertEqualAndNotNil(config!.reportingURL, reportingURL)
         AssertEqualAndNotNil(config!.httpCaptureConfig, .automaticAndManual)
         AssertEqualAndNotNil(config!.slowSendInterval, options.slowSendInterval)
+        AssertEqualAndNotNil(config!.usiRefreshTimeIntervalInHrs, options.usiRefreshTimeIntervalInHrs)
         AssertTrue(config!.monitorTypes.contains(.crash))
 
         AssertEqualAndNotNil(Instana.current?.session.collectionEnabled, options.collectionEnabled)
@@ -90,7 +92,7 @@ class InstanaTests: InstanaTestCase {
         let key = "KEY"
         let reportingURL = URL(string: "http://www.instana.com")!
 
-        Instana.setup(key: key, reportingURL: reportingURL)
+        _ = Instana.setup(key: key, reportingURL: reportingURL, options: nil)
 
         // Then
         AssertEqualAndNotNil(Instana.key, key)
@@ -102,6 +104,8 @@ class InstanaTests: InstanaTestCase {
         AssertEqualAndNotNil(Instana.current?.session.configuration.httpCaptureConfig, .automatic)
         AssertEqualAndNotNil(Instana.current?.session.configuration,
                              .default(key: key, reportingURL: reportingURL, enableCrashReporting: false))
+        AssertEqualAndNotNil(Instana.current?.session.configuration.slowSendInterval, 0.0)
+        AssertEqualAndNotNil(Instana.current?.session.configuration.usiRefreshTimeIntervalInHrs, defaultUsiRefreshTimeIntervalInHrs)
     }
 
     func test_setup_disabled() {
@@ -111,7 +115,8 @@ class InstanaTests: InstanaTestCase {
         let httpCaptureConfig: HTTPCaptureConfig = .manual
 
         // When
-        Instana.setup(key: key, reportingURL: reportingURL, httpCaptureConfig: httpCaptureConfig, collectionEnabled: false)
+        let options = InstanaSetupOptions(httpCaptureConfig: httpCaptureConfig, collectionEnabled: false)
+        _ = Instana.setup(key: key, reportingURL: reportingURL, options: options)
 
         // Then
         AssertEqualAndNotNil(Instana.key, key)
@@ -126,7 +131,8 @@ class InstanaTests: InstanaTestCase {
         let httpCaptureConfig: HTTPCaptureConfig = .manual
 
         // When
-        Instana.setup(key: key, reportingURL: reportingURL, httpCaptureConfig: httpCaptureConfig)
+        let options = InstanaSetupOptions(httpCaptureConfig: httpCaptureConfig)
+        _ = Instana.setup(key: key, reportingURL: reportingURL, options: options)
 
         // Then
         AssertEqualAndNotNil(Instana.key, key)
@@ -147,7 +153,8 @@ class InstanaTests: InstanaTestCase {
         let httpCaptureConfig: HTTPCaptureConfig = .automaticAndManual
 
         // When
-        Instana.setup(key: key, reportingURL: reportingURL, httpCaptureConfig: httpCaptureConfig)
+        let options = InstanaSetupOptions(httpCaptureConfig: httpCaptureConfig)
+        _ = Instana.setup(key: key, reportingURL: reportingURL, options: options)
 
         // Then
         AssertEqualAndNotNil(Instana.key, key)

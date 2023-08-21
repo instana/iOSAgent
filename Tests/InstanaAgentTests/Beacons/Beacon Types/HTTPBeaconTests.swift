@@ -133,8 +133,9 @@ class HTTPBeaconTests: InstanaTestCase {
         let viewName = "View"
         let http = HTTPBeacon(timestamp: timestamp, duration: duration, method: method, url: url, header: header, responseCode: responseCode, responseSize: responseSize, error: timeout, backendTracingID: backendTracingID, viewName: viewName)
         var beacon: CoreBeacon!
+        let mockedInstanaSession = InstanaSession.mock(configuration: .mock)
         do {
-            beacon = try CoreBeaconFactory(.mock(configuration: .mock)).map(http)
+            beacon = try CoreBeaconFactory(mockedInstanaSession).map(http)
         } catch {
             XCTFail("Could not create CoreBeacon")
         }
@@ -144,7 +145,7 @@ class HTTPBeaconTests: InstanaTestCase {
 
         // When
         let expectedErrorMessage = "\(HTTPError.timeout.rawValue): \(HTTPError.timeout.errorDescription)"
-        let expected = "ab\t\(beacon.ab)\nagv\t\(beacon.agv)\nav\t\(beacon.av)\nbi\t\(beacon.bi)\nbid\t\(beacon.bid)\nbt\t\(backendTracingID)\ncn\t\(beacon.cn ?? "")\nct\t\(beacon.ct ?? "")\nd\t\(duration)\ndbs\t\(responseSize.bodyBytesAfterDecoding!)\ndma\tApple\ndmo\t\(beacon.dmo)\nebs\t\(responseSize.bodyBytes!)\nec\t1\nem\t\(expectedErrorMessage)\net\tHTTPError\nh_X-Key1\tSec\nh_X-Key2\tP\nhm\t\(method)\nhp\t\(url.path)\nhs\t\(responseCode)\nhu\t\(url.absoluteString)\nk\t\(key)\nosn\tiOS\nosv\t\(beacon.osv)\np\tiOS\nro\tfalse\nsid\t\(beacon.sid)\nt\thttpRequest\nti\t\(timestamp)\ntrs\t\(responseSize.headerBytes! + responseSize.bodyBytes!)\nuf\tc\nul\ten\nv\t\(viewName)\nvh\t\(Int(UIScreen.main.bounds.height))\nvw\t\(Int(UIScreen.main.bounds.width))"
+        let expected = "ab\t\(beacon.ab)\nagv\t\(beacon.agv)\nav\t\(beacon.av)\nbi\t\(beacon.bi)\nbid\t\(beacon.bid)\nbt\t\(backendTracingID)\ncn\t\(beacon.cn ?? "")\nct\t\(beacon.ct ?? "")\nd\t\(duration)\ndbs\t\(responseSize.bodyBytesAfterDecoding!)\ndma\tApple\ndmo\t\(beacon.dmo)\nebs\t\(responseSize.bodyBytes!)\nec\t1\nem\t\(expectedErrorMessage)\net\tHTTPError\nh_X-Key1\tSec\nh_X-Key2\tP\nhm\t\(method)\nhp\t\(url.path)\nhs\t\(responseCode)\nhu\t\(url.absoluteString)\nk\t\(key)\nosn\tiOS\nosv\t\(beacon.osv)\np\tiOS\nro\tfalse\nsid\t\(beacon.sid)\nt\thttpRequest\nti\t\(timestamp)\ntrs\t\(responseSize.headerBytes! + responseSize.bodyBytes!)\nuf\tc\nul\ten\nusi\t\(mockedInstanaSession.usi!.uuidString)\nv\t\(viewName)\nvh\t\(Int(UIScreen.main.bounds.height))\nvw\t\(Int(UIScreen.main.bounds.width))"
         XCTAssertEqual(sut, expected)
     }
 

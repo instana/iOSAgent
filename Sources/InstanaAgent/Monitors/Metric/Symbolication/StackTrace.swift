@@ -23,6 +23,7 @@ class StackTrace: Codable {
         threads.append(stThread)
     }
 
+    // swiftlint:disable function_parameter_count
     func appendBinaryImage(startAddr: String, endAddr: String?, name: String,
                            arch: String?, uuid: String, path: String?) {
         binaryImages.append(StBinaryImage(startAddr: startAddr, endAddr: endAddr,

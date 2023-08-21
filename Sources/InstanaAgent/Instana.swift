@@ -85,6 +85,7 @@ import Foundation
         var collectionEnabled = true
         var enableCrashReporting = false
         var slowSendInterval = 0.0
+        var usiRefreshTimeIntervalInHrs = defaultUsiRefreshTimeIntervalInHrs
         if let options = options {
             httpCaptureConfig = options.httpCaptureConfig
             collectionEnabled = options.collectionEnabled
@@ -92,23 +93,25 @@ import Foundation
 
             let debounce = InstanaConfiguration.Defaults.reporterSendDebounce
             if options.slowSendInterval != 0.0,
-                options.slowSendInterval < debounce || options.slowSendInterval > InstanaConfiguration.maxSlowSendInterval {
+                options.slowSendInterval < debounce || options.slowSendInterval > maxSlowSendInterval {
                 // Illegal slowSendInterval. Expected value 2 ~ 3600 in seconds
                 return false
             }
             slowSendInterval = options.slowSendInterval
+
+            usiRefreshTimeIntervalInHrs = options.usiRefreshTimeIntervalInHrs
         }
         let config = InstanaConfiguration.default(key: key, reportingURL: reportingURL,
                                                   httpCaptureConfig: httpCaptureConfig,
                                                   enableCrashReporting: enableCrashReporting,
-                                                  slowSendInterval: slowSendInterval)
+                                                  slowSendInterval: slowSendInterval,
+                                                  usiRefreshTimeIntervalInHrs: usiRefreshTimeIntervalInHrs)
         let session = InstanaSession(configuration: config, propertyHandler: InstanaPropertyHandler(),
                                      collectionEnabled: collectionEnabled)
         Instana.current = Instana(session: session)
         return true
     }
 
-    /// Deprecated! Use setup( ) with InstanaSetupOptions instead.
     /// Configures and sets up the Instana agent with the default configuration. (deprecated)
     /// - HTTP sessions will be captured automatically by default
     ///
@@ -118,6 +121,7 @@ import Foundation
     ///   - reportingURL: Reporting URL for the Instana backend.
     ///   - enableCrashReporting: Subscribe to metricKit events so as to enable crash reporting.
     ///                      App must have explicitly asked user permission to subscribe before this call.
+    @available(*, deprecated, message: "This method is deprecated. Use the setup() method with InstanaSetupOptions.")
     @objc
     public static func setup(key: String, reportingURL: URL, enableCrashReporting: Bool = false) {
         let config = InstanaConfiguration.default(key: key, reportingURL: reportingURL,
@@ -127,7 +131,6 @@ import Foundation
         Instana.current = Instana(session: session)
     }
 
-    /// Deprecated! Use setup( ) with InstanaSetupOptions instead.
     /// Configures and sets up the Instana agent with a custom HTTP capture configuration. (deprecated)
     ///
     /// - Note: Should be called only once, as soon as posible. Preferably in `application(_:, didFinishLaunchingWithOptions:)`
@@ -138,6 +141,7 @@ import Foundation
     ///   - collectionEnabled: Enable or disable collection (instrumentation) on setup. Can be changed later via the property `collectionEnabled` (Default: true)
     ///   - enableCrashReporting: Subscribe to metricKit events so as to enable crash reporting.
     ///                      App must have explicitly asked user permission to subscribe before this call.
+    @available(*, deprecated, message: "This method is deprecated. Use the setup() method with InstanaSetupOptions.")
     @objc
     public static func setup(key: String, reportingURL: URL,
                              httpCaptureConfig: HTTPCaptureConfig = .automatic,

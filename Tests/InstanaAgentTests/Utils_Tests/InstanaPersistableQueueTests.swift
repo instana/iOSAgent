@@ -48,8 +48,11 @@ class InstanaPersistableQueueTests: InstanaTestCase {
         // Given
         let sessionID = UUID()
         let id = UUID()
-        let beacon1 = CoreBeacon.createDefault(viewName: "View_1", key: "Key_1", timestamp: 0, sid: sessionID, id: id, mobileFeatures: "c")
-        let beacon2 = CoreBeacon.createDefault(viewName: "View_2", key: "Key_2", timestamp: 0, sid: sessionID, id: id, mobileFeatures: "c")
+        let userSessionID = UUID()
+        let beacon1 = CoreBeacon.createDefault(viewName: "View_1", key: "Key_1", timestamp: 0,
+                                 sid: sessionID, usi: session.usi, id: id, mobileFeatures: "c")
+        let beacon2 = CoreBeacon.createDefault(viewName: "View_2", key: "Key_2", timestamp: 0,
+                                 sid: sessionID, usi: session.usi, id: id, mobileFeatures: "c")
         let queueHandler = InstanaPersistableQueue<CoreBeacon>(identifier: "queue", maxItems: 100)
         queueHandler.removeAll()
 
@@ -69,13 +72,15 @@ class InstanaPersistableQueueTests: InstanaTestCase {
     //
     func test_persisted_beacons_plus_new() {
         // Given
-        let oldBeacons = [CoreBeacon.createDefault(viewName: "V", key: "K", timestamp: 1, sid: UUID(), id: UUID(), mobileFeatures: "c")]
+        let oldBeacons = [CoreBeacon.createDefault(viewName: "V", key: "K", timestamp: 1,
+                                     sid: UUID(), usi: session.usi, id: UUID(), mobileFeatures: "c")]
         var queueHandler = InstanaPersistableQueue<CoreBeacon>(identifier: "queue", maxItems: 100)
         queueHandler.removeAll()
         queueHandler.add(oldBeacons) {_ in}
 
         // When
-        let newBeacons = [CoreBeacon.createDefault(viewName: "V", key: "K", timestamp: 2, sid: UUID(), id: UUID(), mobileFeatures: "c")]
+        let newBeacons = [CoreBeacon.createDefault(viewName: "V", key: "K", timestamp: 2,
+                                     sid: UUID(), usi: session.usi, id: UUID(), mobileFeatures: "c")]
         queueHandler = InstanaPersistableQueue<CoreBeacon>(identifier: "queue", maxItems: 100)
         queueHandler.add(newBeacons) {result in
             AssertTrue(result.error == nil)
@@ -92,13 +97,15 @@ class InstanaPersistableQueueTests: InstanaTestCase {
     func test_persisted_beacons_avoid_dups() {
         // Given
         let id = UUID()
-        let oldBeacons = [CoreBeacon.createDefault(viewName: "V", key: "K", timestamp: 1, sid: UUID(), id: id, mobileFeatures: "c")]
+        let oldBeacons = [CoreBeacon.createDefault(viewName: "V", key: "K", timestamp: 1,
+                                     sid: UUID(), usi: session.usi, id: id, mobileFeatures: "c")]
         var queueHandler = InstanaPersistableQueue<CoreBeacon>(identifier: "queue", maxItems: 100)
         queueHandler.removeAll()
         queueHandler.add(oldBeacons) {_ in}
 
         // When
-        let newBeacon = CoreBeacon.createDefault(viewName: "V", key: "K", timestamp: 2, sid: UUID(), id: id, mobileFeatures: "c")
+        let newBeacon = CoreBeacon.createDefault(viewName: "V", key: "K", timestamp: 2,
+                                   sid: UUID(), usi: session.usi, id: id, mobileFeatures: "c")
         queueHandler = InstanaPersistableQueue<CoreBeacon>(identifier: "queue", maxItems: 100)
         queueHandler.add(newBeacon) {result in
             AssertTrue(result.error == nil)

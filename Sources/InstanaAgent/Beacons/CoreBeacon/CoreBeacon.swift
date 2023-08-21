@@ -87,6 +87,13 @@ struct CoreBeacon: Codable {
     var sid: String
 
     /**
+     * User Session ID
+     *
+     * A unique ID that represents the device
+     */
+    var usi: String?
+
+    /**
      * Beacon ID
      *
      * An unique UUID for each beaon.

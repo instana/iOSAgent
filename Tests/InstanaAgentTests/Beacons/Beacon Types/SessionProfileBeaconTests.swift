@@ -22,8 +22,9 @@ class SessionProfileBeaconTests: InstanaTestCase {
 
     func test_asString() {
         // Given
+        let mockInstanaSession = InstanaSession.mock
         let session = SessionProfileBeacon(state: .start)
-        let factory = CoreBeaconFactory(InstanaSession.mock)
+        let factory = CoreBeaconFactory(mockInstanaSession)
         var beacon: CoreBeacon!
         do {
             beacon = try factory.map(session)
@@ -35,7 +36,7 @@ class SessionProfileBeaconTests: InstanaTestCase {
         let sut = beacon.asString
 
         // When
-        let expected = "ab\t\(beacon.ab)\nagv\t\(beacon.agv)\nav\t\(beacon.av)\nbi\t\(beacon.bi)\nbid\t\(beacon.bid)\ncn\t\(beacon.cn ?? "")\nct\t\(beacon.ct ?? "")\ndma\tApple\ndmo\t\(beacon.dmo)\nk\t\(key)\nosn\tiOS\nosv\t\(beacon.osv)\np\tiOS\nro\tfalse\nsid\t\(beacon.sid)\nt\tsessionStart\nti\t\(session.timestamp)\nuf\tc\nul\ten\nvh\t\(Int(UIScreen.main.bounds.height))\nvw\t\(Int(UIScreen.main.bounds.width))"
+        let expected = "ab\t\(beacon.ab)\nagv\t\(beacon.agv)\nav\t\(beacon.av)\nbi\t\(beacon.bi)\nbid\t\(beacon.bid)\ncn\t\(beacon.cn ?? "")\nct\t\(beacon.ct ?? "")\ndma\tApple\ndmo\t\(beacon.dmo)\nk\t\(key)\nosn\tiOS\nosv\t\(beacon.osv)\np\tiOS\nro\tfalse\nsid\t\(beacon.sid)\nt\tsessionStart\nti\t\(session.timestamp)\nuf\tc\nul\ten\nusi\t\(mockInstanaSession.usi!.uuidString)\nvh\t\(Int(UIScreen.main.bounds.height))\nvw\t\(Int(UIScreen.main.bounds.width))"
         XCTAssertEqual(sut, expected)
     }
 
