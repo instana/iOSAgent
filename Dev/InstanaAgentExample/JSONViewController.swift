@@ -13,12 +13,16 @@ class JSONViewController: UIViewController {
 
     @IBOutlet var searchTextField: UITextField!
     @IBOutlet var textView: UITextView!
+
+    @available(iOS 13.0, *)
     private var publisher: AnyCancellable?
+
     lazy var session = { URLSession(configuration: URLSessionConfiguration.default) }()
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         Instana.setView(name: "JSONView")
+        searchTextField.text = "https://www.ibm.com/de-de"
     }
 
     @IBAction func loadJSON() {
@@ -27,16 +31,30 @@ class JSONViewController: UIViewController {
             showAlert(message: "URL is invalid")
             return
         }
-        publisher = session.dataTaskPublisher(for: url)
-            .receive(on: RunLoop.main)
-            .map { String(data: $0.data, encoding: .ascii) }
-            .sink(receiveCompletion: { complete in
-                if let errorMessage = complete.localizedError {
-                    self.showAlert(message: errorMessage)
+        if #available(iOS 13.0, *) {
+            publisher = session.dataTaskPublisher(for: url)
+                .receive(on: RunLoop.main)
+                .map { String(data: $0.data, encoding: .ascii) }
+                .sink(receiveCompletion: { complete in
+                    if let errorMessage = complete.localizedError {
+                        self.showAlert(message: errorMessage)
+                    }
+                }, receiveValue: {[weak self] result in
+                    self?.textView.text = result
+                })
+        } else {
+            let task = session.dataTask(with: url) { data, response, error in
+                guard let data = data else {
+                    print("Empty data. error: ", error ?? "nil")
+                    return
                 }
-            }, receiveValue: {[weak self] result in
-                self?.textView.text = result
-            })
+                let str = String(data: data, encoding: .utf8)
+                DispatchQueue.main.async {
+                    self.textView.text = str
+                }
+            }
+            task.resume()
+        }
     }
 
     func showAlert(message: String) {

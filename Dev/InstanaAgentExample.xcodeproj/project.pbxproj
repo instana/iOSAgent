@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 52;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -29,6 +29,7 @@
 		72976A9A2681C45800A284F6 /* Webserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72976A992681C45800A284F6 /* Webserver.swift */; };
 		729C88B5270DE98200492486 /* AFNetworking in Frameworks */ = {isa = PBXBuildFile; productRef = 729C88B4270DE98200492486 /* AFNetworking */; };
 		729C88B8270DF13700492486 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 729C88B7270DF13700492486 /* Alamofire */; };
+		A4EFD6A12A9983FB00B9A9A3 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A4EFD6A02A9983FB00B9A9A3 /* WebKit.framework */; };
 		CE322E492A6E3CEF00414F37 /* TopRatedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE322E482A6E3CEF00414F37 /* TopRatedViewController.swift */; };
 /* End PBXBuildFile section */
 
@@ -69,6 +70,7 @@
 		727AF73A263AA0FA00B9C59B /* EventListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventListViewController.swift; sourceTree = "<group>"; };
 		72976A992681C45800A284F6 /* Webserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Webserver.swift; path = "../../Tests/InstanaAgentTests/Test helpers/Webserver.swift"; sourceTree = "<group>"; };
 		72FBE8A7263AACDB00CF2CDE /* InstanaAgentExample.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = InstanaAgentExample.entitlements; sourceTree = "<group>"; };
+		A4EFD6A02A9983FB00B9A9A3 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.3.sdk/System/iOSSupport/System/Library/PrivateFrameworks/WebKit.framework; sourceTree = DEVELOPER_DIR; };
 		CE322E482A6E3CEF00414F37 /* TopRatedViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopRatedViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -85,6 +87,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A4EFD6A12A9983FB00B9A9A3 /* WebKit.framework in Frameworks */,
 				729C88B8270DF13700492486 /* Alamofire in Frameworks */,
 				727AF748263AA16A00B9C59B /* InstanaAgent in Frameworks */,
 				729C88B5270DE98200492486 /* AFNetworking in Frameworks */,
@@ -160,6 +163,7 @@
 		727AF710263A9FC800B9C59B /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				A4EFD6A02A9983FB00B9A9A3 /* WebKit.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -355,6 +359,7 @@
 		};
 		72FBE8AC263AAD0900CF2CDE /* Import secure variables */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -373,6 +378,7 @@
 		};
 		72FBE8AD263AAD2000CF2CDE /* SwiftLint & SwiftFormat */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -391,6 +397,7 @@
 		};
 		72FBE8AE263AAD4C00CF2CDE /* Reset */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -650,8 +657,9 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = InstanaAgentExample/InstanaAgentExample.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = D5PCJAP39R;
+				DEVELOPMENT_TEAM = 6K4C9F3Z9X;
 				INFOPLIST_FILE = InstanaAgentExample/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -671,8 +679,9 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = InstanaAgentExample/InstanaAgentExample.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = D5PCJAP39R;
+				DEVELOPMENT_TEAM = 6K4C9F3Z9X;
 				INFOPLIST_FILE = InstanaAgentExample/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -690,6 +699,7 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				INFOPLIST_FILE = iOSAgentUITests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -708,6 +718,7 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				INFOPLIST_FILE = iOSAgentUITests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

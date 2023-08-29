@@ -16,7 +16,7 @@ class WebViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         webView.navigationDelegate = self
-        load(url: URL(string: "https://www.instana.com")!)
+        load(url: URL(string: "https://www.ibm.com/cn-zh")!)
     }
 
     func load(url: URL) {

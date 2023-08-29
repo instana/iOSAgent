@@ -48,7 +48,6 @@ class InstanaPersistableQueueTests: InstanaTestCase {
         // Given
         let sessionID = UUID()
         let id = UUID()
-        let userSessionID = UUID()
         let beacon1 = CoreBeacon.createDefault(viewName: "View_1", key: "Key_1", timestamp: 0,
                                  sid: sessionID, usi: session.usi, id: id, mobileFeatures: "c")
         let beacon2 = CoreBeacon.createDefault(viewName: "View_2", key: "Key_2", timestamp: 0,

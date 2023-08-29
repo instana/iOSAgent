@@ -28,9 +28,10 @@ class EventListViewController: UITableViewController {
 
         override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
             super.init(style: style, reuseIdentifier: reuseIdentifier)
-            
-            rateButton.setImage(UIImage(systemName: "star"), for: .normal)
-            rateButton.setImage(UIImage(systemName: "star.fill"), for: .selected)
+            if #available(iOS 13.0, *) {
+                rateButton.setImage(UIImage(systemName: "star"), for: .normal)
+                rateButton.setImage(UIImage(systemName: "star.fill"), for: .selected)
+            }
             accessoryView = rateButton
         }
         
@@ -47,7 +48,9 @@ class EventListViewController: UITableViewController {
     
 
 
+    @available(iOS 13.0, *)
     private var publisher: AnyCancellable?
+
     lazy var session = { URLSession(configuration: URLSessionConfiguration.default) }()
 
     override func viewDidLoad() {
@@ -70,16 +73,36 @@ class EventListViewController: UITableViewController {
 
     func loadJSON() {
         let url = URL(string: "https://api.mygigs.tapwork.de/eventsnearby?radius=80.0&latitude=52.52&longitude=13.410&apitoken=xQ3vdfKVIF")!
-        publisher = session.dataTaskPublisher(for: url)
-            .receive(on: RunLoop.main)
-            .map { $0.data }
-            .decode(type: DataSource.self, decoder: JSONDecoder())
-            .sink(receiveCompletion: { _ in }, receiveValue: {[weak self] model in
-                guard let self = self else { return }
-                dataSource = model
-                self.tableView.reloadData()
-                self.refreshControl?.endRefreshing()
-            })
+        if #available(iOS 13.0, *) {
+            publisher = session.dataTaskPublisher(for: url)
+                .receive(on: RunLoop.main)
+                .map { $0.data }
+                .decode(type: DataSource.self, decoder: JSONDecoder())
+                .sink(receiveCompletion: { _ in }, receiveValue: {[weak self] model in
+                    guard let self = self else { return }
+                    dataSource = model
+                    self.tableView.reloadData()
+                    self.refreshControl?.endRefreshing()
+                })
+        } else {
+            let task = session.dataTask(with: url) { data, response, error in
+                guard let data = data else {
+                    print("Empty data. error: ", error ?? "nil")
+                    return
+                }
+                do {
+                    let model: DataSource? = try JSONDecoder().decode(DataSource.self, from: data)
+                    DispatchQueue.main.async {
+                        dataSource = model
+                        self.tableView.reloadData()
+                        self.refreshControl?.endRefreshing()
+                    }
+                } catch {
+                    print("Error ", error)
+                }
+            }
+            task.resume()
+        }
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -128,6 +151,8 @@ class DetailViewController: UIViewController {
     let label = UILabel()
     let imageView = UIImageView()
     let event: DataSource.Event
+
+    @available(iOS 13.0, *)
     private var publisher: AnyCancellable?
 
     init(event: DataSource.Event) {
@@ -142,17 +167,21 @@ class DetailViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        view.backgroundColor = UIColor.systemBackground
+        if #available(iOS 13.0, *) {
+            view.backgroundColor = UIColor.systemBackground
+        }
 
         view.addSubview(imageView)
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.contentMode = .scaleAspectFill
 
         imageView.addSubview(label)
-        label.backgroundColor = UIColor.systemBackground
+        if #available(iOS 13.0, *) {
+            label.backgroundColor = UIColor.systemBackground
+            label.textColor = UIColor.secondaryLabel
+        }
         label.text = event.name
         label.numberOfLines = 0
-        label.textColor = UIColor.secondaryLabel
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
 
@@ -178,12 +207,26 @@ class DetailViewController: UIViewController {
         guard let url = URL(string: event.image_url ?? "") else {
             return
         }
-        publisher = URLSession.shared.dataTaskPublisher(for: url)
-        .receive(on: RunLoop.main)
-        .map { UIImage(data: $0.data) }
-        .sink(receiveCompletion: { _ in }, receiveValue: {[weak self] image in
-            guard let self = self else { return }
-            self.imageView.image = image
-        })
+        if #available(iOS 13.0, *) {
+            publisher = URLSession.shared.dataTaskPublisher(for: url)
+                .receive(on: RunLoop.main)
+                .map { UIImage(data: $0.data) }
+                .sink(receiveCompletion: { _ in }, receiveValue: {[weak self] image in
+                    guard let self = self else { return }
+                    self.imageView.image = image
+                })
+        } else {
+            let task = URLSession.shared.dataTask(with: url) { data, response, error in
+                guard let data = data else {
+                    print("Empty data. error: ", error ?? "nil")
+                    return
+                }
+                let image = UIImage(data: data)
+                DispatchQueue.main.async {
+                    self.imageView.image = image
+                }
+            }
+            task.resume()
+        }
     }
 }
