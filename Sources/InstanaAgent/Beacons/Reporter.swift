@@ -11,7 +11,7 @@ public class Reporter {
     var completionHandler = [Completion]()
     let queue: InstanaPersistableQueue<CoreBeacon>
     private let dispatchQueue = DispatchQueue(label: "com.instana.ios.agent.reporter", qos: .utility)
-    private var sendFirstBeacon = true // first beacon is sent all by itself, not in a batch
+    internal var sendFirstBeacon = true // first beacon is sent all by itself, not in a batch
     private var slowSendStartTime: Date?
     private var inSlowModeBeforeFlush = false
     private var lastFlushStartTime: Double?

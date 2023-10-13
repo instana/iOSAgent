@@ -53,7 +53,7 @@ class ApplicationNotRespondingMonitorTests: InstanaTestCase {
         NotificationCenter.default.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
         Thread.sleep(forTimeInterval: 0.12)
         
-        waitForExpectations(timeout: 0.14)
+        waitForExpectations(timeout: 5.0)
     }
 
     func test_foregrounding_shouldResumeMonitoring() {

@@ -5,7 +5,7 @@ class InstanaSystemUtilsTests: InstanaTestCase {
 
     func test_AgentVersion() {
         // Then
-        AssertTrue(InstanaSystemUtils.agentVersion == "1.6.5")
+        AssertTrue(InstanaSystemUtils.agentVersion == "1.6.6")
     }
 
     func test_systemVersion() {
@@ -14,6 +14,11 @@ class InstanaSystemUtilsTests: InstanaTestCase {
 
     func test_systemName() {
         AssertEqualAndNotNil(InstanaSystemUtils.systemName, expectedSystemName)
+    }
+
+    func test_isDeviceJailbroken() {
+        let runOnJailbrokenSim = (UIDevice.current.name == "iOSAgentUnitTestSimulator")
+        AssertEqualAndNotNil(InstanaSystemUtils.isDeviceJailbroken, runOnJailbrokenSim)
     }
 
     var expectedSystemVersion: String {

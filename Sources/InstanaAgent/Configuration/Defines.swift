@@ -4,7 +4,7 @@
 
 import Foundation
 
-// Default user_session_id reresh time interval as negative number means never refresh
+// Default user_session_id refresh time interval as negative number means never refresh
 // ie. keep the same user_session_id forever
 public let defaultUsiRefreshTimeIntervalInHrs: Double = -1.0
 
@@ -44,7 +44,7 @@ let crashMetaKeyUserID = "ui"
 let crashMetaKeyUserName = "un"
 let crashMetaKeyUserEmail = "ue"
 
-let currentInstanaCrashPayloadVersion = "0.91"
+let currentInstanaCrashPayloadVersion = "0.92"
 let defaultCrashViewName = "CrashView"
 
 let maxSecondsToKeepCrashLog = (maxDaysToKeepCrashLog * 60 * 60 * 24)

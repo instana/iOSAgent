@@ -246,10 +246,16 @@ extension DiagnosticSymbolicator {
             return nil
         }
 
-        let processAddress = Int(imageDetail.baseAddress) + (Int(address) - Int(symFrame.loadAddress))
+        // meaning for offsetIntoBinaryTextSegment and address are different between arm64 and arm64e
+        var addr: UInt
+        if #available(macOS 13, iOS 16, *) {
+            addr = UInt(imageDetail.baseAddress) + symFrame.offsetIntoBinaryTextSegment
+        } else {
+            addr = UInt(imageDetail.baseAddress) + address - symFrame.offsetIntoBinaryTextSegment
+        }
 
         guard let dlInfo = DynamicLibraryInfo(imageInMemory: imageDetail.inMemory,
-                                              address: UInt(processAddress),
+                                              address: addr,
                                               architecture: imageDetail.getArchitecture(),
                                               size: UInt(imageDetail.size),
                                               path: imageDetail.path) else {

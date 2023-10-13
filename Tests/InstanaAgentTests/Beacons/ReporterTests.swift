@@ -1086,12 +1086,21 @@ class ReporterTests: InstanaTestCase {
         // Then
         XCTAssertTrue(reporter.isInSlowSendMode)
         XCTAssertFalse(reporter.queue.items.isEmpty)
+    }
+
+    func test_flushQueue_success_turnsOffSlowSendMode() {
+        let slowSendInterval = 1.0
+        let reporter = Reporter(.mock(configuration: .mock(slowSendInterval: slowSendInterval)),
+                                send:  { _, completion in
+            completion(.success(200))
+        })
+
+        reporter.setSlowSendStartTime(Date())
+        XCTAssertTrue(reporter.isInSlowSendMode)
 
         // case 2, the reporter is now in slow send mode
         // a successful beacon send turns slow send mode off
-        reporter.send = { _, completion in
-            completion(.success(200))
-        }
+        let corebeacons = try! CoreBeaconFactory(session).map([HTTPBeacon.createMock()])
         reporter.queue.add(corebeacons)
         let waitFor2 = expectation(description: "test_flushQueue_success_turnsOffSlowSendMode")
         reporter.completionHandler.removeAll()
@@ -1102,7 +1111,6 @@ class ReporterTests: InstanaTestCase {
         // When
         reporter.scheduleFlush()
         wait(for: [waitFor2], timeout: (slowSendInterval + 1.0))  // wait time should be greater than slowSendInterval
-
         // Then
         XCTAssertFalse(reporter.isInSlowSendMode)
     }
@@ -1128,16 +1136,25 @@ class ReporterTests: InstanaTestCase {
         // Then
         XCTAssertTrue(reporter.isInSlowSendMode)
         XCTAssertFalse(reporter.queue.items.isEmpty)
+    }
 
-        // case 2, the reporter is now in slow send mode with debounce interval set to slowSendInterval
+    func test_flushQueue_debounceSetTo_slowSendInterval() {
+        let slowSendInterval = 3.0
         var beaconFlushed = false
-        reporter.send = { _, completion in
+        let reporter = Reporter(.mock(configuration: .mock(slowSendInterval: slowSendInterval)),
+                                send:  { _, completion in
             beaconFlushed = true
             completion(.success(200))
-        }
+        })
+
+        // case 2, the reporter is now in slow send mode with debounce interval set to slowSendInterval
+        reporter.sendFirstBeacon = false
+        reporter.setSlowSendStartTime(Date())
+        XCTAssertTrue(reporter.isInSlowSendMode)
+
+        let corebeacons = try! CoreBeaconFactory(session).map([HTTPBeacon.createMock()])
         reporter.queue.add(corebeacons)
-        let waitFor2 = expectation(description: "test_flushQueue_debounceSEtTo_slowSendInterval")
-        reporter.completionHandler.removeAll()
+        let waitFor2 = expectation(description: "test_flushQueue_debounceSetTo_slowSendInterval")
         reporter.completionHandler.append {result in
             waitFor2.fulfill()
         }
@@ -1145,7 +1162,6 @@ class ReporterTests: InstanaTestCase {
         // When
         reporter.scheduleFlush()
         Thread.sleep(forTimeInterval: (slowSendInterval / 2.0)) // wait time is less than than slowSendInterval
-
         // Then
         XCTAssertFalse(beaconFlushed)
 

@@ -7,16 +7,16 @@ import Foundation
 class SymbolicationFrame {
     let binaryUUID: UUID
     let binaryName: String
-    let loadAddress: UInt
+    let offsetIntoBinaryTextSegment: UInt
     var symbol: SymbolInfo?
 
     init(binaryUUID: UUID,
          binaryName: String,
-         loadAddress: UInt,
+         offsetIntoBinaryTextSegment: UInt,
          symbol: SymbolInfo? = nil) {
         self.binaryUUID = binaryUUID
         self.binaryName = binaryName
-        self.loadAddress = loadAddress
+        self.offsetIntoBinaryTextSegment = offsetIntoBinaryTextSegment
         self.symbol = symbol
     }
 }

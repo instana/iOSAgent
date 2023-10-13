@@ -22,6 +22,6 @@ struct Frame: Codable {
             let binaryName = binaryName,
             let uuid = binaryUUID else { return nil }
 
-        return SymbolicationFrame(binaryUUID: uuid, binaryName: binaryName, loadAddress: UInt(offset), symbol: nil)
+        return SymbolicationFrame(binaryUUID: uuid, binaryName: binaryName, offsetIntoBinaryTextSegment: UInt(offset), symbol: nil)
     }
 }
