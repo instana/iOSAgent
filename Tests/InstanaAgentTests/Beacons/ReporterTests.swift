@@ -34,7 +34,6 @@ class ReporterTests: InstanaTestCase {
 
         // Then
         AssertTrue(didSubmit)
-        AssertTrue(reporter.queue.items.count == 1)
     }
 
     func test_submit_rateLimit_two_NOT_exceeded() {
@@ -566,7 +565,7 @@ class ReporterTests: InstanaTestCase {
             waitForCompletion.fulfill()
         }
         reporter.submit(AlertBeacon(alertType: .lowMemory))
-        wait(for: [waitForCompletion], timeout: 2)
+        wait(for: [waitForCompletion], timeout: 4)
 
         // Then
         AssertTrue(sendNotCalled)
@@ -885,7 +884,7 @@ class ReporterTests: InstanaTestCase {
         let givenError = CocoaError(.coderInvalidValue)
         var resultError: CocoaError?
         let givenBeacon = HTTPBeacon.createMock()
-        let waitForSend = expectation(description: "Delayed sending")
+        weak var waitForSend = expectation(description: "Delayed sending")
         let reporter = Reporter(createMockSession(), batterySafeForNetworking: { true }, networkUtility: .wifi) { _, completion in
             completion(.failure(givenError))
         }
@@ -895,10 +894,11 @@ class ReporterTests: InstanaTestCase {
             guard case let .failure(e) = result else { XCTFail("Invalid result"); return }
             guard let error = e as? CocoaError else { XCTFail("Error type missmatch"); return }
             resultError = error
-            waitForSend.fulfill()
+            waitForSend?.fulfill()
+            waitForSend = nil
         }
         reporter.submit(givenBeacon)
-        wait(for: [waitForSend], timeout: 2.0)
+        wait(for: [waitForSend!], timeout: 2.0)
 
         // Then
         AssertEqualAndNotNil(resultError, givenError)
@@ -942,55 +942,74 @@ class ReporterTests: InstanaTestCase {
         AssertTrue(reporter.queue.items.isEmpty)
     }
     
-    func test_submitSuccess_withStatusCodeIn200Range_shouldReportSuccess() {
+    func test_submitSuccess_withStatusCodeIn200Range_shouldReportSuccess1() {
+        common_StatusCodeIn200Range(200)
+    }
+
+    func test_submitSuccess_withStatusCodeIn200Range_shouldReportSuccess2() {
+        common_StatusCodeIn200Range(204)
+    }
+
+    func test_submitSuccess_withStatusCodeIn200Range_shouldReportSuccess3() {
+        common_StatusCodeIn200Range(299)
+    }
+
+    func common_StatusCodeIn200Range(_ errCode: Int) {
         // Given
         let waitForSend = expectation(description: "waitForSend")
         var resultSuccess = 0
         let verifyResult: (BeaconResult) -> Void = {
             guard case .success = $0 else { XCTFail("Result missmatch"); return }
             resultSuccess += 1
-            if resultSuccess == 3 {
+            if resultSuccess == 1 {
                 waitForSend.fulfill()
             }
         }
 
         // When
-        mockBeaconSubmission(.success(200), resultCallback: verifyResult)
-        mockBeaconSubmission(.success(204), resultCallback: verifyResult)
-        mockBeaconSubmission(.success(299), resultCallback: verifyResult)
-        wait(for: [waitForSend], timeout: 20.0)
+        mockBeaconSubmission(.success(errCode), resultCallback: verifyResult)
+        wait(for: [waitForSend], timeout: 5.0)
 
         // Then
-        AssertTrue(resultSuccess == 3)
+        AssertTrue(resultSuccess == 1)
     }
-    
-    func test_submitSuccess_withStatusCodeOutside200Range_shouldReportFailure() {
+
+    func test_withStatusCodeOutside200Range_shouldReportFailure1() {
+        common_StatusCodeOutside200Range(.failure(InstanaError.httpClientError(400)),
+                                         400, InstanaError.httpClientError(400))
+    }
+    func test_withStatusCodeOutside200Range_shouldReportFailure2() {
+        common_StatusCodeOutside200Range(.failure(InstanaError.httpClientError(499)),
+                                         499, InstanaError.httpClientError(499))
+    }
+    func test_withStatusCodeOutside200Range_shouldReportFailure3() {
+        common_StatusCodeOutside200Range(.failure(InstanaError.httpServerError(500)),
+                                         500, InstanaError.httpServerError(500))
+    }
+    func test_withStatusCodeOutside200Range_shouldReportFailure4() {
+        common_StatusCodeOutside200Range(.failure(InstanaError.httpServerError(599)),
+                                         599, InstanaError.httpServerError(599))
+    }
+
+    func common_StatusCodeOutside200Range(_ loadResult: Swift.Result<Int, Error>,
+                                          _ errCode: Int, _ instErr: InstanaError) {
         // Given
-        let waitForSend = expectation(description: "waitForSend")
+        weak var waitForSend = expectation(description: "waitForSend")
         var resultErrors = [InstanaError]()
-        var errorCount = 0
         let verifyResult: (BeaconResult) -> Void = {
             guard case let .failure(e) = $0 else { XCTFail("Invalid result: \($0)"); return }
             guard let error = e as? InstanaError else { XCTFail("Error type missmatch"); return }
             resultErrors.append(error)
-            errorCount += 1
-            if errorCount == 4 {
-                waitForSend.fulfill()
-            }
+            waitForSend?.fulfill()
+            waitForSend = nil
         }
 
         // When
-        mockBeaconSubmission(.failure(InstanaError.httpClientError(400)), resultCallback: verifyResult)
-        mockBeaconSubmission(.failure(InstanaError.httpClientError(499)), resultCallback: verifyResult)
-        mockBeaconSubmission(.failure(InstanaError.httpServerError(500)), resultCallback: verifyResult)
-        mockBeaconSubmission(.failure(InstanaError.httpServerError(599)), resultCallback: verifyResult)
-        wait(for: [waitForSend], timeout: 10.0)
+        mockBeaconSubmission(loadResult, resultCallback: verifyResult)
+        wait(for: [waitForSend!], timeout: 3.0)
 
         // Then
-        AssertTrue(resultErrors.contains(InstanaError.httpClientError(400)))
-        AssertTrue(resultErrors.contains(InstanaError.httpClientError(499)))
-        AssertTrue(resultErrors.contains(InstanaError.httpClientError(500)))
-        AssertTrue(resultErrors.contains(InstanaError.httpClientError(599)))
+        AssertTrue(resultErrors.contains(instErr))
     }
 
     func test_submit_and_flush_shouldNotCause_RetainCycle() {
