@@ -17,6 +17,11 @@ class DatePlusMSTests: InstanaTestCase {
         let anotherDay = Date(milliseconds: millis)
 
         // Then
-        XCTAssertEqual(anotherDay.description, today.description)
+        if #available(iOS 13.0, *) {
+            XCTAssertLessThanOrEqual(abs(anotherDay.distance(to: today)), 1.0)
+        } else {
+            // Small chance exists that this test fails due to roundup accuracy loss
+            XCTAssertEqual(anotherDay.description, today.description)
+        }
     }
 }
