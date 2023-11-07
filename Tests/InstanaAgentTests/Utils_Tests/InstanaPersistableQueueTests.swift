@@ -47,7 +47,7 @@ class InstanaPersistableQueueTests: InstanaTestCase {
     func test_add_Queue_ignore_dups() {
         // Given
         let sessionID = UUID()
-        let id = UUID()
+        let id = Beacon.generateUniqueIdImpl()
         let beacon1 = CoreBeacon.createDefault(viewName: "View_1", key: "Key_1", timestamp: 0,
                                  sid: sessionID, usi: session.usi, id: id, mobileFeatures: "c")
         let beacon2 = CoreBeacon.createDefault(viewName: "View_2", key: "Key_2", timestamp: 0,
@@ -71,15 +71,15 @@ class InstanaPersistableQueueTests: InstanaTestCase {
     //
     func test_persisted_beacons_plus_new() {
         // Given
-        let oldBeacons = [CoreBeacon.createDefault(viewName: "V", key: "K", timestamp: 1,
-                                     sid: UUID(), usi: session.usi, id: UUID(), mobileFeatures: "c")]
+        let oldBeacons = [CoreBeacon.createDefault(viewName: "V", key: "K", timestamp: 1, sid: UUID(),
+                          usi: session.usi, id: Beacon.generateUniqueIdImpl(), mobileFeatures: "c")]
         var queueHandler = InstanaPersistableQueue<CoreBeacon>(identifier: "queue", maxItems: 100)
         queueHandler.removeAll()
         queueHandler.add(oldBeacons) {_ in}
 
         // When
-        let newBeacons = [CoreBeacon.createDefault(viewName: "V", key: "K", timestamp: 2,
-                                     sid: UUID(), usi: session.usi, id: UUID(), mobileFeatures: "c")]
+        let newBeacons = [CoreBeacon.createDefault(viewName: "V", key: "K", timestamp: 2, sid: UUID(),
+                          usi: session.usi, id: Beacon.generateUniqueIdImpl(), mobileFeatures: "c")]
         queueHandler = InstanaPersistableQueue<CoreBeacon>(identifier: "queue", maxItems: 100)
         queueHandler.add(newBeacons) {result in
             AssertTrue(result.error == nil)
@@ -95,7 +95,7 @@ class InstanaPersistableQueueTests: InstanaTestCase {
     //
     func test_persisted_beacons_avoid_dups() {
         // Given
-        let id = UUID()
+        let id = Beacon.generateUniqueIdImpl()
         let oldBeacons = [CoreBeacon.createDefault(viewName: "V", key: "K", timestamp: 1,
                                      sid: UUID(), usi: session.usi, id: id, mobileFeatures: "c")]
         var queueHandler = InstanaPersistableQueue<CoreBeacon>(identifier: "queue", maxItems: 100)

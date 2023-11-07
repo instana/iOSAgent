@@ -11,11 +11,11 @@ class CoreBeaconTests: InstanaTestCase {
     var coreBeacon: CoreBeacon!
     var wifiCoreBeacon: CoreBeacon!
     var timestamp: Int64!
-    var beaconID: UUID!
+    var beaconID: String = ""
 
     override func setUp() {
         super.setUp()
-        beaconID = UUID()
+        beaconID = Beacon.generateUniqueIdImpl()
         timestamp = Date().millisecondsSince1970
 
         user = InstanaProperties.User(id: sessionID.uuidString , email: "ex@example.com", name: "John Appleseed")
@@ -56,7 +56,7 @@ class CoreBeaconTests: InstanaTestCase {
         AssertEqualAndNotNil(sut.ti, String(timestamp))
         AssertEqualAndNotNil(sut.sid, sessionID.uuidString)
         XCTAssertNotNil(sut.usi)
-        AssertEqualAndNotNil(sut.bid, beaconID.uuidString)
+        AssertEqualAndNotNil(sut.bid, beaconID)
         AssertEqualAndNotNil(sut.bi, InstanaSystemUtils.applicationBundleIdentifier)
         AssertEqualAndNotNil(sut.uf, "c")
         AssertEqualAndNotNil(sut.ul, Locale.current.languageCode)

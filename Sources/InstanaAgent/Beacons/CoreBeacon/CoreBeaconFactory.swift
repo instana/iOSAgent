@@ -183,7 +183,7 @@ extension CoreBeacon {
                               timestamp: Instana.Types.Milliseconds,
                               sid: UUID,
                               usi: UUID?,
-                              id: UUID,
+                              id: String,
                               mobileFeatures: String?,
                               connection: NetworkUtility.ConnectionType = InstanaSystemUtils.networkUtility.connectionType,
                               ect: NetworkUtility.CellularType? = nil)
@@ -193,7 +193,7 @@ extension CoreBeacon {
                    ti: String(timestamp),
                    sid: sid.uuidString,
                    usi: usi?.uuidString,
-                   bid: id.uuidString,
+                   bid: id,
                    uf: mobileFeatures,
                    bi: InstanaSystemUtils.applicationBundleIdentifier,
                    ul: Locale.current.languageCode,

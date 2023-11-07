@@ -200,7 +200,7 @@ class ReporterTests: InstanaTestCase {
         // Then
         AssertTrue(reporter.queue.items.count == 1)
         AssertTrue(sendCount == 0)
-        AssertEqualAndNotNil(reporter.queue.items.randomElement()?.bid, givenBeacon.id.uuidString)
+        AssertEqualAndNotNil(reporter.queue.items.randomElement()?.bid, givenBeacon.id)
 
         // Wait for final flush
         wait(for: [finalExp], timeout: 5.0)
@@ -828,7 +828,7 @@ class ReporterTests: InstanaTestCase {
         AssertTrue(reporter.preQueue.isEmpty)
         AssertTrue(expectedResult == .success)
         AssertTrue(sendQueue.addedItems.count == 1)
-        AssertEqualAndNotNil(sendQueue.addedItems.first?.bid, beacon.id.uuidString)
+        AssertEqualAndNotNil(sendQueue.addedItems.first?.bid, beacon.id)
         AssertEqualAndNotNil(sendQueue.addedItems.first?.v, viewName)
         AssertEqualAndNotNil(sendQueue.addedItems.first?.ue, "e@e.com")
         AssertEqualAndNotNil(sendQueue.addedItems.first?.un, "John")
@@ -872,8 +872,8 @@ class ReporterTests: InstanaTestCase {
         // Then
         AssertEqualAndNotNil(sendCount, 2) // The prequeue has been flushed only
         AssertTrue(sendQueue.addedItems.count == 2)
-        AssertTrue(sendQueue.addedItems.map {$0.bid}.contains(beaconPreQueue.id.uuidString))
-        AssertTrue(sendQueue.addedItems.map {$0.bid}.contains(beaconAfterQueue.id.uuidString))
+        AssertTrue(sendQueue.addedItems.map {$0.bid}.contains(beaconPreQueue.id))
+        AssertTrue(sendQueue.addedItems.map {$0.bid}.contains(beaconAfterQueue.id))
         AssertTrue(reporter.preQueue.isEmpty)
     }
 
@@ -902,7 +902,7 @@ class ReporterTests: InstanaTestCase {
 
         // Then
         AssertEqualAndNotNil(resultError, givenError)
-        AssertEqualAndNotNil(reporter.queue.items.randomElement()?.bid, givenBeacon.id.uuidString)
+        AssertEqualAndNotNil(reporter.queue.items.randomElement()?.bid, givenBeacon.id)
     }
 
     func test_DO_NOT_remove_from_after_http_client_error() {
@@ -923,7 +923,7 @@ class ReporterTests: InstanaTestCase {
         wait(for: [waitForSend], timeout: 20.0)
 
         // Then
-        AssertTrue(reporter.queue.items.contains(where: {$0.bid == beacon.id.uuidString}))
+        AssertTrue(reporter.queue.items.contains(where: {$0.bid == beacon.id}))
         AssertTrue(mockQueue.removedItems.isEmpty)
     }
 

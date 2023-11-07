@@ -287,7 +287,7 @@ class HTTPMarkerTests: InstanaTestCase {
         }
 
         // Then
-        XCTAssertTrue(beacon.id.uuidString.count > 0)
+        XCTAssertTrue(beacon.id.count > 0)
         XCTAssertEqual(beacon.timestamp, marker.startTime)
         XCTAssertEqual(beacon.duration, 0)
         XCTAssertEqual(beacon.method, "c")
@@ -327,7 +327,7 @@ class HTTPMarkerTests: InstanaTestCase {
 
         // Then
         XCTAssertEqual(beacon.viewName, viewName)
-        XCTAssertTrue(beacon.id.uuidString.count > 0)
+        XCTAssertTrue(beacon.id.count > 0)
         XCTAssertEqual(beacon.timestamp, marker.startTime)
         XCTAssertEqual(beacon.duration, marker.duration)
         XCTAssertEqual(beacon.method, "m")
@@ -352,7 +352,7 @@ class HTTPMarkerTests: InstanaTestCase {
         }
 
         // Then
-        XCTAssertTrue(beacon.id.uuidString.count > 0)
+        XCTAssertTrue(beacon.id.count > 0)
         XCTAssertEqual(beacon.timestamp, marker.startTime)
         XCTAssertEqual(beacon.duration, marker.duration)
         XCTAssertEqual(beacon.method, "t")
@@ -377,7 +377,7 @@ class HTTPMarkerTests: InstanaTestCase {
         }
 
         // Then
-        XCTAssertTrue(beacon.id.uuidString.count > 0)
+        XCTAssertTrue(beacon.id.count > 0)
         XCTAssertEqual(beacon.timestamp, marker.startTime)
         XCTAssertEqual(beacon.duration, marker.duration)
         XCTAssertEqual(beacon.method, "c")

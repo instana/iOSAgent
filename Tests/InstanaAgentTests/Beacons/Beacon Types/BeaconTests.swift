@@ -28,4 +28,12 @@ class BeaconTests: InstanaTestCase {
         // Then
         AssertEqualAndNotNil(sut.viewName, given.cleanEscapeAndTruncate(at: InstanaProperties.viewMaxLength))
     }
+
+    func test_beacon_id() {
+        // Given
+        let beaconID = Beacon.generateUniqueIdImpl()
+
+        // Then
+        AssertEqualAndNotNil(beaconID.count, 16)
+    }
 }

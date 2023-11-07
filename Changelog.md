@@ -4,6 +4,7 @@
 - Fix client side crash symbolication for arm64e architecture
 - Fix unit test cases that failed in command line execution
 - Fix unit test cases that failed in Xcode 15
+- Change beacon id from 128 bit UUID to 64 bit hex string
 
 ## 1.6.5
 - Add crash to mobile feature list and send to Instana backend
