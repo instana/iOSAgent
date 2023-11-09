@@ -8,6 +8,8 @@ import Foundation
     public var httpCaptureConfig: HTTPCaptureConfig
     public var collectionEnabled: Bool
     public var enableCrashReporting: Bool
+    public var suspendReportingOnLowBattery: Bool
+    public var suspendReportingOnCellular: Bool
     public var slowSendInterval: Instana.Types.Seconds
     public var usiRefreshTimeIntervalInHrs: Double
 
@@ -22,11 +24,15 @@ import Foundation
     @objc public
     init(httpCaptureConfig: HTTPCaptureConfig = .automatic,
          collectionEnabled: Bool = true, enableCrashReporting: Bool = false,
+         suspendReportingOnLowBattery: Bool = false,
+         suspendReportingOnCellular: Bool = false,
          slowSendInterval: Instana.Types.Seconds = 0.0,
          usiRefreshTimeIntervalInHrs: Double = defaultUsiRefreshTimeIntervalInHrs) {
         self.httpCaptureConfig = httpCaptureConfig
         self.collectionEnabled = collectionEnabled
         self.enableCrashReporting = enableCrashReporting
+        self.suspendReportingOnLowBattery = suspendReportingOnLowBattery
+        self.suspendReportingOnCellular = suspendReportingOnCellular
         self.slowSendInterval = slowSendInterval
         self.usiRefreshTimeIntervalInHrs = usiRefreshTimeIntervalInHrs
     }

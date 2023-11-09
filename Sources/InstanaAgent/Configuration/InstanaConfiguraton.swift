@@ -75,16 +75,17 @@ class InstanaConfiguration {
     var isValid: Bool { !key.isEmpty && !reportingURL.absoluteString.isEmpty }
 
     required init(reportingURL: URL, key: String, httpCaptureConfig: HTTPCaptureConfig,
-                  enableCrashReporting: Bool, slowSendInterval: Instana.Types.Seconds,
+                  enableCrashReporting: Bool, suspendReporting: Set<SuspendReporting>? = nil,
+                  slowSendInterval: Instana.Types.Seconds,
                   usiRefreshTimeIntervalInHrs: Double) {
         self.reportingURL = reportingURL
         self.key = key
         self.httpCaptureConfig = httpCaptureConfig
-        suspendReporting = SuspendReporting.defaults
         monitorTypes = MonitorTypes.current
         if enableCrashReporting {
             monitorTypes.insert(.crash)
         }
+        self.suspendReporting = suspendReporting ?? SuspendReporting.defaults
         self.slowSendInterval = slowSendInterval
         self.usiRefreshTimeIntervalInHrs = usiRefreshTimeIntervalInHrs
         reporterSendDebounce = Defaults.reporterSendDebounce
@@ -98,11 +99,15 @@ class InstanaConfiguration {
     }
 
     static func `default`(key: String, reportingURL: URL, httpCaptureConfig: HTTPCaptureConfig = .automatic,
-                          enableCrashReporting: Bool, slowSendInterval: Instana.Types.Seconds = 0.0,
+                          enableCrashReporting: Bool,
+                          suspendReporting: Set<SuspendReporting>? = nil,
+                          slowSendInterval: Instana.Types.Seconds = 0.0,
                           usiRefreshTimeIntervalInHrs: Double = defaultUsiRefreshTimeIntervalInHrs)
         -> InstanaConfiguration {
         self.init(reportingURL: reportingURL, key: key, httpCaptureConfig: httpCaptureConfig,
-                  enableCrashReporting: enableCrashReporting, slowSendInterval: slowSendInterval,
+                  enableCrashReporting: enableCrashReporting,
+                  suspendReporting: suspendReporting,
+                  slowSendInterval: slowSendInterval,
                   usiRefreshTimeIntervalInHrs: usiRefreshTimeIntervalInHrs)
     }
 }

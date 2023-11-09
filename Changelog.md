@@ -5,6 +5,7 @@
 - Fix unit test cases that failed in command line execution
 - Fix unit test cases that failed in Xcode 15
 - Change beacon id from 128 bit UUID to 64 bit hex string
+- Suspend beacon flushing (on low battery and/or cellular network) becomes configurable
 
 ## 1.6.5
 - Add crash to mobile feature list and send to Instana backend

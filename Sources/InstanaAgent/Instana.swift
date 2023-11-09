@@ -84,12 +84,23 @@ import Foundation
         var httpCaptureConfig = HTTPCaptureConfig.automatic
         var collectionEnabled = true
         var enableCrashReporting = false
+        var suspendReporting = InstanaConfiguration.SuspendReporting.defaults
         var slowSendInterval = 0.0
         var usiRefreshTimeIntervalInHrs = defaultUsiRefreshTimeIntervalInHrs
         if let options = options {
             httpCaptureConfig = options.httpCaptureConfig
             collectionEnabled = options.collectionEnabled
             enableCrashReporting = options.enableCrashReporting
+
+            let suspendReportingOnLowBattery = options.suspendReportingOnLowBattery
+            let suspendReportingOnCellular = options.suspendReportingOnCellular
+            suspendReporting = []
+            if suspendReportingOnLowBattery {
+                suspendReporting.insert(InstanaConfiguration.SuspendReporting.lowBattery)
+            }
+            if suspendReportingOnCellular {
+                suspendReporting.insert(InstanaConfiguration.SuspendReporting.cellularConnection)
+            }
 
             let debounce = InstanaConfiguration.Defaults.reporterSendDebounce
             if options.slowSendInterval != 0.0,
@@ -104,6 +115,7 @@ import Foundation
         let config = InstanaConfiguration.default(key: key, reportingURL: reportingURL,
                                                   httpCaptureConfig: httpCaptureConfig,
                                                   enableCrashReporting: enableCrashReporting,
+                                                  suspendReporting: suspendReporting,
                                                   slowSendInterval: slowSendInterval,
                                                   usiRefreshTimeIntervalInHrs: usiRefreshTimeIntervalInHrs)
         let session = InstanaSession(configuration: config, propertyHandler: InstanaPropertyHandler(),

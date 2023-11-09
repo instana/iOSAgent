@@ -36,6 +36,26 @@ class ReporterTests: InstanaTestCase {
         AssertTrue(didSubmit)
     }
 
+    func test_collection_not_enabled() {
+        // Given
+        session = InstanaSession.mock(configuration: config)
+        session.collectionEnabled = false
+
+        var didSubmit = false
+        let submittedToQueue = expectation(description: "Submitted To Queue")
+        let reporter = Reporter(session, batterySafeForNetworking: { true }, networkUtility: .wifi)
+
+        // When
+        reporter.submit(AlertBeacon(alertType: .lowMemory)) {result in
+            didSubmit = result
+            submittedToQueue.fulfill()
+        }
+        wait(for: [submittedToQueue], timeout: 3.0)
+
+        // Then
+        AssertFalse(didSubmit)
+    }
+
     func test_submit_rateLimit_two_NOT_exceeded() {
         // Given
         let submittedToQueue1 = expectation(description: "Submitted First Beacon")
@@ -1012,6 +1032,50 @@ class ReporterTests: InstanaTestCase {
         AssertTrue(resultErrors.contains(instErr))
     }
 
+    func test_canScheduleFlush_not_allowed_while_flushing() {
+        // Given
+        let reporter = Reporter(session, batterySafeForNetworking: { true }, networkUtility: .wifi)
+        let corebeacons = try! CoreBeaconFactory(session).map([HTTPBeacon.createMock()])
+        reporter.queue.add(corebeacons)
+
+        // When
+        reporter.scheduleFlush()
+
+        // Then
+        XCTAssertFalse(reporter.canScheduleFlush())
+    }
+
+    func test_canScheduleFlush_lastFlushStartTime_nil() {
+        // Given
+        let reporter = Reporter(session, batterySafeForNetworking: { true }, networkUtility: .wifi)
+        let corebeacons = try! CoreBeaconFactory(session).map([HTTPBeacon.createMock()])
+        reporter.queue.add(corebeacons)
+
+        // When
+        reporter.scheduleFlush()
+
+        reporter.lastFlushStartTime = nil // Force scheduling 2nd flushing
+
+        // Then
+        XCTAssertTrue(reporter.canScheduleFlush())
+    }
+
+
+    func test_canScheduleFlush_maxFlushingTimeExceeded() {
+        // Given
+        let reporter = Reporter(session, batterySafeForNetworking: { true }, networkUtility: .wifi)
+        let corebeacons = try! CoreBeaconFactory(session).map([HTTPBeacon.createMock()])
+        reporter.queue.add(corebeacons)
+
+        // When
+        reporter.scheduleFlush()
+
+        // last flush time is stale, force flushing
+        reporter.lastFlushStartTime = reporter.lastFlushStartTime! - (10.0+1) * 60
+        // Then
+        XCTAssertTrue(reporter.canScheduleFlush())
+    }
+
     func test_submit_and_flush_shouldNotCause_RetainCycle() {
         // Given
         let waitForCompletion = expectation(description: "waitForSend")
@@ -1253,6 +1317,23 @@ class ReporterTests: InstanaTestCase {
             AssertTrue(reporter.queue.items.contains($0))
         }
         AssertTrue(reporter.queue.isFull)
+    }
+
+    func test_runBackgroundFlush() {
+        // Given
+        let reporter = Reporter(session, batterySafeForNetworking: { true }, networkUtility: .wifi)
+
+        XCTAssertNil(reporter.flusher)
+
+        // When
+        let corebeacons = try! CoreBeaconFactory(session).map([HTTPBeacon.createMock()])
+        reporter.queue.add(corebeacons)
+
+        reporter.runBackgroundFlush()
+        Thread.sleep(forTimeInterval: 1)
+
+        // Then
+        XCTAssertNotNil(reporter.flusher)
     }
 }
 

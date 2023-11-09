@@ -14,8 +14,8 @@ public class Reporter {
     internal var sendFirstBeacon = true // first beacon is sent all by itself, not in a batch
     private var slowSendStartTime: Date?
     private var inSlowModeBeforeFlush = false
-    private var lastFlushStartTime: Double?
-    private var flusher: BeaconFlusher?
+    internal var lastFlushStartTime: Double?
+    internal var flusher: BeaconFlusher?
     internal var send: BeaconFlusher.Sender?
     private let rateLimiter: ReporterRateLimiter
     private let batterySafeForNetworking: () -> Bool

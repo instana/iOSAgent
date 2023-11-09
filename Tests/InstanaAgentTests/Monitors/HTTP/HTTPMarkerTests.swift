@@ -61,7 +61,8 @@ class HTTPMarkerTests: InstanaTestCase {
         let response = HTTPURLResponse(url: url, statusCode: 200, httpVersion: nil, headerFields: ["KEY": "VALUE"])!
         let marker = HTTPMarker(url: url, method: "GET", trigger: .automatic, delegate: Delegate())
         let responseSize = HTTPMarker.Size(response)
-        let excpectedHeaderSize = Instana.Types.Bytes(NSKeyedArchiver.archivedData(withRootObject: response.allHeaderFields).count)
+        let excpectedHeaderSize = try! Instana.Types.Bytes(
+            NSKeyedArchiver.archivedData(withRootObject: response.allHeaderFields, requiringSecureCoding: false).count)
 
         // When
         marker.set(responseSize: responseSize)

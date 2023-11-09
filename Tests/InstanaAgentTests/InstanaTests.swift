@@ -45,6 +45,8 @@ class InstanaTests: InstanaTestCase {
         let options = InstanaSetupOptions(httpCaptureConfig: .automaticAndManual,
                                           collectionEnabled: false)
         options.enableCrashReporting = true
+        options.suspendReportingOnLowBattery = true
+        options.suspendReportingOnCellular = true
         options.slowSendInterval = 20.0
         let ret = Instana.setup(key: key, reportingURL: reportingURL, options: options)
 
@@ -85,6 +87,15 @@ class InstanaTests: InstanaTestCase {
         let ret2 = Instana.setup(key: key, reportingURL: reportingURL, options: InstanaSetupOptions(slowSendInterval: 7777))
         // Then
         AssertFalse(ret2)
+    }
+
+    func test_setup_invalid_configuration_empty_key() {
+        // Given
+        let reportingURL = URL(string: "http://www.instana.com")!
+        _ = Instana.setup(key: "", reportingURL: reportingURL, options: nil)
+
+        // Then
+        AssertFalse(Instana.current!.session.configuration.isValid)
     }
 
     func test_setup() {
@@ -705,5 +716,71 @@ class InstanaTests: InstanaTestCase {
         // Then
         // Covers negative case for empty current of Instana
         XCTAssertFalse(cancelled)
+    }
+
+    @available(*, deprecated)
+    func test_setup_deprecated1() {
+        // Given
+        let key = "KEY"
+        let reportingURL = URL(string: "http://www.instana.com")!
+
+        Instana.setup(key: key, reportingURL: reportingURL)
+
+        // Then
+        AssertEqualAndNotNil(Instana.key, key)
+        AssertEqualAndNotNil(Instana.reportingURL, reportingURL)
+        AssertTrue(Instana.collectionEnabled)
+        AssertTrue(Instana.current!.session.collectionEnabled)
+        AssertEqualAndNotNil(Instana.sessionID, Instana.current?.session.id.uuidString)
+
+        let config = Instana.current?.session.configuration
+        XCTAssertNotNil(config)
+        AssertEqualAndNotNil(config!.key, key)
+        AssertEqualAndNotNil(config!.reportingURL, reportingURL)
+        AssertEqualAndNotNil(config!.httpCaptureConfig, .automatic)
+        AssertEqualAndNotNil(config!.slowSendInterval, 0.0)
+        AssertEqualAndNotNil(config!.usiRefreshTimeIntervalInHrs, defaultUsiRefreshTimeIntervalInHrs)
+        AssertFalse(config!.monitorTypes.contains(.crash))
+
+        let session = Instana.current?.session
+        XCTAssertNotNil(session)
+        AssertTrue(session!.collectionEnabled)
+    }
+
+    @available(*, deprecated)
+    func test_setup_deprecated2() {
+        // Given
+        let key = "KEY"
+        let reportingURL = URL(string: "http://www.instana.com")!
+
+        Instana.setup(key: key, reportingURL: reportingURL,
+                      httpCaptureConfig: .manual,
+                      collectionEnabled: true,
+                      enableCrashReporting: true)
+
+        // Then
+        AssertEqualAndNotNil(Instana.key, key)
+        AssertEqualAndNotNil(Instana.reportingURL, reportingURL)
+        AssertTrue(Instana.collectionEnabled)
+        AssertTrue(Instana.current!.session.collectionEnabled)
+        AssertEqualAndNotNil(Instana.sessionID, Instana.current?.session.id.uuidString)
+
+        let config = Instana.current?.session.configuration
+        XCTAssertNotNil(config)
+        AssertEqualAndNotNil(config!.key, key)
+        AssertEqualAndNotNil(config!.reportingURL, reportingURL)
+        AssertEqualAndNotNil(config!.httpCaptureConfig, .manual)
+        AssertEqualAndNotNil(config!.slowSendInterval, 0.0)
+        AssertEqualAndNotNil(config!.usiRefreshTimeIntervalInHrs, defaultUsiRefreshTimeIntervalInHrs)
+        AssertTrue(config!.monitorTypes.contains(.crash))
+
+        let session = Instana.current?.session
+        XCTAssertNotNil(session)
+        AssertTrue(session!.collectionEnabled)
+    }
+
+    func test_setup_not_called() {
+        Instana.current = nil
+        AssertFalse(Instana.collectionEnabled)
     }
 }

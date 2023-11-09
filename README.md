@@ -30,8 +30,8 @@ To install the iOS agent, use Swift Package Manager (via Xcode) or CocoaPods.
 
 1. Open Xcode.
 2. Open your Xcode project.
-2. Select menu File -> Add Package Dependencies...
-3. In the window that pops up, enter repository https://github.com/instana/iOSAgent to top right edit field "Search or Enter Package URL".
+2. Select menu **`File`** -> **`Add Package Dependencies...`**
+3. In the window that pops up, enter the repository https://github.com/instana/iOSAgent in the **Search or Enter Package URL** field. Then, select **`iosagent`** from the search result and click **`Add Package`** button.
 
 #### CocoaPods
 
