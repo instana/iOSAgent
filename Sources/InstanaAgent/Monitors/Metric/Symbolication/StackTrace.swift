@@ -71,29 +71,36 @@ class StThread: Codable {
         frames = []
     }
 
-    func appendFrame(name: String, address: String, symbol: String?, offset: String?) {
-        frames.append(StFrame(name: name, address: address, symbol: symbol, offset: offset))
+    func appendFrame(name: String, address: String, offsetIntoBinaryTextSegment: String,
+                     symbol: String?, symbolOffset: String?) {
+        frames.append(StFrame(name: name, address: address,
+                              offsetIntoBinaryTextSegment: offsetIntoBinaryTextSegment,
+                              symbol: symbol, symbolOffset: symbolOffset))
     }
 }
 
 struct StFrame: Codable {
     let name: String
-    let address: String
+    let address: String // raw crash payload address
+    let offsetIntoBinaryTextSegment: String // raw crash payload offsetIntoBinaryTextSegment
     let symbol: String?
-    let offset: String?
+    let symbolOffset: String?
 
     private enum CodingKeys: String, CodingKey {
         case name = "n"
         case address = "a"
+        case offsetIntoBinaryTextSegment = "o"
         case symbol = "f"
-        case offset = "o"
+        case symbolOffset = "o2"
     }
 
-    init(name: String, address: String, symbol: String?, offset: String?) {
+    init(name: String, address: String, offsetIntoBinaryTextSegment: String,
+         symbol: String?, symbolOffset: String?) {
         self.name = name
         self.address = address
+        self.offsetIntoBinaryTextSegment = offsetIntoBinaryTextSegment
         self.symbol = symbol
-        self.offset = offset
+        self.symbolOffset = symbolOffset
     }
 }
 

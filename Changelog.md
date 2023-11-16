@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.6.7
+- Add more raw crash payload info to stackTrace
+
 ## 1.6.6
 - Fix client side crash symbolication for arm64e architecture
 - Fix unit test cases that failed in command line execution

@@ -119,8 +119,9 @@ struct DiagnosticSymbolicator {
                 }
                 stThread.appendFrame(name: frame.binaryName!,
                                      address: String(format: "0x%llx", frame.address!),
+                                     offsetIntoBinaryTextSegment: String(frame.offsetIntoBinaryTextSegment!),
                                      symbol: stSymbol,
-                                     offset: stOffset)
+                                     symbolOffset: stOffset)
             }
             stackTrace.appendThread(stThread: stThread)
         }
