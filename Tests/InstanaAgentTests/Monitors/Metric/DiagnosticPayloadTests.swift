@@ -46,8 +46,8 @@ class DiagnosticPayloadTests: InstanaTestCase {
         let (type, msg) = DiagnosticPayload.parseCrashErrorTypeAndMessage(diagnostic: diagnostic)
 
         // Then
-        XCTAssertNotNil(type)
-        XCTAssertEqual(msg, "mock Crash Termination Reason")
+        XCTAssertEqual(type, 10)
+        XCTAssertEqual(msg, "EXC_CRASH (SIGABRT - ABORT) - 0")
     }
 
     @available(iOS 14.0, macOS 12, *)
@@ -64,72 +64,73 @@ class DiagnosticPayloadTests: InstanaTestCase {
         XCTAssertEqual(msg, "crash diagnostic")
     }
 
-    func test_getMachExceptionName() {
-        var ret = DiagnosticPayload.getMachExceptionName(exceptionType: EXC_BAD_ACCESS as NSNumber,
-                                                         exceptionCode: KERN_INVALID_ADDRESS as NSNumber)
-        XCTAssertEqual(ret, "EXC_BAD_ACCESS - KERN_INVALID_ADDRESS") //1 - 1
+    func test_getMachExceptionTypeDisplayName() {
+        var ret = DiagnosticPayload.getMachExceptionTypeDisplayName(exceptionType: EXC_BAD_ACCESS as NSNumber)
+        XCTAssertEqual(ret, "EXC_BAD_ACCESS") //1
 
-        ret = DiagnosticPayload.getMachExceptionName(exceptionType: EXC_BAD_ACCESS as NSNumber,
-                                                         exceptionCode: KERN_PROTECTION_FAILURE as NSNumber)
-        XCTAssertEqual(ret, "EXC_BAD_ACCESS - KERN_PROTECTION_FAILURE") //1 - 2
-
-        ret = DiagnosticPayload.getMachExceptionName(exceptionType: EXC_BAD_ACCESS as NSNumber,
-                                                         exceptionCode: 333 as NSNumber)
-        XCTAssertEqual(ret, "EXC_BAD_ACCESS - 333") //1 - 333
-
-        ret = DiagnosticPayload.getMachExceptionName(exceptionType: EXC_BAD_INSTRUCTION as NSNumber, exceptionCode: nil)
+        ret = DiagnosticPayload.getMachExceptionTypeDisplayName(exceptionType: EXC_BAD_INSTRUCTION as NSNumber)
         XCTAssertEqual(ret, "EXC_BAD_INSTRUCTION") //2
 
-        ret = DiagnosticPayload.getMachExceptionName(exceptionType: EXC_ARITHMETIC as NSNumber, exceptionCode: nil)
+        ret = DiagnosticPayload.getMachExceptionTypeDisplayName(exceptionType: EXC_ARITHMETIC as NSNumber)
         XCTAssertEqual(ret, "EXC_ARITHMETIC") //3
 
-        ret = DiagnosticPayload.getMachExceptionName(exceptionType: EXC_BREAKPOINT as NSNumber, exceptionCode: nil)
+        ret = DiagnosticPayload.getMachExceptionTypeDisplayName(exceptionType: 4)
+        XCTAssertEqual(ret, "4") //4
+
+        ret = DiagnosticPayload.getMachExceptionTypeDisplayName(exceptionType: EXC_BREAKPOINT as NSNumber)
         XCTAssertEqual(ret, "EXC_BREAKPOINT") //6
 
-        ret = DiagnosticPayload.getMachExceptionName(exceptionType: EXC_GUARD as NSNumber, exceptionCode: nil)
+        ret = DiagnosticPayload.getMachExceptionTypeDisplayName(exceptionType: EXC_CRASH as NSNumber)
+        XCTAssertEqual(ret, "EXC_CRASH") //10
+
+        ret = DiagnosticPayload.getMachExceptionTypeDisplayName(exceptionType: EXC_RESOURCE as NSNumber)
+        XCTAssertEqual(ret, "EXC_RESOURCE") //11
+
+        ret = DiagnosticPayload.getMachExceptionTypeDisplayName(exceptionType: EXC_GUARD as NSNumber)
         XCTAssertEqual(ret, "EXC_GUARD") //12
     }
 
-    func test_getMachExceptionBadAccessCodeName() {
-        var ret = DiagnosticPayload.getMachExceptionBadAccessCodeName(exceptionType: 111 as NSNumber, exceptionCode: nil)
+    func test_getMachExceptionCodeDisplayName() {
+        var ret = DiagnosticPayload.getMachExceptionCodeDisplayName(exceptionType: 111 as NSNumber, exceptionCode: nil)
         XCTAssertNil(ret)
 
-        ret = DiagnosticPayload.getMachExceptionBadAccessCodeName(exceptionType: EXC_BAD_ACCESS as NSNumber, exceptionCode: nil)
+        ret = DiagnosticPayload.getMachExceptionCodeDisplayName(exceptionType: EXC_BAD_ACCESS as NSNumber, exceptionCode: nil)
         XCTAssertNil(ret)
+
+        ret = DiagnosticPayload.getMachExceptionCodeDisplayName(exceptionType: EXC_BAD_ACCESS as NSNumber, exceptionCode: 1)
+        XCTAssertEqual(ret, "KERN_INVALID_ADDRESS")
+
+        ret = DiagnosticPayload.getMachExceptionCodeDisplayName(exceptionType: EXC_BAD_ACCESS as NSNumber, exceptionCode: 2)
+        XCTAssertEqual(ret, "KERN_PROTECTION_FAILURE")
+
+        ret = DiagnosticPayload.getMachExceptionCodeDisplayName(exceptionType: EXC_BAD_ACCESS as NSNumber, exceptionCode: 3)
+        XCTAssertEqual(ret, "3")
     }
 
     func test_getSignalName() {
-        var (sig, sub) = DiagnosticPayload.getSignalName(signal: SIGABRT as NSNumber)
-        XCTAssertEqual(sig, "SIGABRT") //6
-        XCTAssertEqual(sub, "ABORT")
+        var sig = DiagnosticPayload.getSignalName(signal: SIGABRT as NSNumber)
+        XCTAssertEqual(sig, "SIGABRT - ABORT") //6
 
-        (sig, sub) = DiagnosticPayload.getSignalName(signal: SIGBUS as NSNumber)
+        sig = DiagnosticPayload.getSignalName(signal: SIGBUS as NSNumber)
         XCTAssertEqual(sig, "SIGBUS") //10
-        XCTAssertNil(sub)
 
-        (sig, sub) = DiagnosticPayload.getSignalName(signal: SIGFPE as NSNumber)
+        sig = DiagnosticPayload.getSignalName(signal: SIGFPE as NSNumber)
         XCTAssertEqual(sig, "SIGFPE") //8
-        XCTAssertNil(sub)
 
-        (sig, sub) = DiagnosticPayload.getSignalName(signal: SIGILL as NSNumber)
+        sig = DiagnosticPayload.getSignalName(signal: SIGILL as NSNumber)
         XCTAssertEqual(sig, "SIGILL") //4
-        XCTAssertNil(sub)
 
-        (sig, sub) = DiagnosticPayload.getSignalName(signal: SIGSEGV as NSNumber)
+        sig = DiagnosticPayload.getSignalName(signal: SIGSEGV as NSNumber)
         XCTAssertEqual(sig, "SIGSEGV") //11
-        XCTAssertNil(sub)
 
-        (sig, sub) = DiagnosticPayload.getSignalName(signal: SIGSYS as NSNumber)
+        sig = DiagnosticPayload.getSignalName(signal: SIGSYS as NSNumber)
         XCTAssertEqual(sig, "SIGSYS") //12
-        XCTAssertNil(sub)
 
-        (sig, sub) = DiagnosticPayload.getSignalName(signal: SIGTRAP as NSNumber)
+        sig = DiagnosticPayload.getSignalName(signal: SIGTRAP as NSNumber)
         XCTAssertEqual(sig, "SIGTRAP") //5
-        XCTAssertNil(sub)
 
-        (sig, sub) = DiagnosticPayload.getSignalName(signal: 222 as NSNumber)
+        sig = DiagnosticPayload.getSignalName(signal: 222 as NSNumber)
         XCTAssertEqual(sig, "222")
-        XCTAssertNil(sub)
     }
 
     func test_canSymbolicate() {

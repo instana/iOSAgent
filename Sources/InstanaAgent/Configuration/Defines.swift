@@ -44,7 +44,7 @@ let crashMetaKeyUserID = "ui"
 let crashMetaKeyUserName = "un"
 let crashMetaKeyUserEmail = "ue"
 
-let currentInstanaCrashPayloadVersion = "0.93"
+let currentInstanaCrashPayloadVersion = "0.94"
 let defaultCrashViewName = "CrashView"
 
 let maxSecondsToKeepCrashLog = (maxDaysToKeepCrashLog * 60 * 60 * 24)

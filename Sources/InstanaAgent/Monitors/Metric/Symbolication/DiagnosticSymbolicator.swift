@@ -81,6 +81,23 @@ struct DiagnosticSymbolicator {
         let headers = outputHeaderSection(operation: operation, diagPayload: diagPayload)
         stackTrace.setHeader(stHeaders: headers)
 
+        // Binary Images section
+        // process before Threads section so as to build indices of binary images for frames to reference
+        var dictUUIDs: [String: Int] = [:]
+        dictUUIDs.reserveCapacity(binaryImages.count)
+        binaryImages.forEach { bii in
+            let mAddr = (bii.maxAddress == 0 ? (needToSymbolicate ? "<unknown>  " : "")
+                : String(format: "0x%llx", bii.maxAddress))
+
+            stackTrace.appendBinaryImage(startAddr: String(bii.loadAddress),
+                                         endAddr: needToSymbolicate ? mAddr : nil,
+                                         name: bii.binaryName,
+                                         arch: needToSymbolicate ? bii.arch : nil,
+                                         uuid: bii.binaryUUID,
+                                         path: needToSymbolicate ? bii.fullPath : nil)
+            dictUUIDs[bii.binaryUUID] = stackTrace.binaryImages.count - 1
+        }
+
         // Threads section
         for idx in 0 ..< threads.count {
             if operation.isCancelled { return nil }
@@ -117,26 +134,20 @@ struct DiagnosticSymbolicator {
                         stOffset = String(symFrame!.symbol!.offset!)
                     }
                 }
-                stThread.appendFrame(name: frame.binaryName!,
+                var sampleCount: Int?
+                if frame.sampleCount != nil, frame.sampleCount! != 1 {
+                    sampleCount = frame.sampleCount!
+                }
+                let filteredUUID = frame.binaryUUID!.uuidString.lowercased().filter { $0 != "-" }
+                stThread.appendFrame(index: dictUUIDs[filteredUUID] ?? -1,
+                                     name: frame.binaryName!,
                                      address: String(format: "0x%llx", frame.address!),
                                      offsetIntoBinaryTextSegment: String(frame.offsetIntoBinaryTextSegment!),
+                                     sampleCount: sampleCount,
                                      symbol: stSymbol,
                                      symbolOffset: stOffset)
             }
             stackTrace.appendThread(stThread: stThread)
-        }
-
-        // Binary Images section
-        binaryImages.forEach { bii in
-            let mAddr = (bii.maxAddress == 0 ? (needToSymbolicate ? "<unknown>  " : "")
-                : String(format: "0x%llx", bii.maxAddress))
-
-            stackTrace.appendBinaryImage(startAddr: String(bii.loadAddress),
-                                         endAddr: needToSymbolicate ? mAddr : nil,
-                                         name: bii.binaryName,
-                                         arch: needToSymbolicate ? bii.arch : nil,
-                                         uuid: bii.binaryUUID,
-                                         path: needToSymbolicate ? bii.fullPath : nil)
         }
         return stackTrace.serialize()
     }
@@ -165,6 +176,10 @@ struct DiagnosticSymbolicator {
 
         if diagPayload.osVersion != nil {
             stHeaders.append(StHeader(key: "OS Version", value: diagPayload.osVersion!))
+        }
+
+        if diagPayload.platformArchitecture != nil {
+            stHeaders.append(StHeader(key: "Platform Architecture", value: diagPayload.platformArchitecture!))
         }
 
         // crash
@@ -199,27 +214,27 @@ struct DiagnosticSymbolicator {
     func getCrashHeader(operation: SymbolicationOperation, diagPayload: DiagnosticPayload) -> [StHeader] {
         var crashHeaders = [StHeader]()
 
-        let exceptionType = DiagnosticPayload.getMachExceptionName(exceptionType: diagPayload.exceptionType as? NSNumber,
-                                                                   exceptionCode: diagPayload.exceptionCode as? NSNumber)
-        let (sigType, sigSubType) = DiagnosticPayload.getSignalName(signal: diagPayload.signal as? NSNumber)
-        let signal = (sigSubType == nil) ? sigType : sigType! + " - " + sigSubType!
-
-        var str: String?
-        if exceptionType != nil, signal != nil {
-            str = exceptionType! + " (" + signal! + ")"
-        } else if exceptionType != nil {
-            str = exceptionType!
-        } else {
-            str = signal
+        let exceptionTypeDisplay = DiagnosticPayload.getMachExceptionTypeDisplayName(
+            exceptionType: diagPayload.exceptionType as? NSNumber)
+        if exceptionTypeDisplay != nil {
+            crashHeaders.append(StHeader(key: "Exception Type", value: exceptionTypeDisplay!))
         }
 
-        if str != nil {
-            crashHeaders.append(StHeader(key: "Exception Type", value: str!))
+        var exceptionCodeDisplay = DiagnosticPayload.getMachExceptionCodeDisplayName(
+            exceptionType: diagPayload.exceptionType as? NSNumber,
+            exceptionCode: diagPayload.exceptionCode as? NSNumber)
+        if exceptionCodeDisplay != nil {
+            if exceptionCodeDisplay != String(diagPayload.exceptionCode!) {
+                exceptionCodeDisplay! += " (diagPayload.exceptionCode!)"
+            }
+            crashHeaders.append(StHeader(key: "Exception Code", value: exceptionCodeDisplay!))
         }
 
-        if diagPayload.exceptionCode != nil {
-            crashHeaders.append(StHeader(key: "Exception Code", value: String(diagPayload.exceptionCode!)))
+        let signal = DiagnosticPayload.getSignalName(signal: diagPayload.signal as? NSNumber)
+        if signal != nil {
+            crashHeaders.append(StHeader(key: "signal", value: signal!))
         }
+
         if diagPayload.terminationReason != nil {
             crashHeaders.append(StHeader(key: "Termination Reason", value: diagPayload.terminationReason!))
         }

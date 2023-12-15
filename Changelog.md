@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.6.8
+- Add more meta data to crash beacon
+- Add more exceptionType processing to crash beacon
+- Display crash terminationReason as meta data rather than error message
+
 ## 1.6.7
 - Add more raw crash payload info to stackTrace
 

@@ -8,6 +8,7 @@ class SymbolicationFrame {
     let binaryUUID: UUID
     let binaryName: String
     let offsetIntoBinaryTextSegment: UInt
+    var sampleCount: Int?
     var symbol: SymbolInfo?
 
     init(binaryUUID: UUID,

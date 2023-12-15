@@ -71,34 +71,43 @@ class StThread: Codable {
         frames = []
     }
 
-    func appendFrame(name: String, address: String, offsetIntoBinaryTextSegment: String,
+    func appendFrame(index: Int, name: String, address: String,
+                     offsetIntoBinaryTextSegment: String, sampleCount: Int?,
                      symbol: String?, symbolOffset: String?) {
-        frames.append(StFrame(name: name, address: address,
+        frames.append(StFrame(index: index, name: name, address: address,
                               offsetIntoBinaryTextSegment: offsetIntoBinaryTextSegment,
+                              sampleCount: sampleCount,
                               symbol: symbol, symbolOffset: symbolOffset))
     }
 }
 
 struct StFrame: Codable {
-    let name: String
+    let index: Int // index inside Binary Images array
+    let name: String // deprecated, use index instead
     let address: String // raw crash payload address
     let offsetIntoBinaryTextSegment: String // raw crash payload offsetIntoBinaryTextSegment
+    let sampleCount: Int? // for CPU exception
     let symbol: String?
     let symbolOffset: String?
 
     private enum CodingKeys: String, CodingKey {
+        case index = "i"
         case name = "n"
         case address = "a"
         case offsetIntoBinaryTextSegment = "o"
+        case sampleCount = "c"
         case symbol = "f"
         case symbolOffset = "o2"
     }
 
-    init(name: String, address: String, offsetIntoBinaryTextSegment: String,
+    init(index: Int, name: String, address: String,
+         offsetIntoBinaryTextSegment: String, sampleCount: Int?,
          symbol: String?, symbolOffset: String?) {
+        self.index = index
         self.name = name
         self.address = address
         self.offsetIntoBinaryTextSegment = offsetIntoBinaryTextSegment
+        self.sampleCount = sampleCount
         self.symbol = symbol
         self.symbolOffset = symbolOffset
     }

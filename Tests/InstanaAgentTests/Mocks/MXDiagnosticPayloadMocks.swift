@@ -114,6 +114,9 @@ class MXCrashDiagnosticMock: MXCrashDiagnostic {
     override var exceptionCode: NSNumber? {
         return 0
     }
+    override var signal: NSNumber? {
+        return 6
+    }
     override var terminationReason: String? {
         return "mock Crash Termination Reason"
     }

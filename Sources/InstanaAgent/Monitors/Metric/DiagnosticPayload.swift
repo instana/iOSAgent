@@ -34,6 +34,7 @@ class DiagnosticPayload: Codable {
     let appVersion: String?
     let osVersion: String?
     let deviceType: String?
+    let platformArchitecture: String?
     // crash
     let exceptionType: Int?
     let exceptionCode: Int?
@@ -69,6 +70,7 @@ class DiagnosticPayload: Codable {
         case appVersion
         case osVersion
         case deviceType
+        case platformArchitecture
         case exceptionType // crash
         case exceptionCode
         case signal
@@ -96,6 +98,7 @@ class DiagnosticPayload: Codable {
          appVersion: String?,
          osVersion: String?,
          deviceType: String?,
+         platformArchitecture: String?,
          exceptionType: Int?,
          exceptionCode: Int?,
          signal: Int?,
@@ -122,6 +125,7 @@ class DiagnosticPayload: Codable {
         self.appVersion = appVersion
         self.osVersion = osVersion
         self.deviceType = deviceType
+        self.platformArchitecture = platformArchitecture
         self.exceptionType = exceptionType
         self.exceptionCode = exceptionCode
         self.signal = signal
@@ -218,6 +222,7 @@ class DiagnosticPayload: Codable {
             var appVersion: String?
             let osVersion = oneDiag.metaData.osVersion
             var deviceType: String?
+            var platformArchitecture: String?
             var exceptionType: Int? // crash
             var exceptionCode: Int?
             var signal: Int?
@@ -244,6 +249,7 @@ class DiagnosticPayload: Codable {
                 appVersion = metaDict["appVersion"] as? String
                 bundleIdentifier = metaDict["bundleIdentifier"] as? String
                 deviceType = metaDict["deviceType"] as? String
+                platformArchitecture = metaDict["platformArchitecture"] as? String
                 exceptionType = metaDict["exceptionType"] as? Int // crash
                 exceptionCode = metaDict["exceptionCode"] as? Int
                 signal = metaDict["signal"] as? Int
@@ -257,6 +263,7 @@ class DiagnosticPayload: Codable {
             }
 
             let (errorType, errorMessage) = Self.parseErrorTypeAndMessage(crashType: crashType!, diagnostic: oneDiag)
+            guard errorMessage != nil else { continue }
             let rawMXPayload = Self.getMXPayloadStr(diagnostic: oneDiag)
             guard rawMXPayload != nil else { continue }
 
@@ -275,6 +282,7 @@ class DiagnosticPayload: Codable {
                                           appVersion: appVersion,
                                           osVersion: osVersion,
                                           deviceType: deviceType,
+                                          platformArchitecture: platformArchitecture,
                                           exceptionType: exceptionType,
                                           exceptionCode: exceptionCode,
                                           signal: signal,
@@ -363,95 +371,103 @@ class DiagnosticPayload: Codable {
         let signal = crashDiag.signal
 
         var errorCode: Int?
-        var errorMsg: String?
-        let machExceptionName = Self.getMachExceptionName(exceptionType: exceptionType,
-                                                          exceptionCode: exceptionCode)
-        if machExceptionName != nil {
+        var errorMsg: String = ""
+        let machExceptionType = Self.getMachExceptionTypeDisplayName(exceptionType: exceptionType)
+        let machExceptionCode = Self.getMachExceptionCodeDisplayName(exceptionType: exceptionType,
+                                                                     exceptionCode: exceptionCode)
+        let sigName = Self.getSignalName(signal: signal)
+
+        if machExceptionType != nil {
+            errorMsg = machExceptionType!
+        }
+        if sigName != nil {
+            errorMsg += " (\(sigName!))"
+        }
+        if machExceptionCode != nil {
+            errorMsg += " - \(machExceptionCode!)"
+        }
+
+        if errorMsg.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            errorMsg = "unkown error"
+        }
+
+        if exceptionType != nil {
             errorCode = Int(truncating: exceptionType!)
-            errorMsg = machExceptionName
-        } else {
-            let (sigName, sigCodeName) = Self.getSignalName(signal: signal)
-            if sigName != nil {
-                errorCode = Int(truncating: signal!)
-                if sigCodeName != nil {
-                    errorMsg = sigName! + " - " + sigCodeName!
-                } else {
-                    errorMsg = sigName
-                }
-            }
+        } else if signal != nil {
+            errorCode = Int(truncating: signal!)
         }
-        if crashDiag.terminationReason != nil {
-            errorMsg = crashDiag.terminationReason!
-        }
+
         return (errorCode, errorMsg)
     }
 
-    static func getMachExceptionName(exceptionType: NSNumber?, exceptionCode: NSNumber?) -> String? {
+    static func getMachExceptionTypeDisplayName(exceptionType: NSNumber?) -> String? {
         guard let exceptionType = exceptionType else {
             return nil
         }
 
-        var name: String?
-        var codeName: String?
         switch Int32(truncating: exceptionType) {
-        case EXC_BAD_ACCESS:
-            name = "EXC_BAD_ACCESS"
-            codeName = Self.getMachExceptionBadAccessCodeName(exceptionType: exceptionType, exceptionCode: exceptionCode)
-        case EXC_BAD_INSTRUCTION:
-            name = "EXC_BAD_INSTRUCTION"
-        case EXC_ARITHMETIC:
-            name = "EXC_ARITHMETIC"
-        case EXC_BREAKPOINT:
-            name = "EXC_BREAKPOINT"
-        case EXC_GUARD:
-            name = "EXC_GUARD"
+        case EXC_BAD_ACCESS: // 1
+            return "EXC_BAD_ACCESS"
+        case EXC_BAD_INSTRUCTION: // 2
+            return "EXC_BAD_INSTRUCTION"
+        case EXC_ARITHMETIC: // 3
+            return "EXC_ARITHMETIC"
+        case EXC_BREAKPOINT: // 6
+            return "EXC_BREAKPOINT"
+        case EXC_CRASH: // 10
+            return "EXC_CRASH"
+        case EXC_RESOURCE: // 11
+            return "EXC_RESOURCE"
+        case EXC_GUARD: // 12
+            return "EXC_GUARD"
         default:
-            name = exceptionType.stringValue
+            return exceptionType.stringValue
         }
-        if name != nil {
-            if codeName != nil {
-                name = name! + " - " + codeName!
+    }
+
+    static func getMachExceptionCodeDisplayName(exceptionType: NSNumber?, exceptionCode: NSNumber?) -> String? {
+        guard let exceptionCode = exceptionCode else {
+            return nil
+        }
+
+        if exceptionType != nil, Int32(truncating: exceptionType!) == EXC_BAD_ACCESS {
+            switch Int32(truncating: exceptionCode) {
+            case KERN_INVALID_ADDRESS: // 1
+                return "KERN_INVALID_ADDRESS"
+            case KERN_PROTECTION_FAILURE: // 2
+                return "KERN_PROTECTION_FAILURE"
+            default:
+                return exceptionCode.stringValue
             }
-            return name
         }
-        return nil
+        return exceptionCode.stringValue
     }
 
-    static func getMachExceptionBadAccessCodeName(exceptionType: NSNumber, exceptionCode: NSNumber?) -> String? {
-        guard Int32(truncating: exceptionType) == EXC_BAD_ACCESS,
-            let exceptionCode = exceptionCode else { return nil }
-
-        switch Int32(truncating: exceptionCode) {
-        case KERN_INVALID_ADDRESS:
-            return "KERN_INVALID_ADDRESS"
-        case KERN_PROTECTION_FAILURE:
-            return "KERN_PROTECTION_FAILURE"
-        default:
-            return exceptionCode.stringValue
-        }
-    }
-
-    static func getSignalName(signal: NSNumber?) -> (String?, String?) {
+    static func getSignalName(signal: NSNumber?) -> String? {
         guard let signal = signal else {
-            return (nil, nil)
+            return nil
         }
         switch Int32(truncating: signal) {
-        case SIGABRT:
-            return ("SIGABRT", "ABORT")
-        case SIGBUS:
-            return ("SIGBUS", nil)
-        case SIGFPE:
-            return ("SIGFPE", nil)
-        case SIGILL:
-            return ("SIGILL", nil)
-        case SIGSEGV:
-            return ("SIGSEGV", nil)
-        case SIGSYS:
-            return ("SIGSYS", nil)
-        case SIGTRAP:
-            return ("SIGTRAP", nil)
+        case SIGQUIT: // 3
+            return ("SIGQUIT")
+        case SIGILL: // 4
+            return ("SIGILL")
+        case SIGTRAP: // 5
+            return ("SIGTRAP")
+        case SIGABRT: // 6
+            return ("SIGABRT - ABORT")
+        case SIGFPE: // 8
+            return ("SIGFPE")
+        case SIGKILL: // 9
+            return ("SIGKILL")
+        case SIGBUS: // 10
+            return ("SIGBUS")
+        case SIGSEGV: // 11
+            return ("SIGSEGV")
+        case SIGSYS: // 12
+            return ("SIGSYS")
         default:
-            return (signal.stringValue, nil)
+            return (signal.stringValue)
         }
     }
 }
