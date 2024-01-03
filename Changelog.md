@@ -4,6 +4,7 @@
 - Add more meta data to crash beacon
 - Add more exceptionType processing to crash beacon
 - Display crash terminationReason as meta data rather than error message
+- Add Objective-C target ObjectiveCAppExample to InstanaAgentExample
 
 ## 1.6.7
 - Add more raw crash payload info to stackTrace
