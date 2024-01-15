@@ -133,7 +133,7 @@ import Foundation
     ///   - reportingURL: Reporting URL for the Instana backend.
     ///   - enableCrashReporting: Subscribe to metricKit events so as to enable crash reporting.
     ///                      App must have explicitly asked user permission to subscribe before this call.
-    @available(*, deprecated, message: "This method is deprecated. Use the setup() method with InstanaSetupOptions.")
+    @available(*, deprecated, message: "Use method setup(key: String, reportingURL: URL, options: InstanaSetupOptions?)")
     @objc
     public static func setup(key: String, reportingURL: URL, enableCrashReporting: Bool = false) {
         let config = InstanaConfiguration.default(key: key, reportingURL: reportingURL,
@@ -153,7 +153,7 @@ import Foundation
     ///   - collectionEnabled: Enable or disable collection (instrumentation) on setup. Can be changed later via the property `collectionEnabled` (Default: true)
     ///   - enableCrashReporting: Subscribe to metricKit events so as to enable crash reporting.
     ///                      App must have explicitly asked user permission to subscribe before this call.
-    @available(*, deprecated, message: "This method is deprecated. Use the setup() method with InstanaSetupOptions.")
+    @available(*, deprecated, message: "Use method setup(key: String, reportingURL: URL, options: InstanaSetupOptions?)")
     @objc
     public static func setup(key: String, reportingURL: URL,
                              httpCaptureConfig: HTTPCaptureConfig = .automatic,

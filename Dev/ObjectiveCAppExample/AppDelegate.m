@@ -16,17 +16,22 @@
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    //note: explicitly get user permission before set enableCrashReporting to true
-    InstanaSetupOptions* options = [[InstanaSetupOptions alloc] initWithHttpCaptureConfig: 0
-                                                                  collectionEnabled: true
-                                                               enableCrashReporting: true
-                                                             suspendReportingOnLowBattery: true
-                                                               suspendReportingOnCellular: false
-                                                                   slowSendInterval: 0.0
-                                                              usiRefreshTimeIntervalInHrs: -1];
+
     (void)[Instana setupWithKey: @"INSTANA_REPORTING_KEY"
              reportingURL: [NSURL URLWithString: @"INSTANA_REPORTING_URL"]
-                  options: options];
+                  options: nil];
+
+    //note: explicitly get user permission before set enableCrashReporting to true
+//    InstanaSetupOptions* options = [[InstanaSetupOptions alloc] initWithHttpCaptureConfig: 0
+//                                                                  collectionEnabled: true
+//                                                               enableCrashReporting: true
+//                                                             suspendReportingOnLowBattery: true
+//                                                               suspendReportingOnCellular: false
+//                                                                   slowSendInterval: 0.0
+//                                                              usiRefreshTimeIntervalInHrs: -1];
+//    (void)[Instana setupWithKey: @"INSTANA_REPORTING_KEY"
+//             reportingURL: [NSURL URLWithString: @"INSTANA_REPORTING_URL"]
+//                  options: options];
 
     NSURL* url = [NSURL URLWithString: @"https://www.ibm.com/jp-ja"];
     NSURLRequest* request = [NSURLRequest requestWithURL: url];
