@@ -29,7 +29,9 @@ class InstanaSessionTests: InstanaTestCase {
         // When
         let configUsi = InstanaConfiguration(reportingURL: .random, key: "KEY", httpCaptureConfig: .automatic,
                                              enableCrashReporting: false, slowSendInterval: 0.0,
-                                             usiRefreshTimeIntervalInHrs: usiTrackingNotAllowed)
+                                             usiRefreshTimeIntervalInHrs: usiTrackingNotAllowed,
+                                             hybridAgentId: nil,
+                                             hybridAgentVersion: nil)
         let sut = InstanaSession(configuration: configUsi, propertyHandler: propertyHandler, collectionEnabled: true)
 
         // Then
@@ -44,7 +46,9 @@ class InstanaSessionTests: InstanaTestCase {
         // When
         let configUsi = InstanaConfiguration(reportingURL: .random, key: "KEY", httpCaptureConfig: .automatic,
                                              enableCrashReporting: false, slowSendInterval: 0.0,
-                                             usiRefreshTimeIntervalInHrs: (1.0 / 3600.0))
+                                             usiRefreshTimeIntervalInHrs: (1.0 / 3600.0),
+                                             hybridAgentId: nil,
+                                             hybridAgentVersion: nil)
         let sut = InstanaSession(configuration: configUsi, propertyHandler: propertyHandler, collectionEnabled: true)
         let oldUsi = sut.usi?.uuidString
 

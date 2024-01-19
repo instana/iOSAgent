@@ -81,6 +81,18 @@ import Foundation
     /// - Returns: true on success, false on error
     @objc
     public static func setup(key: String, reportingURL: URL, options: InstanaSetupOptions?) -> Bool {
+        return setupInternal(key: key, reportingURL: reportingURL, options: options, hybridOptions: nil)
+    }
+
+    /// Internal use, configures and sets up the Instana agent.
+    ///
+    /// - Parameters:
+    ///   - hybridOptions: hybrid  agent configuration options (set if invoked by Instana flutter-agent or react-native-agent)
+    ///
+    /// - Returns: true on success, false on error
+    @objc
+    public static func setupInternal(key: String, reportingURL: URL, options: InstanaSetupOptions?,
+                                     hybridOptions: HybridAgentOptions?) -> Bool {
         var httpCaptureConfig = HTTPCaptureConfig.automatic
         var collectionEnabled = true
         var enableCrashReporting = false
@@ -112,12 +124,22 @@ import Foundation
 
             usiRefreshTimeIntervalInHrs = options.usiRefreshTimeIntervalInHrs
         }
+
+        var hybridAgentId: String?
+        var hybridAgentVersion: String?
+        if let hybridOptions = hybridOptions {
+            hybridAgentId = hybridOptions.id
+            hybridAgentVersion = hybridOptions.version
+        }
+
         let config = InstanaConfiguration.default(key: key, reportingURL: reportingURL,
                                                   httpCaptureConfig: httpCaptureConfig,
                                                   enableCrashReporting: enableCrashReporting,
                                                   suspendReporting: suspendReporting,
                                                   slowSendInterval: slowSendInterval,
-                                                  usiRefreshTimeIntervalInHrs: usiRefreshTimeIntervalInHrs)
+                                                  usiRefreshTimeIntervalInHrs: usiRefreshTimeIntervalInHrs,
+                                                  hybridAgentId: hybridAgentId,
+                                                  hybridAgentVersion: hybridAgentVersion)
         let session = InstanaSession(configuration: config, propertyHandler: InstanaPropertyHandler(),
                                      collectionEnabled: collectionEnabled)
         Instana.current = Instana(session: session)

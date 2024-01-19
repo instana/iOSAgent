@@ -37,3 +37,20 @@ import Foundation
         self.usiRefreshTimeIntervalInHrs = usiRefreshTimeIntervalInHrs
     }
 }
+
+// Hybrid Agent options for setup
+@objc public class HybridAgentOptions: NSObject {
+    public private(set) var id: String
+    public private(set) var version: String
+
+    /// - Parameters:
+    ///   - id: flutter-agent or react-native-agent
+    ///   - version: version of flutter-agent or react-native-agent
+    @objc public
+    init(id: String, version: String) {
+        // remove leading and trailing spaces
+        // truncate if too long
+        self.id = String(id.trimmingCharacters(in: .whitespaces).prefix(16))
+        self.version = String(version.trimmingCharacters(in: .whitespaces).prefix(16))
+    }
+}

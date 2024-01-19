@@ -24,7 +24,9 @@ class CoreBeaconFactory {
         var cbeacon = CoreBeacon.createDefault(viewName: beacon.viewName, key: conf.key,
                                                timestamp: beacon.timestamp,
                                                sid: session.id, usi: session.usi,
-                                               id: beacon.id, mobileFeatures: mobileFeatures)
+                                               id: beacon.id, mobileFeatures: mobileFeatures,
+                                               hybridAgentId: conf.hybridAgentId,
+                                               hybridAgentVersion: conf.hybridAgentVersion)
         cbeacon.append(properties)
         switch beacon {
         case let item as HTTPBeacon:
@@ -185,6 +187,8 @@ extension CoreBeacon {
                               usi: UUID?,
                               id: String,
                               mobileFeatures: String?,
+                              hybridAgentId: String?,
+                              hybridAgentVersion: String?,
                               connection: NetworkUtility.ConnectionType = InstanaSystemUtils.networkUtility.connectionType,
                               ect: NetworkUtility.CellularType? = nil)
         -> CoreBeacon {
@@ -203,7 +207,8 @@ extension CoreBeacon {
                    osn: InstanaSystemUtils.systemName,
                    osv: InstanaSystemUtils.systemVersion,
                    dmo: InstanaSystemUtils.deviceModel,
-                   agv: InstanaSystemUtils.agentVersion,
+                   agv: CoreBeacon.getInstanaAgentVersion(hybridAgentId: hybridAgentId,
+                                                          hybridAgentVersion: hybridAgentVersion),
                    ro: String(InstanaSystemUtils.isDeviceJailbroken),
                    vw: String(Int(InstanaSystemUtils.screenSize.width)),
                    vh: String(Int(InstanaSystemUtils.screenSize.height)),

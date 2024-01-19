@@ -33,7 +33,9 @@ class CoreBeaconTests: InstanaTestCase {
                                               sid: sessionID,
                                               usi: session.usi,
                                               id: beaconID,
-                                              mobileFeatures: "c")
+                                              mobileFeatures: "c",
+                                              hybridAgentId: nil,
+                                              hybridAgentVersion: nil)
         coreBeacon.append(props)
         wifiCoreBeacon = CoreBeacon.createDefault(viewName: viewName,
                                                   key: key,
@@ -42,6 +44,8 @@ class CoreBeaconTests: InstanaTestCase {
                                                   usi: session.usi,
                                                   id: beaconID,
                                                   mobileFeatures: "c",
+                                                  hybridAgentId: "f",
+                                                  hybridAgentVersion: "3.0.6",
                                                   connection: .wifi,
                                                   ect: .fiveG)
         wifiCoreBeacon.append(props)
@@ -135,7 +139,9 @@ class CoreBeaconTests: InstanaTestCase {
         // Given
         let configUsi = InstanaConfiguration(reportingURL: .random, key: "KEY", httpCaptureConfig: .automatic,
                                              enableCrashReporting: false, slowSendInterval: 0.0,
-                                             usiRefreshTimeIntervalInHrs: usiTrackingNotAllowed)
+                                             usiRefreshTimeIntervalInHrs: usiTrackingNotAllowed,
+                                             hybridAgentId: nil,
+                                             hybridAgentVersion: nil)
         let sessionUsi = InstanaSession.mock(configuration: configUsi,
                                       sessionID: sessionID,
                                       metaData: metaData,
@@ -148,6 +154,8 @@ class CoreBeaconTests: InstanaTestCase {
                                       usi: sessionUsi.usi,
                                       id: beaconID,
                                       mobileFeatures: "c",
+                                      hybridAgentId: "nil",
+                                      hybridAgentVersion: nil,
                                       connection: .wifi,
                                       ect: .fiveG)
         beacon.append(props)
@@ -281,5 +289,32 @@ class CoreBeaconTests: InstanaTestCase {
         XCTAssertNotNil(sut)
         XCTAssertTrue(sut!.hasSuffix("…"))
         XCTAssertEqual(CoreBeacon.maxLengthPerField, 16384)
+    }
+
+    func test_getInstanaAgentVersion() {
+        let sut = CoreBeacon.getInstanaAgentVersion(hybridAgentId: nil, hybridAgentVersion: nil)
+        let expected = "\(InstanaSystemUtils.agentVersion)"
+        XCTAssertEqual(sut, expected)
+
+        let sutFlutter = CoreBeacon.getInstanaAgentVersion(hybridAgentId: "f", hybridAgentVersion: "3.0.6")
+        let expectedFlutter = "\(InstanaSystemUtils.agentVersion):f:3.0.6"
+        XCTAssertEqual(sutFlutter, expectedFlutter)
+
+        let sutRn = CoreBeacon.getInstanaAgentVersion(hybridAgentId: "r", hybridAgentVersion: "2.0.3")
+        let expectedRn = "\(InstanaSystemUtils.agentVersion):r:2.0.3"
+        XCTAssertEqual(sutRn, expectedRn)
+
+        // negative cases
+        let sutMisConfigVer = CoreBeacon.getInstanaAgentVersion(hybridAgentId: nil, hybridAgentVersion: "misConfigedVersion")
+        let expectedMisConfigVer = "\(InstanaSystemUtils.agentVersion)"
+        XCTAssertEqual(sutMisConfigVer, expectedMisConfigVer)
+
+        let sutMisConfigId = CoreBeacon.getInstanaAgentVersion(hybridAgentId: "misConfigedId", hybridAgentVersion: nil)
+        let expectedMisConfigId = "\(InstanaSystemUtils.agentVersion)"
+        XCTAssertEqual(sutMisConfigId, expectedMisConfigId)
+
+        let sutMisConfigEmpty = CoreBeacon.getInstanaAgentVersion(hybridAgentId: "", hybridAgentVersion: " ")
+        let expectedMisConfigEmpty = "\(InstanaSystemUtils.agentVersion)"
+        XCTAssertEqual(sutMisConfigEmpty, expectedMisConfigEmpty)
     }
 }

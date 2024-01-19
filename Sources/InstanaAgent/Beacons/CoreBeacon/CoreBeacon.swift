@@ -422,6 +422,17 @@ struct CoreBeacon: Codable {
     func isCrashPayloadField(fieldKey: String) -> Bool {
         return fieldKey == "st" || fieldKey == "ast"
     }
+
+    // If invoked by flutter-agent(f) or react-native-agent(r),
+    // put calling agent's id and version after iOSAgent version
+    static func getInstanaAgentVersion(hybridAgentId: String?, hybridAgentVersion: String?) -> String {
+        let iOSAgentVersion = InstanaSystemUtils.agentVersion
+        guard let hybridAgentId = hybridAgentId, !hybridAgentId.isEmpty,
+            let hybridAgentVersion = hybridAgentVersion, !hybridAgentVersion.isEmpty else {
+            return iOSAgentVersion
+        }
+        return "\(iOSAgentVersion):\(hybridAgentId):\(hybridAgentVersion)"
+    }
 }
 
 extension CoreBeacon: Hashable {

@@ -119,6 +119,28 @@ class InstanaTests: InstanaTestCase {
         AssertEqualAndNotNil(Instana.current?.session.configuration.usiRefreshTimeIntervalInHrs, defaultUsiRefreshTimeIntervalInHrs)
     }
 
+    func test_setupInternal() {
+        // Given
+        let key = "KEY"
+        let reportingURL = URL(string: "http://www.instana.com")!
+
+        let hybridOptions = HybridAgentOptions(id: "f", version:"3.0.6")
+        _ = Instana.setupInternal(key: key, reportingURL: reportingURL, options: nil, hybridOptions: hybridOptions)
+
+        // Then
+        AssertEqualAndNotNil(Instana.key, key)
+        AssertTrue(Instana.collectionEnabled)
+        AssertTrue(Instana.current!.session.collectionEnabled)
+        AssertEqualAndNotNil(Instana.sessionID, Instana.current?.session.id.uuidString)
+        AssertEqualAndNotNil(Instana.reportingURL, reportingURL)
+        AssertEqualAndNotNil(Instana.current?.session.configuration.reportingURL, reportingURL)
+        AssertEqualAndNotNil(Instana.current?.session.configuration.httpCaptureConfig, .automatic)
+        XCTAssertNotEqual(Instana.current?.session.configuration,
+                             .default(key: key, reportingURL: reportingURL, enableCrashReporting: false))
+        AssertEqualAndNotNil(Instana.current?.session.configuration.slowSendInterval, 0.0)
+        AssertEqualAndNotNil(Instana.current?.session.configuration.usiRefreshTimeIntervalInHrs, defaultUsiRefreshTimeIntervalInHrs)
+    }
+
     func test_setup_disabled() {
         // Given
         let key = "KEY"

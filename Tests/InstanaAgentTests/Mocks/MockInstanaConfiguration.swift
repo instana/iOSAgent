@@ -25,7 +25,9 @@ extension InstanaConfiguration {
                                           httpCaptureConfig: httpCaptureConfig,
                                           enableCrashReporting: true,
                                           slowSendInterval: slowSendInterval,
-                                          usiRefreshTimeIntervalInHrs: usiRefreshTimeIntervalInHrs)
+                                          usiRefreshTimeIntervalInHrs: usiRefreshTimeIntervalInHrs,
+                                          hybridAgentId: nil,
+                                          hybridAgentVersion: nil)
         config.suspendReporting = []
         config.monitorTypes = [.http,
                                .memoryWarning,

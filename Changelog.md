@@ -5,6 +5,7 @@
 - Add more exceptionType processing to crash beacon
 - Display crash terminationReason as meta data rather than error message
 - Add Objective-C target ObjectiveCAppExample to InstanaAgentExample
+- Support hybrid agent id and version (if invoked by flutter-agent/react-native-agent)
 
 ## 1.6.7
 - Add more raw crash payload info to stackTrace

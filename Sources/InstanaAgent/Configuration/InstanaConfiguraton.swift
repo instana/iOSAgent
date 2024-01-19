@@ -73,11 +73,16 @@ class InstanaConfiguration {
     var preQueueUsageTime: TimeInterval
     var reporterRateLimits: [ReporterRateLimitConfig]
     var isValid: Bool { !key.isEmpty && !reportingURL.absoluteString.isEmpty }
+    // set if iOSAgent is invoked by flutter-agent or react-native-agent
+    var hybridAgentId: String?
+    var hybridAgentVersion: String?
 
     required init(reportingURL: URL, key: String, httpCaptureConfig: HTTPCaptureConfig,
                   enableCrashReporting: Bool, suspendReporting: Set<SuspendReporting>? = nil,
                   slowSendInterval: Instana.Types.Seconds,
-                  usiRefreshTimeIntervalInHrs: Double) {
+                  usiRefreshTimeIntervalInHrs: Double,
+                  hybridAgentId: String?,
+                  hybridAgentVersion: String?) {
         self.reportingURL = reportingURL
         self.key = key
         self.httpCaptureConfig = httpCaptureConfig
@@ -88,6 +93,8 @@ class InstanaConfiguration {
         self.suspendReporting = suspendReporting ?? SuspendReporting.defaults
         self.slowSendInterval = slowSendInterval
         self.usiRefreshTimeIntervalInHrs = usiRefreshTimeIntervalInHrs
+        self.hybridAgentId = hybridAgentId
+        self.hybridAgentVersion = hybridAgentVersion
         reporterSendDebounce = Defaults.reporterSendDebounce
         reporterSendLowBatteryDebounce = Defaults.reporterSendLowBatteryDebounce
         maxRetries = Defaults.maxRetries
@@ -102,12 +109,16 @@ class InstanaConfiguration {
                           enableCrashReporting: Bool,
                           suspendReporting: Set<SuspendReporting>? = nil,
                           slowSendInterval: Instana.Types.Seconds = 0.0,
-                          usiRefreshTimeIntervalInHrs: Double = defaultUsiRefreshTimeIntervalInHrs)
+                          usiRefreshTimeIntervalInHrs: Double = defaultUsiRefreshTimeIntervalInHrs,
+                          hybridAgentId: String? = nil,
+                          hybridAgentVersion: String? = nil)
         -> InstanaConfiguration {
         self.init(reportingURL: reportingURL, key: key, httpCaptureConfig: httpCaptureConfig,
                   enableCrashReporting: enableCrashReporting,
                   suspendReporting: suspendReporting,
                   slowSendInterval: slowSendInterval,
-                  usiRefreshTimeIntervalInHrs: usiRefreshTimeIntervalInHrs)
+                  usiRefreshTimeIntervalInHrs: usiRefreshTimeIntervalInHrs,
+                  hybridAgentId: hybridAgentId,
+                  hybridAgentVersion: hybridAgentVersion)
     }
 }
