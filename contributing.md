@@ -1,15 +1,27 @@
 # Contributing
 
+## How to Contribute
+
 This is an open source project, and we appreciate your help!
 
-In order to clarify the intellectual property license granted with contributions from any person or entity, a Contributor License Agreement ("CLA") must be on file that has been signed by each contributor, indicating agreement to the license terms below. This license is for your protection as a contributor as well as the protection of Instana and its customers; it does not change your rights to use your own contributions for any other purpose.
+Each source file must include this license header:
 
-Please print, fill out, and sign the contributor license agreement. Once completed, please scan the document as a PDF file and email to the following email address: bastian.krol@instana.com.
+```
+/*
+ * (c) Copyright IBM Corp. 2024
+ */
+```
 
-When contributing to this repository, please first discuss the change you wish to make via issue,
-email, or any other method with the owners of this repository before making a change.
+Furthermore you must include a sign-off statement in the commit message.
 
-Please note we have a code of conduct, please follow it in all your interactions with the project.
+> Signed-off-by: John Doe <john.doe@example.com>
+
+### Please note that in the case of the below-mentioned scenarios, follow the specified steps:
+- **Proposing New Features**: Vist the ideas portal for [Cloud Management and AIOps](https://automation-management.ideas.ibm.com/?project=INSTANA) and post your idea to get feedback from IBM. This is to avoid you wasting your valuable time working on a feature that the project developers are not interested in accepting into the code base.
+- **Raising a Bug**: Please visit [IBM Support](https://www.ibm.com/mysupport/s/?language=en_US) and open a case to get help from our experts.
+- **Merge Approval**: The codeowners use LGTM (Looks Good To Me) in comments on the code review to indicate acceptance. A change requires LGTMs from two of the members. Request review from @instana/eng-eum for approvals.
+
+Thank you for your interest in the Instana iOS project!
 
 ## Pull Request Process
 
