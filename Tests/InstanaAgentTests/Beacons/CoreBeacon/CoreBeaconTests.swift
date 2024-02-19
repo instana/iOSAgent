@@ -97,7 +97,7 @@ class CoreBeaconTests: InstanaTestCase {
         let values = Mirror(reflecting: sut).children
 
         // Then
-        XCTAssertEqual(values.count, 47)
+        XCTAssertEqual(values.count, 48)
     }
 
     func testNumberOfFields_non_nil() {
@@ -119,7 +119,7 @@ class CoreBeaconTests: InstanaTestCase {
         let expectedKeys = ["t", "v", "bt", "k" ,"ti", "sid", "usi", "bid", "uf", "bi", "m", "ui", "un",
                             "ue", "ul", "ab", "av", "p", "osn", "osv", "dma", "dmo", "ro", "vw", "vh",
                             "cn", "ct", "ect", "hu", "hp", "hm", "hs", "ebs", "dbs", "trs", "d",
-                            "ec", "em", "et", "agv", "cen", "h", "ast", "cid", "cti", "dt", "st"]
+                            "ec", "em", "et", "agv", "cen", "cm", "h", "ast", "cid", "cti", "dt", "st"]
         // When
         let keys = Mirror(reflecting: sut).children.compactMap {$0.label}
 

@@ -435,19 +435,30 @@ import Foundation
     ///                            Alternatively you can leave out the parameter or send
     ///                            nil to use the current view name implicitly you did set in `setView(name: String)`
     @objc
-    public static func reportEvent(name: String, timestamp: Instana.Types.Milliseconds = Instana.Types.Milliseconds(NSNotFound), duration: Instana.Types.Milliseconds = Instana.Types.Milliseconds(NSNotFound), backendTracingID: String? = nil, error: Error? = nil, meta: [String: String]? = nil, viewName: String? = nil) {
+    public static func reportEvent(name: String,
+                                   timestamp: Instana.Types.Milliseconds = Instana.Types.Milliseconds(NSNotFound),
+                                   duration: Instana.Types.Milliseconds = Instana.Types.Milliseconds(NSNotFound),
+                                   backendTracingID: String? = nil,
+                                   error: Error? = nil,
+                                   meta: [String: String]? = nil,
+                                   viewName: String? = nil,
+                                   customMetric: Double = Double.nan) {
         // As a workaround for primitive values in ObjC
         let timestamp = timestamp == NSNotFound ? nil : timestamp
         let duration = duration == NSNotFound ? nil : duration
         var viewName = viewName ?? CustomBeaconDefaultViewNameID
         viewName = !viewName.isEmpty ? viewName : CustomBeaconDefaultViewNameID
+
+        let customMetric: Double? = customMetric.isNaN ? nil : customMetric
+
         let beacon = CustomBeacon(timestamp: timestamp,
                                   name: name,
                                   duration: duration,
                                   backendTracingID: backendTracingID,
                                   error: error,
                                   metaData: meta,
-                                  viewName: viewName)
+                                  viewName: viewName,
+                                  customMetric: customMetric)
         Instana.current?.monitors.reporter.submit(beacon)
     }
 

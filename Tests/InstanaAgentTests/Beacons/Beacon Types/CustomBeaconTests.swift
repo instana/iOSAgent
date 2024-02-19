@@ -114,7 +114,7 @@ class CustomBeaconTests: InstanaTestCase {
         let expectedCPU = InstanaSystemUtils.deviceModel
         let expectedErrorType = "\(type(of: customBeacon.error!))"
         let expectedErrorMessage = "\(customBeacon.error!)"
-        let expected = "ab\t\(beacon.ab)\nagv\t\(beacon.agv)\nav\t\(InstanaSystemUtils.applicationVersion)\nbi\t\(beacon.bi)\nbid\t\(beacon.bid)\nbt\t\(customBeacon.backendTracingID ?? "")\ncen\t\(customBeacon.name)\ncn\tNone\nct\t\(InstanaSystemUtils.networkUtility.connectionType.description)\nd\t\(customBeacon.duration ?? 0)\ndma\tApple\ndmo\t\(expectedCPU)\nec\t1\nem\t\(expectedErrorMessage)\net\t\(expectedErrorType)\nk\tKEY\nm_\(customBeacon.metaData?.keys.first ?? "")\t\(customBeacon.metaData?.values.first ?? "")\nosn\tiOS\nosv\t\(InstanaSystemUtils.systemVersion)\np\tiOS\nro\t\(String(InstanaSystemUtils.isDeviceJailbroken))\nsid\t\(beacon.sid)\nt\tcustom\nti\t\(customBeacon.timestamp)\nuf\tc\nul\ten\nusi\t\(mockedInstanaSession.usi!.uuidString)\nv\t\(customBeacon.viewName ?? "")\nvh\t\(Int(UIScreen.main.bounds.height))\nvw\t\(Int(UIScreen.main.bounds.width))"
+        let expected = "ab\t\(beacon.ab)\nagv\t\(beacon.agv)\nav\t\(InstanaSystemUtils.applicationVersion)\nbi\t\(beacon.bi)\nbid\t\(beacon.bid)\nbt\t\(customBeacon.backendTracingID ?? "")\ncen\t\(customBeacon.name)\ncm\t12.34567\ncn\tNone\nct\t\(InstanaSystemUtils.networkUtility.connectionType.description)\nd\t\(customBeacon.duration ?? 0)\ndma\tApple\ndmo\t\(expectedCPU)\nec\t1\nem\t\(expectedErrorMessage)\net\t\(expectedErrorType)\nk\tKEY\nm_\(customBeacon.metaData?.keys.first ?? "")\t\(customBeacon.metaData?.values.first ?? "")\nosn\tiOS\nosv\t\(InstanaSystemUtils.systemVersion)\np\tiOS\nro\t\(String(InstanaSystemUtils.isDeviceJailbroken))\nsid\t\(beacon.sid)\nt\tcustom\nti\t\(customBeacon.timestamp)\nuf\tc\nul\ten\nusi\t\(mockedInstanaSession.usi!.uuidString)\nv\t\(customBeacon.viewName ?? "")\nvh\t\(Int(UIScreen.main.bounds.height))\nvw\t\(Int(UIScreen.main.bounds.width))"
         AssertEqualAndNotNil(sut, expected)
     }
 
@@ -212,6 +212,9 @@ class CustomBeaconTests: InstanaTestCase {
         let backendTracingID = "BID"
         let error = SomeBeaconError.something
         let metaData = ["Key": "SomeValue"]
-        return CustomBeacon(timestamp: timestamp, name: name, duration: duration, backendTracingID: backendTracingID, error: error, metaData: metaData, viewName: viewName)
+        let customMetric = 12.34567
+        return CustomBeacon(timestamp: timestamp, name: name, duration: duration,
+                            backendTracingID: backendTracingID, error: error, metaData: metaData,
+                            viewName: viewName, customMetric: customMetric)
     }
 }

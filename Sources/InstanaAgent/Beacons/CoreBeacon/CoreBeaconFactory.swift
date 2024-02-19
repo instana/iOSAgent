@@ -167,6 +167,9 @@ extension CoreBeacon {
         if let tracingID = beacon.backendTracingID {
             bt = tracingID
         }
+        if let customMetric = beacon.customMetric {
+            cm = String(customMetric)
+        }
     }
 
     private mutating func add(error: Error) {

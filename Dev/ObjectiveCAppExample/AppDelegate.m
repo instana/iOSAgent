@@ -37,6 +37,15 @@
     NSURLRequest* request = [NSURLRequest requestWithURL: url];
     [[[NSURLSession sharedSession] dataTaskWithRequest: request] resume];
 
+    [Instana reportEventWithName: @"testCustomEventName"
+                       timestamp: NSNotFound
+                        duration: NSNotFound
+                backendTracingID: nil
+                           error: nil
+                            meta: nil
+                        viewName: nil
+                    customMetric: NAN]; //"0x7fc00000"
+
     return YES;
 }
 

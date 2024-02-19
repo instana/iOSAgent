@@ -126,6 +126,13 @@ struct CoreBeacon: Codable {
     var cen: String?
 
     /**
+     * CustomMetric
+     *
+     * For example: "123.4567"
+     */
+    var cm: String?
+
+    /**
      * Meta for custom key/value entries
      *
      * Will be converted at transmission to separated string prefixed by `m_`

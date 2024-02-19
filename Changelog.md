@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.6.9
+- Support CustomMetric in reportEvent method
+
 ## 1.6.8
 - Add more meta data to crash beacon
 - Add more exceptionType processing to crash beacon
