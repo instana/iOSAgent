@@ -48,3 +48,10 @@ let currentInstanaCrashPayloadVersion = "0.94"
 let defaultCrashViewName = "CrashView"
 
 let maxSecondsToKeepCrashLog = (maxDaysToKeepCrashLog * 60 * 60 * 24)
+
+///
+/// Internal meta data (im_) key names
+///
+let internalMetaDataKeyView_accbltyLabel = "view.accLabel" // accessibilityLabel
+let internalMetaDataKeyView_navItemTitle = "view.navItemTitle" // navigationItemTitle
+let internalMetaDataKeyView_className = "view.clsName" // className

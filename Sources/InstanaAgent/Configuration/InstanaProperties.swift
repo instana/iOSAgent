@@ -45,16 +45,20 @@ class InstanaProperties {
     private let queueMetaData = DispatchQueue(label: "com.instana.ios.agent.metadata", attributes: .concurrent)
 
     static let viewMaxLength = 256
-    var view: String? {
+
+    var view: ViewChange? {
         didSet {
-            view = Self.validate(view: view)
-            PreviousSession.persistView(viewName: view)
+            PreviousSession.persistView(viewName: view?.viewName)
         }
+    }
+
+    var viewName: String? {
+        return view?.viewName
     }
 
     init(user: User? = nil, view: String? = nil) {
         self.user = user
-        self.view = Self.validate(view: view)
+        self.view = ViewChange(viewName: view, accessibilityLabel: nil, navigationItemTitle: nil, className: nil)
     }
 
     func appendMetaData(_ key: String, _ value: String) {
@@ -75,18 +79,13 @@ class InstanaProperties {
             self.metaData
         }
     }
-
-    static func validate(view: String?) -> String? {
-        guard let value = view else { return nil }
-        return value.cleanEscapeAndTruncate(at: viewMaxLength)
-    }
 }
 
 extension InstanaProperties {
     var viewNameForCurrentAppState: String? {
         switch InstanaApplicationStateHandler.shared.state {
         case .active:
-            return view
+            return viewName
         case .background:
             return "Background"
         case .inactive:

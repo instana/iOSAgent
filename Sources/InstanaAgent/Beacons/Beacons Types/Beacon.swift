@@ -13,7 +13,7 @@ class Beacon: Identifiable {
     init(timestamp: Instana.Types.Milliseconds = Date().millisecondsSince1970,
          viewName: String? = nil) {
         self.timestamp = timestamp
-        self.viewName = InstanaProperties.validate(view: viewName)
+        self.viewName = ViewChange.validate(viewName: viewName)
     }
 
     // A hex encoded 64 bit random ID.

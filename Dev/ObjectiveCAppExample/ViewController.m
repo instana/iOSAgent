@@ -6,6 +6,7 @@
 //
 
 #import "ViewController.h"
+@import InstanaAgent;
 
 @interface ViewController ()
 
@@ -19,4 +20,8 @@
 }
 
 
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+//    [Instana setViewWithName:@"Objetive-C app View 1"];
+}
 @end

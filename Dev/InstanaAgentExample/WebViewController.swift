@@ -26,7 +26,7 @@ class WebViewController: UIViewController {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        Instana.setView(name: "WebView")
+//        Instana.setView(name: "WebView")
     }
 
     @IBAction func enteredURL() {

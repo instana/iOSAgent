@@ -19,9 +19,14 @@ class JSONViewController: UIViewController {
 
     lazy var session = { URLSession(configuration: URLSessionConfiguration.default) }()
 
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        self.accessibilityLabel = "JSONView Accessibility Label 1"
+    }
+
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        Instana.setView(name: "JSONView")
+//        Instana.setView(name: "JSONView")
         searchTextField.text = "https://www.ibm.com/de-de"
     }
 

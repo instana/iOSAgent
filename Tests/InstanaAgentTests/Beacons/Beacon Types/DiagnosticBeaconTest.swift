@@ -59,7 +59,7 @@ class DiagnosticBeaconTests: InstanaTestCase {
         XCTAssertEqual(beacon.m![crashMetaKeyCrashType], "crash")
         XCTAssertEqual(beacon.m![crashMetaKeyGroupID], crashGroupID.uuidString)
         XCTAssertEqual(beacon.m![crashMetaKeySessionID], mockSession.id.uuidString)
-        XCTAssertEqual(beacon.m![crashMetaKeyViewName], mockSession.propertyHandler.properties.view)
+        XCTAssertEqual(beacon.m![crashMetaKeyViewName], mockSession.propertyHandler.properties.viewName)
         XCTAssertEqual(beacon.m!["cn"], InstanaSystemUtils.networkUtility.connectionType.cellular.carrierName)
         XCTAssertEqual(beacon.m!["ct"], InstanaSystemUtils.networkUtility.connectionType.description)
         XCTAssertEqual(beacon.m!["ui"], mockSession.propertyHandler.properties.user?.id)

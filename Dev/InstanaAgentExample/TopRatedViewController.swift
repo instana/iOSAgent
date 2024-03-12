@@ -19,7 +19,7 @@ class TopRatedViewController: UITableViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        Instana.setView(name: "FavList")
+//        Instana.setView(name: "FavList")
     }
     
     override func viewWillAppear(_ animated: Bool) {

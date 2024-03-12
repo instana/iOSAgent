@@ -48,6 +48,7 @@ class InstanaTests: InstanaTestCase {
         options.suspendReportingOnLowBattery = true
         options.suspendReportingOnCellular = true
         options.slowSendInterval = 20.0
+        options.autoCaptureScreenNames = AutoCaptureScreenNames.allUIViewControllers
         let ret = Instana.setup(key: key, reportingURL: reportingURL, options: options)
 
         // Then
@@ -385,14 +386,14 @@ class InstanaTests: InstanaTestCase {
             didReport = (beacon is ViewChange) && beacon.viewName == viewName
         }
         Instana.current = Instana(session: session, monitors: Monitors(env, reporter: reporter))
-        Instana.current?.session.propertyHandler.properties.view = "Old View"
+        Instana.current?.session.propertyHandler.properties.view = ViewChange(viewName: "Old View")
 
         // When
         Instana.setView(name: viewName)
 
         // Then
         AssertTrue(didReport)
-        AssertEqualAndNotNil(Instana.current?.session.propertyHandler.properties.view, viewName)
+        AssertEqualAndNotNil(Instana.current?.session.propertyHandler.properties.viewName, viewName)
         AssertEqualAndNotNil(Instana.viewName, viewName)
     }
 
@@ -405,13 +406,34 @@ class InstanaTests: InstanaTestCase {
             didReport = (beacon is ViewChange) && beacon.viewName == viewName
         }
         Instana.current = Instana(session: session, monitors: Monitors(session, reporter: reporter))
-        Instana.current?.session.propertyHandler.properties.view = viewName
+        Instana.current?.session.propertyHandler.properties.view = ViewChange(viewName: viewName)
 
         // When
         Instana.setView(name: viewName)
 
         // Then
         AssertTrue(didReport == false)
+    }
+
+    func test_setViewInternal_negative() {
+        // Given
+        let session = InstanaSession.mock(configuration: .mock())
+
+        var viewChangeBeaconCount = 0
+        let reporter = MockReporter {
+            if let _ = $0 as? ViewChange {
+                viewChangeBeaconCount += 1
+            }
+        }
+        Instana.current = Instana(session: session, monitors: Monitors(session, reporter: reporter))
+
+        // When
+        Instana.setView(name: "Old View Name") // will trigger ViewChange beacon
+        Instana.current?.setViewInternal(name: nil) // nil view name should not trigger ViewChange beacon
+        Thread.sleep(forTimeInterval: 1)
+
+        // Then
+        AssertEqualAndNotNil(viewChangeBeaconCount, 1)
     }
 
     func test_setMetaData() {

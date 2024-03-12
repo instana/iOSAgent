@@ -64,7 +64,7 @@ class EventListViewController: UITableViewController {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        Instana.setView(name: "EventList")
+//        Instana.setView(name: "EventList")
     }
 
     @objc func refresh() {
@@ -200,7 +200,7 @@ class DetailViewController: UIViewController {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        Instana.setView(name: "EventDetail")
+//        Instana.setView(name: "EventDetail")
     }
 
     private func loadImage() {

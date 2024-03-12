@@ -123,11 +123,11 @@ class InstanaPropertiesTests: XCTestCase {
         let properties = InstanaProperties()
 
         // When
-        properties.view = view
+        properties.view = ViewChange(viewName: view)
 
         // Then
-        XCTAssertEqual(properties.view?.last, "V")
-        XCTAssertEqual(properties.view?.count, maxLength)
+        XCTAssertEqual(properties.viewName?.last, "V")
+        XCTAssertEqual(properties.viewName?.count, maxLength)
     }
 
     func test_view_exceeds_length() {
@@ -140,8 +140,8 @@ class InstanaPropertiesTests: XCTestCase {
 
         // Then
         XCTAssertEqual(maxLength, 256)
-        XCTAssertEqual(properties.view?.last, "…")
-        XCTAssertEqual(properties.view?.count, maxLength)
+        XCTAssertEqual(properties.viewName?.last, "…")
+        XCTAssertEqual(properties.viewName?.count, maxLength)
     }
 
     func test_view_exceeds_length_via_setter() {
@@ -151,12 +151,12 @@ class InstanaPropertiesTests: XCTestCase {
         let properties = InstanaProperties()
 
         // When
-        properties.view = view
+        properties.view = ViewChange(viewName: view)
 
         // Then
         XCTAssertEqual(maxLength, 256)
-        XCTAssertEqual(properties.view?.last, "…")
-        XCTAssertEqual(properties.view?.count, maxLength)
+        XCTAssertEqual(properties.viewName?.last, "…")
+        XCTAssertEqual(properties.viewName?.count, maxLength)
     }
 
     func test_user_valid_length() {

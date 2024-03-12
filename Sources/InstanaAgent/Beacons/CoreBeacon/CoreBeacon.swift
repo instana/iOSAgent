@@ -155,6 +155,19 @@ struct CoreBeacon: Codable {
     }
 
     /**
+     * Internal meta data key/value entries
+     *
+     * Will be converted at transmission to separated string prefixed by `im_`
+     * For example: `im_view.accessibilityLabel  someLabel`
+     * For example: `im_view.navigationItemTitle someTitle`
+     * For example: `im_view.className  JSONViewController`
+     *
+     * optional
+     * max size 128, max key length 64, max value length 1024
+     */
+    var im: MetaData?
+
+    /**
      * User ID
      *
      * An identifier for the user.

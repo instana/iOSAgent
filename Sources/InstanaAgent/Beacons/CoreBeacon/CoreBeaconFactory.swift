@@ -91,6 +91,20 @@ extension CoreBeacon {
 
     mutating func append(_ beacon: ViewChange) {
         t = .viewChange
+
+        im = MetaData()
+        if beacon.accessibilityLabel != nil {
+            im![internalMetaDataKeyView_accbltyLabel] = beacon.accessibilityLabel!
+        }
+        if beacon.navigationItemTitle != nil {
+            im![internalMetaDataKeyView_navItemTitle] = beacon.navigationItemTitle!
+        }
+        if beacon.className != nil {
+            im![internalMetaDataKeyView_className] = beacon.className!
+        }
+        if im!.isEmpty {
+            im = nil
+        }
     }
 
     mutating func append(_ beacon: AlertBeacon) {
@@ -136,8 +150,9 @@ extension CoreBeacon {
         m![crashMetaKeyCrashType] = beacon.crashType?.rawValue
         m![crashMetaKeyGroupID] = beacon.crashGroupID.uuidString
         m![crashMetaKeySessionID] = currentSID
-        if session.propertyHandler.properties.view != nil {
-            m![crashMetaKeyViewName] = session.propertyHandler.properties.view
+        let activeViewName = session.propertyHandler.properties.viewName
+        if activeViewName != nil {
+            m![crashMetaKeyViewName] = activeViewName
         }
         m![crashMetaKeyCarrier] = currentCN
         m![crashMetaKeyConnectionType] = currentCT

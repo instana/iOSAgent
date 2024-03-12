@@ -212,7 +212,7 @@ class HTTPMonitorTests: InstanaTestCase {
     func test_httpMarkerDidFinish() {
         // Given
         var expectedBeacon: HTTPBeacon?
-        session.propertyHandler.properties.view = "SomeView"
+        session.propertyHandler.properties.view = ViewChange(viewName: "SomeView")
         let marker = HTTPMarker(url: .random, method: "GET", trigger: .automatic, delegate: nil)
         let monitor = HTTPMonitor(session, reporter: MockReporter { submittedBeacon in
             expectedBeacon = submittedBeacon as? HTTPBeacon
@@ -230,7 +230,7 @@ class HTTPMonitorTests: InstanaTestCase {
     func test_httpMarkerDidFinish_with_matching_header() {
         // Given
         var expectedBeacon: HTTPBeacon?
-        session.propertyHandler.properties.view = "SomeView"
+        session.propertyHandler.properties.view = ViewChange(viewName: "SomeView")
         let header = ["X-K": "Val"]
         let marker = HTTPMarker(url: .random, method: "GET", trigger: .automatic, header: header, delegate: nil)
         let monitor = HTTPMonitor(session, reporter: MockReporter { submittedBeacon in
@@ -251,7 +251,7 @@ class HTTPMonitorTests: InstanaTestCase {
     func test_httpMarkerDidFinish_with_non_matching_header() {
         // Given
         var expectedBeacon: HTTPBeacon?
-        session.propertyHandler.properties.view = "SomeView"
+        session.propertyHandler.properties.view = ViewChange(viewName: "SomeView")
         let header = ["X-K": "Val"]
         let marker = HTTPMarker(url: .random, method: "GET", trigger: .automatic, header: header, delegate: nil)
         let monitor = HTTPMonitor(session, reporter: MockReporter { submittedBeacon in
@@ -289,7 +289,7 @@ class HTTPMonitorTests: InstanaTestCase {
 
     func test_httpMarkerDidFinish_should_not_report() {
         // Marker has been triggered automatically - but session allows only manual capturing
-        Instana.current?.session.propertyHandler.properties.view = "SomeView"
+        Instana.current?.session.propertyHandler.properties.view = ViewChange(viewName: "SomeView")
         var expectedBeacon: HTTPBeacon?
         let marker = HTTPMarker(url: .random, method: "GET", trigger: .automatic, header: nil, delegate: nil)
         let monitor = HTTPMonitor(InstanaSession.mockWithManualHTTPCapture, reporter: MockReporter { submittedBeacon in

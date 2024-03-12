@@ -70,7 +70,7 @@ class CoreBeaconFactoryTests: InstanaTestCase {
         // Given
         let session: InstanaSession = .mock
         let viewName = randomViewName
-        session.propertyHandler.properties.view = viewName
+        session.propertyHandler.properties.view = ViewChange(viewName: viewName)
         let beacon = ViewChange()
         let factory = CoreBeaconFactory(session)
 

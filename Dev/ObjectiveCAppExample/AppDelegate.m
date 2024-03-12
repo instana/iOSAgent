@@ -21,14 +21,17 @@
              reportingURL: [NSURL URLWithString: @"INSTANA_REPORTING_URL"]
                   options: nil];
 
-    //note: explicitly get user permission before set enableCrashReporting to true
+//    NSArray<NSString *> *viewControllerClasses = @[@"ViewController"];
+//    //note: explicitly get user permission before setting enableCrashReporting to true
 //    InstanaSetupOptions* options = [[InstanaSetupOptions alloc] initWithHttpCaptureConfig: 0
 //                                                                  collectionEnabled: true
 //                                                               enableCrashReporting: true
 //                                                             suspendReportingOnLowBattery: true
 //                                                               suspendReportingOnCellular: false
 //                                                                   slowSendInterval: 0.0
-//                                                              usiRefreshTimeIntervalInHrs: -1];
+//                                                              usiRefreshTimeIntervalInHrs: -1
+//                                                                autoCaptureScreenNames: 2
+//                                                            autoViewCaptureAllowedClasses: viewControllerClasses];
 //    (void)[Instana setupWithKey: @"INSTANA_REPORTING_KEY"
 //             reportingURL: [NSURL URLWithString: @"INSTANA_REPORTING_URL"]
 //                  options: options];

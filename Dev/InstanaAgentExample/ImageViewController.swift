@@ -23,7 +23,9 @@ class ImageViewViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
+        self.navigationItem.title = "ImageView navigationItem Title 1"
+
         view.backgroundColor = .white
         view.addSubview(imageView)
         imageView.contentMode = .scaleAspectFill
@@ -44,7 +46,7 @@ class ImageViewViewController: UIViewController {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        Instana.setView(name: "ImageView")
+//        Instana.setView(name: "ImageView")
         Instana.setMeta(value: "iOS", key: "OS")
     }
 

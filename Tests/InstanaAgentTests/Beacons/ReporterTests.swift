@@ -839,7 +839,7 @@ class ReporterTests: InstanaTestCase {
         AssertTrue(reporter.preQueue.count == 1)
 
         // When
-        mockSession.propertyHandler.properties.view = viewName
+        mockSession.propertyHandler.properties.view = ViewChange(viewName: viewName)
         mockSession.propertyHandler.properties.appendMetaData("key", "someVal")
         mockSession.propertyHandler.properties.user = InstanaProperties.User(id: "123", email: "e@e.com", name: "John")
         wait(for: [waitForSend], timeout: prequeueTime * 2)

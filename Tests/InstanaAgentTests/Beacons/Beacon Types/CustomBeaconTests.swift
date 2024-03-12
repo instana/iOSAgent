@@ -123,7 +123,7 @@ class CustomBeaconTests: InstanaTestCase {
         InstanaSystemUtils.networkUtility.update(.cellular)
         let name = "SomeName"
         let session: InstanaSession = .mock(configuration: .mock)
-        session.propertyHandler.properties.view = "SomeView"
+        session.propertyHandler.properties.view = ViewChange(viewName: "SomeView")
         let customBeacon = CustomBeacon(name: name, viewName: nil)
 
         var beacon: CoreBeacon!
@@ -152,7 +152,7 @@ class CustomBeaconTests: InstanaTestCase {
         let name = "SomeName"
         let session: InstanaSession = .mock(configuration: .mock)
 
-        session.propertyHandler.properties.view = viewName
+        session.propertyHandler.properties.view = ViewChange(viewName: viewName)
         let customBeacon = CustomBeacon(name: name)
 
         var beacon: CoreBeacon!

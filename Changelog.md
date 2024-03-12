@@ -1,7 +1,10 @@
 # Changelog
 
+## 1.7.0
+- introduce `autoCaptureScreenNames` and `autoViewCaptureAllowedClasses` for InstanaSetupOptions to auto capture view names
+
 ## 1.6.9
-- Support CustomMetric in reportEvent method
+- Support CustomMetric field in reportEvent method
 
 ## 1.6.8
 - Add more meta data to crash beacon
