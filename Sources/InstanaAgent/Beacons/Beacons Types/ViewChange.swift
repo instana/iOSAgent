@@ -17,8 +17,7 @@ class ViewChange: Beacon {
         if accessibilityLabel != nil, !accessibilityLabel!.isEmpty {
             self.accessibilityLabel = ViewChange.validate(viewName: accessibilityLabel)
             prefix = self.accessibilityLabel! + " "
-        }
-        if self.accessibilityLabel == nil, navigationItemTitle != nil, !navigationItemTitle!.isEmpty {
+        } else if navigationItemTitle != nil, !navigationItemTitle!.isEmpty {
             self.navigationItemTitle = ViewChange.validate(viewName: navigationItemTitle)
             prefix = self.navigationItemTitle! + " "
         }
