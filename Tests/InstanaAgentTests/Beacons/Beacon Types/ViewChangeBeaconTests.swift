@@ -6,6 +6,7 @@ class ViewChangeBeaconTests: InstanaTestCase {
     }
 
     let testVC = TestUIViewController()
+    let testClassType = type(of: TestUIViewController.self)
     let testClassName = String(describing: type(of: TestUIViewController.self))
 
     let testTimestamp: Instana.Types.Milliseconds = Date.distantPast.millisecondsSince1970
@@ -15,8 +16,6 @@ class ViewChangeBeaconTests: InstanaTestCase {
 
     override func setUp() {
         super.setUp()
-        typeAutoCaptureScreenNames = .none
-        autoViewCaptureAllowedClasses = []
     }
 
     func test_init_accessibilityLabel() {
@@ -35,64 +34,77 @@ class ViewChangeBeaconTests: InstanaTestCase {
         XCTAssertEqual(vcBeacon.viewName!, "\(testNavItemTitle) @\(testClassName)")
     }
 
-    func test_allowCapture_none() {
+    func test_allowCapture_false() {
         // Given
-        typeAutoCaptureScreenNames = .none
+        Instana.current?.session.autoCaptureScreenNames = false
+        Instana.current?.session.debugAllScreenNames = false
         // When
-        let allowed = testVC.allowCapture(accessibilityLabel: testAcsbLabel, navigationItemTitle: testNavItemTitle, className: testClassName)
+        let allowed = testVC.allowCapture(accessibilityLabel: nil, navigationItemTitle: nil,
+                                          class: TestUIViewController.self, isSwiftUI: false)
         // Then
         XCTAssertFalse(allowed)
     }
 
     func test_allowCapture_all() {
         // Given
-        typeAutoCaptureScreenNames = .allUIViewControllers
+        Instana.current?.session.autoCaptureScreenNames = true
+        Instana.current?.session.debugAllScreenNames = false
         // When
-        let allowed = testVC.allowCapture(accessibilityLabel: testAcsbLabel, navigationItemTitle: testNavItemTitle, className: "AnyClassName")
+        let allowed = testVC.allowCapture(accessibilityLabel: testAcsbLabel,
+                                          navigationItemTitle: testNavItemTitle,
+                                          class: TestUIViewController.self,
+                                          isSwiftUI: false)
         // Then
         XCTAssertTrue(allowed)
     }
 
     func test_allowCapture_accessibilityLabel() {
         // Given
-        typeAutoCaptureScreenNames = .interestedUIViewControllers
+        Instana.current?.session.autoCaptureScreenNames = true
+        Instana.current?.session.debugAllScreenNames = false
         // When
-        let allowed = testVC.allowCapture(accessibilityLabel: testAcsbLabel, navigationItemTitle: nil, className: "NotUsedClassName")
+        let allowed = testVC.allowCapture(accessibilityLabel: testAcsbLabel, navigationItemTitle: nil,
+                                          class: TestUIViewController.self, isSwiftUI: false)
         // Then
         XCTAssertTrue(allowed)
     }
 
     func test_allowCapture_navigationItemTitle() {
         // Given
-        typeAutoCaptureScreenNames = .interestedUIViewControllers
+        Instana.current?.session.autoCaptureScreenNames = true
+        Instana.current?.session.debugAllScreenNames = false
         // When
-        let allowed = testVC.allowCapture(accessibilityLabel: nil, navigationItemTitle: testNavItemTitle, className: "NotUsedClassName")
+        let allowed = testVC.allowCapture(accessibilityLabel: nil, navigationItemTitle: testNavItemTitle,
+                                          class: TestUIViewController.self, isSwiftUI: false)
         // Then
         XCTAssertTrue(allowed)
     }
 
-    func test_allowCapture_interestedUIViewControllers() {
+    func test_allowCapture_testClassUIViewControllers_debugAll() {
         // Given
-        typeAutoCaptureScreenNames = .interestedUIViewControllers
-        autoViewCaptureAllowedClasses = [testClassName]
+        Instana.current?.session.autoCaptureScreenNames = true
+        Instana.current?.session.debugAllScreenNames = true
         // When
-        let allowed = testVC.allowCapture(accessibilityLabel: nil, navigationItemTitle: nil, className: testClassName)
+        let allowed = testVC.allowCapture(accessibilityLabel: nil, navigationItemTitle: nil,
+                                          class: TestUIViewController.self, isSwiftUI: false)
         // Then
         XCTAssertTrue(allowed)
     }
 
-    func test_allowCapture_interestedUIViewControllers_negative() {
+    func test_allowCapture_testClassUIViewControllers_swiftUI() {
         // Given
-        typeAutoCaptureScreenNames = .interestedUIViewControllers
+        Instana.current?.session.autoCaptureScreenNames = true
+        Instana.current?.session.debugAllScreenNames = false
         // When
-        let allowed = testVC.allowCapture(accessibilityLabel: nil, navigationItemTitle: nil, className: "NotUsedClassName")
+        let allowed = testVC.allowCapture(accessibilityLabel: nil, navigationItemTitle: nil,
+                                          class: TestUIViewController.self, /* not used */
+                                          isSwiftUI: true)
         // Then
         XCTAssertFalse(allowed)
     }
 
     func test_instanaSetViewAutomatically() {
         // Given
-        typeAutoCaptureScreenNames = .allUIViewControllers
         UIViewController.instanaSetViewAutomatically()
 
         // When

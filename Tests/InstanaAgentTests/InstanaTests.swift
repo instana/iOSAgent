@@ -48,7 +48,7 @@ class InstanaTests: InstanaTestCase {
         options.suspendReportingOnLowBattery = true
         options.suspendReportingOnCellular = true
         options.slowSendInterval = 20.0
-        options.autoCaptureScreenNames = AutoCaptureScreenNames.allUIViewControllers
+        options.autoCaptureScreenNames = false
         let ret = Instana.setup(key: key, reportingURL: reportingURL, options: options)
 
         // Then

@@ -4,16 +4,6 @@
 
 import Foundation
 
-@objc public enum AutoCaptureScreenNames: Int {
-    /// Don't automatically capture any screen names
-    case none
-    /// Any class that derives from UIViewController with accessibilityLabel or navigationItem.title set is automatically captured.
-    /// If a UIViewController class name is passed through autoViewCaptureAllowedClasses array, it's also captured.
-    case interestedUIViewControllers
-    /// Any class that derives from UIViewController is automatically captured
-    case allUIViewControllers
-}
-
 @objc public class InstanaSetupOptions: NSObject {
     public var httpCaptureConfig: HTTPCaptureConfig
     public var collectionEnabled: Bool
@@ -22,8 +12,13 @@ import Foundation
     public var suspendReportingOnCellular: Bool
     public var slowSendInterval: Instana.Types.Seconds
     public var usiRefreshTimeIntervalInHrs: Double
-    public var autoCaptureScreenNames: AutoCaptureScreenNames
-    public var autoViewCaptureAllowedClasses: [String] = []
+
+    // If autoCaptureScreenNames is set to true, we could leverage
+    // certain classes' properties and set active view name automatically.
+    // The class needs to derive from UIViewController directly or indirectly.
+    // Instana.setView is triggered on the instance's viewDidAppear call.
+    public var autoCaptureScreenNames: Bool
+    public var debugAllScreenNames: Bool
 
     /// Instana custom configuration for setup.
     ///
@@ -40,8 +35,8 @@ import Foundation
          suspendReportingOnCellular: Bool = false,
          slowSendInterval: Instana.Types.Seconds = 0.0,
          usiRefreshTimeIntervalInHrs: Double = defaultUsiRefreshTimeIntervalInHrs,
-         autoCaptureScreenNames: AutoCaptureScreenNames = .none,
-         autoViewCaptureAllowedClasses: [String] = []) {
+         autoCaptureScreenNames: Bool = false,
+         debugAllScreenNames: Bool = false) {
         self.httpCaptureConfig = httpCaptureConfig
         self.collectionEnabled = collectionEnabled
         self.enableCrashReporting = enableCrashReporting
@@ -50,7 +45,7 @@ import Foundation
         self.slowSendInterval = slowSendInterval
         self.usiRefreshTimeIntervalInHrs = usiRefreshTimeIntervalInHrs
         self.autoCaptureScreenNames = autoCaptureScreenNames
-        self.autoViewCaptureAllowedClasses = autoViewCaptureAllowedClasses
+        self.debugAllScreenNames = debugAllScreenNames
     }
 }
 

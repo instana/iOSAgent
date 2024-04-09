@@ -11,7 +11,8 @@ class ViewChange: Beacon {
 
     init(timestamp: Instana.Types.Milliseconds = Date().millisecondsSince1970,
          viewName: String? = nil, accessibilityLabel: String? = nil,
-         navigationItemTitle: String? = nil, className: String? = nil) {
+         navigationItemTitle: String? = nil,
+         className: String? = nil, isSwiftUI: Bool = false) {
         var canonicalName: String? = viewName
         var prefix = ""
         if accessibilityLabel != nil, !accessibilityLabel!.isEmpty {
@@ -23,7 +24,13 @@ class ViewChange: Beacon {
         }
         self.className = className
         if self.className != nil {
-            canonicalName = prefix + "@" + self.className!
+            let debugAll = Instana.current?.session.debugAllScreenNames ?? false
+            if !isSwiftUI || debugAll {
+                canonicalName = prefix + "@" + self.className!
+            } else {
+                // SwiftUI class name is overwhelming, hide it if there is a prefix.
+                canonicalName = prefix.isEmpty ? "@\(self.className!)" : prefix
+            }
         }
         super.init(timestamp: timestamp, viewName: canonicalName)
     }

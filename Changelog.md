@@ -1,7 +1,7 @@
 # Changelog
 
 ## 1.7.0
-- introduce `autoCaptureScreenNames` and `autoViewCaptureAllowedClasses` for InstanaSetupOptions to auto capture view names
+- introduce `autoCaptureScreenNames` to auto capture view names and `debugAllScreenNames` to debug all screen names
 
 ## 1.6.9
 - Support CustomMetric field in reportEvent method

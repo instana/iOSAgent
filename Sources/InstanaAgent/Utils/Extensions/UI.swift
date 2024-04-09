@@ -2,36 +2,53 @@
 //  Copyright © 2024 IBM Corp. All rights reserved.
 //
 
-import Foundation
 import UIKit
-
-var typeAutoCaptureScreenNames: AutoCaptureScreenNames = .none
-var autoViewCaptureAllowedClasses: [String] = []
 
 extension UIViewController {
     @objc func instanaViewDidAppear(_ animated: Bool) {
-        let className = String(describing: type(of: self))
+        let classType = type(of: self)
+        // If `class` belongs to SwiftUI framework
+        let isSwiftUI = Bundle(for: classType).isSwiftUI
         if allowCapture(accessibilityLabel: accessibilityLabel,
                         navigationItemTitle: navigationItem.title,
-                        className: className) {
+                        class: classType,
+                        isSwiftUI: isSwiftUI) {
             Instana.current?.setViewInternal(name: nil,
                                              accessibilityLabel: accessibilityLabel,
                                              navigationItemTitle: navigationItem.title,
-                                             className: className)
+                                             className: String(describing: classType),
+                                             isSwiftUI: isSwiftUI)
         }
         instanaViewDidAppear(animated)
     }
 
-    func allowCapture(accessibilityLabel: String?, navigationItemTitle: String?, className: String) -> Bool {
-        if typeAutoCaptureScreenNames == .none { return false }
-        if typeAutoCaptureScreenNames == .allUIViewControllers { return true }
+    func allowCapture(accessibilityLabel: String?, navigationItemTitle: String?,
+                      class: AnyClass, isSwiftUI: Bool) -> Bool {
+        let localAcsn = Instana.current?.session.autoCaptureScreenNames
+        if localAcsn == nil || !localAcsn! {
+            // Auto view capture feature is disabled
+            return false
+        }
 
-        if accessibilityLabel != nil && !accessibilityLabel!.isEmpty ||
-            navigationItemTitle != nil && !navigationItemTitle!.isEmpty { return true }
-        for allowedClass in autoViewCaptureAllowedClasses where allowedClass == className {
+        if Instana.current!.session.debugAllScreenNames {
+            // Debug mode capture all
             return true
         }
-        return false
+
+        if accessibilityLabel != nil && !accessibilityLabel!.isEmpty ||
+            navigationItemTitle != nil && !navigationItemTitle!.isEmpty {
+            return true
+        }
+
+        guard !Bundle(for: `class`).isSystemBundle else {
+            // UIViewController not subclassed is deemed as system class and is not auto captured
+            return false
+        }
+
+        // When no visible view name available,
+        // for SwiftUI, not capture;
+        // for UIKit, allow capture.
+        return !isSwiftUI
     }
 
     /// setView name for Instana with current UIViewController's class name when viewDidAppear method is called.
@@ -54,5 +71,16 @@ extension UIViewController {
         if let originalMethod = originalMethod, let swizzledMethod = swizzledMethod {
             method_exchangeImplementations(originalMethod, swizzledMethod)
         }
+    }
+}
+
+internal extension Bundle {
+    var isSystemBundle: Bool {
+        return bundleURL.lastPathComponent == "UIKitCore.framework" // iOS 12+
+            || bundleURL.lastPathComponent == "UIKit.framework" // iOS 11
+    }
+
+    var isSwiftUI: Bool {
+        return bundleURL.lastPathComponent == "SwiftUI.framework"
     }
 }

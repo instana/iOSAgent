@@ -3,6 +3,7 @@
 //
 
 import Foundation
+import UIKit
 
 class InstanaSession {
     /// The current Instana configuration
@@ -34,17 +35,38 @@ class InstanaSession {
     let logger = InstanaLogger()
 
     /// Collecting and reporting can be disabled or enabled at any time
-    @Atomic var collectionEnabled: Bool
+    @Atomic var collectionEnabled: Bool {
+        didSet {
+            Self.processAutoCaptureScreenNames(collectionEnabled: collectionEnabled, acsn: autoCaptureScreenNames)
+        }
+    }
 
-    init(configuration: InstanaConfiguration, propertyHandler: InstanaPropertyHandler, sessionID: UUID = UUID(), collectionEnabled: Bool) {
+    @Atomic var autoCaptureScreenNames: Bool
+    @Atomic var debugAllScreenNames: Bool
+
+    init(configuration: InstanaConfiguration, propertyHandler: InstanaPropertyHandler, sessionID: UUID = UUID(),
+         collectionEnabled: Bool, autoCaptureScreenNames: Bool = false, debugAllScreenNames: Bool = false) {
         self.configuration = configuration
         self.propertyHandler = propertyHandler
         self.collectionEnabled = collectionEnabled
+
+        self.autoCaptureScreenNames = autoCaptureScreenNames
+        self.debugAllScreenNames = debugAllScreenNames
+        Self.processAutoCaptureScreenNames(collectionEnabled: collectionEnabled, acsn: autoCaptureScreenNames)
 
         previousSession = PreviousSession.readInPreviousSessionData()
         id = sessionID
         (userSessionID, usiStartTime) = InstanaSession.usiRetrieve(configuration)
         PreviousSession.persistSessionID(sid: sessionID)
+    }
+
+    private static func processAutoCaptureScreenNames(collectionEnabled: Bool, acsn: Bool) {
+        if collectionEnabled && acsn {
+            // Automatically setView for Instana with current View Controller's
+            // class name (or accessibilityLabel / navigation title if they are set)
+            // when viewDidAppear method is called.
+            UIViewController.instanaSetViewAutomatically()
+        }
     }
 
     private func isSessionValid() -> Bool {

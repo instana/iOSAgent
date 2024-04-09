@@ -3,9 +3,6 @@
 //
 
 import Foundation
-import UIKit
-
-// swiftlint:disable line_length
 
 /// Root object for the Instana agent.
 ///
@@ -100,7 +97,9 @@ import UIKit
         var suspendReporting = InstanaConfiguration.SuspendReporting.defaults
         var slowSendInterval = 0.0
         var usiRefreshTimeIntervalInHrs = defaultUsiRefreshTimeIntervalInHrs
-        var autoCaptureScreenNames: AutoCaptureScreenNames = .none
+        var autoCaptureScreenNames: Bool = false
+        var debugAllScreenNames: Bool = false
+
         if let options = options {
             httpCaptureConfig = options.httpCaptureConfig
             collectionEnabled = options.collectionEnabled
@@ -126,6 +125,7 @@ import UIKit
 
             usiRefreshTimeIntervalInHrs = options.usiRefreshTimeIntervalInHrs
             autoCaptureScreenNames = options.autoCaptureScreenNames
+            debugAllScreenNames = options.debugAllScreenNames
         }
 
         var hybridAgentId: String?
@@ -144,21 +144,10 @@ import UIKit
                                                   hybridAgentId: hybridAgentId,
                                                   hybridAgentVersion: hybridAgentVersion)
         let session = InstanaSession(configuration: config, propertyHandler: InstanaPropertyHandler(),
-                                     collectionEnabled: collectionEnabled)
+                                     collectionEnabled: collectionEnabled,
+                                     autoCaptureScreenNames: autoCaptureScreenNames,
+                                     debugAllScreenNames: debugAllScreenNames)
         Instana.current = Instana(session: session)
-
-        if autoCaptureScreenNames != AutoCaptureScreenNames.none {
-            typeAutoCaptureScreenNames = autoCaptureScreenNames
-            if autoCaptureScreenNames != AutoCaptureScreenNames.allUIViewControllers {
-                autoViewCaptureAllowedClasses = options!.autoViewCaptureAllowedClasses
-            }
-            // Automatically setView for Instana with current View Controller's
-            // class name (or accessibilityLabel / navigation title if they are set)
-            // when viewDidAppear method is called.
-            // Remove Instana.setView calls from all View Controllers that inherit from UIViewController
-            // otherwise the old approach interferes with this new approach.
-            UIViewController.instanaSetViewAutomatically()
-        }
         return true
     }
 
@@ -426,7 +415,8 @@ import UIKit
     public func setViewInternal(name: String?,
                                 accessibilityLabel: String? = nil,
                                 navigationItemTitle: String? = nil,
-                                className: String? = nil) {
+                                className: String? = nil,
+                                isSwiftUI: Bool = false) {
         guard let propertyHandler = Instana.current?.session.propertyHandler else { return }
         let isIdentical = propertyHandler.properties.view?.isSame(name: name,
                                                                   accessibilityLabel: accessibilityLabel,
@@ -436,7 +426,8 @@ import UIKit
         let view = ViewChange(viewName: name,
                               accessibilityLabel: accessibilityLabel,
                               navigationItemTitle: navigationItemTitle,
-                              className: className)
+                              className: className,
+                              isSwiftUI: isSwiftUI)
         propertyHandler.properties.view = view
 
         guard view.viewName != nil else { return }

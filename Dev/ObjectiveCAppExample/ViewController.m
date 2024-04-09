@@ -20,7 +20,7 @@
 }
 
 
-- (void)viewWillAppear:(BOOL)animated {
+- (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
 //    [Instana setViewWithName:@"Objetive-C app View 1"];
 }

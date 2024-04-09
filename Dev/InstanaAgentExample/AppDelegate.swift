@@ -21,8 +21,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         let options = InstanaSetupOptions(enableCrashReporting: userYes)
 //        options.slowSendInterval = 60.0
-        options.autoCaptureScreenNames = AutoCaptureScreenNames.interestedUIViewControllers
-        options.autoViewCaptureAllowedClasses = ["ViewController", "TopRatedViewController", "WebViewController", "DetailViewController"]
+        options.autoCaptureScreenNames = true
+//        options.debugAllScreenNames = true
         if !Instana.setup(key: InstanaKey, reportingURL: InstanaURL, options: options) {
             os_log("Instana setup failed", log: myLog, type: .error)
         }
