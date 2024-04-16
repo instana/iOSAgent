@@ -8,8 +8,15 @@ class CoreBeaconFactory {
     private let session: InstanaSession
     private var conf: InstanaConfiguration { session.configuration }
     private var properties: InstanaProperties { session.propertyHandler.properties }
-    private var mobileFeatures: String? {
-        if conf.monitorTypes.contains(.crash) { return "c" } else { return nil }
+    internal var mobileFeatures: String? {
+        var array: [String] = []
+        if conf.monitorTypes.contains(.crash) {
+            array.append(mobileFeatureCrash)
+        }
+        if session.autoCaptureScreenNames {
+            array.append(mobileFeatureAutoScreenNameCapture)
+        }
+        return array.isEmpty ? nil : array.joined(separator: ",")
     }
 
     init(_ session: InstanaSession) {

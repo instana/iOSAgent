@@ -49,10 +49,10 @@ class InstanaPersistableQueueTests: InstanaTestCase {
         let sessionID = UUID()
         let id = Beacon.generateUniqueIdImpl()
         let beacon1 = CoreBeacon.createDefault(viewName: "View_1", key: "Key_1", timestamp: 0,
-                                 sid: sessionID, usi: session.usi, id: id, mobileFeatures: "c",
+                                 sid: sessionID, usi: session.usi, id: id, mobileFeatures: mobileFeatureCrash,
                                  hybridAgentId: "f", hybridAgentVersion: "3.0.6")
         let beacon2 = CoreBeacon.createDefault(viewName: "View_2", key: "Key_2", timestamp: 0,
-                                 sid: sessionID, usi: session.usi, id: id, mobileFeatures: "c",
+                                 sid: sessionID, usi: session.usi, id: id, mobileFeatures: mobileFeatureCrash,
                                  hybridAgentId: "r", hybridAgentVersion: "2.0.3")
         let queueHandler = InstanaPersistableQueue<CoreBeacon>(identifier: "queue", maxItems: 100)
         queueHandler.removeAll()
@@ -74,7 +74,7 @@ class InstanaPersistableQueueTests: InstanaTestCase {
     func test_persisted_beacons_plus_new() {
         // Given
         let oldBeacons = [CoreBeacon.createDefault(viewName: "V", key: "K", timestamp: 1, sid: UUID(),
-                          usi: session.usi, id: Beacon.generateUniqueIdImpl(), mobileFeatures: "c",
+                          usi: session.usi, id: Beacon.generateUniqueIdImpl(), mobileFeatures: mobileFeatureCrash,
                           hybridAgentId: "f", hybridAgentVersion: "3.0.6"),]
         var queueHandler = InstanaPersistableQueue<CoreBeacon>(identifier: "queue", maxItems: 100)
         queueHandler.removeAll()
@@ -82,7 +82,7 @@ class InstanaPersistableQueueTests: InstanaTestCase {
 
         // When
         let newBeacons = [CoreBeacon.createDefault(viewName: "V", key: "K", timestamp: 2, sid: UUID(),
-                          usi: session.usi, id: Beacon.generateUniqueIdImpl(), mobileFeatures: "c",
+                          usi: session.usi, id: Beacon.generateUniqueIdImpl(), mobileFeatures: mobileFeatureCrash,
                           hybridAgentId: "f", hybridAgentVersion: "3.0.6")]
         queueHandler = InstanaPersistableQueue<CoreBeacon>(identifier: "queue", maxItems: 100)
         queueHandler.add(newBeacons) {result in
@@ -101,7 +101,7 @@ class InstanaPersistableQueueTests: InstanaTestCase {
         // Given
         let id = Beacon.generateUniqueIdImpl()
         let oldBeacons = [CoreBeacon.createDefault(viewName: "V", key: "K", timestamp: 1,
-                                     sid: UUID(), usi: session.usi, id: id, mobileFeatures: "c",
+                                     sid: UUID(), usi: session.usi, id: id, mobileFeatures: mobileFeatureCrash,
                                      hybridAgentId: "f", hybridAgentVersion: "3.0.6")]
         var queueHandler = InstanaPersistableQueue<CoreBeacon>(identifier: "queue", maxItems: 100)
         queueHandler.removeAll()
@@ -109,7 +109,7 @@ class InstanaPersistableQueueTests: InstanaTestCase {
 
         // When
         let newBeacon = CoreBeacon.createDefault(viewName: "V", key: "K", timestamp: 2,
-                                   sid: UUID(), usi: session.usi, id: id, mobileFeatures: "c",
+                                   sid: UUID(), usi: session.usi, id: id, mobileFeatures: mobileFeatureCrash,
                                    hybridAgentId: "r", hybridAgentVersion: "2.0.3")
         queueHandler = InstanaPersistableQueue<CoreBeacon>(identifier: "queue", maxItems: 100)
         queueHandler.add(newBeacon) {result in

@@ -55,3 +55,9 @@ let maxSecondsToKeepCrashLog = (maxDaysToKeepCrashLog * 60 * 60 * 24)
 let internalMetaDataKeyView_accbltyLabel = "view.accLabel" // accessibilityLabel
 let internalMetaDataKeyView_navItemTitle = "view.navItemTitle" // navigationItemTitle
 let internalMetaDataKeyView_className = "view.clsName" // className
+
+///
+/// Mobile Features
+///
+let mobileFeatureCrash = "c"
+let mobileFeatureAutoScreenNameCapture = "sn"

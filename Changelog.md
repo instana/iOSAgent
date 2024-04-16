@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.7.1
+- add to mobile feature list if `autoCaptureScreenNames` is enabled
+
 ## 1.7.0
 - introduce `autoCaptureScreenNames` to auto capture view names and `debugAllScreenNames` to debug all screen names
 

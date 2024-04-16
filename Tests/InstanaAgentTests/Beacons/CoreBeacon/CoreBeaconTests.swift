@@ -33,7 +33,7 @@ class CoreBeaconTests: InstanaTestCase {
                                               sid: sessionID,
                                               usi: session.usi,
                                               id: beaconID,
-                                              mobileFeatures: "c",
+                                              mobileFeatures: mobileFeatureCrash,
                                               hybridAgentId: nil,
                                               hybridAgentVersion: nil)
         coreBeacon.append(props)
@@ -43,7 +43,7 @@ class CoreBeaconTests: InstanaTestCase {
                                                   sid: sessionID,
                                                   usi: session.usi,
                                                   id: beaconID,
-                                                  mobileFeatures: "c",
+                                                  mobileFeatures: mobileFeatureCrash,
                                                   hybridAgentId: "f",
                                                   hybridAgentVersion: "3.0.6",
                                                   connection: .wifi,
@@ -62,7 +62,7 @@ class CoreBeaconTests: InstanaTestCase {
         XCTAssertNotNil(sut.usi)
         AssertEqualAndNotNil(sut.bid, beaconID)
         AssertEqualAndNotNil(sut.bi, InstanaSystemUtils.applicationBundleIdentifier)
-        AssertEqualAndNotNil(sut.uf, "c")
+        AssertEqualAndNotNil(sut.uf, mobileFeatureCrash)
         AssertEqualAndNotNil(sut.ul, Locale.current.languageCode)
         AssertEqualAndNotNil(sut.ab, InstanaSystemUtils.applicationBuildNumber)
         AssertEqualAndNotNil(sut.av, InstanaSystemUtils.applicationVersion)
@@ -153,7 +153,7 @@ class CoreBeaconTests: InstanaTestCase {
                                       sid: sessionID,
                                       usi: sessionUsi.usi,
                                       id: beaconID,
-                                      mobileFeatures: "c",
+                                      mobileFeatures: mobileFeatureCrash,
                                       hybridAgentId: "nil",
                                       hybridAgentVersion: nil,
                                       connection: .wifi,

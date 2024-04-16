@@ -22,6 +22,30 @@ class CoreBeaconFactoryTests: InstanaTestCase {
         }
     }
 
+    func test_mobileFeatures_autoCaptureScreenNames_enabled() {
+        // Given
+        let mfSession = InstanaSession(configuration: config, propertyHandler: InstanaPropertyHandler(),
+                                     collectionEnabled: true, autoCaptureScreenNames: true)
+
+        // When
+        let mfs = CoreBeaconFactory(mfSession)
+
+        // Then
+        AssertEqualAndNotNil(mfs.mobileFeatures!, "\(mobileFeatureCrash),\(mobileFeatureAutoScreenNameCapture)")
+    }
+
+    func test_mobileFeatures_autoCaptureScreenNames_disabled() {
+        // Given
+        let mfSession = InstanaSession(configuration: config, propertyHandler: InstanaPropertyHandler(),
+                                     collectionEnabled: true)
+
+        // When
+        let mfs = CoreBeaconFactory(mfSession)
+
+        // Then
+        AssertEqualAndNotNil(mfs.mobileFeatures!, "\(mobileFeatureCrash)")
+    }
+
     func test_map_beacon() {
         // Given
         let timestamp = Date().millisecondsSince1970
@@ -41,7 +65,7 @@ class CoreBeaconFactoryTests: InstanaTestCase {
         AssertEqualAndNotNil(sut.k, key)
         AssertEqualAndNotNil(sut.ti, "\(beacon.timestamp)")
         AssertEqualAndNotNil(sut.bid, "\(beacon.id)")
-        AssertEqualAndNotNil(sut.uf, "c")
+        AssertEqualAndNotNil(sut.uf, mobileFeatureCrash)
         AssertEqualAndNotNil(sut.bi, "\(InstanaSystemUtils.applicationBundleIdentifier)")
         AssertEqualAndNotNil(sut.ul, "en")
         AssertEqualAndNotNil(sut.agv, InstanaSystemUtils.agentVersion)
@@ -144,7 +168,7 @@ class CoreBeaconFactoryTests: InstanaTestCase {
         AssertEqualAndNotNil(sut.sid, "70BED140-D947-4EC7-ADE9-8F1F7C6955D0")
         AssertEqualAndNotNil(sut.usi, "70BED140-D947-4EC7-ADE9-8F1F7C6955D0")
         AssertEqualAndNotNil(sut.ti, "1578569955952")
-        AssertEqualAndNotNil(sut.uf, "c")
+        AssertEqualAndNotNil(sut.uf, mobileFeatureCrash)
         AssertEqualAndNotNil(sut.ul, "en")
         AssertEqualAndNotNil(sut.vh, "1792")
         AssertEqualAndNotNil(sut.vw, "828")
