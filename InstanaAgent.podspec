@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
   #
 
   s.name         = "InstanaAgent"
-  s.version      = "1.7.1"
+  s.version      = "1.8.0"
   s.summary      = "Instana iOS agent."
 
   # This description is used to generate tags and improve search results.
@@ -92,6 +92,9 @@ Pod::Spec.new do |s|
   #
 
   s.dependency "GzipSwift"
+  s.resource_bundle = {
+    "InstanaAgent" => "Sources/InstanaAgent/Resources/PrivacyInfo.xcprivacy"
+  }
 
   # ――― Project Settings ――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
   #
@@ -100,6 +103,6 @@ Pod::Spec.new do |s|
   #  you can include multiple dependencies to ensure it works.
 
   s.requires_arc = true
-  s.swift_versions = ['5.1', '5.2', '5.3']
+  s.swift_versions = '5.4'
 
 end

@@ -1,16 +1,14 @@
 {
-  "object": {
-    "pins": [
-      {
-        "package": "Gzip",
-        "repositoryURL": "https://github.com/1024jp/GzipSwift.git",
-        "state": {
-          "branch": null,
-          "revision": "ba0b6cb51cc6202f896e469b87d2889a46b10d1b",
-          "version": "5.1.1"
-        }
+  "pins" : [
+    {
+      "identity" : "gzipswift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/1024jp/GzipSwift.git",
+      "state" : {
+        "revision" : "731037f6cc2be2ec01562f6597c1d0aa3fe6fd05",
+        "version" : "6.0.1"
       }
-    ]
-  },
-  "version": 1
+    }
+  ],
+  "version" : 2
 }

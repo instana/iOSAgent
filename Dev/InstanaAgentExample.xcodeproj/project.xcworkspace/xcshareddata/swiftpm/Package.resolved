@@ -15,8 +15,8 @@
         "repositoryURL": "https://github.com/Alamofire/Alamofire.git",
         "state": {
           "branch": null,
-          "revision": "d120af1e8638c7da36c8481fd61a66c0c08dc4fc",
-          "version": "5.4.4"
+          "revision": "f455c2975872ccd2d9c81594c658af65716e9b9a",
+          "version": "5.9.1"
         }
       },
       {
@@ -24,8 +24,8 @@
         "repositoryURL": "https://github.com/1024jp/GzipSwift.git",
         "state": {
           "branch": null,
-          "revision": "ba0b6cb51cc6202f896e469b87d2889a46b10d1b",
-          "version": "5.1.1"
+          "revision": "731037f6cc2be2ec01562f6597c1d0aa3fe6fd05",
+          "version": "6.0.1"
         }
       }
     ]

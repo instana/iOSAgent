@@ -10,7 +10,8 @@ iOS agent to use Instana for your iOS app. The monitoring currently supports:
 - Capture HTTP sessions automatically or manually
 - Automatic delivery of device & app information (like bundle identifer, version, language, iOS device information)
 - Send custom event (This can be especially helpful to send logs, to track additional performance metrics or errors.)
-- [Tech Preview] Crash reporting, plus CPU exception, disk write exception, hang diagnostics and app launch diagnostics
+- [Beta] Crash reporting, plus CPU exception, disk write exception, hang diagnostics and app launch diagnostics
+- [Beta] Automatic screen name capture
 
 Optionally:
 - Ignore full URLs by regex or full URLs
@@ -20,7 +21,7 @@ Optionally:
 
 ## Requirements
 - iOS 11+
-- Swift 5.1+
+- Swift 5.4+
 
 ## Installation
 

@@ -29,6 +29,8 @@
 		72976A9A2681C45800A284F6 /* Webserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72976A992681C45800A284F6 /* Webserver.swift */; };
 		729C88B5270DE98200492486 /* AFNetworking in Frameworks */ = {isa = PBXBuildFile; productRef = 729C88B4270DE98200492486 /* AFNetworking */; };
 		729C88B8270DF13700492486 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 729C88B7270DF13700492486 /* Alamofire */; };
+		A4059B1F2BD067A400C471B6 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A4059B1E2BD067A400C471B6 /* PrivacyInfo.xcprivacy */; };
+		A412ECE52BCF3F6C007212F9 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A412ECE42BCF3F6C007212F9 /* PrivacyInfo.xcprivacy */; };
 		A46F87782B44DE8D00302343 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = A46F87772B44DE8D00302343 /* AppDelegate.m */; };
 		A46F877B2B44DE8D00302343 /* SceneDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = A46F877A2B44DE8D00302343 /* SceneDelegate.m */; };
 		A46F877E2B44DE8D00302343 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A46F877D2B44DE8D00302343 /* ViewController.m */; };
@@ -78,6 +80,8 @@
 		727AF73A263AA0FA00B9C59B /* EventListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventListViewController.swift; sourceTree = "<group>"; };
 		72976A992681C45800A284F6 /* Webserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Webserver.swift; path = "../../Tests/InstanaAgentTests/Test helpers/Webserver.swift"; sourceTree = "<group>"; };
 		72FBE8A7263AACDB00CF2CDE /* InstanaAgentExample.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = InstanaAgentExample.entitlements; sourceTree = "<group>"; };
+		A4059B1E2BD067A400C471B6 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		A412ECE42BCF3F6C007212F9 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		A46F87742B44DE8D00302343 /* ObjectiveCAppExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ObjectiveCAppExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A46F87762B44DE8D00302343 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		A46F87772B44DE8D00302343 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -186,6 +190,7 @@
 				727AF691263A9EBE00B9C59B /* Assets.xcassets */,
 				727AF693263A9EBE00B9C59B /* LaunchScreen.storyboard */,
 				727AF696263A9EBE00B9C59B /* Info.plist */,
+				A412ECE42BCF3F6C007212F9 /* PrivacyInfo.xcprivacy */,
 			);
 			path = InstanaAgentExample;
 			sourceTree = "<group>";
@@ -222,6 +227,7 @@
 				A46F87842B44DE8E00302343 /* LaunchScreen.storyboard */,
 				A46F87872B44DE8E00302343 /* Info.plist */,
 				A46F87882B44DE8E00302343 /* main.m */,
+				A4059B1E2BD067A400C471B6 /* PrivacyInfo.xcprivacy */,
 			);
 			path = ObjectiveCAppExample;
 			sourceTree = "<group>";
@@ -379,6 +385,7 @@
 			files = (
 				727AF695263A9EBE00B9C59B /* LaunchScreen.storyboard in Resources */,
 				727AF692263A9EBE00B9C59B /* Assets.xcassets in Resources */,
+				A412ECE52BCF3F6C007212F9 /* PrivacyInfo.xcprivacy in Resources */,
 				727AF690263A9EBD00B9C59B /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -396,6 +403,7 @@
 			files = (
 				A46F87862B44DE8E00302343 /* LaunchScreen.storyboard in Resources */,
 				A46F87832B44DE8E00302343 /* Assets.xcassets in Resources */,
+				A4059B1F2BD067A400C471B6 /* PrivacyInfo.xcprivacy in Resources */,
 				A46F87812B44DE8D00302343 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

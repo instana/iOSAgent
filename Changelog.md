@@ -1,7 +1,9 @@
 # Changelog
 
-## 1.7.1
+## 1.8.0
 - add to mobile feature list if `autoCaptureScreenNames` is enabled
+- add Privacy Manifest File PrivacyInfo.xcprivacy to iOSAgent
+- update to Swift version 5.4, update GzipSwift version to 6.0.1 for spm
 
 ## 1.7.0
 - introduce `autoCaptureScreenNames` to auto capture view names and `debugAllScreenNames` to debug all screen names
