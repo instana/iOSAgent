@@ -8,11 +8,13 @@ class ViewChange: Beacon {
     var accessibilityLabel: String?
     var navigationItemTitle: String?
     var className: String?
+    var viewInternalMetaMap: [String: String]
 
     init(timestamp: Instana.Types.Milliseconds = Date().millisecondsSince1970,
          viewName: String? = nil, accessibilityLabel: String? = nil,
          navigationItemTitle: String? = nil,
-         className: String? = nil, isSwiftUI: Bool = false) {
+         className: String? = nil, isSwiftUI: Bool = false, viewInternalMetaMap: [String: String] = [:]) {
+        self.viewInternalMetaMap = [:]
         var canonicalName: String? = viewName
         var prefix = ""
         if accessibilityLabel != nil, !accessibilityLabel!.isEmpty {
@@ -31,6 +33,9 @@ class ViewChange: Beacon {
                 // SwiftUI class name is overwhelming, hide it if there is a prefix.
                 canonicalName = prefix.isEmpty ? "@\(self.className!)" : prefix
             }
+        }
+        for (key, value) in viewInternalMetaMap {
+            self.viewInternalMetaMap[key] = value
         }
         super.init(timestamp: timestamp, viewName: canonicalName)
     }
