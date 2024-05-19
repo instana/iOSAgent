@@ -13,6 +13,7 @@ class ViewChangeBeaconTests: InstanaTestCase {
     let testViewName = "test view name 0"
     let testAcsbLabel = "test accessibilityLabel 1"
     let testNavItemTitle = "test navigationItemTitle 2"
+    let testViewInternalMetaMap = ["key1": "value1", "key2": "value2"]
 
     override func setUp() {
         super.setUp()
@@ -113,4 +114,18 @@ class ViewChangeBeaconTests: InstanaTestCase {
         vcAfterSwizzle.viewDidAppear(false)
         Thread.sleep(forTimeInterval: 1)
     }
+    
+    func test_init_viewInternalMetaMap() {
+        let vcBeacon = ViewChange(timestamp: testTimestamp, viewName: testViewName,
+                                  accessibilityLabel: nil, navigationItemTitle: nil, className: nil,viewInternalMetaMap: testViewInternalMetaMap)
+        XCTAssertEqual(vcBeacon.viewInternalMetaMap,testViewInternalMetaMap)
+    }
+    
+    func test_init_viewInternalMetaMap_empty() {
+        let vcBeacon = ViewChange(timestamp: testTimestamp, viewName: testViewName,
+                                  accessibilityLabel: nil, navigationItemTitle: nil, className: nil)
+        XCTAssertEqual(vcBeacon.viewInternalMetaMap,[:])
+    }
+    
+    
 }

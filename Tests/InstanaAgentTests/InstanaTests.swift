@@ -827,4 +827,30 @@ class InstanaTests: InstanaTestCase {
         Instana.current = nil
         AssertFalse(Instana.collectionEnabled)
     }
+    
+    func test_setViewMetaCPInternal_called(){
+        // Given
+        let session = InstanaSession.mock(configuration: .mock())
+
+        var viewChangeBeaconCount = 0
+        var capturedViewInternalMetaMap: [String: String]? = nil
+        let reporter = MockReporter {
+            if let viewChange = $0 as? ViewChange {
+                capturedViewInternalMetaMap = viewChange.viewInternalMetaMap
+                viewChangeBeaconCount += 1
+            }
+        }
+        Instana.current = Instana(session: session, monitors: Monitors(session, reporter: reporter))
+
+        let testViewInternalMetaMap = ["key1": "value1", "key2": "value2"]
+        // When
+        Instana.setViewMetaCPInternal(name: "ScreenName", viewInternalMetaMap:testViewInternalMetaMap)
+        
+        Instana.current?.setViewInternal(name: nil) // nil view name should not trigger ViewChange beacon
+        Thread.sleep(forTimeInterval: 1)
+
+        // Then
+        AssertEqualAndNotNil(viewChangeBeaconCount, 1)
+        AssertEqualAndNotNil(capturedViewInternalMetaMap, testViewInternalMetaMap)
+    }
 }
