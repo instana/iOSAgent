@@ -8,6 +8,8 @@ class ViewChange: Beacon {
     var accessibilityLabel: String?
     var navigationItemTitle: String?
     var className: String?
+    
+    // Internal Meta only to be consumed by Flutter/React agents
     var viewInternalCPMetaMap: [String: String]
 
     init(timestamp: Instana.Types.Milliseconds = Date().millisecondsSince1970,

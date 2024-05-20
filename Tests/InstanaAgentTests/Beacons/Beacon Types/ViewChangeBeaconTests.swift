@@ -117,14 +117,14 @@ class ViewChangeBeaconTests: InstanaTestCase {
     
     func test_init_viewInternalMetaMap() {
         let vcBeacon = ViewChange(timestamp: testTimestamp, viewName: testViewName,
-                                  accessibilityLabel: nil, navigationItemTitle: nil, className: nil,viewInternalMetaMap: testViewInternalMetaMap)
-        XCTAssertEqual(vcBeacon.viewInternalMetaMap,testViewInternalMetaMap)
+                                  accessibilityLabel: nil, navigationItemTitle: nil, className: nil,viewInternalCPMetaMap: testViewInternalMetaMap)
+        XCTAssertEqual(vcBeacon.viewInternalCPMetaMap,testViewInternalMetaMap)
     }
     
     func test_init_viewInternalMetaMap_empty() {
         let vcBeacon = ViewChange(timestamp: testTimestamp, viewName: testViewName,
                                   accessibilityLabel: nil, navigationItemTitle: nil, className: nil)
-        XCTAssertEqual(vcBeacon.viewInternalMetaMap,[:])
+        XCTAssertEqual(vcBeacon.viewInternalCPMetaMap,[:])
     }
     
     

@@ -828,7 +828,7 @@ class InstanaTests: InstanaTestCase {
         AssertFalse(Instana.collectionEnabled)
     }
     
-    func test_setViewMetaCPInternal_called(){
+    func test_setViewMetaCPInternal_called_negative(){
         // Given
         let session = InstanaSession.mock(configuration: .mock())
 
@@ -836,7 +836,7 @@ class InstanaTests: InstanaTestCase {
         var capturedViewInternalMetaMap: [String: String]? = nil
         let reporter = MockReporter {
             if let viewChange = $0 as? ViewChange {
-                capturedViewInternalMetaMap = viewChange.viewInternalMetaMap
+                capturedViewInternalMetaMap = viewChange.viewInternalCPMetaMap
                 viewChangeBeaconCount += 1
             }
         }
@@ -844,7 +844,35 @@ class InstanaTests: InstanaTestCase {
 
         let testViewInternalMetaMap = ["key1": "value1", "key2": "value2"]
         // When
-        Instana.setViewMetaCPInternal(name: "ScreenName", viewInternalMetaMap:testViewInternalMetaMap)
+        Instana.setViewMetaCPInternal(name: "ScreenName", viewInternalCPMetaMap:testViewInternalMetaMap)
+        
+        Instana.current?.setViewInternal(name: nil) // nil view name should not trigger ViewChange beacon
+        Thread.sleep(forTimeInterval: 1)
+
+        // Then
+        AssertEqualAndNotNil(viewChangeBeaconCount, 0)
+        AssertEqualAndNotNil(capturedViewInternalMetaMap, nil)
+    }
+    
+    func test_setViewMetaCPInternal_called_positive(){
+        // Given
+        let session = InstanaSession.mock(configuration: .mock())
+
+        var viewChangeBeaconCount = 0
+        var capturedViewInternalMetaMap: [String: String]? = nil
+        let reporter = MockReporter {
+            if let viewChange = $0 as? ViewChange {
+                capturedViewInternalMetaMap = viewChange.viewInternalCPMetaMap
+                viewChangeBeaconCount += 1
+            }
+        }
+        Instana.current = Instana(session: session, monitors: Monitors(session, reporter: reporter))
+
+        let testViewInternalMetaMap = ["settings.route.name": "value1", "widget.name": "value2"]
+        
+        
+        // When
+        Instana.setViewMetaCPInternal(name: "ScreenName", viewInternalCPMetaMap:testViewInternalMetaMap)
         
         Instana.current?.setViewInternal(name: nil) // nil view name should not trigger ViewChange beacon
         Thread.sleep(forTimeInterval: 1)
