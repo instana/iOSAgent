@@ -423,14 +423,14 @@ import Foundation
     ///         - viewInternalCPMetaMap: Dictionary of keys and values of meta details from CROSS PLATFORM agents
     @objc
     public static func setViewMetaCPInternal(name: String, viewInternalCPMetaMap: [String: String] = [:]) {
-        var isAllKeyValid = true
+        var isAllKeysValid = true
         for key in viewInternalCPMetaMap.keys {
             if !internalMetaFlutterKeys.contains(key) {
-                isAllKeyValid = false
+                isAllKeysValid = false
                 break
             }
         }
-        if isAllKeyValid {
+        if isAllKeysValid {
             Instana.current?.setViewInternal(name: name, viewInternalCPMetaMap: viewInternalCPMetaMap)
         }
     }
