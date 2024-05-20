@@ -8,13 +8,13 @@ class ViewChange: Beacon {
     var accessibilityLabel: String?
     var navigationItemTitle: String?
     var className: String?
-    var viewInternalMetaMap: [String: String]
+    var viewInternalCPMetaMap: [String: String]
 
     init(timestamp: Instana.Types.Milliseconds = Date().millisecondsSince1970,
          viewName: String? = nil, accessibilityLabel: String? = nil,
          navigationItemTitle: String? = nil,
-         className: String? = nil, isSwiftUI: Bool = false, viewInternalMetaMap: [String: String] = [:]) {
-        self.viewInternalMetaMap = [:]
+         className: String? = nil, isSwiftUI: Bool = false, viewInternalCPMetaMap: [String: String] = [:]) {
+        self.viewInternalCPMetaMap = [:]
         var canonicalName: String? = viewName
         var prefix = ""
         if accessibilityLabel != nil, !accessibilityLabel!.isEmpty {
@@ -34,8 +34,8 @@ class ViewChange: Beacon {
                 canonicalName = prefix.isEmpty ? "@\(self.className!)" : prefix
             }
         }
-        for (key, value) in viewInternalMetaMap {
-            self.viewInternalMetaMap[key] = value
+        for (key, value) in viewInternalCPMetaMap {
+            self.viewInternalCPMetaMap[key] = value
         }
         super.init(timestamp: timestamp, viewName: canonicalName)
     }

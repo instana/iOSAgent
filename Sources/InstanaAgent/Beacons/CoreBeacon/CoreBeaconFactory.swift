@@ -109,8 +109,8 @@ extension CoreBeacon {
         if beacon.className != nil {
             im![internalMetaDataKeyView_className] = beacon.className!
         }
-        if !beacon.viewInternalMetaMap.isEmpty {
-            for (key, value) in beacon.viewInternalMetaMap {
+        if !beacon.viewInternalCPMetaMap.isEmpty {
+            for (key, value) in beacon.viewInternalCPMetaMap {
                 im![key] = value
             }
         }

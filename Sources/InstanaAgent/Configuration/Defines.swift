@@ -56,6 +56,8 @@ let internalMetaDataKeyView_accbltyLabel = "view.accLabel" // accessibilityLabel
 let internalMetaDataKeyView_navItemTitle = "view.navItemTitle" // navigationItemTitle
 let internalMetaDataKeyView_className = "view.clsName" // className
 
+let internalMetaFlutterKeys = ["settings.route.name", "widget.name", "child.widget.name", "child.widget.title", "go.router.path"] // keys given from flutter agent
+
 ///
 /// Mobile Features
 ///
