@@ -881,4 +881,37 @@ class InstanaTests: InstanaTestCase {
         AssertEqualAndNotNil(viewChangeBeaconCount, 1)
         AssertEqualAndNotNil(capturedViewInternalMetaMap, testViewInternalMetaMap)
     }
+    
+    func test_setViewMetaCPInternal_called_with_max_value_length(){
+        // Given
+        let session = InstanaSession.mock(configuration: .mock())
+
+        var viewChangeBeaconCount = 0
+        var capturedViewInternalMetaMap: [String: String]? = nil
+        let reporter = MockReporter {
+            if let viewChange = $0 as? ViewChange {
+                capturedViewInternalMetaMap = viewChange.viewInternalCPMetaMap
+                viewChangeBeaconCount += 1
+            }
+        }
+        Instana.current = Instana(session: session, monitors: Monitors(session, reporter: reporter))
+        var randomString = ""
+        for _ in 0..<InstanaProperties.viewMaxLength+3 {
+            let randomCharacter = Character(UnicodeScalar(UInt32.random(in: 65...90)) ?? "A") // A-Z
+            randomString.append(randomCharacter)
+        }
+
+        let testViewInternalMetaMap = ["settings.route.name": randomString, "widget.name": "value2"]
+        
+        
+        // When
+        Instana.setViewMetaCPInternal(name: "ScreenName", viewInternalCPMetaMap:testViewInternalMetaMap)
+        
+        Instana.current?.setViewInternal(name: nil) // nil view name should not trigger ViewChange beacon
+        Thread.sleep(forTimeInterval: 1)
+
+        // Then
+        AssertEqualAndNotNil(viewChangeBeaconCount, 1)
+        AssertEqualAndNotNil(capturedViewInternalMetaMap?["settings.route.name"]?.count, InstanaProperties.viewMaxLength)
+    }
 }

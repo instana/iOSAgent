@@ -109,7 +109,6 @@ extension CoreBeacon {
         if beacon.className != nil {
             im![internalMetaDataKeyView_className] = beacon.className!
         }
-        // Only when there is view meta available from crossplatfrom agents(Flutter/React-Native) thats added with every view change
         if !beacon.viewInternalCPMetaMap.isEmpty {
             for (key, value) in beacon.viewInternalCPMetaMap {
                 im![key] = value

@@ -8,7 +8,7 @@ class ViewChange: Beacon {
     var accessibilityLabel: String?
     var navigationItemTitle: String?
     var className: String?
-    
+
     // Internal Meta only to be consumed by Flutter/React agents
     var viewInternalCPMetaMap: [String: String]
 
@@ -37,7 +37,7 @@ class ViewChange: Beacon {
             }
         }
         for (key, value) in viewInternalCPMetaMap {
-            self.viewInternalCPMetaMap[key] = value
+            self.viewInternalCPMetaMap[key] = ViewChange.validate(viewName: value)
         }
         super.init(timestamp: timestamp, viewName: canonicalName)
     }
