@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.8.1
+- added functionality to accept internal metadata from cross-platform agents
+
 ## 1.8.0
 - add to mobile feature list if `autoCaptureScreenNames` is enabled
 - add Privacy Manifest File PrivacyInfo.xcprivacy to iOSAgent
