@@ -412,11 +412,35 @@ import Foundation
         Instana.current?.setViewInternal(name: name)
     }
 
+    /// Set the screen name and its meta details from crossplatfrom services (Flutter & React Native agents)
+    ///
+    /// ONLY TO BE USED BY FLUTTER/REACT NATIVE AGENTS!
+    ///
+    /// This is exposed for internal use, for the communication between the instana agents, not to be consumed by developers
+    /// Call this method from instana cross platform agents when need to provide auto capture of screen names and its meta details
+    ///  - Parameters:
+    ///         - name: The screen name identified from cross platform agents
+    ///         - viewInternalCPMetaMap: Dictionary of keys and values of meta details from CROSS PLATFORM agents
+    @objc
+    public static func setViewMetaCPInternal(name: String, viewInternalCPMetaMap: [String: String] = [:]) {
+        var isAllKeysValid = true
+        for key in viewInternalCPMetaMap.keys {
+            if !internalMetaFlutterKeys.contains(key) {
+                isAllKeysValid = false
+                break
+            }
+        }
+        if isAllKeysValid {
+            Instana.current?.setViewInternal(name: name, viewInternalCPMetaMap: viewInternalCPMetaMap)
+        }
+    }
+
     public func setViewInternal(name: String?,
                                 accessibilityLabel: String? = nil,
                                 navigationItemTitle: String? = nil,
                                 className: String? = nil,
-                                isSwiftUI: Bool = false) {
+                                isSwiftUI: Bool = false,
+                                viewInternalCPMetaMap: [String: String] = [:]) {
         guard let propertyHandler = Instana.current?.session.propertyHandler else { return }
         let isIdentical = propertyHandler.properties.view?.isSame(name: name,
                                                                   accessibilityLabel: accessibilityLabel,
@@ -427,7 +451,8 @@ import Foundation
                               accessibilityLabel: accessibilityLabel,
                               navigationItemTitle: navigationItemTitle,
                               className: className,
-                              isSwiftUI: isSwiftUI)
+                              isSwiftUI: isSwiftUI,
+                              viewInternalCPMetaMap: viewInternalCPMetaMap)
         propertyHandler.properties.view = view
 
         guard view.viewName != nil else { return }

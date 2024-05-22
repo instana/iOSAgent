@@ -9,10 +9,14 @@ class ViewChange: Beacon {
     var navigationItemTitle: String?
     var className: String?
 
+    // Internal Meta only to be consumed by Flutter/React agents
+    var viewInternalCPMetaMap: [String: String]
+
     init(timestamp: Instana.Types.Milliseconds = Date().millisecondsSince1970,
          viewName: String? = nil, accessibilityLabel: String? = nil,
          navigationItemTitle: String? = nil,
-         className: String? = nil, isSwiftUI: Bool = false) {
+         className: String? = nil, isSwiftUI: Bool = false, viewInternalCPMetaMap: [String: String] = [:]) {
+        self.viewInternalCPMetaMap = [:]
         var canonicalName: String? = viewName
         var prefix = ""
         if accessibilityLabel != nil, !accessibilityLabel!.isEmpty {
@@ -31,6 +35,9 @@ class ViewChange: Beacon {
                 // SwiftUI class name is overwhelming, hide it if there is a prefix.
                 canonicalName = prefix.isEmpty ? "@\(self.className!)" : prefix
             }
+        }
+        for (key, value) in viewInternalCPMetaMap {
+            self.viewInternalCPMetaMap[key] = ViewChange.validate(viewName: value)
         }
         super.init(timestamp: timestamp, viewName: canonicalName)
     }
