@@ -1,0 +1,39 @@
+platform: darwin
+inputs:
+  - name: eum-shared-source
+  - name: source
+  - name: coverage-report
+
+params:
+  GITHUB_TOKEN: ((ibm-github-e-api-token))
+
+run:
+  path: bash
+  args:
+    - -cx
+    - |
+      export SOURCE_NAME=source
+      export SONARQUBE_TOKEN=((sonarqube-instana-io-token))
+      export BRANCH_NAME=((branch))
+
+      cd source
+      git checkout $BRANCH_NAME
+
+      if [ ! -f "usr/local/bin/gh" ]; then
+          echo "installing gh"
+          curl -LO https://github.com/cli/cli/releases/download/v2.50.0/gh_2.50.0_macOS_amd64.zip
+          tar -xvf gh_2.50.0_macOS_amd64.zip
+          sudo mv gh_2.50.0_macOS_amd64/bin/gh /usr/local/bin
+          export PATH="/usr/local/bin:$PATH"
+      fi
+      gh --version
+
+      gh auth login --with-token <<< ((ibm-github-e-api-token)) --hostname github.ibm.com
+      export PR_KEY=`gh pr view --json baseRefName,number --jq .number`
+      export PR_BASE=`gh pr view --json baseRefName,number --jq .baseRefName`
+      git fetch https://$GITHUB_TOKEN@github.ibm.com/instana/iOSAgent.git master:master
+      cd ..
+
+      echo "Performing sonarqube scan"
+      chmod -R 777 eum-shared-source/iOSAgent/ci/pr-scan.sh
+      eum-shared-source/iOSAgent/ci/pr-scan.sh
