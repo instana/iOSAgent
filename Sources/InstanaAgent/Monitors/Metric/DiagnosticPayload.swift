@@ -24,7 +24,7 @@ class DiagnosticPayload: Codable {
     let crashTime: Instana.Types.Milliseconds
     let duration: Instana.Types.Milliseconds
     let rawMXPayload: String?
-    let errorType: Int?
+    let errorType: String?
     let errorMessage: String?
     let payloadVersion: String?
     let callStackTree: CallStackTree?
@@ -89,7 +89,7 @@ class DiagnosticPayload: Codable {
          crashTime: Instana.Types.Milliseconds,
          duration: Instana.Types.Milliseconds,
          rawMXPayload: String?,
-         errorType: Int?,
+         errorType: String?,
          errorMessage: String?,
          payloadVersion: String?,
          callStackTree: CallStackTree?,
@@ -341,8 +341,8 @@ class DiagnosticPayload: Codable {
     }
 
     @available(iOS 14.0, macOS 12, *)
-    static func parseErrorTypeAndMessage(crashType: CrashType, diagnostic: MXDiagnostic) -> (Int?, String?) {
-        var errorCode: Int?
+    static func parseErrorTypeAndMessage(crashType: CrashType, diagnostic: MXDiagnostic) -> (String?, String?) {
+        var errorType: String?
         var errorMsg: String?
 
         switch crashType {
@@ -355,13 +355,16 @@ class DiagnosticPayload: Codable {
         case .hang:
             errorMsg = "hang diagnostic"
         case .crash:
-            (errorCode, errorMsg) = Self.parseCrashErrorTypeAndMessage(diagnostic: diagnostic)
+            (errorType, errorMsg) = Self.parseCrashErrorTypeAndMessage(diagnostic: diagnostic)
         }
-        return (errorCode, errorMsg)
+        if errorType == nil {
+            errorType = errorMsg
+        }
+        return (errorType, errorMsg)
     }
 
     @available(iOS 14.0, macOS 12, *)
-    static func parseCrashErrorTypeAndMessage(diagnostic: MXDiagnostic) -> (Int?, String?) {
+    static func parseCrashErrorTypeAndMessage(diagnostic: MXDiagnostic) -> (String?, String?) {
         guard let crashDiag = diagnostic as? MXCrashDiagnostic else {
             return (nil, "crash diagnostic")
         }
@@ -370,7 +373,6 @@ class DiagnosticPayload: Codable {
         let exceptionCode = crashDiag.exceptionCode
         let signal = crashDiag.signal
 
-        var errorCode: Int?
         var errorMsg: String = ""
         let machExceptionType = Self.getMachExceptionTypeDisplayName(exceptionType: exceptionType)
         let machExceptionCode = Self.getMachExceptionCodeDisplayName(exceptionType: exceptionType,
@@ -388,16 +390,14 @@ class DiagnosticPayload: Codable {
         }
 
         if errorMsg.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            errorMsg = "unkown error"
+            errorMsg = "unknown error"
         }
 
-        if exceptionType != nil {
-            errorCode = Int(truncating: exceptionType!)
-        } else if signal != nil {
-            errorCode = Int(truncating: signal!)
+        let errorType = errorMsg // errorType is the prefix of errorMsg
+        if crashDiag.terminationReason != nil {
+            errorMsg += " - \(crashDiag.terminationReason!)"
         }
-
-        return (errorCode, errorMsg)
+        return (errorType, errorMsg)
     }
 
     static func getMachExceptionTypeDisplayName(exceptionType: NSNumber?) -> String? {

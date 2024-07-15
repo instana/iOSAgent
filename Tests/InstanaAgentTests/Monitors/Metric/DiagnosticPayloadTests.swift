@@ -46,8 +46,8 @@ class DiagnosticPayloadTests: InstanaTestCase {
         let (type, msg) = DiagnosticPayload.parseCrashErrorTypeAndMessage(diagnostic: diagnostic)
 
         // Then
-        XCTAssertEqual(type, 10)
-        XCTAssertEqual(msg, "EXC_CRASH (SIGABRT - ABORT) - 0")
+        XCTAssertEqual(type, "EXC_CRASH (SIGABRT - ABORT) - 0")
+        XCTAssertEqual(msg, "EXC_CRASH (SIGABRT - ABORT) - 0 - mock Crash Termination Reason")
     }
 
     @available(iOS 14.0, macOS 12, *)

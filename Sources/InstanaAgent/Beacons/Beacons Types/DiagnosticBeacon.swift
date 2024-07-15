@@ -16,7 +16,7 @@ class DiagnosticBeacon: Beacon {
     let duration: Instana.Types.Milliseconds
     let crashPayload: String?
     let formatted: String?
-    let errorType: Int?
+    let errorType: String?
     let errorMessage: String?
     let isSymbolicated: Bool
 
@@ -27,7 +27,7 @@ class DiagnosticBeacon: Beacon {
          duration: Instana.Types.Milliseconds,
          crashPayload: String?,
          formatted: String?,
-         errorType: Int?,
+         errorType: String?,
          errorMessage: String?,
          isSymbolicated: Bool) {
         self.crashSession = crashSession

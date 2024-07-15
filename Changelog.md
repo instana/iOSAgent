@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.8.2
+- crash beacon errorType value update
+
 ## 1.8.1
 - added functionality to accept internal metadata from cross-platform agents
 
