@@ -2,6 +2,7 @@
 
 ## 1.8.2
 - crash beacon errorType value update
+- When http request failed, track statusCode along with error message
 
 ## 1.8.1
 - added functionality to accept internal metadata from cross-platform agents

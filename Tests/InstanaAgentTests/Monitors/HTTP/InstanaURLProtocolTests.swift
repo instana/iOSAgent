@@ -356,7 +356,8 @@ class InstanaURLProtocolTests: InstanaTestCase {
         wait(for: [waitFor], timeout: 3.0)
         AssertEqualAndNotNil(urlProtocol.marker?.backendTracingID, backendTracingID)
         AssertTrue(delegate.calledFinalized)
-        if case let .failed(error) = urlProtocol.marker?.state {
+        let responseCode = 400
+        if case let .failed(responseCode, error) = urlProtocol.marker?.state {
             resultError = error as NSError
         } else {
             XCTFail("Wrong state for marker")

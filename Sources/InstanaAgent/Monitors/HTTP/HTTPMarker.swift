@@ -31,7 +31,7 @@ protocol HTTPMarkerDelegate: AnyObject {
 
 @objc public class HTTPMarker: NSObject {
     enum State {
-        case started, failed(error: Error), finished(responseCode: Int), canceled
+        case started, failed(responseCode: Int, error: Error), finished(responseCode: Int), canceled
     }
 
     enum Trigger {
@@ -85,7 +85,7 @@ protocol HTTPMarkerDelegate: AnyObject {
     /// Note: Make sure you don't call any methods on this HTTPMarker after you called finish
     @objc public func finish(response: URLResponse?, error: Error?) {
         let httpURLResponse = (response as? HTTPURLResponse)
-        let statusCode = httpURLResponse?.statusCode ?? 400
+        let statusCode = httpURLResponse?.statusCode ?? -1
         let size = response != nil ? HTTPMarker.Size(response!) : nil
 
         var bothHeaders: HTTPHeader = [:]
@@ -124,7 +124,7 @@ protocol HTTPMarkerDelegate: AnyObject {
     @objc public func finish(_ result: HTTPCaptureResult) {
         guard case .started = state else { return }
         if let error = result.error {
-            state = .failed(error: error)
+            state = .failed(responseCode: result.statusCode, error: error)
         } else {
             state = .finished(responseCode: result.statusCode)
         }
@@ -168,7 +168,8 @@ extension HTTPMarker {
             error = NSError(domain: NSURLErrorDomain, code: NSURLErrorCancelled, userInfo: nil)
         case let .finished(code):
             responseCode = code
-        case let .failed(theError):
+        case let .failed(code, theError):
+            responseCode = code
             error = theError
         }
         let header = filter.filterHeaderFields(header)

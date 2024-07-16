@@ -176,7 +176,7 @@ class HTTPMarkerTests: InstanaTestCase {
         XCTAssertEqual(marker.trigger, .manual)
         XCTAssertEqual(delegate.didFinishCount, 1)
         XCTAssertEqual(marker.backendTracingID, "BackendID")
-        if case let .failed(error: result) = marker.state {
+        if case let .failed(_, error: result) = marker.state {
             XCTAssertEqual(result as? InstanaError, expectedError)
         } else {
             XCTFail("Wrong marker state: \(marker.state)")
@@ -247,7 +247,7 @@ class HTTPMarkerTests: InstanaTestCase {
         XCTAssertEqual(delegate.didFinishCount, 1)
         XCTAssertEqual(marker.responseSize, responseSize)
         XCTAssertTrue(marker.duration > 0)
-        if case let .failed(e) = marker.state {
+        if case let .failed(_, e) = marker.state {
             XCTAssertEqual(e as? CocoaError, error)
         } else {
             XCTFail("Wrong marker state: \(marker.state)")
@@ -345,9 +345,10 @@ class HTTPMarkerTests: InstanaTestCase {
         let marker = HTTPMarker(url: url, method: "t", trigger: .automatic, delegate: Delegate())
         let error = NSError(domain: NSCocoaErrorDomain, code: -1, userInfo: nil)
 
+        let statusCode = 409
         // When
         marker.set(responseSize: responseSize)
-        marker.finish(response: createMockResponse(409), error: error)
+        marker.finish(response: createMockResponse(statusCode), error: error)
         guard let beacon = marker.createBeacon(filter: .init()) as? HTTPBeacon else {
             XCTFail("Beacon type missmatch"); return
         }
@@ -358,12 +359,12 @@ class HTTPMarkerTests: InstanaTestCase {
         XCTAssertEqual(beacon.duration, marker.duration)
         XCTAssertEqual(beacon.method, "t")
         XCTAssertEqual(beacon.url, url)
-        XCTAssertEqual(beacon.responseCode, -1)
+        XCTAssertEqual(beacon.responseCode, statusCode)
         AssertEqualAndNotNil(beacon.responseSize, responseSize)
         AssertEqualAndNotNil(beacon.responseSize?.headerBytes, responseSize.headerBytes)
         AssertEqualAndNotNil(beacon.responseSize?.bodyBytes, responseSize.bodyBytes)
         AssertEqualAndNotNil(beacon.responseSize?.bodyBytesAfterDecoding, responseSize.bodyBytesAfterDecoding)
-        XCTAssertEqual(beacon.error, HTTPError.unknown(error))
+        XCTAssertEqual(beacon.error?.description, error.localizedDescription)
     }
 
     func test_createBeacon_canceledMarker() {

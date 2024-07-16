@@ -43,7 +43,7 @@ enum HTTPError: LocalizedError, RawRepresentable, CustomStringConvertible, Equat
     case userAuthenticationRequired
     case userCancelledAuthentication
 
-    case statusCode(Int)
+    case statusCode(Int, NSError?)
     case unknownHTTPError(NSError)
     case unknown(NSError)
 
@@ -84,7 +84,7 @@ enum HTTPError: LocalizedError, RawRepresentable, CustomStringConvertible, Equat
         case .unsupportedURL: return "Unsupported URL"
         case .userAuthenticationRequired: return "User Authentication Required"
         case .userCancelledAuthentication: return "User Cancelled Authentication"
-        case let .statusCode(code): return "HTTP \(code)"
+        case let .statusCode(code, _): return "HTTP \(code)"
         case .unknownHTTPError: return "URL Error"
         case .unknown: return "Error"
         }
@@ -135,7 +135,13 @@ enum HTTPError: LocalizedError, RawRepresentable, CustomStringConvertible, Equat
         case .unsupportedURL: return "A properly formed URL couldn’t be handled by the framework."
         case .userAuthenticationRequired: return "Authentication was required to access a resource."
         case .userCancelledAuthentication: return "An asynchronous request for authentication has been canceled by the user."
-        case let .statusCode(code): return "HTTP Error with status code \(code)"
+
+        case let .statusCode(code, nsError):
+            guard let error = nsError else {
+                return "HTTP Error with status code \(code)"
+            }
+            return error.localizedDescription
+
         case let .unknownHTTPError(error): return "\(error.localizedDescription)"
         case let .unknown(error): return "\(error.localizedDescription)"
         }
@@ -149,7 +155,7 @@ enum HTTPError: LocalizedError, RawRepresentable, CustomStringConvertible, Equat
     // swiftlint:disable:next cyclomatic_complexity
     init?(error: NSError?, statusCode: Int? = nil) {
         if let httpCode = statusCode, 400 ... 599 ~= httpCode {
-            self = .statusCode(httpCode)
+            self = .statusCode(httpCode, error)
             return
         }
         guard let error = error else {

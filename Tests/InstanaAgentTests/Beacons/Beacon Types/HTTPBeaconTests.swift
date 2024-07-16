@@ -116,7 +116,8 @@ class HTTPBeaconTests: InstanaTestCase {
             AssertEqualAndNotNil(sut.hs, String(code))
             AssertTrue(sut.ec == "1")
             AssertTrue(sut.et == "HTTPError")
-            AssertTrue(sut.em == "HTTP \(code): HTTP Error with status code \(code)")
+            let expectedPrefix = "HTTP \(code): "
+            AssertTrue(sut.em!.starts(with: expectedPrefix))
         }
     }
 

@@ -363,7 +363,7 @@ class HTTPErrorTests: InstanaTestCase {
         let sut = HTTPError(error: nil, statusCode: 404)
 
         // Then
-        AssertEqualAndNotNil(sut, HTTPError.statusCode(404))
+        AssertEqualAndNotNil(sut, HTTPError.statusCode(404, nil))
         AssertEqualAndNotNil(sut?.description, "HTTP Error with status code 404")
         AssertEqualAndNotNil(sut?.rawValue, "HTTP 404")
     }
@@ -373,8 +373,8 @@ class HTTPErrorTests: InstanaTestCase {
         let sut = HTTPError(error: error(NSURLErrorTimedOut), statusCode: 404)
 
         // Then
-        AssertEqualAndNotNil(sut, HTTPError.statusCode(404))
-        AssertEqualAndNotNil(sut?.description, "HTTP Error with status code 404")
+        AssertEqualAndNotNil(sut, HTTPError.statusCode(404, nil))
+        AssertEqualAndNotNil(sut?.description, sut?.localizedDescription)
         AssertEqualAndNotNil(sut?.rawValue, "HTTP 404")
     }
 
