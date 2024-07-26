@@ -225,7 +225,7 @@ struct DiagnosticSymbolicator {
             exceptionCode: diagPayload.exceptionCode as? NSNumber)
         if exceptionCodeDisplay != nil {
             if exceptionCodeDisplay != String(diagPayload.exceptionCode!) {
-                exceptionCodeDisplay! += " (diagPayload.exceptionCode!)"
+                exceptionCodeDisplay! += " \(diagPayload.exceptionCode!)"
             }
             crashHeaders.append(StHeader(key: "Exception Code", value: exceptionCodeDisplay!))
         }
