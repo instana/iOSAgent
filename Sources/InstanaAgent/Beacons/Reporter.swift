@@ -66,7 +66,7 @@ public class Reporter {
                 completion?(false)
                 return
             }
-            guard self.rateLimiter.canSubmit() else {
+            guard self.rateLimiter.canSubmit(beacon) else {
                 self.session.logger.add("Rate Limit reached - Beacon might be discarded", level: .warning)
                 completion?(false)
                 return

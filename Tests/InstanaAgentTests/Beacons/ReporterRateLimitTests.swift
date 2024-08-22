@@ -3,6 +3,30 @@ import XCTest
 import Network
 
 class ReporterRateLimitTests: InstanaTestCase {
+    private let sessionBeacon = SessionProfileBeacon(state: .start)
+    private let crashBeacon = DiagnosticBeacon(crashSession:
+                         PreviousSession(id: UUID(),
+                         startTime: Calendar.current.date(byAdding: .minute, value: -10, to: Date())!,
+                         viewName: "mockViewName",
+                         carrier: "mockCarrier",
+                         connectionType: "mockConnectionType",
+                         userID: "mockUserID",
+                         userEmail: "mockEmail",
+                         userName: "mockUserName"),
+                               crashGroupID: UUID(),
+                               crashType: .crash,
+                               crashTime: Calendar.current.date(byAdding: .minute, value: -5, to: Date())!.millisecondsSince1970,
+                               duration: 0,
+                               crashPayload: "",
+                               formatted: "",
+                               errorType: "",
+                               errorMessage: "",
+                               isSymbolicated: false)
+    // following beacons are rate limited
+    private let httpBeacon = HTTPBeacon(method: "GET", url:URL(string: "https://www.ibm.com")!, responseCode: 200)
+    private let customBeacon = CustomBeacon(name: "TestCustomBeacon1")
+    private let viewChangeBeacon = ViewChange(viewName: "TestView1")
+    private let alertBeacon = AlertBeacon(alertType: .lowMemory)
 
     func test_rateLimitReached_one() {
         // Given
@@ -10,7 +34,7 @@ class ReporterRateLimitTests: InstanaTestCase {
         let limiter = ReporterRateLimiter(configs: configs)
 
         // When
-        let result = limiter.canSubmit()
+        let result = limiter.canSubmit(customBeacon)
 
         // Then
         XCTAssertTrue(result)
@@ -22,11 +46,18 @@ class ReporterRateLimitTests: InstanaTestCase {
         let limiter = ReporterRateLimiter(configs: configs)
 
         // When
-        var result = limiter.canSubmit()
-        result = limiter.canSubmit()
+        var result = limiter.canSubmit(customBeacon)
+        result = limiter.canSubmit(customBeacon)
 
         // Then
         XCTAssertFalse(result)
+
+        // More
+        XCTAssertFalse(limiter.canSubmit(httpBeacon))
+        XCTAssertFalse(limiter.canSubmit(viewChangeBeacon))
+        XCTAssertFalse(limiter.canSubmit(alertBeacon))
+        XCTAssertTrue(limiter.canSubmit(sessionBeacon))
+        XCTAssertTrue(limiter.canSubmit(crashBeacon))
     }
 
     func test_rateLimitReached_zero_allowed() {
@@ -35,7 +66,7 @@ class ReporterRateLimitTests: InstanaTestCase {
         let limiter = ReporterRateLimiter(configs: configs)
 
         // When
-        let result = limiter.canSubmit()
+        let result = limiter.canSubmit(customBeacon)
 
         // Then
         XCTAssertFalse(result)
@@ -50,10 +81,10 @@ class ReporterRateLimitTests: InstanaTestCase {
         let limiter = ReporterRateLimiter(configs: configs)
 
         // When
-        var result = limiter.canSubmit()
+        var result = limiter.canSubmit(customBeacon)
         // Fire another one AFTER the first limit has been cleared
         DispatchQueue.main.asyncAfter(deadline: .now() + firstTimeout + 0.1) {
-            result = limiter.canSubmit()
+            result = limiter.canSubmit(self.customBeacon)
             waitFor.fulfill()
         }
         wait(for: [waitFor], timeout: firstTimeout + 3)
@@ -71,10 +102,10 @@ class ReporterRateLimitTests: InstanaTestCase {
         let limiter = ReporterRateLimiter(configs: configs)
 
         // When
-        var result = limiter.canSubmit()
+        var result = limiter.canSubmit(customBeacon)
         // Fire another one BEFORE the first limit has been cleared
         DispatchQueue.main.asyncAfter(deadline: .now() + firstTimeout - 0.1) {
-            result = limiter.canSubmit()
+            result = limiter.canSubmit(self.customBeacon)
             waitFor.fulfill()
         }
         wait(for: [waitFor], timeout: firstTimeout + 3)
@@ -92,11 +123,11 @@ class ReporterRateLimitTests: InstanaTestCase {
         let limiter = ReporterRateLimiter(configs: configs)
 
         // When
-        var result = limiter.canSubmit()
+        var result = limiter.canSubmit(customBeacon)
         // Fire two AFTER the first limit has been cleared
         DispatchQueue.main.asyncAfter(deadline: .now() + firstTimeout + 0.1) {
-            result = limiter.canSubmit()
-            result = limiter.canSubmit()
+            result = limiter.canSubmit(self.customBeacon)
+            result = limiter.canSubmit(self.customBeacon)
             waitFor.fulfill()
         }
         wait(for: [waitFor], timeout: firstTimeout + 3)

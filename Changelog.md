@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.8.3
+- do not rate limit session start beacon and crash beacons
+- fix typo of crash exception code
+
 ## 1.8.2
 - crash beacon errorType value update
 - When http request failed, track statusCode along with error message

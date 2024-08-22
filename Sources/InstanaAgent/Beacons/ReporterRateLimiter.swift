@@ -44,7 +44,11 @@ class ReporterRateLimiter {
         limiters = configs.map { Limiter(maxItems: $0.maxItems, timeout: $0.timeout) }
     }
 
-    func canSubmit() -> Bool {
-        limiters.map { $0.signal() }.filter { $0 == true }.isEmpty
+    func canSubmit(_ beacon: Beacon) -> Bool {
+        if beacon is SessionProfileBeacon || beacon is DiagnosticBeacon {
+            // DiagnosticBeacon and SessionProfileBeacon can always be submitted
+            return true
+        }
+        return limiters.map { $0.signal() }.filter { $0 == true }.isEmpty
     }
 }
