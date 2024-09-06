@@ -1,6 +1,7 @@
 # Changelog
 
 ## 1.8.3
+- update minimum supported iOS version to 12 (was 11 before)
 - do not rate limit session start beacon and crash beacons
 - fix typo of crash exception code
 

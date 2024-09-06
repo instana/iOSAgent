@@ -20,7 +20,7 @@ Optionally:
 - Set the current visible view to match with the HTTP sessions  
 
 ## Requirements
-- iOS 11+
+- iOS 12+
 - Swift 5.4+
 
 ## Installation
