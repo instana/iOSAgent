@@ -127,5 +127,18 @@ class ViewChangeBeaconTests: InstanaTestCase {
         XCTAssertEqual(vcBeacon.viewInternalCPMetaMap,[:])
     }
     
-    
+    func test_extractDropBeaconValues() {
+        // Given
+        let vcBeacon = ViewChange(timestamp: testTimestamp, viewName: testViewName)
+
+        // When
+        let sut = vcBeacon.extractDropBeaconValues()
+
+        // Then
+        AssertTrue(sut.count == 1)
+        AssertEqualAndNotNil(sut.timeMin, testTimestamp)
+        AssertEqualAndNotNil(sut.timeMax, testTimestamp)
+        AssertEqualAndNotNil(sut.viewName, testViewName)
+        AssertTrue(sut.imMap!.isEmpty)
+    }
 }

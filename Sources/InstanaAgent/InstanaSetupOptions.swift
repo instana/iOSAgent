@@ -20,6 +20,12 @@ import Foundation
     public var autoCaptureScreenNames: Bool
     public var debugAllScreenNames: Bool
 
+    // Toggle the reporting of dropped beacon samples.
+    // Note: Disabling this will prevent the CUSTOM EVENT named
+    // "INSTANA_DROPPED_BEACON_SAMPLE" from being sent, which includes metadata
+    // about the sampled dropped beacons.
+    public var dropBeaconReporting: Bool
+
     /// Instana custom configuration for setup.
     ///
     /// - Parameters:
@@ -36,7 +42,8 @@ import Foundation
          slowSendInterval: Instana.Types.Seconds = 0.0,
          usiRefreshTimeIntervalInHrs: Double = defaultUsiRefreshTimeIntervalInHrs,
          autoCaptureScreenNames: Bool = false,
-         debugAllScreenNames: Bool = false) {
+         debugAllScreenNames: Bool = false,
+         dropBeaconReporting: Bool = false) {
         self.httpCaptureConfig = httpCaptureConfig
         self.collectionEnabled = collectionEnabled
         self.enableCrashReporting = enableCrashReporting
@@ -46,6 +53,7 @@ import Foundation
         self.usiRefreshTimeIntervalInHrs = usiRefreshTimeIntervalInHrs
         self.autoCaptureScreenNames = autoCaptureScreenNames
         self.debugAllScreenNames = debugAllScreenNames
+        self.dropBeaconReporting = dropBeaconReporting
     }
 }
 

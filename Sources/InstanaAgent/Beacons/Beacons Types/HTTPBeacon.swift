@@ -40,4 +40,10 @@ class HTTPBeacon: Beacon {
         self.backendTracingID = backendTracingID
         super.init(timestamp: timestamp, viewName: viewName)
     }
+
+    override func extractDropBeaconValues() -> HTTPDropBeacon {
+        return HTTPDropBeacon(timestamp: timestamp, url: url.absoluteString,
+                              hsStatusCode: String(responseCode),
+                              view: viewName, hmMethod: method, headers: header)
+    }
 }

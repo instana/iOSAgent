@@ -200,6 +200,50 @@ class CustomBeaconTests: InstanaTestCase {
         }
     }
 
+    func test_extractDropBeaconValues() {
+        // Given
+        let name = "Test"
+        let timestamp: Instana.Types.Milliseconds = 12484
+        let viewName = "test view name"
+        let customMetric = 123.456
+        let beacon = CustomBeacon(timestamp: timestamp, name: name, viewName: viewName, customMetric: customMetric)
+
+        // When
+        let sut = beacon.extractDropBeaconValues()
+
+        // Then
+        AssertTrue(sut.count == 1)
+        AssertEqualAndNotNil(sut.timeMin, timestamp)
+        AssertEqualAndNotNil(sut.timeMax, timestamp)
+        AssertEqualAndNotNil(sut.eventName, name)
+        AssertEqualAndNotNil(sut.view, viewName)
+        AssertTrue(sut.errorCount == nil)
+        AssertEqualAndNotNil(sut.errorMessage, nil)
+        AssertTrue(sut.customMetric == "\(customMetric)")
+    }
+
+    func test_extractDropBeaconValues_negatives() {
+        // Given
+        let name = "Test"
+        let timestamp: Instana.Types.Milliseconds = 12484
+        let viewName = "test view name"
+        let error = NSError(domain: NSURLErrorDomain, code: NSURLErrorCancelled, userInfo: nil)
+        let beacon = CustomBeacon(timestamp: timestamp, name: name, error: error, viewName: viewName)
+
+        // When
+        let sut = beacon.extractDropBeaconValues()
+
+        // Then
+        AssertTrue(sut.count == 1)
+        AssertEqualAndNotNil(sut.timeMin, timestamp)
+        AssertEqualAndNotNil(sut.timeMax, timestamp)
+        AssertEqualAndNotNil(sut.eventName, name)
+        AssertEqualAndNotNil(sut.view, viewName)
+        AssertTrue(sut.errorCount == 1)
+        AssertEqualAndNotNil(sut.errorMessage, error.localizedDescription)
+        AssertTrue(sut.customMetric == nil)
+    }
+
     // MARK: Helper
     enum SomeBeaconError: Error {
         case something

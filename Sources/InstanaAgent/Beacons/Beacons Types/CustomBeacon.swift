@@ -16,6 +16,7 @@ class CustomBeacon: Beacon {
     let error: Error?
     let metaData: MetaData?
     let customMetric: Double?
+    let eventType: String? // internal meta
 
     init(timestamp: Instana.Types.Milliseconds? = nil,
          name: String,
@@ -24,7 +25,8 @@ class CustomBeacon: Beacon {
          error: Error? = nil,
          metaData: MetaData? = nil,
          viewName: String? = CustomBeaconDefaultViewNameID,
-         customMetric: Double? = nil) {
+         customMetric: Double? = nil,
+         eventType: String? = nil) {
         self.duration = duration
         self.name = name
         self.error = error
@@ -38,6 +40,14 @@ class CustomBeacon: Beacon {
             start = timestamp
         }
         self.customMetric = customMetric
+        self.eventType = eventType
         super.init(timestamp: start, viewName: viewName)
+    }
+
+    override func extractDropBeaconValues() -> CustomEventDropBeacon {
+        return CustomEventDropBeacon(timestamp: timestamp, eventName: name, view: viewName,
+                                     errorCount: (error != nil) ? 1 : nil,
+                                     errorMessage: (error != nil) ? "\(error!.localizedDescription)" : nil,
+                                     customMetric: (customMetric != nil) ? "\(customMetric!)" : nil)
     }
 }

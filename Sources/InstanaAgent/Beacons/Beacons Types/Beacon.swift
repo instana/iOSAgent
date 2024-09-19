@@ -16,6 +16,10 @@ class Beacon: Identifiable {
         self.viewName = ViewChange.validate(viewName: viewName)
     }
 
+    func extractDropBeaconValues() -> DropBeacon? {
+        return nil
+    }
+
     // A hex encoded 64 bit random ID.
     static func generateUniqueIdImpl() -> String {
         let validIdCharacters = Array("0123456789abcdef")

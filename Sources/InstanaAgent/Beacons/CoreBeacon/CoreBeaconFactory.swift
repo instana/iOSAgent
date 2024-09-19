@@ -197,6 +197,10 @@ extension CoreBeacon {
         if let customMetric = beacon.customMetric {
             cm = String(customMetric)
         }
+        if let eventType = beacon.eventType {
+            im = MetaData()
+            im![internalMetaDataKeyCustom_eventType] = eventType
+        }
     }
 
     private mutating func add(error: Error) {

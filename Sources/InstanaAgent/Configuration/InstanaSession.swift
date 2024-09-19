@@ -44,8 +44,11 @@ class InstanaSession {
     @Atomic var autoCaptureScreenNames: Bool
     @Atomic var debugAllScreenNames: Bool
 
+    @Atomic var dropBeaconReporting: Bool
+
     init(configuration: InstanaConfiguration, propertyHandler: InstanaPropertyHandler, sessionID: UUID = UUID(),
-         collectionEnabled: Bool, autoCaptureScreenNames: Bool = false, debugAllScreenNames: Bool = false) {
+         collectionEnabled: Bool, autoCaptureScreenNames: Bool = false, debugAllScreenNames: Bool = false,
+         dropBeaconReporting: Bool = false) {
         self.configuration = configuration
         self.propertyHandler = propertyHandler
         self.collectionEnabled = collectionEnabled
@@ -53,6 +56,8 @@ class InstanaSession {
         self.autoCaptureScreenNames = autoCaptureScreenNames
         self.debugAllScreenNames = debugAllScreenNames
         Self.processAutoCaptureScreenNames(collectionEnabled: collectionEnabled, acsn: autoCaptureScreenNames)
+
+        self.dropBeaconReporting = dropBeaconReporting
 
         previousSession = PreviousSession.readInPreviousSessionData()
         id = sessionID

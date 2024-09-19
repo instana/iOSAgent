@@ -211,6 +211,36 @@ class HTTPBeaconTests: InstanaTestCase {
         AssertTrue(beacon.url.path.contains(path))
     }
 
+    func test_extractDropBeaconValues() {
+        // Given
+        let responseSize = HTTPMarker.Size(header: 4, body: 5, bodyAfterDecoding: 6)
+        let url = URL.random
+        let method = "PUT"
+        let headers = ["X-Key2": "Sec", "X-Key1": "P"]
+        let timestamp = Date().millisecondsSince1970
+        let viewName = "View Details"
+        let http = HTTPBeacon(timestamp: timestamp,
+                              method: method,
+                              url: url,
+                              header: headers,
+                              responseCode: 200,
+                              responseSize: responseSize,
+                              viewName: viewName)
+
+        // When
+        let sut = http.extractDropBeaconValues()
+
+        // Then
+        AssertTrue(sut.count == 1)
+        AssertEqualAndNotNil(sut.timeMin, timestamp)
+        AssertEqualAndNotNil(sut.timeMax, timestamp)
+        AssertTrue(sut.url == url.absoluteString)
+        AssertTrue(sut.hsStatusCode == "200")
+        AssertEqualAndNotNil(sut.view, viewName)
+        AssertEqualAndNotNil(sut.hmMethod, method)
+        AssertEqualAndNotNil(sut.headers, headers)
+    }
+
     // MARK: Helper
     var timeout: NSError { NSError(domain: NSURLErrorDomain, code: NSURLErrorTimedOut, userInfo: nil) }
 }

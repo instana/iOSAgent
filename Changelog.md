@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.8.4
+- add drop beacon handler
+
 ## 1.8.3
 - update minimum supported iOS version to 12 (was 11 before)
 - do not rate limit session start beacon and crash beacons

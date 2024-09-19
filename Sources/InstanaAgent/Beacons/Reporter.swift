@@ -31,6 +31,8 @@ public class Reporter {
     private let started = Date().timeIntervalSince1970
     private var mustUsePrequeue: Bool { (Date().timeIntervalSince1970 - started) < session.configuration.preQueueUsageTime }
 
+    private let dropBeaconHandler = DropBeaconHandler()
+
     // MARK: Init
 
     init(_ session: InstanaSession,
@@ -67,6 +69,9 @@ public class Reporter {
                 return
             }
             guard self.rateLimiter.canSubmit(beacon) else {
+                if self.session.dropBeaconReporting {
+                    self.dropBeaconHandler.addBeaconToDropHandler(beacon: beacon)
+                }
                 self.session.logger.add("Rate Limit reached - Beacon might be discarded", level: .warning)
                 completion?(false)
                 return
@@ -82,6 +87,15 @@ public class Reporter {
                 completion?(false)
                 return
             }
+
+            if self.session.dropBeaconReporting {
+                let mergedDroppedBeacon = self.dropBeaconHandler.mergeDroppedBeacons()
+                if mergedDroppedBeacon != nil,
+                    let mdCoreBeacon = try? CoreBeaconFactory(self.session).map(mergedDroppedBeacon!) {
+                    self.queue.add(mdCoreBeacon)
+                }
+            }
+
             let start = Date()
             if let coreBeacon = try? CoreBeaconFactory(self.session).map(beacon) {
                 self.queue.add(coreBeacon)

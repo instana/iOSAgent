@@ -51,6 +51,10 @@ class ViewChange: Beacon {
         return true
     }
 
+    override func extractDropBeaconValues() -> ViewDropBeacon {
+        return ViewDropBeacon(timestamp: timestamp, viewName: viewName, imMap: viewInternalCPMetaMap)
+    }
+
     static func validate(viewName: String?) -> String? {
         guard let value = viewName else { return nil }
         return value.cleanEscapeAndTruncate(at: InstanaProperties.viewMaxLength)
