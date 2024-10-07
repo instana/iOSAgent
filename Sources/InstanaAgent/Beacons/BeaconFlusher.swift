@@ -50,7 +50,13 @@ class BeaconFlusher {
     let urlSession = URLSession(configuration: .default)
     var errors = [Error]()
     var retryStep: Int = 0
-    private var flushItem: DispatchWorkItem?
+    private weak var flushItem: DispatchWorkItem? {
+        willSet {
+            flushItem?.cancel()
+            cancel()
+        }
+    }
+
     private let completion: (BeaconFlusher.Result) -> Void
     private let queue: DispatchQueue
     private let externalSend: Sender? // Used for Unit Testing

@@ -1,6 +1,8 @@
 # Changelog
 
+
 ## 1.8.4
+- better memory management
 - add drop beacon handler
 
 ## 1.8.3
