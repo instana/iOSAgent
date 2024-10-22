@@ -16,7 +16,6 @@ class NetworkUtility {
     }
 
     var connectionUpdateHandler: (ConnectionType) -> Void = { _ in }
-    private var reachability: Reachability?
     static let shared = NetworkUtility()
 
     init(observeNetworkChanges: Bool = true) {
@@ -35,21 +34,6 @@ class NetworkUtility {
             }
             if observeNetworkChanges {
                 nwPathMonitor.start(queue: .main)
-            }
-        } else {
-            // Fallback on earlier versions
-            // Remove when dropping iOS 11 and use NWPath (see git history)
-            reachability = (try? Reachability())
-            reachability?.whenReachable = { [weak self] reachability in
-                guard let self = self else { return }
-                self.update(reachability.connection == .wifi ? .wifi : .cellular)
-            }
-            reachability?.whenUnreachable = { [weak self] _ in
-                guard let self = self else { return }
-                self.update(.none)
-            }
-            if observeNetworkChanges {
-                try? reachability?.startNotifier()
             }
         }
     }

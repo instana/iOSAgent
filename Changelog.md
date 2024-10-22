@@ -1,5 +1,7 @@
 # Changelog
 
+## 1.8.5
+- remove code for iOS versions lower than 12
 
 ## 1.8.4
 - better memory management
