@@ -42,7 +42,7 @@ class InstanaConfiguration {
         static let all: Set<MonitorTypes> = [.http,
                                              .memoryWarning,
                                              .framerateDrop(frameThreshold: 20),
-                                             .alertApplicationNotResponding(threshold: 2.0)]
+                                             .alertApplicationNotResponding(threshold: 3.0)]
     }
 
     struct Defaults {
@@ -82,11 +82,16 @@ class InstanaConfiguration {
                   slowSendInterval: Instana.Types.Seconds,
                   usiRefreshTimeIntervalInHrs: Double,
                   hybridAgentId: String?,
-                  hybridAgentVersion: String?) {
+                  hybridAgentVersion: String?,
+                  anrThreshold: Instana.Types.Milliseconds = -1) {
         self.reportingURL = reportingURL
         self.key = key
         self.httpCaptureConfig = httpCaptureConfig
         monitorTypes = MonitorTypes.current
+        if anrThreshold > 0 {
+            let anrInSeconds = Double(anrThreshold) / 1000.0
+            monitorTypes.insert(.alertApplicationNotResponding(threshold: anrInSeconds))
+        }
         if enableCrashReporting {
             monitorTypes.insert(.crash)
         }
@@ -111,7 +116,8 @@ class InstanaConfiguration {
                           slowSendInterval: Instana.Types.Seconds = 0.0,
                           usiRefreshTimeIntervalInHrs: Double = defaultUsiRefreshTimeIntervalInHrs,
                           hybridAgentId: String? = nil,
-                          hybridAgentVersion: String? = nil)
+                          hybridAgentVersion: String? = nil,
+                          anrThreshold: Instana.Types.Milliseconds = -1)
         -> InstanaConfiguration {
         self.init(reportingURL: reportingURL, key: key, httpCaptureConfig: httpCaptureConfig,
                   enableCrashReporting: enableCrashReporting,
@@ -119,6 +125,7 @@ class InstanaConfiguration {
                   slowSendInterval: slowSendInterval,
                   usiRefreshTimeIntervalInHrs: usiRefreshTimeIntervalInHrs,
                   hybridAgentId: hybridAgentId,
-                  hybridAgentVersion: hybridAgentVersion)
+                  hybridAgentVersion: hybridAgentVersion,
+                  anrThreshold: anrThreshold)
     }
 }

@@ -1,6 +1,7 @@
 # Changelog
 
 ## 1.8.5
+- detect Application Not Responding scenario
 - remove code for iOS versions lower than 12
 
 ## 1.8.4
