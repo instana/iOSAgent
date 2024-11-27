@@ -7,6 +7,7 @@ import Foundation
 import Network
 
 class NetworkUtility {
+    let nwPathMonitor = NWPathMonitor()
     var connectionType: ConnectionType = .undetermined {
         didSet {
             if oldValue != .undetermined {
@@ -20,7 +21,6 @@ class NetworkUtility {
 
     init(observeNetworkChanges: Bool = true) {
         if #available(iOS 12.0, *) {
-            let nwPathMonitor = NWPathMonitor()
             nwPathMonitor.pathUpdateHandler = { path in
                 if path.usesInterfaceType(.wifi) {
                     self.update(.wifi)

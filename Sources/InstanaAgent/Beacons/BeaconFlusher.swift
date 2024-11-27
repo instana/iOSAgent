@@ -107,13 +107,12 @@ class BeaconFlusher {
                 disapatchGroup.leave()
                 return
             }
-            send(request) { [weak self] sentResult in
-                guard let self = self else { return }
+            send(request) { [weak self, capturedBeacons = beaconBatch] sentResult in
                 switch sentResult {
                 case .success:
-                    self.sentBeacons.formUnion(beaconBatch)
+                    self?.sentBeacons.formUnion(capturedBeacons)
                 case let .failure(error):
-                    self.errors.append(error)
+                    self?.errors.append(error)
                 }
                 disapatchGroup.leave()
             }
