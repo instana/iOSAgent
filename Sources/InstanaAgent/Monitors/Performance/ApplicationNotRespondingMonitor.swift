@@ -16,7 +16,7 @@ class ApplicationNotRespondingMonitor {
         self.threshold = threshold
         self.samplingInterval = samplingInterval
 
-        InstanaApplicationStateHandler.shared.listen { [weak self] state in
+        InstanaApplicationStateHandler.shared.listen { [weak self] state, _ in
             guard let self = self else { return }
             if state == .active {
                 self.scheduleTimer()

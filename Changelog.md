@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.8.7
+- app launch time measure
+
 ## 1.8.6
 - fix memory leak
 

@@ -22,13 +22,16 @@ class InstanaApplicationStateHandler {
     static let shared = InstanaApplicationStateHandler()
 
     @Atomic var state: State = .active {
-        didSet { stateUpdateHandler.forEach { $0(state) } }
+        didSet { stateUpdateHandler.forEach { $0(state, oldValue) } }
     }
 
-    typealias StateUpdater = (State) -> Void
+    typealias StateUpdater = (State, State) -> Void
     private var stateUpdateHandler = AtomicArray<StateUpdater>()
 
     init() {
+        _ = NotificationCenter.default.addObserver(forName: Application.willEnterForegroundNotification, object: nil, queue: nil) { _ in
+            self.state = .inactive
+        }
         _ = NotificationCenter.default.addObserver(forName: Application.didBecomeActiveNotification, object: nil, queue: nil) { _ in
             self.state = .active
         }

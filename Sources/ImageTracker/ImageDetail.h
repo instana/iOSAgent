@@ -25,6 +25,7 @@
 @property(class, atomic, readwrite) bool pauseTracking;
 @property(class, nonatomic, strong, nullable) NSMutableDictionary* binaryImagesDict;
 
++ (CFAbsoluteTime)retrieveObjCLoadTime;
 + (bool)startTrackingDyldImages;
 
 @end

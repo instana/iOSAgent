@@ -49,8 +49,17 @@
 
 @dynamic binaryImagesDict;
 
+static CFAbsoluteTime objCLoadTime = 0;
 static bool pauseTracking = false;
 static NSMutableDictionary* binaryImagesDict = nil;
+
++ (void)load {
+    objCLoadTime = CFAbsoluteTimeGetCurrent();
+}
+
++ (CFAbsoluteTime)retrieveObjCLoadTime {
+    return objCLoadTime;
+}
 
 + (bool) pauseTracking {
     return pauseTracking;

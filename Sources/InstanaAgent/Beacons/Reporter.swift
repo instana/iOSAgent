@@ -51,7 +51,7 @@ public class Reporter {
             guard let self = self else { return }
             self.updateNetworkConnection(connectionType)
         }
-        InstanaApplicationStateHandler.shared.listen { [weak self] state in
+        InstanaApplicationStateHandler.shared.listen { [weak self] state, _ in
             guard let self = self else { return }
             if state == .background, !ProcessInfo.isRunningTests {
                 self.runBackgroundFlush()

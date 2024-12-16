@@ -5,6 +5,7 @@
 import Foundation
 
 class Monitors {
+    var appLaunchMonitor: AppLaunchMonitor?
     var applicationNotResponding: ApplicationNotRespondingMonitor?
     var lowMemory: LowMemoryMonitor?
     var framerateDrop: FramerateDropMonitor?
@@ -18,6 +19,7 @@ class Monitors {
         self.session = session
         let reporter = reporter ?? Reporter(session)
         self.reporter = reporter
+        appLaunchMonitor = AppLaunchMonitor(reporter: reporter)
         session.configuration.monitorTypes.forEach { type in
             switch type {
             case .http:
