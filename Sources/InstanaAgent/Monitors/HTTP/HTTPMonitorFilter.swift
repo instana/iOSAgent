@@ -40,4 +40,8 @@ class HTTPMonitorFilter {
         }
         return false
     }
+
+    func setQueryTrackedDomainList(regex: [NSRegularExpression]?) {
+        redactionHandler.setQueryTrackedDomainList(regex: regex)
+    }
 }

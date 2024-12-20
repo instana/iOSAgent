@@ -148,6 +148,7 @@ import Foundation
                                      autoCaptureScreenNames: autoCaptureScreenNames,
                                      debugAllScreenNames: debugAllScreenNames)
         Instana.current = Instana(session: session)
+        Instana.current?.monitors.http?.filter.setQueryTrackedDomainList(regex: options?.queryTrackedDomainList)
         return true
     }
 

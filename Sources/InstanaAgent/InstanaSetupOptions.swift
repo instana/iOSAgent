@@ -20,6 +20,8 @@ import Foundation
     public var autoCaptureScreenNames: Bool
     public var debugAllScreenNames: Bool
 
+    public var queryTrackedDomainList: [NSRegularExpression]?
+
     // Toggle the reporting of dropped beacon samples.
     // Note: Disabling this will prevent the CUSTOM EVENT named
     // "INSTANA_DROPPED_BEACON_SAMPLE" from being sent, which includes metadata
@@ -43,6 +45,7 @@ import Foundation
          usiRefreshTimeIntervalInHrs: Double = defaultUsiRefreshTimeIntervalInHrs,
          autoCaptureScreenNames: Bool = false,
          debugAllScreenNames: Bool = false,
+         queryTrackedDomainList: [NSRegularExpression]? = nil,
          dropBeaconReporting: Bool = false) {
         self.httpCaptureConfig = httpCaptureConfig
         self.collectionEnabled = collectionEnabled
@@ -53,6 +56,7 @@ import Foundation
         self.usiRefreshTimeIntervalInHrs = usiRefreshTimeIntervalInHrs
         self.autoCaptureScreenNames = autoCaptureScreenNames
         self.debugAllScreenNames = debugAllScreenNames
+        self.queryTrackedDomainList = queryTrackedDomainList
         self.dropBeaconReporting = dropBeaconReporting
     }
 }

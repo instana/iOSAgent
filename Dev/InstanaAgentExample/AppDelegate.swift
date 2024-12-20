@@ -19,10 +19,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let userYes = Instana.canSubscribeCrashReporting() &&
             (UserDefaults.standard.integer(forKey: metricSubscriptionKey) == metricSubscriptionFlagYes)
 
+        let queryTrackedDomainList: [NSRegularExpression] = [
+            try! NSRegularExpression(pattern: "https://www.ibm.com")
+        ]
+
         let options = InstanaSetupOptions(enableCrashReporting: userYes)
 //        options.slowSendInterval = 60.0
         options.autoCaptureScreenNames = true
 //        options.debugAllScreenNames = true
+        options.queryTrackedDomainList = queryTrackedDomainList
         if !Instana.setup(key: InstanaKey, reportingURL: InstanaURL, options: options) {
             os_log("Instana setup failed", log: myLog, type: .error)
         }

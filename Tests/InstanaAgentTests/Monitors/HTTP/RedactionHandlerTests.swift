@@ -27,4 +27,48 @@ class RedactionHandlerTests: InstanaTestCase {
         // Then
         XCTAssertEqual(redacted, URL(string: "https://www.instana.com/one/?thePassword=%3Credacted%3E&Passwort=%3Credacted%3E&PasSword=%3Credacted%3E")!)
     }
+
+    func test_queryTrackedDomainList_urlInList() {
+        // Given
+        let redactionHandler = RedactionHandler.default
+        let queryTrackedDomainList: [NSRegularExpression] = [
+            try! NSRegularExpression(pattern: "https://www.ibm.com")
+        ]
+        redactionHandler.setQueryTrackedDomainList(regex: queryTrackedDomainList)
+        let url = URL(string: "https://www.ibm.com/en-us?password=pass#fragment1")!
+
+        // When
+        let redacted = redactionHandler.redact(url: url)
+
+        // Then
+        XCTAssertEqual(redacted, URL(string: "https://www.ibm.com/en-us?password=%3Credacted%3E#fragment1")!)
+    }
+
+    func test_queryTrackedDomainList_urlNotInList() {
+        // Given
+        let redactionHandler = RedactionHandler.default
+        let queryTrackedDomainList: [NSRegularExpression] = [
+            try! NSRegularExpression(pattern: "https://www.ibm.com")
+        ]
+        redactionHandler.setQueryTrackedDomainList(regex: queryTrackedDomainList)
+        let url = URL(string: "https://www.example.com/en-us?password=pass#fragment2")!
+
+        // When
+        let redacted = redactionHandler.redact(url: url)
+
+        // Then
+        XCTAssertEqual(redacted, URL(string: "https://www.example.com/en-us")!)
+    }
+
+    func test_queryTrackedDomainList_notConfigured() {
+        // Given
+        let redactionHandler = RedactionHandler.default
+        let url = URL(string: "https://www.ibm.com/en-us?password=pass#fragment3")!
+
+        // When
+        let redacted = redactionHandler.redact(url: url)
+
+        // Then
+        XCTAssertEqual(redacted, URL(string: "https://www.ibm.com/en-us?password=%3Credacted%3E#fragment3")!)
+    }
 }

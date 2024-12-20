@@ -10,6 +10,7 @@ class RedactionHandler {
     }
 
     var regex = AtomicSet<NSRegularExpression>()
+    var queryTrackedDomainList = AtomicArray<NSRegularExpression>()
 
     init(regex: [NSRegularExpression]) {
         self.regex = AtomicSet(regex)
@@ -19,6 +20,28 @@ class RedactionHandler {
         guard var updatedQuery = url.query else {
             return url
         }
+        // check if need to completely remove query part
+        var urlInTrackedDomainList = false
+        for domainRegExp in queryTrackedDomainList {
+            let key = url.absoluteString
+            let range = NSRange(location: 0, length: key.utf16.count)
+            if !domainRegExp.matches(in: key, range: range).isEmpty {
+                // current url matches with one of queryTrackedDomainList, keep all query params for the url.
+                urlInTrackedDomainList = true
+                break
+            }
+        }
+        if !queryTrackedDomainList.isEmpty, !urlInTrackedDomainList {
+            // queryTrackedDomainList is configured and not empty
+            // but current url is not in the list,
+            // then remove query part completely (thus no need to further redact)
+            var components = URLComponents(url: url, resolvingAgainstBaseURL: false)
+            components?.query = nil // remove query part
+            components?.fragment = nil
+            return components?.url ?? url
+        }
+
+        // redact query to remove sensitive data
         regex.forEach {
             updatedQuery = redact(query: updatedQuery, matching: $0)
         }
@@ -39,5 +62,9 @@ class RedactionHandler {
             }
             return "\(key)=<redacted>"
         }.joined(separator: "&")
+    }
+
+    func setQueryTrackedDomainList(regex: [NSRegularExpression]?) {
+        queryTrackedDomainList = AtomicArray(regex ?? [])
     }
 }

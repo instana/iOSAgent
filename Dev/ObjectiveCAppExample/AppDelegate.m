@@ -18,6 +18,9 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
 
     InstanaSetupOptions* options = nil;
+//    NSArray<NSRegularExpression *> *queryTrackedDomainList = @[
+//        [NSRegularExpression regularExpressionWithPattern:@"https://www.example.com" options:0 error:nil]
+//    ];
 
     //note: explicitly get user permission before setting enableCrashReporting to true
 //    options = [[InstanaSetupOptions alloc] initWithHttpCaptureConfig: 0
@@ -28,7 +31,9 @@
 //                                           slowSendInterval: 0.0
 //                                           usiRefreshTimeIntervalInHrs: -1
 //                                           autoCaptureScreenNames: true
-//                                           debugAllScreenNames: false];
+//                                           debugAllScreenNames: false
+//                                           queryTrackedDomainList: queryTrackedDomainList
+//                                           dropBeaconReporting: false];
 
     (void)[Instana setupWithKey: @"INSTANA_REPORTING_KEY"
              reportingURL: [NSURL URLWithString: @"INSTANA_REPORTING_URL"]

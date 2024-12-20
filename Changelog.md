@@ -1,6 +1,7 @@
 # Changelog
 
 ## 1.8.7
+- queryTrackedDomainList configuration to capture http query parameters if url is in the white listed RegExp array
 - app launch time measure
 
 ## 1.8.6
