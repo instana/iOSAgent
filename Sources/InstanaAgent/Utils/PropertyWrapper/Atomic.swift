@@ -48,7 +48,7 @@ class AtomicDictionary<Key: Hashable, Value>: CustomDebugStringConvertible {
 }
 
 extension AtomicDictionary: Equatable where Value: Equatable {
-    static func == <Key: Hashable, Value: Equatable>(lhs: AtomicDictionary<Key, Value>, rhs: AtomicDictionary<Key, Value>) -> Bool {
+    static func == (lhs: AtomicDictionary<Key, Value>, rhs: AtomicDictionary<Key, Value>) -> Bool {
         lhs.dict == rhs.dict
     }
 }
@@ -116,7 +116,7 @@ extension AtomicArray: Equatable where T: Equatable {
         lock.atomic { array.contains(element) }
     }
 
-    static func == <T: Equatable>(lhs: AtomicArray<T>, rhs: AtomicArray<T>) -> Bool {
+    static func == (lhs: AtomicArray<T>, rhs: AtomicArray<T>) -> Bool {
         lhs.array == rhs.array
     }
 }
@@ -171,7 +171,7 @@ class AtomicSet<T: Hashable>: CustomDebugStringConvertible, Sequence {
 }
 
 extension AtomicSet: Equatable {
-    static func == <T>(lhs: AtomicSet<T>, rhs: AtomicSet<T>) -> Bool {
+    static func == (lhs: AtomicSet<T>, rhs: AtomicSet<T>) -> Bool {
         lhs.set == rhs.set
     }
 }

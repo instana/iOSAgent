@@ -7,7 +7,7 @@ import Foundation
     import ImageTracker
 #endif
 
-class SymbolicationOperation: Operation {
+class SymbolicationOperation: Operation, @unchecked Sendable {
     weak var metricMonitor: MetricMonitor?
 
     init(metricMonitor: MetricMonitor?) {
