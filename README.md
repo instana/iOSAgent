@@ -50,10 +50,10 @@ import InstanaAgent
 
 func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
     let options = InstanaSetupOptions(enableCrashReporting: <true or false>)
-	Instana.setup(key: <Your Instana Key>, reportingURL: <Your Instana instance URL>, options: options)
+    Instana.setup(key: <Your Instana Key>, reportingURL: <Your Instana instance URL>, options: options)
 
-	....
-	return true
+    ....
+    return true
 }
 ```
 
