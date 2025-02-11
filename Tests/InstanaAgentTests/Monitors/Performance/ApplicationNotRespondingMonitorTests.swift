@@ -29,12 +29,12 @@ class ApplicationNotRespondingMonitorTests: InstanaTestCase {
         Thread.sleep(forTimeInterval: 0.12)
         
         waitForExpectations(timeout: 0.14) { _ in
-            guard let alert = beacon as? AlertBeacon else {
+            guard let perfBeacon = beacon as? PerformanceBeacon else {
                 XCTFail("Beacon not submitted or wrong type")
                 return
             }
-            guard case let .anr(duration) = alert.alertType else {
-                XCTFail("Wrong alert type: \(alert.alertType)")
+            guard case let .anr(duration) = perfBeacon.subType else {
+                XCTFail("Wrong performance beacon sub type: \(perfBeacon.subType)")
                 return
             }
             XCTAssert(duration > 0.01)
@@ -69,7 +69,7 @@ class ApplicationNotRespondingMonitorTests: InstanaTestCase {
         Thread.sleep(forTimeInterval: 0.12)
 
         waitForExpectations(timeout: 0.14) { _ in
-            XCTAssertNotNil(beacon as? AlertBeacon)
+            XCTAssertNotNil(beacon as? PerformanceBeacon)
         }
     }
 }

@@ -18,8 +18,8 @@ class LowMemoryMonitorTests: InstanaTestCase {
         
         NotificationCenter.default.post(name: UIApplication.didReceiveMemoryWarningNotification, object: nil)
 
-        let alert = beacon as? AlertBeacon
-        XCTAssertNotNil(alert)
-        XCTAssertEqual(alert!.alertType, .lowMemory)
+        let perfBeacon = beacon as? PerformanceBeacon
+        XCTAssertNotNil(perfBeacon)
+        XCTAssertEqual(perfBeacon!.subType, .lowMemory)
     }
 }

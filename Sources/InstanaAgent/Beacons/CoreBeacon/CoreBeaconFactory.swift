@@ -40,7 +40,7 @@ class CoreBeaconFactory {
             cbeacon.append(item)
         case let item as ViewChange:
             cbeacon.append(item)
-        case let item as AlertBeacon:
+        case let item as PerformanceBeacon:
             cbeacon.append(item)
         case let item as DiagnosticBeacon:
             if #available(iOS 14.0, macOS 12, *) {
@@ -119,9 +119,29 @@ extension CoreBeacon {
         }
     }
 
-    mutating func append(_ beacon: AlertBeacon) {
-        t = .alert
-        // nothing yet defined
+    mutating func append(_ beacon: PerformanceBeacon) {
+        t = .perf
+
+        switch beacon {
+        case let item as PerfLowMemoryBeacon:
+            appendPerfLowMemory(item)
+        default:
+            let message = "Beacon <-> CoreBeacon mapping for performance beacon \(beacon) not defined"
+            debugAssertFailure(message)
+        }
+    }
+
+    mutating func appendPerfLowMemory(_ beacon: PerfLowMemoryBeacon) {
+        pst = "oom"
+        if beacon.maximumMemory != nil {
+            mmb = String(beacon.maximumMemory!)
+        }
+        if beacon.availableMemory != nil {
+            amb = String(beacon.availableMemory!)
+        }
+        if beacon.usedMemory != nil {
+            umb = String(beacon.usedMemory!)
+        }
     }
 
     @available(iOS 14.0, macOS 12.0, *)

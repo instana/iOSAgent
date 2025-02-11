@@ -26,7 +26,7 @@ class ReporterTests: InstanaTestCase {
         let reporter = createReporterDefaultWifi()
 
         // When
-        reporter.submit(AlertBeacon(alertType: .lowMemory)) {_ in
+        reporter.submit(PerformanceBeacon(subType: .lowMemory)) {_ in
             didSubmit = true
             submittedToQueue.fulfill()
         }
@@ -46,7 +46,7 @@ class ReporterTests: InstanaTestCase {
         let reporter = Reporter(session, batterySafeForNetworking: { true }, networkUtility: .wifi)
 
         // When
-        reporter.submit(AlertBeacon(alertType: .lowMemory)) {result in
+        reporter.submit(PerformanceBeacon(subType: .lowMemory)) {result in
             didSubmit = result
             submittedToQueue.fulfill()
         }
@@ -64,13 +64,13 @@ class ReporterTests: InstanaTestCase {
         let reporter = createReporterDefaultWifi(delay: 10.0, rateLimiter: rateLimiter)
 
         // When
-        reporter.submit(AlertBeacon(alertType: .lowMemory)) {_ in
+        reporter.submit(PerformanceBeacon(subType: .lowMemory)) {_ in
             submittedToQueue1.fulfill()
         }
         wait(for: [submittedToQueue1], timeout: 3.0)
 
         // Submit another beacon that should be rejected
-        reporter.submit(AlertBeacon(alertType: .lowMemory)) {_ in
+        reporter.submit(PerformanceBeacon(subType: .lowMemory)) {_ in
             submittedToQueue2.fulfill()
         }
         wait(for: [submittedToQueue2], timeout: 3.0)
@@ -87,13 +87,13 @@ class ReporterTests: InstanaTestCase {
         let reporter = createReporterDefaultWifi(delay: 10.0, rateLimiter: rateLimiter)
 
         // When
-        reporter.submit(AlertBeacon(alertType: .lowMemory)) {_ in
+        reporter.submit(PerformanceBeacon(subType: .lowMemory)) {_ in
             submittedToQueue1.fulfill()
         }
         wait(for: [submittedToQueue1], timeout: 3.0)
 
         // Submit another beacon that should be rejected
-        reporter.submit(AlertBeacon(alertType: .lowMemory)) {_ in
+        reporter.submit(PerformanceBeacon(subType: .lowMemory)) {_ in
             submittedToQueue2.fulfill()
         }
         wait(for: [submittedToQueue2], timeout: 3.0)
@@ -111,11 +111,11 @@ class ReporterTests: InstanaTestCase {
         let reporter = createReporterDefaultWifi()
 
         // When
-        reporter.submit(AlertBeacon(alertType: .lowMemory)) {_ in
+        reporter.submit(PerformanceBeacon(subType: .lowMemory)) {_ in
             didSubmitFirst = true
             firstSubmittedToQueue.fulfill()
         }
-        reporter.submit(AlertBeacon(alertType: .lowMemory)) {_ in
+        reporter.submit(PerformanceBeacon(subType: .lowMemory)) {_ in
             didSubmitSecond = true
             secondSubmittedToQueue.fulfill()
         }
@@ -140,7 +140,7 @@ class ReporterTests: InstanaTestCase {
         let reporter = createReporterDefaultWifi([expectflush])
 
         // When
-        reporter.submit(AlertBeacon(alertType: .lowMemory))
+        reporter.submit(PerformanceBeacon(subType: .lowMemory))
         wait(for: [expectflush], timeout: 3)
 
         // Then
@@ -154,12 +154,12 @@ class ReporterTests: InstanaTestCase {
         let reporter = createReporterDefaultWifi([expectflush]) { sendCount = $0 }
 
         // When
-        reporter.submit(AlertBeacon(alertType: .lowMemory))
-        reporter.submit(AlertBeacon(alertType: .lowMemory))
-        reporter.submit(AlertBeacon(alertType: .lowMemory))
-        reporter.submit(AlertBeacon(alertType: .lowMemory))
-        reporter.submit(AlertBeacon(alertType: .lowMemory))
-        reporter.submit(AlertBeacon(alertType: .lowMemory))
+        reporter.submit(PerformanceBeacon(subType: .lowMemory))
+        reporter.submit(PerformanceBeacon(subType: .lowMemory))
+        reporter.submit(PerformanceBeacon(subType: .lowMemory))
+        reporter.submit(PerformanceBeacon(subType: .lowMemory))
+        reporter.submit(PerformanceBeacon(subType: .lowMemory))
+        reporter.submit(PerformanceBeacon(subType: .lowMemory))
         wait(for: [expectflush], timeout: 2.0)
 
         // Then - Should only flush once when getting more beacons before flushing occured
@@ -175,10 +175,10 @@ class ReporterTests: InstanaTestCase {
         let reporter = createReporterDefaultWifi([waitForFirst, waitForSecond]) { sendCount = $0 }
 
         // When
-        reporter.submit(AlertBeacon(alertType: .lowMemory))
+        reporter.submit(PerformanceBeacon(subType: .lowMemory))
         wait(for: [waitForFirst], timeout: 2.0)
         AssertEqualAndNotZero(sendCount, 1)
-        reporter.submit(AlertBeacon(alertType: .lowMemory))
+        reporter.submit(PerformanceBeacon(subType: .lowMemory))
         wait(for: [waitForSecond], timeout: 4.0)
 
         // Then - Should flush twice when getting more beacons after first flushing occured
@@ -202,7 +202,7 @@ class ReporterTests: InstanaTestCase {
         let submitExp = expectation(description: "Submit Expect")
         let finalExp = expectation(description: "Delayed sending")
         let delay = 0.5
-        let givenBeacon = AlertBeacon(alertType: .lowMemory)
+        let givenBeacon = PerformanceBeacon(subType: .lowMemory)
         var sendCount = 0
         let start = Date()
         var didSend: Date?
@@ -251,7 +251,7 @@ class ReporterTests: InstanaTestCase {
         }
 
         // When
-        reporter.submit(AlertBeacon(alertType: .lowMemory))
+        reporter.submit(PerformanceBeacon(subType: .lowMemory))
         waitForExpectations(timeout: delay * 5, handler: nil)
 
         // Then
@@ -280,7 +280,7 @@ class ReporterTests: InstanaTestCase {
             resultError = result.error as? InstanaError
             waitFor.fulfill()
         }
-        reporter.submit(AlertBeacon(alertType: .lowMemory))
+        reporter.submit(PerformanceBeacon(subType: .lowMemory))
         wait(for: [waitFor], timeout: 5.0)
 
         // Then
@@ -313,7 +313,7 @@ class ReporterTests: InstanaTestCase {
             resultError = result.error as? InstanaError
             resultError != nil ? firstStep.fulfill() : ()
         }
-        reporter.submit(AlertBeacon(alertType: .lowMemory))
+        reporter.submit(PerformanceBeacon(subType: .lowMemory))
         wait(for: [firstStep], timeout: 5.0)
 
         // Then
@@ -351,7 +351,7 @@ class ReporterTests: InstanaTestCase {
             resultError = result.error as? InstanaError
             exp.fulfill()
         }
-        reporter.submit(AlertBeacon(alertType: .lowMemory))
+        reporter.submit(PerformanceBeacon(subType: .lowMemory))
         waitForExpectations(timeout: 2.0, handler: nil)
 
         // Then
@@ -375,7 +375,7 @@ class ReporterTests: InstanaTestCase {
         }
 
         // When
-        reporter.submit(AlertBeacon(alertType: .lowMemory))
+        reporter.submit(PerformanceBeacon(subType: .lowMemory))
         wait(for: [waitFor], timeout: 2.0)
 
         // Then
@@ -398,7 +398,7 @@ class ReporterTests: InstanaTestCase {
         }
 
         // When
-        reporter.submit(AlertBeacon(alertType: .lowMemory))
+        reporter.submit(PerformanceBeacon(subType: .lowMemory))
         wait(for: [waitFor], timeout: 2.0)
 
         // Then
@@ -425,7 +425,7 @@ class ReporterTests: InstanaTestCase {
             resultError = result.error as? InstanaError
             exp.fulfill()
         }
-        reporter.submit(AlertBeacon(alertType: .lowMemory))
+        reporter.submit(PerformanceBeacon(subType: .lowMemory))
         waitForExpectations(timeout: 2.0, handler: nil)
 
         // Then
@@ -454,7 +454,7 @@ class ReporterTests: InstanaTestCase {
             resultError = result.error as? InstanaError
             waitFor.fulfill()
         }
-        reporter.submit(AlertBeacon(alertType: .lowMemory))
+        reporter.submit(PerformanceBeacon(subType: .lowMemory))
         wait(for: [waitFor], timeout: 2.0)
 
         // Then
@@ -478,7 +478,7 @@ class ReporterTests: InstanaTestCase {
         }
 
         // When
-        reporter.submit(AlertBeacon(alertType: .lowMemory))
+        reporter.submit(PerformanceBeacon(subType: .lowMemory))
         wait(for: [waitFor], timeout: 2.0)
 
         // Then
@@ -501,7 +501,7 @@ class ReporterTests: InstanaTestCase {
         }
 
         // When
-        reporter.submit(AlertBeacon(alertType: .lowMemory))
+        reporter.submit(PerformanceBeacon(subType: .lowMemory))
         wait(for: [waitFor], timeout: 2.0)
 
         // Then
@@ -528,7 +528,7 @@ class ReporterTests: InstanaTestCase {
             resultError = result.error as? InstanaError
             waitFor.fulfill()
         }
-        reporter.submit(AlertBeacon(alertType: .lowMemory))
+        reporter.submit(PerformanceBeacon(subType: .lowMemory))
         wait(for: [waitFor], timeout: 2.0)
 
         // Then
@@ -557,7 +557,7 @@ class ReporterTests: InstanaTestCase {
             resultError = result.error as? InstanaError
             waitFor.fulfill()
         }
-        reporter.submit(AlertBeacon(alertType: .lowMemory))
+        reporter.submit(PerformanceBeacon(subType: .lowMemory))
         wait(for: [waitFor], timeout: 2.0)
 
         // Then
@@ -584,7 +584,7 @@ class ReporterTests: InstanaTestCase {
             resultError = result.error as? InstanaError
             waitForCompletion.fulfill()
         }
-        reporter.submit(AlertBeacon(alertType: .lowMemory))
+        reporter.submit(PerformanceBeacon(subType: .lowMemory))
         wait(for: [waitForCompletion], timeout: 4)
 
         // Then
@@ -611,7 +611,7 @@ class ReporterTests: InstanaTestCase {
             resultError = result.error as? InstanaError
             waitForCompletion.fulfill()
         }
-        reporter.submit(AlertBeacon(alertType: .lowMemory))
+        reporter.submit(PerformanceBeacon(subType: .lowMemory))
         wait(for: [waitForCompletion], timeout: 2)
 
         // Then
@@ -634,7 +634,7 @@ class ReporterTests: InstanaTestCase {
         }
 
         // When
-        reporter.submit(AlertBeacon(alertType: .lowMemory))
+        reporter.submit(PerformanceBeacon(subType: .lowMemory))
         wait(for: [waitForSend], timeout: 2)
 
         // Then
@@ -660,7 +660,7 @@ class ReporterTests: InstanaTestCase {
         }
 
         // When
-        reporter.submit(AlertBeacon(alertType: .lowMemory))
+        reporter.submit(PerformanceBeacon(subType: .lowMemory))
         wait(for: [waitForSend], timeout: 2)
 
         // Then
@@ -682,7 +682,7 @@ class ReporterTests: InstanaTestCase {
         }
 
         // When
-        reporter.submit(AlertBeacon(alertType: .lowMemory))
+        reporter.submit(PerformanceBeacon(subType: .lowMemory))
         wait(for: [waitForSend], timeout: 2)
 
         // Then
@@ -705,7 +705,7 @@ class ReporterTests: InstanaTestCase {
         }
 
         // When
-        reporter.submit(AlertBeacon(alertType: .lowMemory))
+        reporter.submit(PerformanceBeacon(subType: .lowMemory))
         wait(for: [waitForSend], timeout: 2)
 
         // Then
@@ -728,7 +728,7 @@ class ReporterTests: InstanaTestCase {
         }
 
         // When
-        reporter.submit(AlertBeacon(alertType: .lowMemory))
+        reporter.submit(PerformanceBeacon(subType: .lowMemory))
         wait(for: [waitForSend], timeout: 2)
 
         // Then
@@ -1424,7 +1424,7 @@ extension ReporterTests {
         }
         reporter.queue.removeAll()
         reporter.completionHandler.append(resultCallback)
-        reporter.submit(AlertBeacon(alertType: .lowMemory))
+        reporter.submit(PerformanceBeacon(subType: .lowMemory))
         reporterRetainer.append(reporter)
     }
 }

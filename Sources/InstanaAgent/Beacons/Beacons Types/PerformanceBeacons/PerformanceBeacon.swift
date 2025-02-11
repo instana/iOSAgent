@@ -4,17 +4,17 @@
 
 import Foundation
 
-class AlertBeacon: Beacon {
-    enum AlertType: Equatable {
+class PerformanceBeacon: Beacon {
+    enum PerformanceSubType: Equatable {
         case anr(duration: Instana.Types.Seconds)
         case lowMemory
         case framerateDrop(duration: Instana.Types.Seconds, averageFramerate: Float)
     }
 
-    let alertType: AlertType
+    let subType: PerformanceSubType
 
-    init(alertType: AlertType) {
-        self.alertType = alertType
+    init(subType: PerformanceSubType) {
+        self.subType = subType
         super.init()
     }
 }

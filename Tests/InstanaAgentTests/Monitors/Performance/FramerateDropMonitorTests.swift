@@ -32,12 +32,12 @@ class FramerateDropMonitorTests: InstanaTestCase {
 
         // Then
         waitForExpectations(timeout: 5) { _ in
-            guard let alert = beacon as? AlertBeacon else {
+            guard let perfBeacon = beacon as? PerformanceBeacon else {
                 XCTFail("Beacon not submitted or wrong type")
                 return
             }
-            guard case let .framerateDrop(duration, _) = alert.alertType else {
-                XCTFail("Wrong alert type: \(alert.alertType)")
+            guard case let .framerateDrop(duration, _) = perfBeacon.subType else {
+                XCTFail("Wrong performance beacon sub type: \(perfBeacon.subType)")
                 return
             }
             XCTAssert(duration > 0 && duration < 1)
@@ -72,7 +72,7 @@ class FramerateDropMonitorTests: InstanaTestCase {
         Thread.sleep(forTimeInterval: 0.12)
         
         waitForExpectations(timeout: 0.14) { _ in
-            XCTAssertNotNil(beacon as? AlertBeacon)
+            XCTAssertNotNil(beacon as? PerformanceBeacon)
         }
     }
 }

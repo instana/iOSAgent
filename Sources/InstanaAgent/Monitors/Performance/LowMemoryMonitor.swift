@@ -21,10 +21,14 @@ class LowMemoryMonitor {
     }
 
     @objc func onLowMemoryWarning(notification: Notification) {
-        _ = getUsedMemory()
-        _ = getFreeMemory()
-        _ = ProcessInfo.processInfo.physicalMemory
-        reporter.submit(AlertBeacon(alertType: .lowMemory))
+        let unit = UInt64(1024 * 1024)
+        let usedMemory = getUsedMemory()
+        let freeMemory = getFreeMemory()
+        let maxMemory: UInt64 = ProcessInfo.processInfo.physicalMemory
+        // in mega bytes
+        reporter.submit(PerfLowMemoryBeacon(usedMemory: usedMemory != nil ? usedMemory! / unit : nil,
+                                            availableMemory: freeMemory != nil ? freeMemory! / unit : nil,
+                                            maximumMemory: maxMemory / unit))
     }
 
     func getUsedMemory() -> UInt64? {

@@ -26,7 +26,7 @@ class ReporterRateLimitTests: InstanaTestCase {
     private let httpBeacon = HTTPBeacon(method: "GET", url:URL(string: "https://www.ibm.com")!, responseCode: 200)
     private let customBeacon = CustomBeacon(name: "TestCustomBeacon1")
     private let viewChangeBeacon = ViewChange(viewName: "TestView1")
-    private let alertBeacon = AlertBeacon(alertType: .lowMemory)
+    private let alertBeacon = PerformanceBeacon(subType: .lowMemory)
 
     func test_rateLimitReached_one() {
         // Given

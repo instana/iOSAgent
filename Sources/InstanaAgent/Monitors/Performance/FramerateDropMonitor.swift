@@ -91,7 +91,7 @@ class FramerateDropMonitor {
                 runningAverage += Float(fps) / Float(consecutiveFrameDrop)
             case (false, let start?):
                 let duration = displayLink.timestamp - start
-                reporter.submit(AlertBeacon(alertType: .framerateDrop(duration: duration, averageFramerate: runningAverage)))
+                reporter.submit(PerformanceBeacon(subType: .framerateDrop(duration: duration, averageFramerate: runningAverage)))
                 dropStart = nil
                 runningAverage = 0
                 consecutiveFrameDrop = 0

@@ -20,7 +20,7 @@ class InstanaConfigurationTests: InstanaTestCase {
         AssertTrue(config.maxRetries == 3)
         AssertTrue(config.preQueueUsageTime == 2)
         AssertTrue(config.reporterSendLowBatteryDebounce == 10)
-        AssertTrue(config.monitorTypes.count == 2)
+        AssertTrue(config.monitorTypes.count == 3)
         AssertTrue(config.monitorTypes.contains(.http))
         AssertTrue(config.reporterRateLimits.count == 2)
         AssertTrue(config.reporterRateLimits.first?.maxItems == 20)

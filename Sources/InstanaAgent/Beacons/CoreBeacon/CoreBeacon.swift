@@ -10,7 +10,7 @@ enum BeaconType: String, Equatable, Codable, CustomStringConvertible {
     case viewChange
     case custom
     case crash
-    case alert
+    case perf // performance
     var description: String { rawValue }
 }
 
@@ -397,6 +397,40 @@ struct CoreBeacon: Codable {
      * For example: "Timeout"
      */
     var et: String?
+
+    /**
+     * Performance
+     *
+     * sub type
+     *
+     * For example: "anr", "ast", "oom"
+     *
+     */
+    var pst: String?
+
+    /**
+     * Performance LowMemory
+     *
+     * maximum memory in mega bytes
+     *
+     */
+    var mmb: String?
+
+    /**
+     * Performance LowMemory
+     *
+     * available memory in mega bytes
+     *
+     */
+    var amb: String?
+
+    /**
+     * Performance LowMemory
+     *
+     * used memory in mega bytes
+     *
+     */
+    var umb: String?
 
     /**
      * Crash Timestamp
