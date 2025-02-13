@@ -10,6 +10,7 @@ enum BeaconType: String, Equatable, Codable, CustomStringConvertible {
     case viewChange
     case custom
     case crash
+    case dropBeacon
     case perf // performance
     var description: String { rawValue }
 }

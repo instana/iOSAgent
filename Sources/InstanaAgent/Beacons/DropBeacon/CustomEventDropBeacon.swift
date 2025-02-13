@@ -36,9 +36,9 @@ public class CustomEventDropBeacon: DropBeacon {
         let errorMessage1 = errorMessage ?? ""
         let errorCount1 = errorCount ?? 0
         let customMetric1 = customMetric ?? ""
-        let zInfoExtra = ["eventName": eventName, "errorMessage": validateLength(errorMessage1, maxLen: 200),
-                          "customMetric": validateLength(customMetric1, maxLen: 100),
-                          "view": view1, "errorCount": errorCount1] as [String: Any]
-        return convertToString(type: "CUSTOM_EVENT", subDict: zInfoExtra)
+        let zInfoExtra = ["cen": eventName, "em": validateLength(errorMessage1, maxLen: 200),
+                          "cm": validateLength(customMetric1, maxLen: 100),
+                          "v": view1, "ec": errorCount1] as [String: Any]
+        return convertToString(type: "custom", subDict: zInfoExtra)
     }
 }

@@ -22,7 +22,7 @@ class HTTPDropBeaconTests: InstanaTestCase {
         // Then
         let headerStr = dropBeacon.dictionaryToJsonString(headers) ?? ""
         AssertEqualAndNotNil(result1, "\(url)|\(view)|\(method)|\(statusCode)|\(headerStr)")
-        AssertEqualAndNotNil(result2!,"{\"count\":\(dropBeacon.count),\"type\":\"HTTP\",\"zInfo\":{\"headers\":{\"key1\":\"value1\",\"key2\":\"value2\",\"key3\":\"value3\"},\"hm\":\"\(method)\",\"hs\":\"\(statusCode)\",\"tMax\":\(dropBeacon.timeMax),\"tMin\":\(dropBeacon.timeMin),\"url\":\"https:\\/\\/www.ibm.com\",\"view\":\"\(view)\"}}")
+        AssertEqualAndNotNil(result2!,"{\"count\":\(dropBeacon.count),\"type\":\"httpRequest\",\"zInfo\":{\"headers\":{\"key1\":\"value1\",\"key2\":\"value2\",\"key3\":\"value3\"},\"hl\":\"https:\\/\\/www.ibm.com\",\"hm\":\"\(method)\",\"hs\":\"\(statusCode)\",\"tMax\":\(dropBeacon.timeMax),\"tMin\":\(dropBeacon.timeMin),\"v\":\"\(view)\"}}")
     }
 
     func test_negatives() {
@@ -41,6 +41,6 @@ class HTTPDropBeaconTests: InstanaTestCase {
 
         // Then
         AssertEqualAndNotNil(result1, "||||")
-        AssertEqualAndNotNil(result2!, "{\"count\":\(dropBeacon.count),\"type\":\"HTTP\",\"zInfo\":{\"headers\":{},\"hm\":\"\",\"hs\":\"\",\"tMax\":\(dropBeacon.timeMax),\"tMin\":\(dropBeacon.timeMin),\"url\":\"\",\"view\":\"\"}}")
+        AssertEqualAndNotNil(result2!, "{\"count\":\(dropBeacon.count),\"type\":\"httpRequest\",\"zInfo\":{\"headers\":{},\"hl\":\"\",\"hm\":\"\",\"hs\":\"\",\"tMax\":\(dropBeacon.timeMax),\"tMin\":\(dropBeacon.timeMin),\"v\":\"\"}}")
     }
 }

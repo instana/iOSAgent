@@ -25,7 +25,7 @@ public class ViewDropBeacon: DropBeacon {
 
     override func toString() -> String? {
         let viewName1 = viewName ?? ""
-        let zInfoExtra = ["view": viewName1, "im_": imMap ?? [:]] as [String: Any]
-        return convertToString(type: "VIEW", subDict: zInfoExtra)
+        let zInfoExtra = ["v": viewName1, "im_": imMap ?? [:]] as [String: Any]
+        return convertToString(type: "viewChange", subDict: zInfoExtra)
     }
 }

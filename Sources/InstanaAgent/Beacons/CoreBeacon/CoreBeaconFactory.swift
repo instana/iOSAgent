@@ -40,6 +40,8 @@ class CoreBeaconFactory {
             cbeacon.append(item)
         case let item as ViewChange:
             cbeacon.append(item)
+        case let item as DroppedBeacons:
+            cbeacon.append(item)
         case let item as PerformanceBeacon:
             cbeacon.append(item)
         case let item as DiagnosticBeacon:
@@ -117,6 +119,11 @@ extension CoreBeacon {
         if im!.isEmpty {
             im = nil
         }
+    }
+
+    mutating func append(_ beacon: DroppedBeacons) {
+        t = .dropBeacon
+        im = beacon.beaconsMap
     }
 
     mutating func append(_ beacon: PerformanceBeacon) {

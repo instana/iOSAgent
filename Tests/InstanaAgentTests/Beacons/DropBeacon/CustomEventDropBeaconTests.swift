@@ -19,7 +19,7 @@ class CustomEventDropBeaconTests: InstanaTestCase {
 
         // Then
         AssertEqualAndNotNil(result1, "\(eventName)|\(errorMessage)|\(errorCount)|\(view)")
-        let expected = "{\"count\":\(dropBeacon.count),\"type\":\"CUSTOM_EVENT\",\"zInfo\":{\"customMetric\":\"0\",\"errorCount\":1,\"errorMessage\":\"test error message\",\"eventName\":\"\(eventName)\",\"tMax\":\(dropBeacon.timeMax),\"tMin\":\(dropBeacon.timeMin),\"view\":\"\(view)\"}}"
+        let expected = "{\"count\":\(dropBeacon.count),\"type\":\"custom\",\"zInfo\":{\"cen\":\"\(eventName)\",\"cm\":\"0\",\"ec\":1,\"em\":\"test error message\",\"tMax\":\(dropBeacon.timeMax),\"tMin\":\(dropBeacon.timeMin),\"v\":\"\(view)\"}}"
         AssertEqualAndNotNil(result2, expected)
     }
 
@@ -39,7 +39,7 @@ class CustomEventDropBeaconTests: InstanaTestCase {
 
         // Then
         AssertEqualAndNotNil(result1, "\(eventName)||0|")
-        let expected = "{\"count\":\(dropBeacon.count),\"type\":\"CUSTOM_EVENT\",\"zInfo\":{\"customMetric\":\"\",\"errorCount\":0,\"errorMessage\":\"\",\"eventName\":\"\(eventName)\",\"tMax\":\(dropBeacon.timeMax),\"tMin\":\(dropBeacon.timeMin),\"view\":\"\"}}"
+        let expected = "{\"count\":\(dropBeacon.count),\"type\":\"custom\",\"zInfo\":{\"cen\":\"\(eventName)\",\"cm\":\"\",\"ec\":0,\"em\":\"\",\"tMax\":\(dropBeacon.timeMax),\"tMin\":\(dropBeacon.timeMin),\"v\":\"\"}}"
         AssertEqualAndNotNil(result2, expected)
     }
 }

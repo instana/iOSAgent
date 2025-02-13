@@ -17,7 +17,7 @@ class ViewDropBeaconTests: InstanaTestCase {
         // Then
         let imMapStr = dropBeacon.dictionaryToJsonString(imMap) ?? ""
         AssertEqualAndNotNil(result1, "\(viewName)|\(imMapStr)")
-        let expected = "{\"count\":\(dropBeacon.count),\"type\":\"VIEW\",\"zInfo\":{\"im_\":{\"key1\":\"value1\",\"key2\":\"value2\",\"key3\":\"value3\"},\"tMax\":\(dropBeacon.timeMax),\"tMin\":\(dropBeacon.timeMin),\"view\":\"\(viewName)\"}}"
+        let expected = "{\"count\":\(dropBeacon.count),\"type\":\"viewChange\",\"zInfo\":{\"im_\":{\"key1\":\"value1\",\"key2\":\"value2\",\"key3\":\"value3\"},\"tMax\":\(dropBeacon.timeMax),\"tMin\":\(dropBeacon.timeMin),\"v\":\"\(viewName)\"}}"
         AssertEqualAndNotNil(result2!, expected)
     }
 
@@ -34,6 +34,6 @@ class ViewDropBeaconTests: InstanaTestCase {
 
         // Then
         AssertEqualAndNotNil(result1, "|")
-        AssertEqualAndNotNil(result2!, "{\"count\":\(dropBeacon.count),\"type\":\"VIEW\",\"zInfo\":{\"im_\":{},\"tMax\":\(dropBeacon.timeMax),\"tMin\":\(dropBeacon.timeMin),\"view\":\"\"}}")
+        AssertEqualAndNotNil(result2!, "{\"count\":\(dropBeacon.count),\"type\":\"viewChange\",\"zInfo\":{\"im_\":{},\"tMax\":\(dropBeacon.timeMax),\"tMin\":\(dropBeacon.timeMin),\"v\":\"\"}}")
     }
 }

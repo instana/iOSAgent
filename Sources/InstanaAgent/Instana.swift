@@ -99,6 +99,7 @@ import Foundation
         var usiRefreshTimeIntervalInHrs = defaultUsiRefreshTimeIntervalInHrs
         var autoCaptureScreenNames: Bool = false
         var debugAllScreenNames: Bool = false
+        var dropBeaconReporting: Bool = false
 
         if let options = options {
             httpCaptureConfig = options.httpCaptureConfig
@@ -126,6 +127,7 @@ import Foundation
             usiRefreshTimeIntervalInHrs = options.usiRefreshTimeIntervalInHrs
             autoCaptureScreenNames = options.autoCaptureScreenNames
             debugAllScreenNames = options.debugAllScreenNames
+            dropBeaconReporting = options.dropBeaconReporting
         }
 
         var hybridAgentId: String?
@@ -146,7 +148,8 @@ import Foundation
         let session = InstanaSession(configuration: config, propertyHandler: InstanaPropertyHandler(),
                                      collectionEnabled: collectionEnabled,
                                      autoCaptureScreenNames: autoCaptureScreenNames,
-                                     debugAllScreenNames: debugAllScreenNames)
+                                     debugAllScreenNames: debugAllScreenNames,
+                                     dropBeaconReporting: dropBeaconReporting)
         Instana.current = Instana(session: session)
         Instana.current?.monitors.http?.filter.setQueryTrackedDomainList(regex: options?.queryTrackedDomainList)
         return true

@@ -49,35 +49,29 @@ public class DropBeaconHandler {
         }
     }
 
-    func mergeDroppedBeacons() -> CustomBeacon? {
+    func mergeDroppedBeacons() -> DroppedBeacons? {
         if droppingStartTime == 0 {
             // no dropped beacons
             return nil
         }
 
-        var totalDropBeaconCount = 0
         var mergedBeaconsMap = [String: String]()
-        totalDropBeaconCount += mergeDroppedBeacons(uniqueMap: httpUniqueMap,
-                                                    keyPrefix: "HTTP", mergedBeacons: &mergedBeaconsMap)
-        totalDropBeaconCount += mergeDroppedBeacons(uniqueMap: viewUniqueMap,
-                                                    keyPrefix: "VIEW", mergedBeacons: &mergedBeaconsMap)
-        totalDropBeaconCount += mergeDroppedBeacons(uniqueMap: customUniqueMap,
-                                                    keyPrefix: "CUSTOM_EVENT", mergedBeacons: &mergedBeaconsMap)
+        mergeDroppedBeacons(uniqueMap: httpUniqueMap,
+                            keyPrefix: "HTTP", mergedBeacons: &mergedBeaconsMap)
+        mergeDroppedBeacons(uniqueMap: viewUniqueMap,
+                            keyPrefix: "VIEW", mergedBeacons: &mergedBeaconsMap)
+        mergeDroppedBeacons(uniqueMap: customUniqueMap,
+                            keyPrefix: "CUSTOM_EVENT", mergedBeacons: &mergedBeaconsMap)
 
-        guard totalDropBeaconCount > 0 else {
-            reset() // Throw away accumulated dropped beacons if there are not many
-            return nil
+        var droppedBeacons: DroppedBeacons?
+        if !mergedBeaconsMap.isEmpty {
+            droppedBeacons = DroppedBeacons(beaconsMap: mergedBeaconsMap,
+                                            timestamp: droppingStartTime,
+                                            viewName: droppingStartView)
         }
 
-        let mergedBeacons = CustomBeacon(timestamp: droppingStartTime,
-                                         name: "INSTANA_DROPPED_BEACON_SAMPLE",
-                                         metaData: mergedBeaconsMap,
-                                         viewName: droppingStartView,
-                                         customMetric: Double(totalDropBeaconCount),
-                                         eventType: "beacon-drop")
-
         reset() // Prepare for next round, might throw away some unsent beacons
-        return mergedBeacons
+        return droppedBeacons
     }
 
     private func reset() {
@@ -103,22 +97,19 @@ public class DropBeaconHandler {
     }
 
     private func mergeDroppedBeacons(uniqueMap: [String: DropBeacon], keyPrefix: String,
-                                     mergedBeacons: inout [String: String]) -> Int {
+                                     mergedBeacons: inout [String: String]) {
         let totalDropBeaconCount = uniqueMap.reduce(into: 0) { result, entry in
             result += entry.value.count
         }
 
         if totalDropBeaconCount > MIN_BEACONS_REQUIRED {
-            // Though only maximum SAMPLING_BEACON_LIMIT beacons are collected,
-            // totalDropBeaconCount includes the not sampled beacons.
+            // maximum SAMPLING_BEACON_LIMIT beacons are collected
             let descendingDropBeacons = uniqueMap.sorted { $0.value.count > $1.value.count }.prefix(SAMPLING_BEACON_LIMIT)
             for (_, entryValue) in descendingDropBeacons {
                 let key = generateKey(prefix: keyPrefix)
                 mergedBeacons[key] = entryValue.toString()
             }
-            return totalDropBeaconCount
         }
-        return 0
     }
 
     private func generateKey(prefix: String) -> String {

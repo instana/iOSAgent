@@ -28,6 +28,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         options.autoCaptureScreenNames = true
 //        options.debugAllScreenNames = true
         options.queryTrackedDomainList = queryTrackedDomainList
+//        options.dropBeaconReporting = true
         if !Instana.setup(key: InstanaKey, reportingURL: InstanaURL, options: options) {
             os_log("Instana setup failed", log: myLog, type: .error)
         }

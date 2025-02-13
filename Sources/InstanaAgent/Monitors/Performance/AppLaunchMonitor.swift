@@ -26,7 +26,7 @@ class AppLaunchMonitor {
             guard let self = self else { return }
             if state == .active {
                 // Application.didBecomeActiveNotification
-                self.retportAppLaunchTime()
+                self.reportAppLaunchTime()
             } else if state == .inactive, oldState == .background {
                 // Application.willEnterForegroundNotification
                 self.warmStartBeginTime = CFAbsoluteTimeGetCurrent()
@@ -34,7 +34,7 @@ class AppLaunchMonitor {
         }
     }
 
-    func retportAppLaunchTime() {
+    func reportAppLaunchTime() {
         let currentTime = CFAbsoluteTimeGetCurrent()
         if prewarm != nil {
             // report cold start time

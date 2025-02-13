@@ -38,8 +38,8 @@ public class HTTPDropBeacon: DropBeacon {
         let view1 = view ?? ""
         let hmMethod1 = hmMethod ?? ""
         let hsStatusCode1 = hsStatusCode ?? ""
-        let zInfoExtra = ["url": url1, "hs": hsStatusCode1, "view": view1, "hm": hmMethod1,
+        let zInfoExtra = ["hl": url1, "hs": hsStatusCode1, "v": view1, "hm": hmMethod1,
                           "headers": headers ?? [:]] as [String: Any]
-        return convertToString(type: "HTTP", subDict: zInfoExtra)
+        return convertToString(type: "httpRequest", subDict: zInfoExtra)
     }
 }
