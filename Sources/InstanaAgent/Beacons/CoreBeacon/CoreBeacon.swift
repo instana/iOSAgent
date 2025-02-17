@@ -410,6 +410,30 @@ struct CoreBeacon: Codable {
     var pst: String?
 
     /**
+     * Performance App Launch
+     *
+     * App Cold Start Time in milliseconds
+     *
+     */
+    var acs: String?
+
+    /**
+     * Performance App Launch
+     *
+     * App Warm Start Time in milliseconds
+     *
+     */
+    var aws: String?
+
+    /**
+     * Performance App Launch
+     *
+     * App Hot Start Time in milliseconds
+     *
+     */
+    var ahs: String?
+
+    /**
      * Performance LowMemory
      *
      * maximum memory in mega bytes

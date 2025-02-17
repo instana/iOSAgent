@@ -130,11 +130,26 @@ extension CoreBeacon {
         t = .perf
 
         switch beacon {
+        case let item as PerfAppLaunchBeacon:
+            appendPerfAppLaunch(item)
         case let item as PerfLowMemoryBeacon:
             appendPerfLowMemory(item)
         default:
             let message = "Beacon <-> CoreBeacon mapping for performance beacon \(beacon) not defined"
             debugAssertFailure(message)
+        }
+    }
+
+    mutating func appendPerfAppLaunch(_ beacon: PerfAppLaunchBeacon) {
+        pst = "ast"
+        if beacon.appColdStartTime != nil {
+            acs = String(beacon.appColdStartTime!)
+        }
+        if beacon.appWarmStartTime != nil {
+            aws = String(beacon.appWarmStartTime!)
+        }
+        if beacon.appHotStartTime != nil {
+            ahs = String(beacon.appHotStartTime!)
         }
     }
 

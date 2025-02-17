@@ -11,6 +11,7 @@ class AppLaunchMonitor {
     var appPostMainStartTime: CFAbsoluteTime = CFAbsoluteTimeGetCurrent()
     var prewarm: Bool?
     var warmStartBeginTime: CFTimeInterval?
+    var hotStartBeginTime: CFTimeInterval?
 
     init(reporter: Reporter) {
         self.reporter = reporter
@@ -27,9 +28,13 @@ class AppLaunchMonitor {
             if state == .active {
                 // Application.didBecomeActiveNotification
                 self.reportAppLaunchTime()
-            } else if state == .inactive, oldState == .background {
+            } else if state == .inactive {
                 // Application.willEnterForegroundNotification
-                self.warmStartBeginTime = CFAbsoluteTimeGetCurrent()
+                if oldState == .background {
+                    self.warmStartBeginTime = CFAbsoluteTimeGetCurrent()
+                } else {
+                    self.hotStartBeginTime = CFAbsoluteTimeGetCurrent()
+                }
             }
         }
     }
@@ -38,22 +43,27 @@ class AppLaunchMonitor {
         let currentTime = CFAbsoluteTimeGetCurrent()
         if prewarm != nil {
             // report cold start time
-            let launchTimePostMain = currentTime - appPostMainStartTime
-            var launchTimePreMain: CFAbsoluteTime?
+            let launchTimePostMain: Double = currentTime - appPostMainStartTime
+            var launchTimePreMain: Double?
             let processStartTime = ImageTracker.retrieveObjCLoadTime()
             if processStartTime > 0, processStartTime < appPostMainStartTime {
-                launchTimePreMain = currentTime - processStartTime
+                launchTimePreMain = Double(currentTime - processStartTime)
             }
-            // reporter?.submit(<coldStartTrue>, launchTimePreMain, launchTimePostMain, prewarm)
+            let launchTimeCold = launchTimePreMain ?? launchTimePostMain
+            reporter?.submit(PerfAppLaunchBeacon(appColdStartTime: Int(Double(launchTimeCold) * 1000.0)))
         } else if warmStartBeginTime != nil {
             // report warm start time
             let launchTimeWarm = currentTime - warmStartBeginTime!
-            // reporter?.submit(<coldStartFalse>, launchTimeWarm)
-        } else {
-            // hot start
+            reporter?.submit(PerfAppLaunchBeacon(appWarmStartTime: Int(Double(launchTimeWarm) * 1000.0)))
+        } else if hotStartBeginTime != nil {
+            // report hot start time
+            let launchTimeHot = currentTime - hotStartBeginTime!
+            reporter?.submit(PerfAppLaunchBeacon(appHotStartTime: Int(Double(launchTimeHot) * 1000.0)))
         }
+
         // prepare for next round app launch time (warm start) measurement
         prewarm = nil
         warmStartBeginTime = nil
+        hotStartBeginTime = nil
     }
 }
