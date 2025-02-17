@@ -6,8 +6,8 @@ import Foundation
 
 class PerformanceBeacon: Beacon {
     enum PerformanceSubType: Equatable {
-        case anr(duration: Instana.Types.Seconds)
         case appLaunch
+        case appNotResponding
         case lowMemory
         case framerateDrop(duration: Instana.Types.Seconds, averageFramerate: Float)
     }

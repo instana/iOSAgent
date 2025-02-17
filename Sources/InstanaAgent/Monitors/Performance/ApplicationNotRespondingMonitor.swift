@@ -5,11 +5,14 @@
 import Foundation
 
 class ApplicationNotRespondingMonitor {
+    var anrDetector: Detector?
     var threshold: Instana.Types.Seconds
     private let reporter: Reporter
-    var timer: Timer?
     private let samplingInterval: Double
     private init() { fatalError("Wrong init - Please use init(threshold: Instana.Types.Seconds, samplingInterval: Double, reporter: Reporter) instead") }
+
+    @Atomic private var isRunning = false
+    private var semaphore = DispatchSemaphore(value: 0)
 
     init(threshold: Instana.Types.Seconds, samplingInterval: Double = 1.0, reporter: Reporter) {
         self.reporter = reporter
@@ -19,38 +22,59 @@ class ApplicationNotRespondingMonitor {
         InstanaApplicationStateHandler.shared.listen { [weak self] state, _ in
             guard let self = self else { return }
             if state == .active {
-                self.scheduleTimer()
-            } else {
-                self.timer?.invalidate()
+                if self.anrDetector == nil {
+                    anrDetector = Detector(anrMonitor: self)
+                    anrDetector?.start(threshold: threshold, samplingInterval: samplingInterval)
+                }
+            } else if state == .background {
+                self.anrDetector?.stop()
+                self.anrDetector = nil
             }
         }
 
-        scheduleTimer()
+        anrDetector = Detector(anrMonitor: self)
+        anrDetector?.start(threshold: threshold, samplingInterval: samplingInterval)
     }
 
-    deinit {
-        timer?.invalidate()
-    }
+    class Detector {
+        weak var anrMonitor: ApplicationNotRespondingMonitor?
+        @Atomic private var isRunning = false
+        private var semaphore = DispatchSemaphore(value: 0)
 
-    func scheduleTimer() {
-        timer?.invalidate()
-        let aTimer = InstanaTimerProxy.timer(proxied: self, timeInterval: samplingInterval, userInfo: CFAbsoluteTimeGetCurrent(), repeats: false)
-        timer = aTimer
-        RunLoop.main.add(aTimer, forMode: .common)
-    }
-}
-
-extension ApplicationNotRespondingMonitor: InstanaTimerProxiedTarget {
-    func onTimer(timer: Timer) {
-        guard let start = timer.userInfo as? CFAbsoluteTime else {
-            scheduleTimer()
-            return
+        init(anrMonitor: ApplicationNotRespondingMonitor?) {
+            self.anrMonitor = anrMonitor
         }
 
-        let delay = CFAbsoluteTimeGetCurrent() - start - samplingInterval
-        if delay > threshold {
-            reporter.submit(PerformanceBeacon(subType: .anr(duration: delay)))
+        func start(threshold: Instana.Types.Seconds, samplingInterval: Double) {
+            guard !isRunning else { return }
+            isRunning = true
+
+            DispatchQueue.global(qos: .background).async { [weak self] in
+                while self?.isRunning == true {
+                    let startTime = CFAbsoluteTimeGetCurrent()
+
+                    DispatchQueue.main.async {
+                        self?.semaphore.signal()
+                    }
+
+                    let result = self?.semaphore.wait(timeout: .now() + threshold)
+
+                    if self?.isRunning != true {
+                        break
+                    }
+
+                    if result == .timedOut {
+                        let duration = CFAbsoluteTimeGetCurrent() - startTime
+                        self?.anrMonitor?.reporter.submit(PerfAppNotRespondingBeacon(duration: duration))
+                    }
+
+                    Thread.sleep(forTimeInterval: samplingInterval)
+                }
+            }
         }
-        scheduleTimer()
+
+        func stop() {
+            isRunning = false
+        }
     }
 }

@@ -4,9 +4,17 @@ import XCTest
 class ApplicationNotRespondingMonitorTests: InstanaTestCase {
 
     var monitor: ApplicationNotRespondingMonitor?
+    var reporterRetainer: [Reporter]!
+
+    override func setUp() {
+        super.setUp()
+        reporterRetainer = [Reporter]()
+    }
 
     override func tearDown() {
         monitor = nil
+        reporterRetainer = nil
+        super.tearDown()
     }
     
     func test_internalTimer_shouldNotRetainMonitor() {
@@ -21,23 +29,25 @@ class ApplicationNotRespondingMonitorTests: InstanaTestCase {
     func test_performanceOverload_triggersANRBeacon() {
         var beacon: Beacon?
         let exp = expectation(description: "ANR beacon trigger")
-        monitor = ApplicationNotRespondingMonitor(threshold: 0.01, samplingInterval: 0.1, reporter: MockReporter {
+        let reporter = MockReporter {
             beacon = $0
             exp.fulfill()
-        })
-        
+        }
+        reporterRetainer.append(reporter)
+        monitor = ApplicationNotRespondingMonitor(threshold: 0.01, samplingInterval: 0.1, reporter: reporter)
+
         Thread.sleep(forTimeInterval: 0.12)
         
         waitForExpectations(timeout: 0.14) { _ in
-            guard let perfBeacon = beacon as? PerformanceBeacon else {
+            guard let perfBeacon = beacon as? PerfAppNotRespondingBeacon else {
                 XCTFail("Beacon not submitted or wrong type")
                 return
             }
-            guard case let .anr(duration) = perfBeacon.subType else {
+            if perfBeacon.subType != .appNotResponding {
                 XCTFail("Wrong performance beacon sub type: \(perfBeacon.subType)")
                 return
             }
-            XCTAssert(duration > 0.01)
+            XCTAssert(perfBeacon.duration > 0.01)
         }
     }
     
@@ -59,17 +69,22 @@ class ApplicationNotRespondingMonitorTests: InstanaTestCase {
     func test_foregrounding_shouldResumeMonitoring() {
         var beacon: Beacon?
         let exp = expectation(description: "ANR beacon trigger")
-        monitor = ApplicationNotRespondingMonitor(threshold: 0.01, samplingInterval: 0.1, reporter: MockReporter {
+        let reporter = MockReporter {
             beacon = $0
             exp.fulfill()
-        })
+        }
+        reporterRetainer.append(reporter)
+        monitor = ApplicationNotRespondingMonitor(threshold: 0.01, samplingInterval: 2.0, reporter: reporter)
 
         NotificationCenter.default.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
         NotificationCenter.default.post(name: UIApplication.didBecomeActiveNotification, object: nil)
         Thread.sleep(forTimeInterval: 0.12)
 
         waitForExpectations(timeout: 0.14) { _ in
-            XCTAssertNotNil(beacon as? PerformanceBeacon)
+            let perfBeacon = beacon as? PerfAppNotRespondingBeacon
+            XCTAssertNotNil(perfBeacon)
+            XCTAssertTrue(perfBeacon!.duration >= 0.01)
+
         }
     }
 }

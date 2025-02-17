@@ -132,6 +132,8 @@ extension CoreBeacon {
         switch beacon {
         case let item as PerfAppLaunchBeacon:
             appendPerfAppLaunch(item)
+        case let item as PerfAppNotRespondingBeacon:
+            appendPerfAppNotResponding(item)
         case let item as PerfLowMemoryBeacon:
             appendPerfLowMemory(item)
         default:
@@ -151,6 +153,11 @@ extension CoreBeacon {
         if beacon.appHotStartTime != nil {
             ahs = String(beacon.appHotStartTime!)
         }
+    }
+
+    mutating func appendPerfAppNotResponding(_ beacon: PerfAppNotRespondingBeacon) {
+        pst = "anr"
+        d = String(beacon.duration)
     }
 
     mutating func appendPerfLowMemory(_ beacon: PerfLowMemoryBeacon) {
@@ -231,7 +238,7 @@ extension CoreBeacon {
             add(error: error)
         }
         if let duration = beacon.duration {
-            d = String(duration)
+            d = String(Int(duration))
         }
         if let tracingID = beacon.backendTracingID {
             bt = tracingID
