@@ -78,7 +78,7 @@ class ApplicationNotRespondingMonitorTests: InstanaTestCase {
 
         NotificationCenter.default.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
         NotificationCenter.default.post(name: UIApplication.didBecomeActiveNotification, object: nil)
-        Thread.sleep(forTimeInterval: 0.12)
+        Thread.sleep(forTimeInterval: 1.0)
 
         waitForExpectations(timeout: 0.14) { _ in
             let perfBeacon = beacon as? PerfAppNotRespondingBeacon

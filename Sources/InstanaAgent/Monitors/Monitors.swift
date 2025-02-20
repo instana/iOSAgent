@@ -19,11 +19,12 @@ class Monitors {
         self.session = session
         let reporter = reporter ?? Reporter(session)
         self.reporter = reporter
-        appLaunchMonitor = AppLaunchMonitor(reporter: reporter)
         session.configuration.monitorTypes.forEach { type in
             switch type {
             case .http:
                 http = HTTPMonitor(session, reporter: reporter)
+            case .appLaunchTime:
+                appLaunchMonitor = AppLaunchMonitor(reporter: reporter)
             case .memoryWarning:
                 lowMemory = LowMemoryMonitor(reporter: reporter)
             case let .framerateDrop(threshold):

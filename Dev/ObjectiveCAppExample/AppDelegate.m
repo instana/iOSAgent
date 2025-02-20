@@ -18,22 +18,31 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
 
     InstanaSetupOptions* options = nil;
-//    NSArray<NSRegularExpression *> *queryTrackedDomainList = @[
-//        [NSRegularExpression regularExpressionWithPattern:@"https://www.example.com" options:0 error:nil]
-//    ];
+    /*
+    NSArray<NSRegularExpression *> *queryTrackedDomainList = @[
+        [NSRegularExpression regularExpressionWithPattern:@"https://www.example.com" options:0 error:nil]
+    ];
 
-    //note: explicitly get user permission before setting enableCrashReporting to true
-//    options = [[InstanaSetupOptions alloc] initWithHttpCaptureConfig: 0
-//                                           collectionEnabled: true
-//                                           enableCrashReporting: true
-//                                           suspendReportingOnLowBattery: true
-//                                           suspendReportingOnCellular: false
-//                                           slowSendInterval: 0.0
-//                                           usiRefreshTimeIntervalInHrs: -1
-//                                           autoCaptureScreenNames: true
-//                                           debugAllScreenNames: false
-//                                           queryTrackedDomainList: queryTrackedDomainList
-//                                           dropBeaconReporting: false];
+    InstanaPerformanceConfig* perfConfig = [[InstanaPerformanceConfig alloc] init];
+    [perfConfig setEnableAppStartTimeReport: true];
+    [perfConfig setEnableAnrReport: true];
+    [perfConfig setAnrThreshold: 5.0];
+    [perfConfig setEnableAnrReport: true];
+
+//    note: explicitly get user permission before setting enableCrashReporting to true
+    options = [[InstanaSetupOptions alloc] initWithHttpCaptureConfig: 0
+                                           collectionEnabled: true
+                                           enableCrashReporting: true
+                                           suspendReportingOnLowBattery: true
+                                           suspendReportingOnCellular: false
+                                           slowSendInterval: 0.0
+                                           usiRefreshTimeIntervalInHrs: -1
+                                           autoCaptureScreenNames: true
+                                           debugAllScreenNames: false
+                                           queryTrackedDomainList: queryTrackedDomainList
+                                           dropBeaconReporting: false
+                                           perfConfig: perfConfig];
+     */
 
     (void)[Instana setupWithKey: @"INSTANA_REPORTING_KEY"
              reportingURL: [NSURL URLWithString: @"INSTANA_REPORTING_URL"]

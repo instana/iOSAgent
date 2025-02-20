@@ -5,7 +5,7 @@ class InstanaSystemUtilsTests: InstanaTestCase {
 
     func test_AgentVersion() {
         // Then
-        AssertTrue(InstanaSystemUtils.agentVersion == "1.8.7")
+        AssertTrue(InstanaSystemUtils.agentVersion == "1.9.0")
     }
 
     func test_systemVersion() {

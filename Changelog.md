@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.9.0
+- send drop beacons and performance beacons (app launch time, low memory warning, application not responding)to Instana backend
+- allow caller enable/disable the new features through configuration
+
 ## 1.8.7
 - queryTrackedDomainList configuration to capture http query parameters if url is in the white listed RegExp array
 - app launch time measure

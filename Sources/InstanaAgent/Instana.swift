@@ -100,6 +100,7 @@ import Foundation
         var autoCaptureScreenNames: Bool = false
         var debugAllScreenNames: Bool = false
         var dropBeaconReporting: Bool = false
+        var perfConfig: InstanaPerformanceConfig?
 
         if let options = options {
             httpCaptureConfig = options.httpCaptureConfig
@@ -128,6 +129,7 @@ import Foundation
             autoCaptureScreenNames = options.autoCaptureScreenNames
             debugAllScreenNames = options.debugAllScreenNames
             dropBeaconReporting = options.dropBeaconReporting
+            perfConfig = options.perfConfig
         }
 
         var hybridAgentId: String?
@@ -143,6 +145,7 @@ import Foundation
                                                   suspendReporting: suspendReporting,
                                                   slowSendInterval: slowSendInterval,
                                                   usiRefreshTimeIntervalInHrs: usiRefreshTimeIntervalInHrs,
+                                                  perfConfig: perfConfig,
                                                   hybridAgentId: hybridAgentId,
                                                   hybridAgentVersion: hybridAgentVersion)
         let session = InstanaSession(configuration: config, propertyHandler: InstanaPropertyHandler(),

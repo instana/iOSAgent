@@ -33,6 +33,7 @@ class InstanaConfiguration {
 
     enum MonitorTypes: Hashable {
         case http
+        case appLaunchTime
         case memoryWarning
         case framerateDrop(frameThreshold: UInt)
         case alertApplicationNotResponding(threshold: Instana.Types.Seconds)
@@ -40,6 +41,7 @@ class InstanaConfiguration {
 
         static let current: Set<MonitorTypes> = [.http]
         static let all: Set<MonitorTypes> = [.http,
+                                             .appLaunchTime,
                                              .memoryWarning,
                                              .framerateDrop(frameThreshold: 20),
                                              .alertApplicationNotResponding(threshold: 3.0)]
@@ -81,17 +83,24 @@ class InstanaConfiguration {
                   enableCrashReporting: Bool, suspendReporting: Set<SuspendReporting>? = nil,
                   slowSendInterval: Instana.Types.Seconds,
                   usiRefreshTimeIntervalInHrs: Double,
+                  perfConfig: InstanaPerformanceConfig? = nil,
                   hybridAgentId: String?,
-                  hybridAgentVersion: String?,
-                  anrThreshold: Instana.Types.Milliseconds = -1) {
+                  hybridAgentVersion: String?) {
         self.reportingURL = reportingURL
         self.key = key
         self.httpCaptureConfig = httpCaptureConfig
         monitorTypes = MonitorTypes.current
-        if anrThreshold > 0 {
-            let anrInSeconds = Double(anrThreshold) / 1000.0
-            monitorTypes.insert(.alertApplicationNotResponding(threshold: anrInSeconds))
+        // Performance monitor
+        if perfConfig?.enableAppStartTimeReport == true {
+            monitorTypes.insert(.appLaunchTime)
         }
+        if perfConfig?.enableOOMReport == true {
+            monitorTypes.insert(.memoryWarning)
+        }
+        if perfConfig?.enableAnrReport == true {
+            monitorTypes.insert(.alertApplicationNotResponding(threshold: perfConfig!.anrThreshold))
+        }
+
         if enableCrashReporting {
             monitorTypes.insert(.crash)
         }
@@ -115,17 +124,17 @@ class InstanaConfiguration {
                           suspendReporting: Set<SuspendReporting>? = nil,
                           slowSendInterval: Instana.Types.Seconds = 0.0,
                           usiRefreshTimeIntervalInHrs: Double = defaultUsiRefreshTimeIntervalInHrs,
+                          perfConfig: InstanaPerformanceConfig? = nil,
                           hybridAgentId: String? = nil,
-                          hybridAgentVersion: String? = nil,
-                          anrThreshold: Instana.Types.Milliseconds = -1)
+                          hybridAgentVersion: String? = nil)
         -> InstanaConfiguration {
         self.init(reportingURL: reportingURL, key: key, httpCaptureConfig: httpCaptureConfig,
                   enableCrashReporting: enableCrashReporting,
                   suspendReporting: suspendReporting,
                   slowSendInterval: slowSendInterval,
                   usiRefreshTimeIntervalInHrs: usiRefreshTimeIntervalInHrs,
+                  perfConfig: perfConfig,
                   hybridAgentId: hybridAgentId,
-                  hybridAgentVersion: hybridAgentVersion,
-                  anrThreshold: anrThreshold)
+                  hybridAgentVersion: hybridAgentVersion)
     }
 }

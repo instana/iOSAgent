@@ -28,6 +28,8 @@ import Foundation
     // about the sampled dropped beacons.
     public var dropBeaconReporting: Bool
 
+    @objc public var perfConfig: InstanaPerformanceConfig?
+
     /// Instana custom configuration for setup.
     ///
     /// - Parameters:
@@ -46,7 +48,8 @@ import Foundation
          autoCaptureScreenNames: Bool = false,
          debugAllScreenNames: Bool = false,
          queryTrackedDomainList: [NSRegularExpression]? = nil,
-         dropBeaconReporting: Bool = false) {
+         dropBeaconReporting: Bool = false,
+         perfConfig: InstanaPerformanceConfig? = nil) {
         self.httpCaptureConfig = httpCaptureConfig
         self.collectionEnabled = collectionEnabled
         self.enableCrashReporting = enableCrashReporting
@@ -58,6 +61,48 @@ import Foundation
         self.debugAllScreenNames = debugAllScreenNames
         self.queryTrackedDomainList = queryTrackedDomainList
         self.dropBeaconReporting = dropBeaconReporting
+        self.perfConfig = perfConfig
+        super.init()
+    }
+}
+
+@objc public class InstanaPerformanceConfig: NSObject {
+    var enableAppStartTimeReport: Bool = false
+    var enableAnrReport: Bool = false
+    var anrThreshold: Double = 3.0 // in seconds
+    var enableOOMReport: Bool = false
+
+    @objc public
+    init(enableAppStartTimeReport: Bool = false, enableAnrReport: Bool = false, anrThreshold: Double = 3.0,
+         enableOOMReport: Bool = false) {
+        self.enableAppStartTimeReport = enableAppStartTimeReport
+        self.enableAnrReport = enableAnrReport
+        self.anrThreshold = anrThreshold
+        self.enableOOMReport = enableOOMReport
+        super.init()
+    }
+
+    @objc public
+    override init() { super.init() }
+
+    @objc public
+    func setEnableAppStartTimeReport(_ enableAppStartTimeReport: Bool) {
+        self.enableAppStartTimeReport = enableAppStartTimeReport
+    }
+
+    @objc public
+    func setEnableAnrReport(_ enableAnrReport: Bool) {
+        self.enableAnrReport = enableAnrReport
+    }
+
+    @objc public
+    func setAnrThreshold(_ anrThreshold: Double) {
+        self.anrThreshold = anrThreshold
+    }
+
+    @objc public
+    func setEnableOOMReport(_ enableOOMReport: Bool) {
+        self.enableOOMReport = enableOOMReport
     }
 }
 
