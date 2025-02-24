@@ -1,6 +1,7 @@
 # Changelog
 
 ## 1.9.0
+- add option to configure rate limit
 - send drop beacons and performance beacons (app launch time, low memory warning, application not responding)to Instana backend
 - allow caller enable/disable the new features through configuration
 

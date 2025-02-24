@@ -15,6 +15,12 @@ import Foundation
     case none
 }
 
+@objc public enum RateLimits: Int {
+    case DEFAULT_LIMITS
+    case MID_LIMITS
+    case MAX_LIMITS
+}
+
 // Use a reference type to avoid a copy when having concurrency
 class InstanaConfiguration {
     enum SuspendReporting {
@@ -83,6 +89,7 @@ class InstanaConfiguration {
                   enableCrashReporting: Bool, suspendReporting: Set<SuspendReporting>? = nil,
                   slowSendInterval: Instana.Types.Seconds,
                   usiRefreshTimeIntervalInHrs: Double,
+                  rateLimits: RateLimits?,
                   perfConfig: InstanaPerformanceConfig? = nil,
                   hybridAgentId: String?,
                   hybridAgentVersion: String?) {
@@ -94,7 +101,7 @@ class InstanaConfiguration {
         if perfConfig?.enableAppStartTimeReport == true {
             monitorTypes.insert(.appLaunchTime)
         }
-        if perfConfig?.enableOOMReport == true {
+        if perfConfig?.enableLowMemoryReport == true {
             monitorTypes.insert(.memoryWarning)
         }
         if perfConfig?.enableAnrReport == true {
@@ -117,6 +124,38 @@ class InstanaConfiguration {
         maxQueueSize = Defaults.maxQueueSize
         preQueueUsageTime = Defaults.preQueueUsageTime
         reporterRateLimits = Defaults.reporterRateLimits
+        configRateLimit(rateLimits)
+    }
+
+    /**
+     * Rate-Limiter configuration for the maximum number of beacons allowed within specific time intervals:
+     *
+     * - `DEFAULT_LIMITS`:
+     *     - 500 beacons per 5 minutes
+     *     - 20 beacons per 10 seconds
+     *
+     * - `MID_LIMITS`:
+     *     - 1000 beacons per 5 minutes
+     *     - 40 beacons per 10 seconds
+     *
+     * - `MAX_LIMITS`:
+     *     - 2500 beacons per 5 minutes
+     *     - 100 beacons per 10 seconds
+     *
+     */
+
+    func configRateLimit(_ rateLimits: RateLimits?) {
+        guard let rateLimits = rateLimits else { return }
+        switch rateLimits {
+        case .MID_LIMITS:
+            reporterRateLimits = [ReporterRateLimitConfig(timeout: 10, maxItems: 40),
+                                  ReporterRateLimitConfig(timeout: 60 * 5, maxItems: 1000)]
+        case .MAX_LIMITS:
+            reporterRateLimits = [ReporterRateLimitConfig(timeout: 10, maxItems: 100),
+                                  ReporterRateLimitConfig(timeout: 60 * 5, maxItems: 2500)]
+        case .DEFAULT_LIMITS:
+            reporterRateLimits = Defaults.reporterRateLimits
+        }
     }
 
     static func `default`(key: String, reportingURL: URL, httpCaptureConfig: HTTPCaptureConfig = .automatic,
@@ -124,6 +163,7 @@ class InstanaConfiguration {
                           suspendReporting: Set<SuspendReporting>? = nil,
                           slowSendInterval: Instana.Types.Seconds = 0.0,
                           usiRefreshTimeIntervalInHrs: Double = defaultUsiRefreshTimeIntervalInHrs,
+                          rateLimits: RateLimits? = nil,
                           perfConfig: InstanaPerformanceConfig? = nil,
                           hybridAgentId: String? = nil,
                           hybridAgentVersion: String? = nil)
@@ -133,6 +173,7 @@ class InstanaConfiguration {
                   suspendReporting: suspendReporting,
                   slowSendInterval: slowSendInterval,
                   usiRefreshTimeIntervalInHrs: usiRefreshTimeIntervalInHrs,
+                  rateLimits: rateLimits,
                   perfConfig: perfConfig,
                   hybridAgentId: hybridAgentId,
                   hybridAgentVersion: hybridAgentVersion)

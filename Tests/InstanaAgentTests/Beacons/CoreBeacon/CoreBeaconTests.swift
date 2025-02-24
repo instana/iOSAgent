@@ -141,6 +141,8 @@ class CoreBeaconTests: InstanaTestCase {
         let configUsi = InstanaConfiguration(reportingURL: .random, key: "KEY", httpCaptureConfig: .automatic,
                                              enableCrashReporting: false, slowSendInterval: 0.0,
                                              usiRefreshTimeIntervalInHrs: usiTrackingNotAllowed,
+                                             rateLimits: RateLimits.DEFAULT_LIMITS,
+                                             perfConfig: nil,
                                              hybridAgentId: nil,
                                              hybridAgentVersion: nil)
         let sessionUsi = InstanaSession.mock(configuration: configUsi,

@@ -32,8 +32,6 @@ class AppLaunchMonitor {
                 // Application.willEnterForegroundNotification
                 if oldState == .background {
                     self.warmStartBeginTime = CFAbsoluteTimeGetCurrent()
-                } else {
-                    self.hotStartBeginTime = CFAbsoluteTimeGetCurrent()
                 }
             }
         }

@@ -65,7 +65,7 @@ class AppLaunchMonitorTests: InstanaTestCase {
         monitor = AppLaunchMonitor(reporter: reporter)
 
         monitor?.prewarm = nil
-        NotificationCenter.default.post(name: UIApplication.willEnterForegroundNotification, object: nil)
+        monitor?.hotStartBeginTime = CFAbsoluteTimeGetCurrent() - 0.1
         NotificationCenter.default.post(name: UIApplication.didBecomeActiveNotification, object: nil)
 
         let perfBeacon = beacon as? PerfAppLaunchBeacon

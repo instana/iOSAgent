@@ -34,7 +34,7 @@ class ApplicationNotRespondingMonitorTests: InstanaTestCase {
             exp.fulfill()
         }
         reporterRetainer.append(reporter)
-        monitor = ApplicationNotRespondingMonitor(threshold: 0.01, samplingInterval: 0.1, reporter: reporter)
+        monitor = ApplicationNotRespondingMonitor(threshold: 0.01, samplingInterval: 0.2, reporter: reporter)
 
         Thread.sleep(forTimeInterval: 0.12)
         
@@ -70,11 +70,13 @@ class ApplicationNotRespondingMonitorTests: InstanaTestCase {
         var beacon: Beacon?
         let exp = expectation(description: "ANR beacon trigger")
         let reporter = MockReporter {
+            if beacon == nil {
+                exp.fulfill()
+            }
             beacon = $0
-            exp.fulfill()
         }
         reporterRetainer.append(reporter)
-        monitor = ApplicationNotRespondingMonitor(threshold: 0.01, samplingInterval: 2.0, reporter: reporter)
+        monitor = ApplicationNotRespondingMonitor(threshold: 0.01, samplingInterval: 0.1, reporter: reporter)
 
         NotificationCenter.default.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
         NotificationCenter.default.post(name: UIApplication.didBecomeActiveNotification, object: nil)

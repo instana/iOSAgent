@@ -5,28 +5,25 @@
 import Foundation
 
 @objc public class InstanaSetupOptions: NSObject {
-    public var httpCaptureConfig: HTTPCaptureConfig
-    public var collectionEnabled: Bool
-    public var enableCrashReporting: Bool
-    public var suspendReportingOnLowBattery: Bool
-    public var suspendReportingOnCellular: Bool
-    public var slowSendInterval: Instana.Types.Seconds
-    public var usiRefreshTimeIntervalInHrs: Double
+    @objc public var httpCaptureConfig: HTTPCaptureConfig = .automatic
+    @objc public var collectionEnabled: Bool = true
+    @objc public var enableCrashReporting: Bool = false
+    @objc public var suspendReportingOnLowBattery: Bool = false
+    @objc public var suspendReportingOnCellular: Bool = false
+    @objc public var slowSendInterval: Instana.Types.Seconds = 0.0
+    @objc public var usiRefreshTimeIntervalInHrs: Double = defaultUsiRefreshTimeIntervalInHrs
 
     // If autoCaptureScreenNames is set to true, we could leverage
     // certain classes' properties and set active view name automatically.
     // The class needs to derive from UIViewController directly or indirectly.
     // Instana.setView is triggered on the instance's viewDidAppear call.
-    public var autoCaptureScreenNames: Bool
-    public var debugAllScreenNames: Bool
+    @objc public var autoCaptureScreenNames: Bool = false
+    @objc public var debugAllScreenNames: Bool = false
 
-    public var queryTrackedDomainList: [NSRegularExpression]?
+    @objc public var queryTrackedDomainList: [NSRegularExpression]?
 
-    // Toggle the reporting of dropped beacon samples.
-    // Note: Disabling this will prevent the CUSTOM EVENT named
-    // "INSTANA_DROPPED_BEACON_SAMPLE" from being sent, which includes metadata
-    // about the sampled dropped beacons.
-    public var dropBeaconReporting: Bool
+    @objc public var dropBeaconReporting: Bool = false
+    @objc public var rateLimits: RateLimits = .DEFAULT_LIMITS
 
     @objc public var perfConfig: InstanaPerformanceConfig?
 
@@ -49,6 +46,7 @@ import Foundation
          debugAllScreenNames: Bool = false,
          queryTrackedDomainList: [NSRegularExpression]? = nil,
          dropBeaconReporting: Bool = false,
+         rateLimits: RateLimits = .DEFAULT_LIMITS,
          perfConfig: InstanaPerformanceConfig? = nil) {
         self.httpCaptureConfig = httpCaptureConfig
         self.collectionEnabled = collectionEnabled
@@ -61,24 +59,28 @@ import Foundation
         self.debugAllScreenNames = debugAllScreenNames
         self.queryTrackedDomainList = queryTrackedDomainList
         self.dropBeaconReporting = dropBeaconReporting
+        self.rateLimits = rateLimits
         self.perfConfig = perfConfig
         super.init()
     }
+
+    @objc public
+    override init() { super.init() }
 }
 
 @objc public class InstanaPerformanceConfig: NSObject {
-    var enableAppStartTimeReport: Bool = false
+    var enableAppStartTimeReport: Bool = true
     var enableAnrReport: Bool = false
     var anrThreshold: Double = 3.0 // in seconds
-    var enableOOMReport: Bool = false
+    var enableLowMemoryReport: Bool = true
 
     @objc public
-    init(enableAppStartTimeReport: Bool = false, enableAnrReport: Bool = false, anrThreshold: Double = 3.0,
-         enableOOMReport: Bool = false) {
+    init(enableAppStartTimeReport: Bool = false, enableAnrReport: Bool = true,
+         anrThreshold: Double = 3.0, enableLowMemoryReport: Bool = true) {
         self.enableAppStartTimeReport = enableAppStartTimeReport
         self.enableAnrReport = enableAnrReport
         self.anrThreshold = anrThreshold
-        self.enableOOMReport = enableOOMReport
+        self.enableLowMemoryReport = enableLowMemoryReport
         super.init()
     }
 
@@ -101,8 +103,8 @@ import Foundation
     }
 
     @objc public
-    func setEnableOOMReport(_ enableOOMReport: Bool) {
-        self.enableOOMReport = enableOOMReport
+    func setEnableLowMemoryReport(_ enableLowMemoryReport: Bool) {
+        self.enableLowMemoryReport = enableLowMemoryReport
     }
 }
 

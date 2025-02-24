@@ -109,6 +109,7 @@ class ReporterTests: InstanaTestCase {
         let firstSubmittedToQueue = expectation(description: "Submitted To Queue")
         let secondSubmittedToQueue = expectation(description: "Submitted To Queue")
         let reporter = createReporterDefaultWifi()
+        reporterRetainer.append(reporter)
 
         // When
         reporter.submit(PerformanceBeacon(subType: .lowMemory)) {_ in

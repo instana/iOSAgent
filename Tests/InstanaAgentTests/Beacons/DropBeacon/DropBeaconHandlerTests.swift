@@ -78,6 +78,18 @@ class DropBeaconHandlerTests: InstanaTestCase {
         AssertTrue(sut == nil)
     }
 
+    func test_mergeDroppedBeacons_negatives2() {
+        // Given
+        let dbHandler = DropBeaconHandler()
+        dbHandler.droppingStartTime = 0
+
+        // When
+        let sut = dbHandler.mergeDroppedBeacons()
+
+        // Then
+        AssertTrue(sut == nil)
+    }
+
     func test_saveDroppedBeacons() {
         // Given
         let oldViewBeacon = ViewChange(timestamp: Date.distantPast.millisecondsSince1970,

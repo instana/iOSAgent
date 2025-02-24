@@ -26,10 +26,13 @@ extension InstanaConfiguration {
                                           enableCrashReporting: true,
                                           slowSendInterval: slowSendInterval,
                                           usiRefreshTimeIntervalInHrs: usiRefreshTimeIntervalInHrs,
+                                          rateLimits: RateLimits.DEFAULT_LIMITS,
+                                          perfConfig: nil,
                                           hybridAgentId: nil,
                                           hybridAgentVersion: nil)
         config.suspendReporting = []
         config.monitorTypes = [.http,
+                               .appLaunchTime,
                                .memoryWarning,
                                .framerateDrop(frameThreshold: 20),
                                .alertApplicationNotResponding(threshold: 2.0),

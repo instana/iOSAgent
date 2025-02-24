@@ -6,17 +6,27 @@ import Foundation
 import XCTest
 @testable import InstanaAgent
 
+class InstanaSetupOptionsTests: XCTestCase {
+    func test_init() {
+        let options = InstanaSetupOptions()
+
+        AssertTrue(options.httpCaptureConfig == .automatic)
+        AssertTrue(options.collectionEnabled)
+    }
+}
+
+
 class InstanaPerformanceConfigTests: XCTestCase {
     func test_enableAppStartTimeReport() {
         // Given
         let pfConfig = InstanaPerformanceConfig()
-        AssertFalse(pfConfig.enableAppStartTimeReport)
+        AssertTrue(pfConfig.enableAppStartTimeReport)
 
         // When
-        pfConfig.setEnableAppStartTimeReport(true)
+        pfConfig.setEnableAppStartTimeReport(false)
 
         // Then
-        AssertTrue(pfConfig.enableAppStartTimeReport)
+        AssertFalse(pfConfig.enableAppStartTimeReport)
     }
 
     func test_setEnableAnrReport() {
@@ -37,42 +47,43 @@ class InstanaPerformanceConfigTests: XCTestCase {
         AssertEqualAndNotNil(pfConfig.anrThreshold, 3.0)
 
         // When
-        pfConfig.anrThreshold = 6.0
+        pfConfig.setAnrThreshold(6.0)
 
         // Then
         AssertEqualAndNotNil(pfConfig.anrThreshold, 6.0)
     }
 
-    func test_setEnableOOMReport() {
+    func test_setEnableLowMemoryReport() {
         // Given
         let pfConfig = InstanaPerformanceConfig()
-        AssertFalse(pfConfig.enableOOMReport)
+        AssertTrue(pfConfig.enableLowMemoryReport)
 
         // When
-        pfConfig.setEnableOOMReport(true)
+        pfConfig.setEnableLowMemoryReport(false)
 
         // Then
-        AssertTrue(pfConfig.enableOOMReport)
+        AssertFalse(pfConfig.enableLowMemoryReport)
     }
 
     func testInit_full() {
         let pfConfig = InstanaPerformanceConfig(enableAppStartTimeReport: true,
                                                 enableAnrReport: true, anrThreshold: 2.0,
-                                                enableOOMReport: true)
+                                                enableLowMemoryReport: true)
         AssertEqualAndNotNil(pfConfig.enableAppStartTimeReport, true)
         AssertEqualAndNotNil(pfConfig.anrThreshold, 2.0)
-        AssertEqualAndNotNil(pfConfig.enableOOMReport, true)
+        AssertEqualAndNotNil(pfConfig.enableLowMemoryReport, true)
         AssertEqualAndNotNil(pfConfig.enableAnrReport, true)
     }
 
     func testInit_override() {
         let pfConfig = InstanaPerformanceConfig()
-        AssertEqualAndNotNil(pfConfig.enableAppStartTimeReport, false)
+        AssertEqualAndNotNil(pfConfig.enableAppStartTimeReport, true)
         AssertEqualAndNotNil(pfConfig.enableAnrReport, false)
         AssertEqualAndNotNil(pfConfig.anrThreshold, 3.0)
-        AssertEqualAndNotNil(pfConfig.enableOOMReport, false)
+        AssertEqualAndNotNil(pfConfig.enableLowMemoryReport, true)
     }
 }
+
 
 class HybridAgentOptionsTests: XCTestCase {
     func test_init() {

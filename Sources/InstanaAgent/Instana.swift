@@ -100,6 +100,7 @@ import Foundation
         var autoCaptureScreenNames: Bool = false
         var debugAllScreenNames: Bool = false
         var dropBeaconReporting: Bool = false
+        var rateLimits: RateLimits?
         var perfConfig: InstanaPerformanceConfig?
 
         if let options = options {
@@ -129,6 +130,7 @@ import Foundation
             autoCaptureScreenNames = options.autoCaptureScreenNames
             debugAllScreenNames = options.debugAllScreenNames
             dropBeaconReporting = options.dropBeaconReporting
+            rateLimits = options.rateLimits
             perfConfig = options.perfConfig
         }
 
@@ -145,6 +147,7 @@ import Foundation
                                                   suspendReporting: suspendReporting,
                                                   slowSendInterval: slowSendInterval,
                                                   usiRefreshTimeIntervalInHrs: usiRefreshTimeIntervalInHrs,
+                                                  rateLimits: rateLimits,
                                                   perfConfig: perfConfig,
                                                   hybridAgentId: hybridAgentId,
                                                   hybridAgentVersion: hybridAgentVersion)
