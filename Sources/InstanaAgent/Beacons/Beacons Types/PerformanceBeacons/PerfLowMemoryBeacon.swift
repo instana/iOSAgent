@@ -9,7 +9,7 @@ class PerfLowMemoryBeacon: PerformanceBeacon {
     let availableMemory: UInt64?
     let maximumMemory: UInt64?
 
-    init(usedMemory: UInt64?, availableMemory: UInt64?, maximumMemory: UInt64?) {
+    init(usedMemory: UInt64? = nil, availableMemory: UInt64?, maximumMemory: UInt64?) {
         self.usedMemory = usedMemory
         self.availableMemory = availableMemory
         self.maximumMemory = maximumMemory
