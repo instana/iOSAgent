@@ -23,8 +23,8 @@ class ApplicationNotRespondingMonitor {
             guard let self = self else { return }
             if state == .active {
                 if self.anrDetector == nil {
-                    anrDetector = Detector(anrMonitor: self)
-                    anrDetector?.start(threshold: threshold, samplingInterval: samplingInterval)
+                    self.anrDetector = Detector(anrMonitor: self)
+                    self.anrDetector?.start(threshold: threshold, samplingInterval: samplingInterval)
                 }
             } else if state == .background {
                 self.anrDetector?.stop()

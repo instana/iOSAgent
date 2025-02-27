@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.8.9
+- fix pod lib lint error
+
 ## 1.8.8
 - add option to configure rate limit, drop beacons and performance beacons
 - send drop beacons and performance beacons (app launch time, low memory warning, application not responding)to Instana backend

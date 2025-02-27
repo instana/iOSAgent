@@ -160,7 +160,7 @@
                             <constraint firstAttribute="trailing" secondItem="23L-N3-Xne" secondAttribute="trailing" constant="20" symbolic="YES" id="vhI-QS-Sl1"/>
                         </constraints>
                     </view>
-                    <tabBarItem key="tabBarItem" title="JSON" image="doc.text.fill" catalog="system" id="gwl-YI-2EM"/>
+                    <tabBarItem key="tabBarItem" title="JSON" image="text.document.fill" catalog="system" id="gwl-YI-2EM"/>
                     <connections>
                         <outlet property="searchTextField" destination="wYO-bZ-GLE" id="Mt6-lE-dOB"/>
                         <outlet property="textView" destination="23L-N3-Xne" id="nia-vN-IUC"/>
@@ -232,7 +232,7 @@
     </scenes>
     <resources>
         <image name="book.circle" catalog="system" width="128" height="123"/>
-        <image name="doc.text.fill" catalog="system" width="115" height="128"/>
+        <image name="text.document.fill" catalog="system" width="115" height="128"/>
         <image name="music.note" catalog="system" width="96" height="128"/>
         <image name="photo" catalog="system" width="128" height="93"/>
         <systemColor name="labelColor">
