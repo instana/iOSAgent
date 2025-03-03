@@ -72,6 +72,7 @@ class InstanaConfiguration {
     var monitorTypes: Set<MonitorTypes>
     var slowSendInterval: Instana.Types.Seconds
     var usiRefreshTimeIntervalInHrs: Double
+    var anrThreshold: Double?
     var reporterSendDebounce: Instana.Types.Seconds
     var reporterSendLowBatteryDebounce: Instana.Types.Seconds
     var maxRetries: Int
@@ -105,7 +106,8 @@ class InstanaConfiguration {
             monitorTypes.insert(.memoryWarning)
         }
         if perfConfig?.enableAnrReport == true {
-            monitorTypes.insert(.alertApplicationNotResponding(threshold: perfConfig!.anrThreshold))
+            anrThreshold = perfConfig!.anrThreshold
+            monitorTypes.insert(.alertApplicationNotResponding(threshold: anrThreshold!))
         }
 
         if enableCrashReporting {

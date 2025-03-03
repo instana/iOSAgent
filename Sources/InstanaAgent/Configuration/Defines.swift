@@ -64,4 +64,7 @@ let internalMetaFlutterKeys = ["settings.route.name", "widget.name", "child.widg
 /// Mobile Features
 ///
 let mobileFeatureCrash = "c"
+let mobileFeaturePerformanceLowMemory = "lm"
+let mobileFeaturePerformanceANR = "anr"
 let mobileFeatureAutoScreenNameCapture = "sn"
+let mobileFeatureDropBeaconReporting = "db"

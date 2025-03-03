@@ -114,7 +114,7 @@ class CustomBeaconTests: InstanaTestCase {
         let expectedCPU = InstanaSystemUtils.deviceModel
         let expectedErrorType = "\(type(of: customBeacon.error!))"
         let expectedErrorMessage = "\(customBeacon.error!)"
-        let expected = "ab\t\(beacon.ab)\nagv\t\(beacon.agv)\nav\t\(InstanaSystemUtils.applicationVersion)\nbi\t\(beacon.bi)\nbid\t\(beacon.bid)\nbt\t\(customBeacon.backendTracingID ?? "")\ncen\t\(customBeacon.name)\ncm\t12.34567\ncn\tNone\nct\t\(InstanaSystemUtils.networkUtility.connectionType.description)\nd\t\(customBeacon.duration ?? 0)\ndma\tApple\ndmo\t\(expectedCPU)\nec\t1\nem\t\(expectedErrorMessage)\net\t\(expectedErrorType)\nk\tKEY\nm_\(customBeacon.metaData?.keys.first ?? "")\t\(customBeacon.metaData?.values.first ?? "")\nosn\tiOS\nosv\t\(InstanaSystemUtils.systemVersion)\np\tiOS\nro\t\(String(InstanaSystemUtils.isDeviceJailbroken))\nsid\t\(beacon.sid)\nt\tcustom\nti\t\(customBeacon.timestamp)\nuf\tc\nul\ten\nusi\t\(mockedInstanaSession.usi!.uuidString)\nv\t\(customBeacon.viewName ?? "")\nvh\t\(Int(UIScreen.main.bounds.height))\nvw\t\(Int(UIScreen.main.bounds.width))"
+        let expected = "ab\t\(beacon.ab)\nagv\t\(beacon.agv)\nav\t\(InstanaSystemUtils.applicationVersion)\nbi\t\(beacon.bi)\nbid\t\(beacon.bid)\nbt\t\(customBeacon.backendTracingID ?? "")\ncen\t\(customBeacon.name)\ncm\t12.34567\ncn\tNone\nct\t\(InstanaSystemUtils.networkUtility.connectionType.description)\nd\t\(customBeacon.duration ?? 0)\ndma\tApple\ndmo\t\(expectedCPU)\nec\t1\nem\t\(expectedErrorMessage)\net\t\(expectedErrorType)\nk\tKEY\nm_\(customBeacon.metaData?.keys.first ?? "")\t\(customBeacon.metaData?.values.first ?? "")\nosn\tiOS\nosv\t\(InstanaSystemUtils.systemVersion)\np\tiOS\nro\t\(String(InstanaSystemUtils.isDeviceJailbroken))\nsid\t\(beacon.sid)\nt\tcustom\nti\t\(customBeacon.timestamp)\nuf\tc,lm\nul\ten\nusi\t\(mockedInstanaSession.usi!.uuidString)\nv\t\(customBeacon.viewName ?? "")\nvh\t\(Int(UIScreen.main.bounds.height))\nvw\t\(Int(UIScreen.main.bounds.width))"
         AssertEqualAndNotNil(sut, expected)
     }
 
@@ -141,7 +141,7 @@ class CustomBeaconTests: InstanaTestCase {
         AssertEqualAndNotNil(beacon.v, nil)
 
         let expectedCPU = InstanaSystemUtils.deviceModel
-        let expected = "ab\t\(beacon.ab)\nagv\t\(beacon.agv)\nav\t\(InstanaSystemUtils.applicationVersion)\nbi\t\(beacon.bi)\nbid\t\(beacon.bid)\ncen\t\(name)\ncn\tNone\nct\t\(InstanaSystemUtils.networkUtility.connectionType.description)\ndma\tApple\ndmo\t\(expectedCPU)\nk\tKEY\nosn\tiOS\nosv\t\(InstanaSystemUtils.systemVersion)\np\tiOS\nro\t\(String(InstanaSystemUtils.isDeviceJailbroken))\nsid\t\(beacon.sid)\nt\tcustom\nti\t\(customBeacon.timestamp)\nuf\tc\nul\ten\nusi\t\(session.usi!.uuidString)\nvh\t\(Int(UIScreen.main.bounds.height))\nvw\t\(Int(UIScreen.main.bounds.width))"
+        let expected = "ab\t\(beacon.ab)\nagv\t\(beacon.agv)\nav\t\(InstanaSystemUtils.applicationVersion)\nbi\t\(beacon.bi)\nbid\t\(beacon.bid)\ncen\t\(name)\ncn\tNone\nct\t\(InstanaSystemUtils.networkUtility.connectionType.description)\ndma\tApple\ndmo\t\(expectedCPU)\nk\tKEY\nosn\tiOS\nosv\t\(InstanaSystemUtils.systemVersion)\np\tiOS\nro\t\(String(InstanaSystemUtils.isDeviceJailbroken))\nsid\t\(beacon.sid)\nt\tcustom\nti\t\(customBeacon.timestamp)\nuf\tc,lm\nul\ten\nusi\t\(session.usi!.uuidString)\nvh\t\(Int(UIScreen.main.bounds.height))\nvw\t\(Int(UIScreen.main.bounds.width))"
         AssertEqualAndNotNil(sut, expected)
     }
 
@@ -169,7 +169,7 @@ class CustomBeaconTests: InstanaTestCase {
         AssertEqualAndNotNil(customBeacon.viewName, CustomBeaconDefaultViewNameID)
         AssertEqualAndNotNil(beacon.v, viewName)
 
-        let expected = "ab\t\(beacon.ab)\nagv\t\(beacon.agv)\nav\t\(InstanaSystemUtils.applicationVersion)\nbi\t\(beacon.bi)\nbid\t\(beacon.bid)\ncen\t\(name)\ncn\tNone\nct\t\(InstanaSystemUtils.networkUtility.connectionType.description)\ndma\tApple\ndmo\t\(InstanaSystemUtils.deviceModel)\nk\tKEY\nosn\tiOS\nosv\t\(InstanaSystemUtils.systemVersion)\np\tiOS\nro\t\(String(InstanaSystemUtils.isDeviceJailbroken))\nsid\t\(beacon.sid)\nt\tcustom\nti\t\(customBeacon.timestamp)\nuf\tc\nul\ten\nusi\t\(session.usi!.uuidString)\nv\t\(viewName)\nvh\t\(Int(UIScreen.main.bounds.height))\nvw\t\(Int(UIScreen.main.bounds.width))"
+        let expected = "ab\t\(beacon.ab)\nagv\t\(beacon.agv)\nav\t\(InstanaSystemUtils.applicationVersion)\nbi\t\(beacon.bi)\nbid\t\(beacon.bid)\ncen\t\(name)\ncn\tNone\nct\t\(InstanaSystemUtils.networkUtility.connectionType.description)\ndma\tApple\ndmo\t\(InstanaSystemUtils.deviceModel)\nk\tKEY\nosn\tiOS\nosv\t\(InstanaSystemUtils.systemVersion)\np\tiOS\nro\t\(String(InstanaSystemUtils.isDeviceJailbroken))\nsid\t\(beacon.sid)\nt\tcustom\nti\t\(customBeacon.timestamp)\nuf\tc,lm\nul\ten\nusi\t\(session.usi!.uuidString)\nv\t\(viewName)\nvh\t\(Int(UIScreen.main.bounds.height))\nvw\t\(Int(UIScreen.main.bounds.width))"
         AssertEqualAndNotNil(sut, expected)
     }
 

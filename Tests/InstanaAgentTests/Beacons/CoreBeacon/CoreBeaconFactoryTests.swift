@@ -31,7 +31,7 @@ class CoreBeaconFactoryTests: InstanaTestCase {
         let mfs = CoreBeaconFactory(mfSession)
 
         // Then
-        AssertEqualAndNotNil(mfs.mobileFeatures!, "\(mobileFeatureCrash),\(mobileFeatureAutoScreenNameCapture)")
+        AssertEqualAndNotNil(mfs.mobileFeatures!, "c,lm,sn")
     }
 
     func test_mobileFeatures_autoCaptureScreenNames_disabled() {
@@ -43,7 +43,7 @@ class CoreBeaconFactoryTests: InstanaTestCase {
         let mfs = CoreBeaconFactory(mfSession)
 
         // Then
-        AssertEqualAndNotNil(mfs.mobileFeatures!, "\(mobileFeatureCrash)")
+        AssertEqualAndNotNil(mfs.mobileFeatures!, "c,lm")
     }
 
     func test_map_beacon() {
@@ -65,7 +65,7 @@ class CoreBeaconFactoryTests: InstanaTestCase {
         AssertEqualAndNotNil(sut.k, key)
         AssertEqualAndNotNil(sut.ti, "\(beacon.timestamp)")
         AssertEqualAndNotNil(sut.bid, "\(beacon.id)")
-        AssertEqualAndNotNil(sut.uf, mobileFeatureCrash)
+        AssertEqualAndNotNil(sut.uf, "c,lm")
         AssertEqualAndNotNil(sut.bi, "\(InstanaSystemUtils.applicationBundleIdentifier)")
         AssertEqualAndNotNil(sut.ul, "en")
         AssertEqualAndNotNil(sut.agv, InstanaSystemUtils.agentVersion)
@@ -99,10 +99,7 @@ class CoreBeaconFactoryTests: InstanaTestCase {
         let factory = CoreBeaconFactory(session)
 
         // When
-        guard let sut = try? factory.map(beacon) else {
-            XCTFail("Could not map Beacon to CoreBeacon")
-            return
-        }
+        let sut = try! factory.map(beacon)
 
         // Then
         AssertEqualAndNotNil(sut.v, viewName)
@@ -119,10 +116,7 @@ class CoreBeaconFactoryTests: InstanaTestCase {
         let factory = CoreBeaconFactory(session)
 
         // When
-        guard let sut = try? factory.map(beacon) else {
-            XCTFail("Could not map Beacon to CoreBeacon")
-            return
-        }
+        let sut = try! factory.map(beacon)
 
         // Then
         AssertEqualAndNotNil(sut.v, "Background")
@@ -137,14 +131,110 @@ class CoreBeaconFactoryTests: InstanaTestCase {
         let factory = CoreBeaconFactory(.mock)
 
         // When
-        guard let sut = try? factory.map(beacon) else {
-            XCTFail("Could not map CustomBeacon to CoreBeacon")
-            return
-        }
+        let sut = try! factory.map(beacon)
 
         // Then
         let internalMetaEventType = sut.im![internalMetaDataKeyCustom_eventType]
         AssertEqualAndNotNil(internalMetaEventType, eventType)
+    }
+
+    func test_map_ViewChangeBeacon_autoScreenNameCapture1() {
+        // Given
+        let beacon = ViewChange(viewName: "testViewName",
+                                accessibilityLabel: "testAccessibilityLabelValue",
+                                navigationItemTitle: "testNavigationItemTitle",
+                                className: "testClassName", isSwiftUI: true)
+        let factory = CoreBeaconFactory(.mock)
+
+        // When
+        let sut = try! factory.map(beacon)
+
+        // Then
+        AssertTrue(sut.im!["view.clsName"] == "testClassName")
+        AssertTrue(sut.im!["view.accLabel"] == "testAccessibilityLabelValue")
+    }
+
+    func test_map_ViewChangeBeacon_autoScreenNameCapture2() {
+        // Given
+        let beacon = ViewChange(viewName: "testViewName",
+                                navigationItemTitle: "testNavigationItemTitle",
+                                className: "testClassName", isSwiftUI: true,
+                                viewInternalCPMetaMap: ["testKey": "testValue"])
+        let factory = CoreBeaconFactory(.mock)
+
+        // When
+        let sut = try! factory.map(beacon)
+
+        // Then
+        AssertTrue(sut.im!["view.clsName"] == "testClassName")
+        AssertTrue(sut.im!["view.navItemTitle"] == "testNavigationItemTitle")
+        AssertTrue(sut.im!["testKey"] == "testValue")
+    }
+
+    func test_map_droppedBeacons() {
+        // Given
+        let beaconsMap: [String: String] = ["droppedBeaconKey": "droppedBeaconValue"]
+        let beacon = DroppedBeacons(beaconsMap: beaconsMap,
+                                    timestamp: Date().millisecondsSince1970,
+                                    viewName: "TestViewName")
+        let factory = CoreBeaconFactory(session)
+
+        // When
+        let sut = try! factory.map(beacon)
+
+        // Then
+        AssertTrue(sut.im!["droppedBeaconKey"] == "droppedBeaconValue")
+    }
+
+    func test_map_performanceBeacon_appLaunch_cold() {
+        // Given
+        let beacon = PerfAppLaunchBeacon(appColdStartTime: 12345)
+        let factory = CoreBeaconFactory(.mock)
+
+        // When
+        let sut = try! factory.map(beacon)
+
+        // Then
+        AssertTrue(sut.acs == "12345")
+    }
+
+    func test_map_performanceBeacon_appLaunch_warm() {
+        // Given
+        let beacon = PerfAppLaunchBeacon(appWarmStartTime: 678)
+        let factory = CoreBeaconFactory(.mock)
+
+        // When
+        let sut = try! factory.map(beacon)
+
+        // Then
+        AssertTrue(sut.aws == "678")
+    }
+
+    func test_map_performanceBeacon_appLaunch_hot() {
+        // Given
+        let beacon = PerfAppLaunchBeacon(appHotStartTime: 9)
+        let factory = CoreBeaconFactory(.mock)
+
+        // When
+        let sut = try! factory.map(beacon)
+
+        // Then
+        AssertTrue(sut.ahs == "9")
+    }
+
+    func test_mobileFeatures() {
+        // Given
+        let config = InstanaConfiguration.default(key: "key", reportingURL: URL(string: "http://localhost:3000")!,
+                enableCrashReporting: true, perfConfig: InstanaPerformanceConfig(enableAppStartTimeReport: true,
+                enableAnrReport: true, anrThreshold: 4.0, enableLowMemoryReport: true))
+        let session = InstanaSession(configuration: config, propertyHandler: InstanaPropertyHandler(),
+                                     collectionEnabled: true, autoCaptureScreenNames: true, debugAllScreenNames: true,
+                                     dropBeaconReporting: true)
+        // When
+        let factory = CoreBeaconFactory(session)
+
+        // Then
+        AssertTrue(factory.mobileFeatures! == "c,lm,anr,sn,db")
     }
 
     func test_create_from_string() {

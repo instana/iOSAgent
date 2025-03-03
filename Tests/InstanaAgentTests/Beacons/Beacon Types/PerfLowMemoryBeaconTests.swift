@@ -39,7 +39,7 @@ class PerfLowMemoryBeaconTests: InstanaTestCase {
         let sut = beacon.asString
 
         // When
-        let expected = "ab\t\(beacon.ab)\nagv\t\(beacon.agv)\namb\t60\nav\t\(beacon.av)\nbi\t\(beacon.bi)\nbid\t\(beacon.bid)\ncn\t\(beacon.cn ?? "")\nct\t\(beacon.ct ?? "")\ndma\tApple\ndmo\t\(beacon.dmo)\nk\t\(key)\nmmb\t32686\nosn\tiOS\nosv\t\(beacon.osv)\np\tiOS\npst\toom\nro\t\(String(InstanaSystemUtils.isDeviceJailbroken))\nsid\t\(beacon.sid)\nt\tperf\nti\t\(perf.timestamp)\nuf\tc\nul\ten\numb\t20\nusi\t\(mockedInstanaSession.usi!.uuidString)\nvh\t\(Int(UIScreen.main.bounds.height))\nvw\t\(Int(UIScreen.main.bounds.width))"
+        let expected = "ab\t\(beacon.ab)\nagv\t\(beacon.agv)\namb\t60\nav\t\(beacon.av)\nbi\t\(beacon.bi)\nbid\t\(beacon.bid)\ncn\t\(beacon.cn ?? "")\nct\t\(beacon.ct ?? "")\ndma\tApple\ndmo\t\(beacon.dmo)\nk\t\(key)\nmmb\t32686\nosn\tiOS\nosv\t\(beacon.osv)\np\tiOS\npst\toom\nro\t\(String(InstanaSystemUtils.isDeviceJailbroken))\nsid\t\(beacon.sid)\nt\tperf\nti\t\(perf.timestamp)\nuf\tc,lm\nul\ten\numb\t20\nusi\t\(mockedInstanaSession.usi!.uuidString)\nvh\t\(Int(UIScreen.main.bounds.height))\nvw\t\(Int(UIScreen.main.bounds.width))"
         XCTAssertEqual(sut, expected)
     }
 

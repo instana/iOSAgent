@@ -13,8 +13,18 @@ class CoreBeaconFactory {
         if conf.monitorTypes.contains(.crash) {
             array.append(mobileFeatureCrash)
         }
+        if conf.monitorTypes.contains(.memoryWarning) {
+            array.append(mobileFeaturePerformanceLowMemory)
+        }
+        if conf.anrThreshold != nil, conf.monitorTypes.contains(
+            .alertApplicationNotResponding(threshold: conf.anrThreshold!)) {
+            array.append(mobileFeaturePerformanceANR)
+        }
         if session.autoCaptureScreenNames {
             array.append(mobileFeatureAutoScreenNameCapture)
+        }
+        if session.dropBeaconReporting {
+            array.append(mobileFeatureDropBeaconReporting)
         }
         return array.isEmpty ? nil : array.joined(separator: ",")
     }
