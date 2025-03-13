@@ -72,11 +72,11 @@ import Foundation
     var enableAppStartTimeReport: Bool = true
     var enableAnrReport: Bool = false
     var anrThreshold: Double = 3.0 // in seconds
-    var enableLowMemoryReport: Bool = true
+    var enableLowMemoryReport: Bool = false
 
     @objc public
-    init(enableAppStartTimeReport: Bool = false, enableAnrReport: Bool = true,
-         anrThreshold: Double = 3.0, enableLowMemoryReport: Bool = true) {
+    init(enableAppStartTimeReport: Bool = true, enableAnrReport: Bool = true,
+         anrThreshold: Double = 3.0, enableLowMemoryReport: Bool = false) {
         self.enableAppStartTimeReport = enableAppStartTimeReport
         self.enableAnrReport = enableAnrReport
         self.anrThreshold = anrThreshold

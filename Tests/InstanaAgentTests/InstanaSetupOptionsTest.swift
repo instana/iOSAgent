@@ -56,7 +56,7 @@ class InstanaPerformanceConfigTests: XCTestCase {
     func test_setEnableLowMemoryReport() {
         // Given
         let pfConfig = InstanaPerformanceConfig()
-        AssertTrue(pfConfig.enableLowMemoryReport)
+        AssertFalse(pfConfig.enableLowMemoryReport)
 
         // When
         pfConfig.setEnableLowMemoryReport(false)
@@ -80,7 +80,7 @@ class InstanaPerformanceConfigTests: XCTestCase {
         AssertEqualAndNotNil(pfConfig.enableAppStartTimeReport, true)
         AssertEqualAndNotNil(pfConfig.enableAnrReport, false)
         AssertEqualAndNotNil(pfConfig.anrThreshold, 3.0)
-        AssertEqualAndNotNil(pfConfig.enableLowMemoryReport, true)
+        AssertEqualAndNotNil(pfConfig.enableLowMemoryReport, false)
     }
 }
 

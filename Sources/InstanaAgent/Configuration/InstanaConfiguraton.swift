@@ -99,7 +99,7 @@ class InstanaConfiguration {
         self.httpCaptureConfig = httpCaptureConfig
         monitorTypes = MonitorTypes.current
         // Performance monitor
-        if perfConfig?.enableAppStartTimeReport == true {
+        if perfConfig?.enableAppStartTimeReport != false {
             monitorTypes.insert(.appLaunchTime)
         }
         if perfConfig?.enableLowMemoryReport == true {

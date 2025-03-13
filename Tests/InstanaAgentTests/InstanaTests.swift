@@ -112,10 +112,10 @@ class InstanaTests: InstanaTestCase {
         AssertTrue(Instana.current!.session.collectionEnabled)
         AssertEqualAndNotNil(Instana.sessionID, Instana.current?.session.id.uuidString)
         AssertEqualAndNotNil(Instana.reportingURL, reportingURL)
+        AssertEqualAndNotNil(Instana.current?.session.configuration.key, key)
         AssertEqualAndNotNil(Instana.current?.session.configuration.reportingURL, reportingURL)
         AssertEqualAndNotNil(Instana.current?.session.configuration.httpCaptureConfig, .automatic)
-        AssertEqualAndNotNil(Instana.current?.session.configuration,
-                             .default(key: key, reportingURL: reportingURL, enableCrashReporting: false))
+        AssertFalse(Instana.current!.session.configuration.monitorTypes.contains(.crash))
         AssertEqualAndNotNil(Instana.current?.session.configuration.slowSendInterval, 0.0)
         AssertEqualAndNotNil(Instana.current?.session.configuration.usiRefreshTimeIntervalInHrs, defaultUsiRefreshTimeIntervalInHrs)
     }
@@ -174,10 +174,6 @@ class InstanaTests: InstanaTestCase {
         AssertEqualAndNotNil(Instana.reportingURL, reportingURL)
         AssertEqualAndNotNil(Instana.current?.session.configuration.reportingURL, reportingURL)
         AssertEqualAndNotNil(Instana.current?.session.configuration.httpCaptureConfig, .manual)
-        AssertEqualAndNotNil(Instana.current?.session.configuration,
-                             .default(key: key, reportingURL: reportingURL,
-                                      httpCaptureConfig: httpCaptureConfig,
-                                      enableCrashReporting: false))
     }
 
     func test_setup_automaticAndManual_http_capture() {
@@ -196,10 +192,6 @@ class InstanaTests: InstanaTestCase {
         AssertEqualAndNotNil(Instana.reportingURL, reportingURL)
         AssertEqualAndNotNil(Instana.current?.session.configuration.reportingURL, reportingURL)
         AssertEqualAndNotNil(Instana.current?.session.configuration.httpCaptureConfig, .automaticAndManual)
-        AssertEqualAndNotNil(Instana.current?.session.configuration,
-                             .default(key: key, reportingURL: reportingURL,
-                                      httpCaptureConfig: httpCaptureConfig,
-                                      enableCrashReporting: false))
     }
 
     func test_setup_and_expect_SessionProfileBeacon() {

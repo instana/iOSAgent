@@ -21,7 +21,7 @@ class InstanaConfigurationTests: InstanaTestCase {
         AssertTrue(config.maxRetries == 3)
         AssertTrue(config.preQueueUsageTime == 2)
         AssertTrue(config.reporterSendLowBatteryDebounce == 10)
-        AssertTrue(config.monitorTypes.count == 2)
+        AssertTrue(config.monitorTypes.count == 3)
         AssertTrue(config.monitorTypes.contains(.http))
         AssertTrue(config.reporterRateLimits.count == 2)
         AssertTrue(config.reporterRateLimits.first?.maxItems == 20)
@@ -87,5 +87,14 @@ class InstanaConfigurationTests: InstanaTestCase {
         limiter = config.reporterRateLimits[1]
         AssertEqualAndNotNil(limiter.timeout, 60 * 5)
         AssertEqualAndNotNil(limiter.maxItems, 2500)
+    }
+
+    func test_performance_default() {
+        let config = InstanaConfiguration.default(key: "a",
+                                                  reportingURL: url,
+                                                  enableCrashReporting: false)
+        AssertTrue(config.monitorTypes.contains(.appLaunchTime))
+        AssertFalse(config.monitorTypes.contains(.memoryWarning))
+        AssertFalse(config.monitorTypes.contains(.alertApplicationNotResponding(threshold: 3.0)))
     }
 }

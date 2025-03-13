@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.9.0
+- enable app launch time monitoring by default, other performance monitoring off
+
 ## 1.8.9
 - fix pod lib lint error
 
