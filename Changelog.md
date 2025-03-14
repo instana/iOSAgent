@@ -1,6 +1,7 @@
 # Changelog
 
 ## 1.9.0
+- add `trustDeviceTiming` configuration option for backend to trust the device timing
 - enable app launch time monitoring by default, other performance monitoring off
 
 ## 1.8.9

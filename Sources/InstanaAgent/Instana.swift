@@ -102,6 +102,7 @@ import Foundation
         var dropBeaconReporting: Bool = false
         var rateLimits: RateLimits?
         var perfConfig: InstanaPerformanceConfig?
+        var trustDeviceTiming: Bool?
 
         if let options = options {
             httpCaptureConfig = options.httpCaptureConfig
@@ -132,6 +133,7 @@ import Foundation
             dropBeaconReporting = options.dropBeaconReporting
             rateLimits = options.rateLimits
             perfConfig = options.perfConfig
+            trustDeviceTiming = options.trustDeviceTiming
         }
 
         var hybridAgentId: String?
@@ -149,6 +151,7 @@ import Foundation
                                                   usiRefreshTimeIntervalInHrs: usiRefreshTimeIntervalInHrs,
                                                   rateLimits: rateLimits,
                                                   perfConfig: perfConfig,
+                                                  trustDeviceTiming: trustDeviceTiming,
                                                   hybridAgentId: hybridAgentId,
                                                   hybridAgentVersion: hybridAgentVersion)
         let session = InstanaSession(configuration: config, propertyHandler: InstanaPropertyHandler(),

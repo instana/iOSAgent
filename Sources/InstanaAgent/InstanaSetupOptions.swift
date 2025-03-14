@@ -27,6 +27,12 @@ import Foundation
 
     @objc public var perfConfig: InstanaPerformanceConfig?
 
+    /**
+     * When enabled, the backend will consider the device's (beacon creation) time as the actual time, rather than updating it to the ingestion time
+     * (the time the beacon arrived at the server). If the beacon is received after 30 minutes, the ingestion time will be used instead.
+     */
+    @objc public var trustDeviceTiming: Bool = false
+
     /// Instana custom configuration for setup.
     ///
     /// - Parameters:
@@ -47,7 +53,8 @@ import Foundation
          queryTrackedDomainList: [NSRegularExpression]? = nil,
          dropBeaconReporting: Bool = false,
          rateLimits: RateLimits = .DEFAULT_LIMITS,
-         perfConfig: InstanaPerformanceConfig? = nil) {
+         perfConfig: InstanaPerformanceConfig? = nil,
+         trustDeviceTiming: Bool = false) {
         self.httpCaptureConfig = httpCaptureConfig
         self.collectionEnabled = collectionEnabled
         self.enableCrashReporting = enableCrashReporting
@@ -61,6 +68,7 @@ import Foundation
         self.dropBeaconReporting = dropBeaconReporting
         self.rateLimits = rateLimits
         self.perfConfig = perfConfig
+        self.trustDeviceTiming = trustDeviceTiming
         super.init()
     }
 

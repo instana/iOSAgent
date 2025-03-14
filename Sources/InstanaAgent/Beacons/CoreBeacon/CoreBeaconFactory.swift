@@ -42,6 +42,7 @@ class CoreBeaconFactory {
                                                timestamp: beacon.timestamp,
                                                sid: session.id, usi: session.usi,
                                                id: beacon.id, mobileFeatures: mobileFeatures,
+                                               trustDeviceTiming: conf.trustDeviceTiming,
                                                hybridAgentId: conf.hybridAgentId,
                                                hybridAgentVersion: conf.hybridAgentVersion)
         cbeacon.append(properties)
@@ -280,6 +281,7 @@ extension CoreBeacon {
                               usi: UUID?,
                               id: String,
                               mobileFeatures: String?,
+                              trustDeviceTiming: Bool? = nil,
                               hybridAgentId: String?,
                               hybridAgentVersion: String?,
                               connection: NetworkUtility.ConnectionType = InstanaSystemUtils.networkUtility.connectionType,
@@ -307,6 +309,7 @@ extension CoreBeacon {
                    vh: String(Int(InstanaSystemUtils.screenSize.height)),
                    cn: connection.cellular.carrierName,
                    ct: connection.description,
-                   ect: ect?.description ?? connection.cellular.description)
+                   ect: ect?.description ?? connection.cellular.description,
+                   tdt: trustDeviceTiming.map { $0 ? "1" : nil } ?? nil)
     }
 }

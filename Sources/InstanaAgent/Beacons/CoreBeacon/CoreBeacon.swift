@@ -458,6 +458,17 @@ struct CoreBeacon: Codable {
     var umb: String?
 
     /**
+     * Trust Device Timing
+     *
+     * Helps the backend determine whether to trust the device's time.
+     * 1 means trust, nil means not trust.
+     * nil is the default value.
+     *
+     * For example: 1
+     */
+    var tdt: String?
+
+    /**
      * Crash Timestamp
      *
      * The timestamp in ms since 1970 when the crash happened.

@@ -41,7 +41,9 @@
                                            debugAllScreenNames: false
                                            queryTrackedDomainList: queryTrackedDomainList
                                            dropBeaconReporting: false
-                                           perfConfig: perfConfig];
+                                           rateLimits: 0
+                                           perfConfig: perfConfig
+                                           trustDeviceTiming: false];
      */
 
     (void)[Instana setupWithKey: @"INSTANA_REPORTING_KEY"

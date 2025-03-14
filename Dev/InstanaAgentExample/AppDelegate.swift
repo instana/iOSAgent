@@ -30,6 +30,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         options.queryTrackedDomainList = queryTrackedDomainList
 //        options.dropBeaconReporting = true
 //        options.rateLimits = .MID_LIMITS
+//        options.trustDeviceTiming = true
 //        options.perfConfig = InstanaPerformanceConfig(enableAnrReport: true, anrThreshold: 5.0, enableLowMemoryReport: true)
         if !Instana.setup(key: InstanaKey, reportingURL: InstanaURL, options: options) {
             os_log("Instana setup failed", log: myLog, type: .error)
