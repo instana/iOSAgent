@@ -1,6 +1,8 @@
 # Changelog
 
 ## 1.9.0
+- fix usi (user session id) bug for default configuration
+- send app foreground/background state along with each beacon
 - add `trustDeviceTiming` configuration option for backend to trust the device timing
 - enable app launch time monitoring by default, other performance monitoring off
 

@@ -215,6 +215,7 @@ extension CoreBeacon {
         ui = beacon.crashSession.userID
         un = beacon.crashSession.userName
         ue = beacon.crashSession.userEmail
+        cas = nil
 
         m = MetaData()
         m![crashMetaKeyIsSymbolicated] = String(beacon.isSymbolicated)
@@ -310,6 +311,7 @@ extension CoreBeacon {
                    cn: connection.cellular.carrierName,
                    ct: connection.description,
                    ect: ect?.description ?? connection.cellular.description,
-                   tdt: trustDeviceTiming.map { $0 ? "1" : nil } ?? nil)
+                   tdt: trustDeviceTiming.map { $0 ? "1" : nil } ?? nil,
+                   cas: InstanaApplicationStateHandler.shared.getAppStateForBeacon())
     }
 }

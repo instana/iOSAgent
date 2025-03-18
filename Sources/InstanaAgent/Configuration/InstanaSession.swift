@@ -108,7 +108,7 @@ class InstanaSession {
             usiActive = UUID(uuidString: idStr!)
             if usiActive == nil {
                 UserDefaults.standard.removeObject(forKey: userSessionIDKey)
-            } else {
+            } else if config.usiRefreshTimeIntervalInHrs > usiTrackingNotAllowed {
                 let startTimeRead = UserDefaults.standard.double(forKey: usi_startTimeKey)
                 let now = Date().timeIntervalSince1970
                 if startTimeRead > 0, startTimeRead <= now {
@@ -122,7 +122,7 @@ class InstanaSession {
         if usiActive == nil {
             return usiNew(config)
         }
-        return (usiActive!, startTime!)
+        return (usiActive!, startTime)
     }
 
     private static func usiNew(_ config: InstanaConfiguration) -> (UUID?, TimeInterval?) {

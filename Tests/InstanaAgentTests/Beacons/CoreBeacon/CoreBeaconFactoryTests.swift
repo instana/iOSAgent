@@ -87,7 +87,7 @@ class CoreBeaconFactoryTests: InstanaTestCase {
         AssertTrue(sut.em == nil)
 
         let values = Mirror(reflecting: sut).nonNilChildren
-        XCTAssertEqual(values.count, 23)
+        XCTAssertEqual(values.count, 24)
     }
 
     func test_map_beacon_implicit_values() {
@@ -120,6 +120,26 @@ class CoreBeaconFactoryTests: InstanaTestCase {
 
         // Then
         AssertEqualAndNotNil(sut.v, "Background")
+        AssertEqualAndNotNil(sut.cas, "b")
+    }
+
+    func test_map_http_in_unknownAppState() {
+        // Given
+        NotificationCenter.default.post(name: UIApplication.willEnterForegroundNotification, object: nil)
+        let session: InstanaSession = .mock
+        let factory = CoreBeaconFactory(session)
+
+        let base = "https://www.google.com/"
+        let suffix = ".html"
+        let path = (0..<HTTPBeacon.maxLengthURL - base.count - suffix.count).map {_ in "A"}.joined()
+        let url = URL(string: base + path + suffix)
+
+        // When
+        let beacon = HTTPBeacon(method: "GET", url: url!, responseCode: 200)
+        let sut = try! factory.map(beacon)
+
+        // Then
+        AssertEqualAndNotNil(sut.cas, "u")
     }
 
     func test_map_customBeacon() {

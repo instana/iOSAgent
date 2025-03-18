@@ -469,6 +469,17 @@ struct CoreBeacon: Codable {
     var tdt: String?
 
     /**
+     *  Current App State
+     *
+     *  Beacon is generated during app foreground or background state
+     *
+     *  Example: "f" - foreground
+     *         "b" - background
+     *         "u" - other states
+     */
+    var cas: String?
+
+    /**
      * Crash Timestamp
      *
      * The timestamp in ms since 1970 when the crash happened.

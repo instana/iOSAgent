@@ -69,4 +69,15 @@ class InstanaApplicationStateHandler {
     func removeAllListener() {
         stateUpdateHandler.removeAll()
     }
+
+    func getAppStateForBeacon() -> String? {
+        switch state {
+        case .active:
+            return "f"
+        case .background:
+            return "b"
+        default:
+            return "u"
+        }
+    }
 }

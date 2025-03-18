@@ -54,6 +54,8 @@ class DiagnosticBeaconTests: InstanaTestCase {
         AssertEqualAndNotNil(beacon.un, crashBeacon.crashSession.userName)
         AssertEqualAndNotNil(beacon.ue, crashBeacon.crashSession.userEmail)
 
+        XCTAssertNil(beacon.cas)
+
         XCTAssertEqual(beacon.m![crashMetaKeyIsSymbolicated], String(crashBeacon.isSymbolicated))
         XCTAssertEqual(beacon.m![crashMetaKeyInstanaPayloadVersion], currentInstanaCrashPayloadVersion)
         XCTAssertEqual(beacon.m![crashMetaKeyCrashType], "crash")

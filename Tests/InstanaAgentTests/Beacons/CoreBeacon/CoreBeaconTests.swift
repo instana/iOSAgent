@@ -97,7 +97,7 @@ class CoreBeaconTests: InstanaTestCase {
         let values = Mirror(reflecting: sut).children
 
         // Then
-        XCTAssertEqual(values.count, 57)
+        XCTAssertEqual(values.count, 58)
     }
 
     func testNumberOfFields_non_nil() {
@@ -108,7 +108,7 @@ class CoreBeaconTests: InstanaTestCase {
         let values = Array(Mirror(reflecting: sut).nonNilChildren)
 
         // Then
-        XCTAssertEqual(values.count, 26)
+        XCTAssertEqual(values.count, 27)
     }
 
 
@@ -120,7 +120,7 @@ class CoreBeaconTests: InstanaTestCase {
                             "ue", "ul", "ab", "av", "p", "osn", "osv", "dma", "dmo", "ro", "vw", "vh",
                             "im", "cn", "ct", "ect", "hu", "hp", "hm", "hs", "ebs", "dbs", "trs", "d",
                             "ec", "em", "et", "agv", "cen", "cm", "h", "ast", "cid", "pst", "acs", "aws",
-                            "ahs", "mmb", "amb", "umb", "tdt", "cti", "dt", "st"]
+                            "ahs", "mmb", "amb", "umb", "tdt", "cas", "cti", "dt", "st"]
         // When
         let keys = Mirror(reflecting: sut).children.compactMap {$0.label}
 
@@ -167,7 +167,7 @@ class CoreBeaconTests: InstanaTestCase {
         let sut = beacon.asString
 
         // Then
-        let expected = "ab\t\(beacon.ab)\nagv\t\(beacon.agv)\nav\t\(beacon.av)\nbi\t\(beacon.bi)\nbid\t\(beacon.bid)\ncn\tNone\nct\twifi\ndma\tApple\ndmo\t\(beacon.dmo)\nect\t5g\nk\t\(key)\nm_MetaKey\t\(metaData["MetaKey"]!)\nosn\tiOS\nosv\t\(beacon.osv)\np\tiOS\nro\t\(String(InstanaSystemUtils.isDeviceJailbroken))\nsid\t\(sessionID.uuidString)\nti\t\(beacon.ti)\nue\t\(user.email ?? "")\nuf\tc\nui\t\(user.id)\nul\ten\nun\t\(user.name ?? "")\nv\t\(viewName!)\nvh\t\(Int(UIScreen.main.bounds.height))\nvw\t\(Int(UIScreen.main.bounds.width))"
+        let expected = "ab\t\(beacon.ab)\nagv\t\(beacon.agv)\nav\t\(beacon.av)\nbi\t\(beacon.bi)\nbid\t\(beacon.bid)\ncas\tf\ncn\tNone\nct\twifi\ndma\tApple\ndmo\t\(beacon.dmo)\nect\t5g\nk\t\(key)\nm_MetaKey\t\(metaData["MetaKey"]!)\nosn\tiOS\nosv\t\(beacon.osv)\np\tiOS\nro\t\(String(InstanaSystemUtils.isDeviceJailbroken))\nsid\t\(sessionID.uuidString)\nti\t\(beacon.ti)\nue\t\(user.email ?? "")\nuf\tc\nui\t\(user.id)\nul\ten\nun\t\(user.name ?? "")\nv\t\(viewName!)\nvh\t\(Int(UIScreen.main.bounds.height))\nvw\t\(Int(UIScreen.main.bounds.width))"
         AssertEqualAndNotNil(sut, expected)
     }
 
@@ -180,7 +180,7 @@ class CoreBeaconTests: InstanaTestCase {
         let sut = beacon.asString
 
         // Then
-        let expected = "ab\t\(beacon.ab)\nagv\t\(beacon.agv)\nav\t\(beacon.av)\nbi\t\(beacon.bi)\nbid\t\(beacon.bid)\ncn\tNone\nct\twifi\ndma\tApple\ndmo\t\(beacon.dmo)\nect\t5g\nk\t\(key)\nm_MetaKey\t\(metaData["MetaKey"]!)\nosn\tiOS\nosv\t\(beacon.osv)\np\tiOS\nro\t\(String(InstanaSystemUtils.isDeviceJailbroken))\nsid\t\(sessionID.uuidString)\nti\t\(beacon.ti)\nue\t\(user.email ?? "")\nuf\tc\nui\t\(user.id)\nul\ten\nun\t\(user.name ?? "")\nusi\t\(beacon.usi!)\nv\t\(viewName!)\nvh\t\(Int(UIScreen.main.bounds.height))\nvw\t\(Int(UIScreen.main.bounds.width))"
+        let expected = "ab\t\(beacon.ab)\nagv\t\(beacon.agv)\nav\t\(beacon.av)\nbi\t\(beacon.bi)\nbid\t\(beacon.bid)\ncas\tf\ncn\tNone\nct\twifi\ndma\tApple\ndmo\t\(beacon.dmo)\nect\t5g\nk\t\(key)\nm_MetaKey\t\(metaData["MetaKey"]!)\nosn\tiOS\nosv\t\(beacon.osv)\np\tiOS\nro\t\(String(InstanaSystemUtils.isDeviceJailbroken))\nsid\t\(sessionID.uuidString)\nti\t\(beacon.ti)\nue\t\(user.email ?? "")\nuf\tc\nui\t\(user.id)\nul\ten\nun\t\(user.name ?? "")\nusi\t\(beacon.usi!)\nv\t\(viewName!)\nvh\t\(Int(UIScreen.main.bounds.height))\nvw\t\(Int(UIScreen.main.bounds.width))"
         AssertEqualAndNotNil(sut, expected)
         AssertEqualAndNotNil(beacon.ct, "wifi")
         AssertEqualAndNotNil(beacon.ect, "5g")

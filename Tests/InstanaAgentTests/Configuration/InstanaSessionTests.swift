@@ -22,9 +22,59 @@ class InstanaSessionTests: InstanaTestCase {
         AssertTrue(sut.collectionEnabled)
     }
 
+    func test_usiRetrieve_default_firstTimeAppRun() {
+        // Given
+        let propertyHandler = InstanaPropertyHandler()
+        UserDefaults.standard.removeObject(forKey: userSessionIDKey)
+        UserDefaults.standard.removeObject(forKey: usi_startTimeKey)
+
+        // When
+        let configUsi = InstanaConfiguration(reportingURL: .random, key: "KEY1", httpCaptureConfig: .automatic,
+                                             enableCrashReporting: false, slowSendInterval: 0.0,
+                                             usiRefreshTimeIntervalInHrs: defaultUsiRefreshTimeIntervalInHrs,
+                                             rateLimits: RateLimits.DEFAULT_LIMITS,
+                                             perfConfig: nil,
+                                             hybridAgentId: nil,
+                                             hybridAgentVersion: nil)
+        let sut = InstanaSession(configuration: configUsi, propertyHandler: propertyHandler, collectionEnabled: true)
+
+        // Then
+        XCTAssertNotNil(sut.usi)
+        XCTAssertNil(sut.usiStartTime)
+        XCTAssertNotNil(UserDefaults.standard.object(forKey: userSessionIDKey))
+        XCTAssertNil(UserDefaults.standard.object(forKey: usi_startTimeKey))
+    }
+
+    func test_usiRetrieve_default_secondTimeAppRun() {
+        // Given
+        let propertyHandler = InstanaPropertyHandler()
+        let usiTestValue = UUID()
+        UserDefaults.standard.setValue(usiTestValue.uuidString, forKey: userSessionIDKey)
+        UserDefaults.standard.removeObject(forKey: usi_startTimeKey)
+
+        // When
+        let configUsi = InstanaConfiguration(reportingURL: .random, key: "KEY2", httpCaptureConfig: .automatic,
+                                             enableCrashReporting: false, slowSendInterval: 0.0,
+                                             usiRefreshTimeIntervalInHrs: defaultUsiRefreshTimeIntervalInHrs,
+                                             rateLimits: RateLimits.DEFAULT_LIMITS,
+                                             perfConfig: nil,
+                                             hybridAgentId: nil,
+                                             hybridAgentVersion: nil)
+        let sut = InstanaSession(configuration: configUsi, propertyHandler: propertyHandler, collectionEnabled: true)
+
+        // Then
+        AssertTrue(sut.usi == usiTestValue)
+        XCTAssertNil(sut.usiStartTime)
+        XCTAssertNotNil(UserDefaults.standard.object(forKey: userSessionIDKey))
+        XCTAssertNil(UserDefaults.standard.object(forKey: usi_startTimeKey))
+    }
+
     func test_usiNotAllowed() {
         // Given
         let propertyHandler = InstanaPropertyHandler()
+        let usiTestValue = UUID()
+        UserDefaults.standard.setValue(usiTestValue.uuidString, forKey: userSessionIDKey)
+        UserDefaults.standard.setValue(Date().timeIntervalSince1970, forKey: usi_startTimeKey)
 
         // When
         let configUsi = InstanaConfiguration(reportingURL: .random, key: "KEY", httpCaptureConfig: .automatic,
@@ -39,6 +89,9 @@ class InstanaSessionTests: InstanaTestCase {
         // Then
         AssertTrue(sut.collectionEnabled)
         XCTAssertNil(sut.usi)
+        XCTAssertNil(sut.usiStartTime)
+        XCTAssertNil(UserDefaults.standard.object(forKey: userSessionIDKey))
+        XCTAssertNil(UserDefaults.standard.object(forKey: usi_startTimeKey))
     }
 
     func test_usiExpired() {
@@ -67,5 +120,8 @@ class InstanaSessionTests: InstanaTestCase {
 
         // Then
         XCTAssertNotEqual(oldUsi, usiExpiredAndNew)
+        XCTAssertNotNil(sut.usiStartTime)
+        XCTAssertNotNil(UserDefaults.standard.object(forKey: userSessionIDKey))
+        XCTAssertNotNil(UserDefaults.standard.object(forKey: usi_startTimeKey))
     }
 }
