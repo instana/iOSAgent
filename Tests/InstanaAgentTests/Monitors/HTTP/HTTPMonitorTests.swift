@@ -186,7 +186,7 @@ class HTTPMonitorTests: InstanaTestCase {
         request.httpBody = "11".data(using: .utf8)
 
         // When
-        let marker = try! monitor.mark(request)
+        let marker = try! monitor.mark(request, tracestate: nil)
 
         // Then
         XCTAssertEqual(marker.url, url)
@@ -203,7 +203,7 @@ class HTTPMonitorTests: InstanaTestCase {
         request.httpMethod = nil
 
         // When
-        XCTAssertThrowsError(try monitor.mark(request)) {error in
+        XCTAssertThrowsError(try monitor.mark(request, tracestate: nil)) {error in
             // Then
             XCTAssertEqual((error as? InstanaError), InstanaError.invalidRequest)
         }

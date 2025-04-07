@@ -170,8 +170,6 @@ class CustomBeaconTests: InstanaTestCase {
         AssertEqualAndNotNil(beacon.v, viewName)
 
         let expected = "ab\t\(beacon.ab)\nagv\t\(beacon.agv)\nav\t\(InstanaSystemUtils.applicationVersion)\nbi\t\(beacon.bi)\nbid\t\(beacon.bid)\ncas\tf\ncen\t\(name)\ncn\tNone\nct\t\(InstanaSystemUtils.networkUtility.connectionType.description)\ndma\tApple\ndmo\t\(InstanaSystemUtils.deviceModel)\nk\tKEY\nosn\tiOS\nosv\t\(InstanaSystemUtils.systemVersion)\np\tiOS\nro\t\(String(InstanaSystemUtils.isDeviceJailbroken))\nsid\t\(beacon.sid)\nt\tcustom\nti\t\(customBeacon.timestamp)\nuf\tc,lm\nul\ten\nusi\t\(session.usi!.uuidString)\nv\t\(viewName)\nvh\t\(Int(UIScreen.main.bounds.height))\nvw\t\(Int(UIScreen.main.bounds.width))"
-        print("hjtest exp \(expected)")
-        print("hjtest sut \(sut!)")
         AssertEqualAndNotNil(sut, expected)
     }
 

@@ -19,13 +19,38 @@ class InstanaURLProtocol: URLProtocol {
         URLSession(configuration: sessionConfiguration, delegate: self, delegateQueue: nil)
     }()
 
+    var tracestate: String?
     var marker: HTTPMarker?
     private(set) weak var originalTask: URLSessionTask?
     let markerQueue = DispatchQueue(label: "com.instana.ios.agent.InstanaURLProtocol", qos: .default)
 
     convenience init(task: URLSessionTask, cachedResponse: CachedURLResponse?, client: URLProtocolClient?) {
-        guard let request = task.currentRequest else { self.init(); return }
+        guard var request = task.currentRequest else { self.init(); return }
+
+        // add W3CHeaders
+        var localTraceId: String?
+        let config = Instana.current?.session.configuration
+        if config?.enableW3CHeaders == true {
+            localTraceId = Beacon.generateUniqueIdImpl()
+            /**
+             * The following code supports W3C trace context headers, ensuring compatibility with OpenTelemetry (OTel).
+             * The "03" at the end is a trace-flags value. trace-flag is an 8-bit field. trace-flags is hex-encoded.
+             * Trace-flag 00000001 means this trace is sampled.
+             * Trace-flag 00000010 means this trace id is randomly generated
+             *
+             * References:
+             * https://www.w3.org/TR/trace-context/#traceparent-header
+             * https://www.w3.org/TR/trace-context/#tracestate-header
+             * https://www.w3.org/TR/trace-context-2/#trace-flags
+             * https://www.w3.org/TR/trace-context-2/#random-trace-id-flag
+             */
+            let traceParent: String = "00-0000000000000000" + localTraceId! + "-" + localTraceId! + "-03"
+            request.setValue(traceParent, forHTTPHeaderField: TRACE_PARENT)
+            request.setValue(localTraceId!, forHTTPHeaderField: TRACE_STATE)
+        }
+
         self.init(request: request, cachedResponse: cachedResponse, client: client)
+        tracestate = localTraceId
         if let session = task.internalSession {
             originalTask = task
             sessionConfiguration = session.configuration
@@ -56,7 +81,7 @@ class InstanaURLProtocol: URLProtocol {
     override func startLoading() {
         markerQueue.sync {
             if InstanaURLProtocol.mode == .enabled, canMark {
-                marker = try? Instana.current?.monitors.http?.mark(request)
+                marker = try? Instana.current?.monitors.http?.mark(request, tracestate: tracestate)
             }
             if #available(iOS 13.0, *), originalTask is URLSessionWebSocketTask {
                 return session.webSocketTask(with: request).resume()
@@ -143,7 +168,7 @@ extension InstanaURLProtocol: URLSessionTaskDelegate {
     func urlSession(_ session: URLSession, task: URLSessionTask, willPerformHTTPRedirection response: HTTPURLResponse, newRequest request: URLRequest, completionHandler: @escaping (URLRequest?) -> Void) {
         markerQueue.sync {
             marker?.finish(response: response, error: nil)
-            marker = try? Instana.current?.monitors.http?.mark(request)
+            marker = try? Instana.current?.monitors.http?.mark(request, tracestate: tracestate)
             if let originalTask = originalTask, let originalSession = originalTask.internalSession, let delegate = originalSession.delegate as? URLSessionTaskDelegate,
                 delegate.responds(to: #selector(urlSession(_:task:willPerformHTTPRedirection:newRequest:completionHandler:))) {
                 dispatch(on: originalSession.delegateQueue.underlyingQueue) {

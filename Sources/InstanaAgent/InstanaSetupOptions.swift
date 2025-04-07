@@ -33,6 +33,10 @@ import Foundation
      */
     @objc public var trustDeviceTiming: Bool = false
 
+    // When set to true, this option includes W3C-compliant headers in HTTP request headers,
+    // ensuring compatibility with W3C standards for tracing.
+    @objc public var enableW3CHeaders: Bool = false
+
     /// Instana custom configuration for setup.
     ///
     /// - Parameters:
@@ -54,7 +58,8 @@ import Foundation
          dropBeaconReporting: Bool = false,
          rateLimits: RateLimits = .DEFAULT_LIMITS,
          perfConfig: InstanaPerformanceConfig? = nil,
-         trustDeviceTiming: Bool = false) {
+         trustDeviceTiming: Bool = false,
+         enableW3CHeaders: Bool = false) {
         self.httpCaptureConfig = httpCaptureConfig
         self.collectionEnabled = collectionEnabled
         self.enableCrashReporting = enableCrashReporting
@@ -69,6 +74,7 @@ import Foundation
         self.rateLimits = rateLimits
         self.perfConfig = perfConfig
         self.trustDeviceTiming = trustDeviceTiming
+        self.enableW3CHeaders = enableW3CHeaders
         super.init()
     }
 

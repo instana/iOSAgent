@@ -45,12 +45,12 @@ class HTTPMonitor {
 }
 
 extension HTTPMonitor {
-    func mark(_ request: URLRequest) throws -> HTTPMarker {
+    func mark(_ request: URLRequest, tracestate: String?) throws -> HTTPMarker {
         guard let url = request.url, let method = request.httpMethod else {
             throw InstanaError.invalidRequest
         }
         let header = request.allHTTPHeaderFields ?? [:]
-        return HTTPMarker(url: url, method: method, trigger: .automatic, header: header, delegate: self)
+        return HTTPMarker(url: url, method: method, trigger: .automatic, tracestate: tracestate, header: header, delegate: self)
     }
 
     func shouldReport(_ marker: HTTPMarker) -> Bool {

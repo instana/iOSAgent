@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.9.1
+- add W3C trace headers for http requests if enableW3CHeaders is configured to true
+
 ## 1.9.0
 - fix usi (user session id) bug for default configuration
 - send app foreground/background state along with each beacon

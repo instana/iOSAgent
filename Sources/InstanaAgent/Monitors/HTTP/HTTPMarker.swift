@@ -39,6 +39,7 @@ protocol HTTPMarkerDelegate: AnyObject {
     }
 
     let url: URL
+    let tracestate: String?
     var header: [String: String]?
     let method: String
     let trigger: Trigger
@@ -53,6 +54,7 @@ protocol HTTPMarkerDelegate: AnyObject {
     init(url: URL,
          method: String,
          trigger: Trigger,
+         tracestate: String? = nil,
          header: [String: String]? = nil,
          delegate: HTTPMarkerDelegate?,
          viewName: String? = nil) {
@@ -62,6 +64,7 @@ protocol HTTPMarkerDelegate: AnyObject {
         self.delegate = delegate
         self.trigger = trigger
         self.viewName = viewName
+        self.tracestate = tracestate
         self.header = header
     }
 
@@ -108,7 +111,7 @@ protocol HTTPMarkerDelegate: AnyObject {
         }
 
         let result = HTTPCaptureResult(statusCode: statusCode,
-                                       backendTracingID: response?.backendTracingID,
+                                       backendTracingID: tracestate ?? response?.backendTracingID,
                                        header: bothHeaders,
                                        responseSize: responseSize ?? size,
                                        error: error)
@@ -157,7 +160,7 @@ protocol HTTPMarkerDelegate: AnyObject {
 }
 
 extension HTTPMarker {
-    func createBeacon(filter: HTTPMonitorFilter) -> Beacon {
+    func createBeacon(tracestate: String? = nil, filter: HTTPMonitorFilter) -> Beacon {
         var error: Error?
         var responseCode: Int?
 

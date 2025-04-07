@@ -116,6 +116,36 @@ class InstanaURLProtocolTests: InstanaTestCase {
         AssertTrue(urlProtocol.marker == nil)
     }
 
+    func test_w3CHeaders() {
+        // Given
+        let url = URL.random
+        InstanaURLProtocol.mode = .enabled
+        Instana.current?.session.configuration.enableW3CHeaders = true
+        let urlProtocol = InstanaURLProtocol(task: mockTask(for: url), cachedResponse: nil, client: nil)
+
+        // When
+        urlProtocol.startLoading()
+
+        // Then
+        AssertEqualAndNotNil(urlProtocol.marker?.url, url)
+        AssertFalse(urlProtocol.tracestate == nil)
+    }
+
+    func test_w3CHeaders_false() {
+        // Given
+        let url = URL.random
+        InstanaURLProtocol.mode = .enabled
+        Instana.current?.session.configuration.enableW3CHeaders = false
+        let urlProtocol = InstanaURLProtocol(task: mockTask(for: url), cachedResponse: nil, client: nil)
+
+        // When
+        urlProtocol.startLoading()
+
+        // Then
+        AssertEqualAndNotNil(urlProtocol.marker?.url, url)
+        XCTAssertNil(urlProtocol.tracestate)
+    }
+
     func test_urlProtocol_shouldExtractInternalTaskSessionConfiguration() {
         // Given
         let timeout = 123.2

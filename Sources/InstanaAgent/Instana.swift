@@ -103,6 +103,7 @@ import Foundation
         var rateLimits: RateLimits?
         var perfConfig: InstanaPerformanceConfig?
         var trustDeviceTiming: Bool?
+        var enableW3CHeaders: Bool?
 
         if let options = options {
             httpCaptureConfig = options.httpCaptureConfig
@@ -134,6 +135,7 @@ import Foundation
             rateLimits = options.rateLimits
             perfConfig = options.perfConfig
             trustDeviceTiming = options.trustDeviceTiming
+            enableW3CHeaders = options.enableW3CHeaders
         }
 
         var hybridAgentId: String?
@@ -152,6 +154,7 @@ import Foundation
                                                   rateLimits: rateLimits,
                                                   perfConfig: perfConfig,
                                                   trustDeviceTiming: trustDeviceTiming,
+                                                  enableW3CHeaders: enableW3CHeaders,
                                                   hybridAgentId: hybridAgentId,
                                                   hybridAgentVersion: hybridAgentVersion)
         let session = InstanaSession(configuration: config, propertyHandler: InstanaPropertyHandler(),

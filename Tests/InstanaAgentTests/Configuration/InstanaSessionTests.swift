@@ -94,6 +94,50 @@ class InstanaSessionTests: InstanaTestCase {
         XCTAssertNil(UserDefaults.standard.object(forKey: usi_startTimeKey))
     }
 
+    func test_usiRetrieve_usiRefreshTimeIntervalInHrs_positiveNumber() {
+        // Given
+        let id = UUID()
+        UserDefaults.standard.setValue(id.uuidString, forKey: userSessionIDKey)
+        UserDefaults.standard.setValue(Date().timeIntervalSince1970, forKey: usi_startTimeKey)
+        config.usiRefreshTimeIntervalInHrs = 12.0
+
+        // When
+        let sut = InstanaSession(configuration: config, propertyHandler: InstanaPropertyHandler(), collectionEnabled: true)
+
+        // Then
+        AssertEqualAndNotNil(sut.usi, id)
+    }
+
+    func test_usiRetrieve_invalid_id_saved() {
+        // Given
+        let invalidId = "some-invalid-id"
+        UserDefaults.standard.setValue(invalidId, forKey: userSessionIDKey)
+        UserDefaults.standard.setValue(Date().timeIntervalSince1970, forKey: usi_startTimeKey)
+        config.usiRefreshTimeIntervalInHrs = 12.0
+
+        // When
+        let sut = InstanaSession(configuration: config, propertyHandler: InstanaPropertyHandler(), collectionEnabled: true)
+
+        // Then
+        XCTAssertFalse(sut.usi?.uuidString == invalidId)
+    }
+
+    func test_usiNew_usiRefreshTimeIntervalInHrs_positiveNumber() {
+        // Given
+        UserDefaults.standard.removeObject(forKey: userSessionIDKey)
+        UserDefaults.standard.removeObject(forKey: usi_startTimeKey)
+        config.usiRefreshTimeIntervalInHrs = 24.0
+
+        // When
+        let sut = InstanaSession(configuration: config, propertyHandler: InstanaPropertyHandler(), collectionEnabled: true)
+
+        // Then
+        XCTAssertNotNil(sut.usi)
+        XCTAssertNotNil(sut.usiStartTime)
+        XCTAssertNotNil(UserDefaults.standard.object(forKey: userSessionIDKey))
+        XCTAssertNotNil(UserDefaults.standard.object(forKey: usi_startTimeKey))
+    }
+
     func test_usiExpired() {
         // Given
         let propertyHandler = InstanaPropertyHandler()

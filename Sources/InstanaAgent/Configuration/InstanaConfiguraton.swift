@@ -74,6 +74,7 @@ class InstanaConfiguration {
     var usiRefreshTimeIntervalInHrs: Double
     var anrThreshold: Double?
     var trustDeviceTiming: Bool?
+    var enableW3CHeaders: Bool?
     var reporterSendDebounce: Instana.Types.Seconds
     var reporterSendLowBatteryDebounce: Instana.Types.Seconds
     var maxRetries: Int
@@ -94,6 +95,7 @@ class InstanaConfiguration {
                   rateLimits: RateLimits?,
                   perfConfig: InstanaPerformanceConfig? = nil,
                   trustDeviceTiming: Bool? = nil,
+                  enableW3CHeaders: Bool? = nil,
                   hybridAgentId: String?,
                   hybridAgentVersion: String?) {
         self.reportingURL = reportingURL
@@ -130,6 +132,7 @@ class InstanaConfiguration {
         reporterRateLimits = Defaults.reporterRateLimits
         configRateLimit(rateLimits)
         self.trustDeviceTiming = trustDeviceTiming
+        self.enableW3CHeaders = enableW3CHeaders
     }
 
     /**
@@ -171,6 +174,7 @@ class InstanaConfiguration {
                           rateLimits: RateLimits? = nil,
                           perfConfig: InstanaPerformanceConfig? = nil,
                           trustDeviceTiming: Bool? = nil,
+                          enableW3CHeaders: Bool? = nil,
                           hybridAgentId: String? = nil,
                           hybridAgentVersion: String? = nil)
         -> InstanaConfiguration {
@@ -182,6 +186,7 @@ class InstanaConfiguration {
                   rateLimits: rateLimits,
                   perfConfig: perfConfig,
                   trustDeviceTiming: trustDeviceTiming,
+                  enableW3CHeaders: enableW3CHeaders,
                   hybridAgentId: hybridAgentId,
                   hybridAgentVersion: hybridAgentVersion)
     }

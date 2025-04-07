@@ -68,3 +68,7 @@ let mobileFeaturePerformanceLowMemory = "lm"
 let mobileFeaturePerformanceANR = "anr"
 let mobileFeatureAutoScreenNameCapture = "sn"
 let mobileFeatureDropBeaconReporting = "db"
+
+// OpenTelemetry
+let TRACE_PARENT = "traceparent"
+let TRACE_STATE = "tracestate"

@@ -29,6 +29,9 @@
     [perfConfig setAnrThreshold: 5.0];
     [perfConfig setEnableAnrReport: true];
 
+    options.trustDeviceTiming = true;
+    options.enableW3CHeaders = true;
+
 //    note: explicitly get user permission before setting enableCrashReporting to true
     options = [[InstanaSetupOptions alloc] initWithHttpCaptureConfig: 0
                                            collectionEnabled: true
@@ -43,12 +46,13 @@
                                            dropBeaconReporting: false
                                            rateLimits: 0
                                            perfConfig: perfConfig
-                                           trustDeviceTiming: false];
+                                           trustDeviceTiming: false
+                                           enableW3CHeaders: true];
      */
 
     (void)[Instana setupWithKey: @"INSTANA_REPORTING_KEY"
-             reportingURL: [NSURL URLWithString: @"INSTANA_REPORTING_URL"]
-                  options: options];
+                   reportingURL: [NSURL URLWithString: @"INSTANA_REPORTING_URL"]
+                        options: options];
 
     NSURL* url = [NSURL URLWithString: @"https://www.ibm.com/jp-ja"];
     NSURLRequest* request = [NSURLRequest requestWithURL: url];
