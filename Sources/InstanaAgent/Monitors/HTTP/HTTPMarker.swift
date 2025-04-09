@@ -111,7 +111,7 @@ protocol HTTPMarkerDelegate: AnyObject {
         }
 
         let result = HTTPCaptureResult(statusCode: statusCode,
-                                       backendTracingID: tracestate ?? response?.backendTracingID,
+                                       backendTracingID: tracestate ?? response?.serverTimingTraceId,
                                        header: bothHeaders,
                                        responseSize: responseSize ?? size,
                                        error: error)

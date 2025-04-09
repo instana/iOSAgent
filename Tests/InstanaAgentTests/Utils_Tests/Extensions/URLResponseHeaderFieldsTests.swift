@@ -16,7 +16,7 @@ class URLResponseHeaderFieldsTests: InstanaTestCase {
         let httpResponse = HTTPURLResponse(url: URL.random, statusCode: 200, httpVersion: "1.1", headerFields: headerFields)
 
         // When
-        let sut = httpResponse?.backendTracingID
+        let sut = httpResponse?.serverTimingTraceId
 
         // Then
         AssertEqualAndNotNil(sut, backendTracingID)
@@ -29,7 +29,7 @@ class URLResponseHeaderFieldsTests: InstanaTestCase {
         let httpResponse = HTTPURLResponse(url: URL.random, statusCode: 200, httpVersion: "1.1", headerFields: headerFields)
 
         // When
-        let sut = httpResponse?.backendTracingID
+        let sut = httpResponse?.serverTimingTraceId
 
         // Then
         AssertEqualAndNotNil(sut, backendTracingID)
@@ -42,7 +42,7 @@ class URLResponseHeaderFieldsTests: InstanaTestCase {
         let httpResponse = HTTPURLResponse(url: URL.random, statusCode: 200, httpVersion: "1.1", headerFields: headerFields)
 
         // When
-        let sut = httpResponse?.backendTracingID
+        let sut = httpResponse?.serverTimingTraceId
 
         // Then
         AssertEqualAndNotNil(sut, backendTracingID)
@@ -56,7 +56,7 @@ class URLResponseHeaderFieldsTests: InstanaTestCase {
         let httpResponse = HTTPURLResponse(url: URL.random, statusCode: 200, httpVersion: "1.1", headerFields: headerFields)
 
         // When
-        let sut = httpResponse?.backendTracingID
+        let sut = httpResponse?.serverTimingTraceId
 
         // Then
         AssertEqualAndNotNil(sut, backendTracingID2)
@@ -69,7 +69,7 @@ class URLResponseHeaderFieldsTests: InstanaTestCase {
         let httpResponse = HTTPURLResponse(url: URL.random, statusCode: 200, httpVersion: "1.1", headerFields: headerFields)
 
         // When
-        let sut = httpResponse?.backendTracingID
+        let sut = httpResponse?.serverTimingTraceId
 
         // Then
         XCTAssertNil(sut)
@@ -82,7 +82,7 @@ class URLResponseHeaderFieldsTests: InstanaTestCase {
         let httpResponse = HTTPURLResponse(url: URL.random, statusCode: 200, httpVersion: "1.1", headerFields: headerFields)
 
         // When
-        let sut = httpResponse?.backendTracingID
+        let sut = httpResponse?.serverTimingTraceId
 
         // Then
         XCTAssertNil(sut)
@@ -95,7 +95,7 @@ class URLResponseHeaderFieldsTests: InstanaTestCase {
         let httpResponse = HTTPURLResponse(url: URL.random, statusCode: 200, httpVersion: "1.1", headerFields: headerFields)
 
         // When
-        let sut = httpResponse?.backendTracingID
+        let sut = httpResponse?.serverTimingTraceId
 
         // Then
         XCTAssertNil(sut)

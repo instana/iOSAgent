@@ -10,7 +10,7 @@ extension URLResponse {
         let value: String
     }
 
-    var backendTracingID: String? {
+    var serverTimingTraceId: String? {
         guard let httpResponse = self as? HTTPURLResponse,
             let servertiming = httpResponse.value(for: "Server-Timing")
         else { return nil }
