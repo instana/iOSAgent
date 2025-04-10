@@ -68,6 +68,7 @@ let mobileFeaturePerformanceLowMemory = "lm"
 let mobileFeaturePerformanceANR = "anr"
 let mobileFeatureAutoScreenNameCapture = "sn"
 let mobileFeatureDropBeaconReporting = "db"
+let mobileFeatureEnableW3CHeaders = "ot"
 
 // OpenTelemetry
 let TRACE_PARENT = "traceparent"

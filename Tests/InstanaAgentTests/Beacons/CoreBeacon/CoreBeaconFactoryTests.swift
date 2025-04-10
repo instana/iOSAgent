@@ -246,7 +246,8 @@ class CoreBeaconFactoryTests: InstanaTestCase {
         // Given
         let config = InstanaConfiguration.default(key: "key", reportingURL: URL(string: "http://localhost:3000")!,
                 enableCrashReporting: true, perfConfig: InstanaPerformanceConfig(enableAppStartTimeReport: true,
-                enableAnrReport: true, anrThreshold: 4.0, enableLowMemoryReport: true))
+                enableAnrReport: true, anrThreshold: 4.0, enableLowMemoryReport: true),
+                enableW3CHeaders: true)
         let session = InstanaSession(configuration: config, propertyHandler: InstanaPropertyHandler(),
                                      collectionEnabled: true, autoCaptureScreenNames: true, debugAllScreenNames: true,
                                      dropBeaconReporting: true)
@@ -254,7 +255,7 @@ class CoreBeaconFactoryTests: InstanaTestCase {
         let factory = CoreBeaconFactory(session)
 
         // Then
-        AssertTrue(factory.mobileFeatures! == "c,lm,anr,sn,db")
+        AssertTrue(factory.mobileFeatures! == "c,lm,anr,sn,db,ot")
     }
 
     func test_create_from_string() {

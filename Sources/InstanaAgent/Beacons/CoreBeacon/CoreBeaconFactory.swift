@@ -26,6 +26,9 @@ class CoreBeaconFactory {
         if session.dropBeaconReporting {
             array.append(mobileFeatureDropBeaconReporting)
         }
+        if conf.enableW3CHeaders == true {
+            array.append(mobileFeatureEnableW3CHeaders)
+        }
         return array.isEmpty ? nil : array.joined(separator: ",")
     }
 
