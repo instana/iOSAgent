@@ -5,6 +5,7 @@
 import Foundation
 
 class ViewChange: Beacon {
+    let duration: Instana.Types.Milliseconds?
     var accessibilityLabel: String?
     var navigationItemTitle: String?
     var className: String?
@@ -13,9 +14,12 @@ class ViewChange: Beacon {
     var viewInternalCPMetaMap: [String: String]
 
     init(timestamp: Instana.Types.Milliseconds = Date().millisecondsSince1970,
-         viewName: String? = nil, accessibilityLabel: String? = nil,
+         viewName: String? = nil,
+         duration: Instana.Types.Milliseconds? = nil,
+         accessibilityLabel: String? = nil,
          navigationItemTitle: String? = nil,
          className: String? = nil, isSwiftUI: Bool = false, viewInternalCPMetaMap: [String: String] = [:]) {
+        self.duration = duration
         self.viewInternalCPMetaMap = [:]
         var canonicalName: String? = viewName
         var prefix = ""

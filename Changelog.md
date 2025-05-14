@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.9.2
+- send screen rendering time along with viewChange beacon if autoCaptureScreenNames is set to true
+
 ## 1.9.1
 - add W3C trace headers for http requests if enableW3CHeaders is configured to true
 

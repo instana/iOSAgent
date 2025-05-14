@@ -452,6 +452,7 @@ import Foundation
     }
 
     public func setViewInternal(name: String?,
+                                duration: Instana.Types.Milliseconds? = nil,
                                 accessibilityLabel: String? = nil,
                                 navigationItemTitle: String? = nil,
                                 className: String? = nil,
@@ -464,6 +465,7 @@ import Foundation
                                                                   className: className)
         if isIdentical != nil, isIdentical! { return }
         let view = ViewChange(viewName: name,
+                              duration: duration,
                               accessibilityLabel: accessibilityLabel,
                               navigationItemTitle: navigationItemTitle,
                               className: className,

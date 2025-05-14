@@ -114,6 +114,9 @@ extension CoreBeacon {
 
     mutating func append(_ beacon: ViewChange) {
         t = .viewChange
+        if beacon.duration != nil {
+            d = String(beacon.duration!)
+        }
 
         im = MetaData()
         if beacon.accessibilityLabel != nil {
