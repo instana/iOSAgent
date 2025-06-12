@@ -47,7 +47,8 @@ class CoreBeaconFactory {
                                                id: beacon.id, mobileFeatures: mobileFeatures,
                                                trustDeviceTiming: conf.trustDeviceTiming,
                                                hybridAgentId: conf.hybridAgentId,
-                                               hybridAgentVersion: conf.hybridAgentVersion)
+                                               hybridAgentVersion: conf.hybridAgentVersion,
+                                               enableAppStateDetection: conf.enableAppStateDetection)
         cbeacon.append(properties)
         switch beacon {
         case let item as HTTPBeacon:
@@ -292,32 +293,34 @@ extension CoreBeacon {
                               hybridAgentId: String?,
                               hybridAgentVersion: String?,
                               connection: NetworkUtility.ConnectionType = InstanaSystemUtils.networkUtility.connectionType,
-                              ect: NetworkUtility.CellularType? = nil)
+                              ect: NetworkUtility.CellularType? = nil,
+                              enableAppStateDetection: Bool? = nil)
         -> CoreBeacon {
-        CoreBeacon(v: viewName,
-                   k: key,
-                   ti: String(timestamp),
-                   sid: sid.uuidString,
-                   usi: usi?.uuidString,
-                   bid: id,
-                   uf: mobileFeatures,
-                   bi: InstanaSystemUtils.applicationBundleIdentifier,
-                   ul: Locale.current.languageCode,
-                   ab: InstanaSystemUtils.applicationBuildNumber,
-                   av: InstanaSystemUtils.applicationVersion,
-                   p: InstanaSystemUtils.systemName,
-                   osn: InstanaSystemUtils.systemName,
-                   osv: InstanaSystemUtils.systemVersion,
-                   dmo: InstanaSystemUtils.deviceModel,
-                   agv: CoreBeacon.getInstanaAgentVersion(hybridAgentId: hybridAgentId,
-                                                          hybridAgentVersion: hybridAgentVersion),
-                   ro: String(InstanaSystemUtils.isDeviceJailbroken),
-                   vw: String(Int(InstanaSystemUtils.screenSize.width)),
-                   vh: String(Int(InstanaSystemUtils.screenSize.height)),
-                   cn: connection.cellular.carrierName,
-                   ct: connection.description,
-                   ect: ect?.description ?? connection.cellular.description,
-                   tdt: trustDeviceTiming.map { $0 ? "1" : nil } ?? nil,
-                   cas: InstanaApplicationStateHandler.shared.getAppStateForBeacon())
+        let cas = (enableAppStateDetection != false) ? InstanaApplicationStateHandler.shared.getAppStateForBeacon() : nil
+        return CoreBeacon(v: viewName,
+                          k: key,
+                          ti: String(timestamp),
+                          sid: sid.uuidString,
+                          usi: usi?.uuidString,
+                          bid: id,
+                          uf: mobileFeatures,
+                          bi: InstanaSystemUtils.applicationBundleIdentifier,
+                          ul: Locale.current.languageCode,
+                          ab: InstanaSystemUtils.applicationBuildNumber,
+                          av: InstanaSystemUtils.applicationVersion,
+                          p: InstanaSystemUtils.systemName,
+                          osn: InstanaSystemUtils.systemName,
+                          osv: InstanaSystemUtils.systemVersion,
+                          dmo: InstanaSystemUtils.deviceModel,
+                          agv: CoreBeacon.getInstanaAgentVersion(hybridAgentId: hybridAgentId,
+                                                                 hybridAgentVersion: hybridAgentVersion),
+                          ro: String(InstanaSystemUtils.isDeviceJailbroken),
+                          vw: String(Int(InstanaSystemUtils.screenSize.width)),
+                          vh: String(Int(InstanaSystemUtils.screenSize.height)),
+                          cn: connection.cellular.carrierName,
+                          ct: connection.description,
+                          ect: ect?.description ?? connection.cellular.description,
+                          tdt: trustDeviceTiming.map { $0 ? "1" : nil } ?? nil,
+                          cas: cas)
     }
 }

@@ -87,14 +87,17 @@ import Foundation
     var enableAnrReport: Bool = false
     var anrThreshold: Double = 3.0 // in seconds
     var enableLowMemoryReport: Bool = false
+    var enableAppStateDetection: Bool = true
 
     @objc public
     init(enableAppStartTimeReport: Bool = true, enableAnrReport: Bool = true,
-         anrThreshold: Double = 3.0, enableLowMemoryReport: Bool = false) {
+         anrThreshold: Double = 3.0, enableLowMemoryReport: Bool = false,
+         enableAppStateDetection: Bool = true) {
         self.enableAppStartTimeReport = enableAppStartTimeReport
         self.enableAnrReport = enableAnrReport
         self.anrThreshold = anrThreshold
         self.enableLowMemoryReport = enableLowMemoryReport
+        self.enableAppStateDetection = enableAppStateDetection
         super.init()
     }
 
@@ -119,6 +122,11 @@ import Foundation
     @objc public
     func setEnableLowMemoryReport(_ enableLowMemoryReport: Bool) {
         self.enableLowMemoryReport = enableLowMemoryReport
+    }
+
+    @objc public
+    func setEnableAppStateDetection(_ enableAppStateDetection: Bool) {
+        self.enableAppStateDetection = enableAppStateDetection
     }
 }
 

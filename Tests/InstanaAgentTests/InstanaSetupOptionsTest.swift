@@ -65,6 +65,18 @@ class InstanaPerformanceConfigTests: XCTestCase {
         AssertFalse(pfConfig.enableLowMemoryReport)
     }
 
+    func test_setEnableAppStateDetection() {
+        // Given
+        let pfConfig = InstanaPerformanceConfig()
+        AssertTrue(pfConfig.enableAppStateDetection)
+
+        // When
+        pfConfig.setEnableAppStateDetection(false)
+
+        // Then
+        AssertFalse(pfConfig.enableAppStateDetection)
+    }
+
     func testInit_full() {
         let pfConfig = InstanaPerformanceConfig(enableAppStartTimeReport: true,
                                                 enableAnrReport: true, anrThreshold: 2.0,

@@ -75,6 +75,7 @@ class InstanaConfiguration {
     var anrThreshold: Double?
     var trustDeviceTiming: Bool?
     var enableW3CHeaders: Bool?
+    var enableAppStateDetection: Bool?
     var reporterSendDebounce: Instana.Types.Seconds
     var reporterSendLowBatteryDebounce: Instana.Types.Seconds
     var maxRetries: Int
@@ -112,6 +113,9 @@ class InstanaConfiguration {
         if perfConfig?.enableAnrReport == true {
             anrThreshold = perfConfig!.anrThreshold
             monitorTypes.insert(.alertApplicationNotResponding(threshold: anrThreshold!))
+        }
+        if perfConfig?.enableAppStateDetection != nil {
+            enableAppStateDetection = perfConfig!.enableAppStateDetection
         }
 
         if enableCrashReporting {
