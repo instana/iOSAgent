@@ -204,7 +204,6 @@ extension CoreBeacon {
 
         cti = String(beacon.crashTime)
         d = String(beacon.duration)
-        ast = beacon.crashPayload
         if beacon.formatted != nil {
             st = beacon.formatted
         }

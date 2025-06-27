@@ -500,7 +500,7 @@ struct CoreBeacon: Codable {
      * Raw Crash Payload in JSON format
      *
      * called allStackTraces from server side
-     *
+     * stopped being used since version 1.9.3
      */
     var ast: String?
 

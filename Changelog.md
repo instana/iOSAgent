@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.9.3
+- crash beacon improvement
+
 ## 1.9.2
 - enableAppStateDetection for performance configuration is default to true
 - send screen rendering time along with viewChange beacon if autoCaptureScreenNames is set to true
