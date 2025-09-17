@@ -1077,6 +1077,22 @@ class ReporterTests: InstanaTestCase {
         XCTAssertTrue(reporter.canScheduleFlush())
     }
 
+    func test_calcDebounceTime_moreThanHalf() {
+        // Given
+        session.configuration.reporterSendDebounce = 2.0
+        let reporter = Reporter(session, batterySafeForNetworking: { true }, networkUtility: .wifi)
+
+        let beacons: [HTTPBeacon] = (0..<reporter.queue.maxItems/2 + 1).map { _ in HTTPBeacon.createMock() }
+        let corebeacons = try! CoreBeaconFactory(session).map(beacons)
+        reporter.queue.add(corebeacons)
+
+        // When
+        let debounce = reporter.calcDebounceTime()
+
+        // Then
+        XCTAssertTrue(debounce == 1.0)
+    }
+
     func test_submit_and_flush_shouldNotCause_RetainCycle() {
         // Given
         let waitForCompletion = expectation(description: "waitForSend")

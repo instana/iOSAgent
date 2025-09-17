@@ -151,7 +151,7 @@ public class Reporter {
             return true
         }
 
-        let maxFlushingTimeAllowed = 10.0 // in seconds
+        let maxFlushingTimeAllowed = 100.0 // in seconds
 
         let diff = Date().timeIntervalSince1970 - lastFlushStartTime!
         if diff > maxFlushingTimeAllowed {
@@ -193,7 +193,7 @@ public class Reporter {
             beacon.updateMetaDataWithSlowSendStartTime(slowSendStartTime)
             beacons.insert(beacon)
         } else {
-            debounce = queue.isFull ? 0.0 : flushDebounce
+            debounce = calcDebounceTime()
             beacons = queue.items
         }
         let flusher = BeaconFlusher(reporter: self, items: beacons, debounce: debounce,
@@ -207,7 +207,20 @@ public class Reporter {
         }
         flusher.schedule()
         self.flusher = flusher
-        lastFlushStartTime = Date().timeIntervalSince1970
+        lastFlushStartTime = Date().timeIntervalSince1970 + debounce
+    }
+
+    internal func calcDebounceTime() -> TimeInterval {
+        var debounce: TimeInterval = flushDebounce
+        let itemsCount = queue.items.count
+        if itemsCount >= (queue.maxItems * 4 / 5) {
+            // if queue 80% full then flush immediately
+            debounce = 0
+        } else if itemsCount >= (queue.maxItems / 2) {
+            // if queue 50% full then flush quicker than default waiting time
+            debounce /= 2.0
+        }
+        return debounce
     }
 
     func runBackgroundFlush() {

@@ -1,6 +1,7 @@
 # Changelog
 
 ## 1.9.3
+- address dulpicated beacon issue for slow network
 - crash beacon improvement
 
 ## 1.9.2

@@ -111,7 +111,7 @@ extension UIViewController {
             let duration = (CACurrentMediaTime() - startTime) * 1000.0
             let classType = type(of: self)
             #if DEBUG
-                print("DEBUG: \(Bundle(for: classType).bundleIdentifier!) classType=\(classType) viewDidAppear() \(duration) milliseconds")
+//                print("DEBUG: \(Bundle(for: classType).bundleIdentifier!) classType=\(classType) viewDidAppear() \(duration) milliseconds")
             #endif
             objc_setAssociatedObject(self, &AssociatedKeys.viewLoadStartTime, nil, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
 
