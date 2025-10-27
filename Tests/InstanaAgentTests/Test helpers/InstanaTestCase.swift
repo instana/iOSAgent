@@ -13,7 +13,11 @@ class InstanaTestCase: XCTestCase {
         var config = InstanaConfiguration.mock(key: "KEY", reportingURL: .random, httpCaptureConfig: .automatic)
         config.gzipReport = false
         let session = InstanaSession.mock(configuration: config)
-        let instana = Instana(session: session)
+
+        let mockReporter = MockReporter()
+        let mockMonitors = Monitors(session, reporter: mockReporter)
+
+        let instana = Instana(session: session, monitors: mockMonitors)
         Instana.current = instana
         return instana
     }()

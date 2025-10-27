@@ -12,7 +12,7 @@ extension URL {
     }
 }
 
-class MockHTTPURLResponse: HTTPURLResponse {
+class MockHTTPURLResponse: HTTPURLResponse, @unchecked Sendable {
     var stubbedAllHeaderFields: [AnyHashable: Any] = ["":""]
     var stubbedStatusCode: Int = 200
     override var allHeaderFields: [AnyHashable : Any] { stubbedAllHeaderFields }
@@ -22,12 +22,12 @@ class MockHTTPURLResponse: HTTPURLResponse {
     }
 }
 
-class MockURLSessionTask: URLSessionTask {
+class MockURLSessionTask: URLSessionTask, @unchecked Sendable {
     var stubbedResponse: URLResponse?
     override var response: URLResponse? { stubbedResponse }
 }
 
-class MockURLSessionTaskMetrics: URLSessionTaskMetrics {
+class MockURLSessionTaskMetrics: URLSessionTaskMetrics, @unchecked Sendable {
     var stubbedTransactionMetrics = [URLSessionTaskTransactionMetrics]()
     override var transactionMetrics: [URLSessionTaskTransactionMetrics] { stubbedTransactionMetrics }
     static var random: MockURLSessionTaskMetrics {
@@ -39,7 +39,7 @@ class MockURLSessionTaskMetrics: URLSessionTaskMetrics {
     }
 }
 
-class MockURLSessionTaskTransactionMetrics: URLSessionTaskTransactionMetrics {
+class MockURLSessionTaskTransactionMetrics: URLSessionTaskTransactionMetrics, @unchecked Sendable {
     var stubbedCountOfResponseHeaderBytesReceived: Int64 = 0
     var stubbedCountOfResponseBodyBytesReceived: Int64 = 0
     var stubbedCountOfResponseBodyBytesAfterDecoding: Int64 = 0
