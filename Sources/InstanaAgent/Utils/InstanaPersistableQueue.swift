@@ -52,7 +52,7 @@ class InstanaPersistableQueue<T: Codable & Hashable> {
     }
 
     func add(_ newItems: [T], _ completion: Completion? = nil) {
-        items.formUnion(newItems)
+        items.formUnion(Set(newItems))
         write(completion)
     }
 
@@ -62,7 +62,7 @@ class InstanaPersistableQueue<T: Codable & Hashable> {
     }
 
     func remove(_ removalItems: [T], completion: Completion? = nil) {
-        items.subtract(removalItems)
+        items.subtract(Set(removalItems))
         write(completion)
     }
 

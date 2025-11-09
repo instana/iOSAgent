@@ -120,11 +120,12 @@ class BeaconFlusher {
         disapatchGroup.notify(queue: queue) { [weak self] in
             guard let self = self else { return }
             self.urlTasks.removeAll()
-            if self.shouldPerformRetry() {
-                self.retry()
-            } else {
-                self.complete()
-            }
+            self.complete()
+//            if self.shouldPerformRetry() {
+//                self.retry()
+//            } else {
+//                self.complete()
+//            }
         }
         didStartFlush?()
     }

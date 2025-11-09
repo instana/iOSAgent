@@ -34,6 +34,8 @@ class InstanaSessionTests: InstanaTestCase {
                                              usiRefreshTimeIntervalInHrs: defaultUsiRefreshTimeIntervalInHrs,
                                              rateLimits: RateLimits.DEFAULT_LIMITS,
                                              perfConfig: nil,
+                                             deleteOldBeacons: false,
+                                             maxBeaconResendTries: 999,
                                              hybridAgentId: nil,
                                              hybridAgentVersion: nil)
         let sut = InstanaSession(configuration: configUsi, propertyHandler: propertyHandler, collectionEnabled: true)
@@ -58,6 +60,8 @@ class InstanaSessionTests: InstanaTestCase {
                                              usiRefreshTimeIntervalInHrs: defaultUsiRefreshTimeIntervalInHrs,
                                              rateLimits: RateLimits.DEFAULT_LIMITS,
                                              perfConfig: nil,
+                                             deleteOldBeacons: false,
+                                             maxBeaconResendTries: 999,
                                              hybridAgentId: nil,
                                              hybridAgentVersion: nil)
         let sut = InstanaSession(configuration: configUsi, propertyHandler: propertyHandler, collectionEnabled: true)
@@ -82,6 +86,8 @@ class InstanaSessionTests: InstanaTestCase {
                                              usiRefreshTimeIntervalInHrs: usiTrackingNotAllowed,
                                              rateLimits: RateLimits.DEFAULT_LIMITS,
                                              perfConfig: nil,
+                                             deleteOldBeacons: false,
+                                             maxBeaconResendTries: 999,
                                              hybridAgentId: nil,
                                              hybridAgentVersion: nil)
         let sut = InstanaSession(configuration: configUsi, propertyHandler: propertyHandler, collectionEnabled: true)
@@ -148,6 +154,8 @@ class InstanaSessionTests: InstanaTestCase {
                                              usiRefreshTimeIntervalInHrs: (1.0 / 3600.0),
                                              rateLimits: RateLimits.DEFAULT_LIMITS,
                                              perfConfig: nil,
+                                             deleteOldBeacons: false,
+                                             maxBeaconResendTries: 999,
                                              hybridAgentId: nil,
                                              hybridAgentVersion: nil)
         let sut = InstanaSession(configuration: configUsi, propertyHandler: propertyHandler, collectionEnabled: true)

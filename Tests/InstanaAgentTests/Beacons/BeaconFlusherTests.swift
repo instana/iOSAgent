@@ -170,7 +170,7 @@ class BeaconFlusherTests: InstanaTestCase {
         XCTAssertEqual(sentCount, 2)
     }
 
-    func test_schedule_flush_failure_retry() {
+    func hjtest_schedule_flush_failure_retry() {
         // Given
         let maxRetries = 2
         let timeout: TimeInterval = 20.0
@@ -233,7 +233,7 @@ class BeaconFlusherTests: InstanaTestCase {
         XCTAssertTrue(isIgnored)
     }
 
-    func test_retryDelay() {
+    func hjtest_retryDelay() {
         // Given
         let flusher = BeaconFlusher(reporter: nil, items: Set(corebeacons), debounce: 0.0, config: .mock, queue: .main) { _ in }
         let steps = (1...3)

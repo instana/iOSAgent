@@ -1,7 +1,11 @@
 # Changelog
 
+## 1.9.4
+- add `deleteOldBeacons` feature to remove older beacons
+- add `maxBeaconResendTries` to configure retry times on beacon send failure
+
 ## 1.9.3
-- address dulpicated beacon issue for slow network
+- address duplicated beacon issue for slow network
 - crash beacon improvement
 
 ## 1.9.2

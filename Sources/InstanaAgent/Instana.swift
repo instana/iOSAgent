@@ -104,6 +104,8 @@ import Foundation
         var perfConfig: InstanaPerformanceConfig?
         var trustDeviceTiming: Bool?
         var enableW3CHeaders: Bool?
+        var deleteOldBeacons: Bool
+        var maxBeaconResendTries: Int
 
         if let options = options {
             httpCaptureConfig = options.httpCaptureConfig
@@ -136,6 +138,12 @@ import Foundation
             perfConfig = options.perfConfig
             trustDeviceTiming = options.trustDeviceTiming
             enableW3CHeaders = options.enableW3CHeaders
+            deleteOldBeacons = options.deleteOldBeacons
+            maxBeaconResendTries = options.maxBeaconResendTries
+        } else {
+            let defaultOptions = InstanaSetupOptions()
+            deleteOldBeacons = defaultOptions.deleteOldBeacons
+            maxBeaconResendTries = defaultOptions.maxBeaconResendTries
         }
 
         var hybridAgentId: String?
@@ -155,6 +163,8 @@ import Foundation
                                                   perfConfig: perfConfig,
                                                   trustDeviceTiming: trustDeviceTiming,
                                                   enableW3CHeaders: enableW3CHeaders,
+                                                  deleteOldBeacons: deleteOldBeacons,
+                                                  maxBeaconResendTries: maxBeaconResendTries,
                                                   hybridAgentId: hybridAgentId,
                                                   hybridAgentVersion: hybridAgentVersion)
         let session = InstanaSession(configuration: config, propertyHandler: InstanaPropertyHandler(),
@@ -179,9 +189,12 @@ import Foundation
     @available(*, deprecated, message: "Use method setup(key: String, reportingURL: URL, options: InstanaSetupOptions?)")
     @objc
     public static func setup(key: String, reportingURL: URL, enableCrashReporting: Bool = false) {
+        let defaultOptions = InstanaSetupOptions()
         let config = InstanaConfiguration.default(key: key, reportingURL: reportingURL,
                                                   httpCaptureConfig: .automatic,
-                                                  enableCrashReporting: enableCrashReporting)
+                                                  enableCrashReporting: enableCrashReporting,
+                                                  deleteOldBeacons: defaultOptions.deleteOldBeacons,
+                                                  maxBeaconResendTries: defaultOptions.maxBeaconResendTries)
         let session = InstanaSession(configuration: config, propertyHandler: InstanaPropertyHandler(), collectionEnabled: true)
         Instana.current = Instana(session: session)
     }
@@ -202,9 +215,12 @@ import Foundation
                              httpCaptureConfig: HTTPCaptureConfig = .automatic,
                              collectionEnabled: Bool = true,
                              enableCrashReporting: Bool = false) {
+        let defaultOptions = InstanaSetupOptions()
         let config = InstanaConfiguration.default(key: key, reportingURL: reportingURL,
                                                   httpCaptureConfig: httpCaptureConfig,
-                                                  enableCrashReporting: enableCrashReporting)
+                                                  enableCrashReporting: enableCrashReporting,
+                                                  deleteOldBeacons: defaultOptions.deleteOldBeacons,
+                                                  maxBeaconResendTries: defaultOptions.maxBeaconResendTries)
         let session = InstanaSession(configuration: config, propertyHandler: InstanaPropertyHandler(), collectionEnabled: collectionEnabled)
         Instana.current = Instana(session: session)
     }

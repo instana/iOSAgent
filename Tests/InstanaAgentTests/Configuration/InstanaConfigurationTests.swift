@@ -7,7 +7,9 @@ class InstanaConfigurationTests: InstanaTestCase {
     func test_defaultValues() {
         let config = InstanaConfiguration.default(key: "a",
                                                   reportingURL: url,
-                                                  enableCrashReporting: true)
+                                                  enableCrashReporting: true,
+                                                  deleteOldBeacons: false,
+                                                  maxBeaconResendTries: 999)
         AssertTrue(config.key == "a")
         AssertEqualAndNotNil(config.reportingURL, url)
         AssertEqualAndNotNil(config.httpCaptureConfig, .automatic)
@@ -39,7 +41,9 @@ class InstanaConfigurationTests: InstanaTestCase {
         let config = InstanaConfiguration.default(key: "a",
                                                   reportingURL: url,
                                                   enableCrashReporting: true,
-                                                  perfConfig: perfConfig)
+                                                  perfConfig: perfConfig,
+                                                  deleteOldBeacons: false,
+                                                  maxBeaconResendTries: 999)
 
         AssertTrue(config.monitorTypes.contains(.appLaunchTime))
         AssertTrue(config.monitorTypes.contains(.memoryWarning))
@@ -50,7 +54,9 @@ class InstanaConfigurationTests: InstanaTestCase {
         let config = InstanaConfiguration.default(key: "a",
                                                   reportingURL: url,
                                                   enableCrashReporting: true,
-                                                  rateLimits: RateLimits.DEFAULT_LIMITS)
+                                                  rateLimits: RateLimits.DEFAULT_LIMITS,
+                                                  deleteOldBeacons: false,
+                                                  maxBeaconResendTries: 999)
 
         AssertTrue(config.reporterRateLimits == InstanaConfiguration.Defaults.reporterRateLimits)
     }
@@ -59,7 +65,9 @@ class InstanaConfigurationTests: InstanaTestCase {
         let config = InstanaConfiguration.default(key: "a",
                                                   reportingURL: url,
                                                   enableCrashReporting: true,
-                                                  rateLimits: RateLimits.MID_LIMITS)
+                                                  rateLimits: RateLimits.MID_LIMITS,
+                                                  deleteOldBeacons: false,
+                                                  maxBeaconResendTries: 999)
 
         AssertTrue(config.reporterRateLimits.count == 2)
 
@@ -76,7 +84,9 @@ class InstanaConfigurationTests: InstanaTestCase {
         let config = InstanaConfiguration.default(key: "a",
                                                   reportingURL: url,
                                                   enableCrashReporting: true,
-                                                  rateLimits: RateLimits.MAX_LIMITS)
+                                                  rateLimits: RateLimits.MAX_LIMITS,
+                                                  deleteOldBeacons: false,
+                                                  maxBeaconResendTries: 999)
 
         AssertTrue(config.reporterRateLimits.count == 2)
 
@@ -92,7 +102,9 @@ class InstanaConfigurationTests: InstanaTestCase {
     func test_performance_default() {
         let config = InstanaConfiguration.default(key: "a",
                                                   reportingURL: url,
-                                                  enableCrashReporting: false)
+                                                  enableCrashReporting: false,
+                                                  deleteOldBeacons: false,
+                                                  maxBeaconResendTries: 999)
         AssertTrue(config.monitorTypes.contains(.appLaunchTime))
         AssertFalse(config.monitorTypes.contains(.memoryWarning))
         AssertFalse(config.monitorTypes.contains(.alertApplicationNotResponding(threshold: 3.0)))

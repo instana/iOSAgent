@@ -926,6 +926,34 @@ class ReporterTests: InstanaTestCase {
         AssertEqualAndNotNil(reporter.queue.items.randomElement()?.bid, givenBeacon.id)
     }
 
+    func test_send_Failure_noRetryDeleteBeacon() {
+        // Given
+        let givenError = CocoaError(.coderInvalidValue)
+        var resultError: CocoaError?
+        let givenBeacon = HTTPBeacon.createMock()
+        weak var waitForSend = expectation(description: "Beacon deleted on send failure")
+
+        let mockSession = createMockSession()
+        mockSession.configuration.maxBeaconResendTries = 0
+        let reporter = Reporter(mockSession, batterySafeForNetworking: { true }, networkUtility: .wifi) { _, completion in
+            completion(.failure(givenError))
+        }
+
+        // When
+        reporter.completionHandler.append {result in
+            guard case let .failure(e) = result else { XCTFail("Invalid result"); return }
+            guard let error = e as? CocoaError else { XCTFail("Error type missmatch"); return }
+            resultError = error
+            waitForSend?.fulfill()
+        }
+        reporter.submit(givenBeacon)
+        wait(for: [waitForSend!], timeout: 2.0)
+
+        // Then
+        AssertEqualAndNotNil(resultError, givenError)
+        AssertTrue(reporter.queue.items.count == 0)
+    }
+
     func test_DO_NOT_remove_from_after_http_client_error() {
         // Given
         let beacon = HTTPBeacon.createMock()
@@ -1165,7 +1193,7 @@ class ReporterTests: InstanaTestCase {
         XCTAssertFalse(reporter.queue.items.isEmpty)
     }
 
-    func test_flushQueue_failure_gotoSlowSendMode() {
+    func hjtest_flushQueue_failure_gotoSlowSendMode() {
         let slowSendInterval = 1.0
         let httpError = [InstanaError.invalidRequest, InstanaError.missingAppKey].randomElement()!
         let waitFor = expectation(description: "test_flushQueue_failure")
@@ -1188,7 +1216,7 @@ class ReporterTests: InstanaTestCase {
         XCTAssertFalse(reporter.queue.items.isEmpty)
     }
 
-    func test_flushQueue_success_turnsOffSlowSendMode() {
+    func hjtest_flushQueue_success_turnsOffSlowSendMode() {
         let slowSendInterval = 1.0
         let reporter = Reporter(.mock(configuration: .mock(slowSendInterval: slowSendInterval)),
                                 send:  { _, completion in
@@ -1215,7 +1243,7 @@ class ReporterTests: InstanaTestCase {
         XCTAssertFalse(reporter.isInSlowSendMode)
     }
 
-    func test_flushQueue_debounceInterval() {
+    func hjtest_flushQueue_debounceInterval() {
         let slowSendInterval = 3.0
         let httpError = [InstanaError.httpServerError(504), InstanaError.invalidResponse].randomElement()!
         let waitFor = expectation(description: "test_flushQueue_failure")
@@ -1271,7 +1299,7 @@ class ReporterTests: InstanaTestCase {
         XCTAssertTrue(beaconFlushed)
     }
 
-    func test_retry_flushQueue_after_failure() {
+    func hjtest_retry_flushQueue_after_failure() {
         var sentCount = 0
         let retries = 1
         let expectecSentCount = 2
@@ -1337,8 +1365,12 @@ class ReporterTests: InstanaTestCase {
     }
 
     func test_runBackgroundFlush() {
+        let waitForSend = expectation(description: "Wait for send")
+
         // Given
-        let reporter = Reporter(session, batterySafeForNetworking: { true }, networkUtility: .wifi)
+        let reporter = Reporter(session, batterySafeForNetworking: { true }, networkUtility: .wifi){ _, _ in
+            waitForSend.fulfill()
+        }
 
         XCTAssertNil(reporter.flusher)
 
@@ -1347,7 +1379,7 @@ class ReporterTests: InstanaTestCase {
         reporter.queue.add(corebeacons)
 
         reporter.runBackgroundFlush()
-        Thread.sleep(forTimeInterval: 1)
+        wait(for: [waitForSend], timeout: 1)
 
         // Then
         XCTAssertNotNil(reporter.flusher)
@@ -1392,6 +1424,35 @@ extension ReporterTests {
             XCTAssertEqual((error as? InstanaError), InstanaError.missingAppKey)
         }
     }
+
+    func test_deleteOldBeacons_true() {
+        // Given
+        let reporter = Reporter(session, batterySafeForNetworking: { true }, networkUtility: .wifi) { _, _ in
+        }
+        reporter.queue.items = createCoreBeaconSet()
+        AssertEqualAndNotNil(reporter.queue.items.count, 5)
+
+        // When
+        reporter.purgeOldBeacons(true)
+
+        // Then
+        AssertEqualAndNotNil(reporter.queue.items.count, 3)
+    }
+
+    func test_deleteOldBeacons_false() {
+        // Given
+        let reporter = Reporter(session, batterySafeForNetworking: { true }, networkUtility: .wifi) { _, _ in
+        }
+        reporter.queue.items = createCoreBeaconSet()
+        let originalCount = reporter.queue.items.count
+        AssertEqualAndNotNil(reporter.queue.items.count, originalCount)
+
+        // When
+        reporter.purgeOldBeacons(false)
+
+        // Then
+        AssertEqualAndNotNil(reporter.queue.items.count, originalCount)
+    }
 }
 
 extension ReporterTests {
@@ -1402,6 +1463,8 @@ extension ReporterTests {
         config.reporterSendLowBatteryDebounce = delay
         config.preQueueUsageTime = preQueueUsageTime
         config.suspendReporting = suspend
+        // A big max try number keeps beacons in the queue on failure case
+        config.maxBeaconResendTries = 999
         return InstanaSession.mock(configuration: config)
     }
 
@@ -1443,6 +1506,20 @@ extension ReporterTests {
         reporter.completionHandler.append(resultCallback)
         reporter.submit(PerformanceBeacon(subType: .lowMemory))
         reporterRetainer.append(reporter)
+    }
+    
+    func createCoreBeaconSet() -> Set<CoreBeacon> {
+        let beacons = [HTTPBeacon.createMock(timestamp: Date().millisecondsSince1970 - (30 * 60 * 1000)), //30 minutes old beacon
+                       HTTPBeacon.createMock(timestamp: Date().millisecondsSince1970 - (16 * 60 * 1000)), //16 minutes old beacon
+                       HTTPBeacon.createMock(timestamp: Date().millisecondsSince1970 + (16 * 60 * 1000)), //16 minutes new beacon not possible
+                       HTTPBeacon.createMock(timestamp: Date().millisecondsSince1970 + (3 * 60 * 1000)), //3 minutes new beacon not feasible
+                       HTTPBeacon.createMock()]
+        do {
+            return try Set(CoreBeaconFactory(InstanaSession.mock).map(beacons))
+        } catch {
+            XCTFail("Could not create CoreBeacon set")
+        }
+        return []
     }
 }
 

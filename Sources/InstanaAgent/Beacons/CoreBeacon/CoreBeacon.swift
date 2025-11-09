@@ -534,6 +534,21 @@ struct CoreBeacon: Codable {
         }
         return "\(iOSAgentVersion):\(hybridAgentId):\(hybridAgentVersion)"
     }
+
+    /**
+     * retry count
+     *
+     * Example: 3
+     *
+     */
+    var rct: Int?
+    mutating func increaseRetryCount() {
+        if rct == nil {
+            rct = 1
+        } else {
+            rct! += 1
+        }
+    }
 }
 
 extension CoreBeacon: Hashable {

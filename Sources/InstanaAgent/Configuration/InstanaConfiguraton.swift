@@ -75,6 +75,8 @@ class InstanaConfiguration {
     var anrThreshold: Double?
     var trustDeviceTiming: Bool?
     var enableW3CHeaders: Bool?
+    var deleteOldBeacons: Bool
+    var maxBeaconResendTries: Int = 3
     var enableAppStateDetection: Bool?
     var reporterSendDebounce: Instana.Types.Seconds
     var reporterSendLowBatteryDebounce: Instana.Types.Seconds
@@ -97,6 +99,8 @@ class InstanaConfiguration {
                   perfConfig: InstanaPerformanceConfig? = nil,
                   trustDeviceTiming: Bool? = nil,
                   enableW3CHeaders: Bool? = nil,
+                  deleteOldBeacons: Bool,
+                  maxBeaconResendTries: Int,
                   hybridAgentId: String?,
                   hybridAgentVersion: String?) {
         self.reportingURL = reportingURL
@@ -134,9 +138,11 @@ class InstanaConfiguration {
         maxQueueSize = Defaults.maxQueueSize
         preQueueUsageTime = Defaults.preQueueUsageTime
         reporterRateLimits = Defaults.reporterRateLimits
-        configRateLimit(rateLimits)
         self.trustDeviceTiming = trustDeviceTiming
         self.enableW3CHeaders = enableW3CHeaders
+        self.deleteOldBeacons = deleteOldBeacons
+        self.maxBeaconResendTries = maxBeaconResendTries
+        configRateLimit(rateLimits)
     }
 
     /**
@@ -179,6 +185,8 @@ class InstanaConfiguration {
                           perfConfig: InstanaPerformanceConfig? = nil,
                           trustDeviceTiming: Bool? = nil,
                           enableW3CHeaders: Bool? = nil,
+                          deleteOldBeacons: Bool,
+                          maxBeaconResendTries: Int,
                           hybridAgentId: String? = nil,
                           hybridAgentVersion: String? = nil)
         -> InstanaConfiguration {
@@ -191,6 +199,8 @@ class InstanaConfiguration {
                   perfConfig: perfConfig,
                   trustDeviceTiming: trustDeviceTiming,
                   enableW3CHeaders: enableW3CHeaders,
+                  deleteOldBeacons: deleteOldBeacons,
+                  maxBeaconResendTries: maxBeaconResendTries,
                   hybridAgentId: hybridAgentId,
                   hybridAgentVersion: hybridAgentVersion)
     }

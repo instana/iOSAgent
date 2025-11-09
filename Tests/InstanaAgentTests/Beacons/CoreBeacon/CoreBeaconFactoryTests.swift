@@ -247,7 +247,7 @@ class CoreBeaconFactoryTests: InstanaTestCase {
         let config = InstanaConfiguration.default(key: "key", reportingURL: URL(string: "http://localhost:3000")!,
                 enableCrashReporting: true, perfConfig: InstanaPerformanceConfig(enableAppStartTimeReport: true,
                 enableAnrReport: true, anrThreshold: 4.0, enableLowMemoryReport: true),
-                enableW3CHeaders: true)
+                enableW3CHeaders: true, deleteOldBeacons: false, maxBeaconResendTries: 999)
         let session = InstanaSession(configuration: config, propertyHandler: InstanaPropertyHandler(),
                                      collectionEnabled: true, autoCaptureScreenNames: true, debugAllScreenNames: true,
                                      dropBeaconReporting: true)

@@ -31,6 +31,8 @@ class InstanaTests: InstanaTestCase {
         AssertEqualAndNotNil(config!.slowSendInterval, 0.0)
         AssertEqualAndNotNil(config!.usiRefreshTimeIntervalInHrs, defaultUsiRefreshTimeIntervalInHrs)
         AssertFalse(config!.monitorTypes.contains(.crash))
+        AssertFalse(config!.deleteOldBeacons)
+        AssertEqualAndNotNil(config!.maxBeaconResendTries, 3)
 
         let session = Instana.current?.session
         XCTAssertNotNil(session)
@@ -49,6 +51,8 @@ class InstanaTests: InstanaTestCase {
         options.suspendReportingOnCellular = true
         options.slowSendInterval = 20.0
         options.autoCaptureScreenNames = false
+        options.deleteOldBeacons = true
+        options.maxBeaconResendTries = 888
         let ret = Instana.setup(key: key, reportingURL: reportingURL, options: options)
 
         // Then
@@ -68,6 +72,8 @@ class InstanaTests: InstanaTestCase {
         AssertEqualAndNotNil(config!.slowSendInterval, options.slowSendInterval)
         AssertEqualAndNotNil(config!.usiRefreshTimeIntervalInHrs, options.usiRefreshTimeIntervalInHrs)
         AssertTrue(config!.monitorTypes.contains(.crash))
+        AssertTrue(config!.deleteOldBeacons)
+        AssertEqualAndNotNil(config!.maxBeaconResendTries, 888)
 
         AssertEqualAndNotNil(Instana.current?.session.collectionEnabled, options.collectionEnabled)
         AssertFalse(options.collectionEnabled)
@@ -118,6 +124,8 @@ class InstanaTests: InstanaTestCase {
         AssertFalse(Instana.current!.session.configuration.monitorTypes.contains(.crash))
         AssertEqualAndNotNil(Instana.current?.session.configuration.slowSendInterval, 0.0)
         AssertEqualAndNotNil(Instana.current?.session.configuration.usiRefreshTimeIntervalInHrs, defaultUsiRefreshTimeIntervalInHrs)
+        AssertFalse(Instana.current!.session.configuration.deleteOldBeacons)
+        AssertEqualAndNotNil(Instana.current?.session.configuration.maxBeaconResendTries, 3)
     }
 
     func test_setupInternal() {
@@ -137,7 +145,10 @@ class InstanaTests: InstanaTestCase {
         AssertEqualAndNotNil(Instana.current?.session.configuration.reportingURL, reportingURL)
         AssertEqualAndNotNil(Instana.current?.session.configuration.httpCaptureConfig, .automatic)
         XCTAssertNotEqual(Instana.current?.session.configuration,
-                             .default(key: key, reportingURL: reportingURL, enableCrashReporting: false))
+                             .default(key: key, reportingURL: reportingURL,
+                                      enableCrashReporting: false,
+                                      deleteOldBeacons: false,
+                                      maxBeaconResendTries: 999))
         AssertEqualAndNotNil(Instana.current?.session.configuration.slowSendInterval, 0.0)
         AssertEqualAndNotNil(Instana.current?.session.configuration.usiRefreshTimeIntervalInHrs, defaultUsiRefreshTimeIntervalInHrs)
     }
@@ -197,7 +208,8 @@ class InstanaTests: InstanaTestCase {
     func test_setup_and_expect_SessionProfileBeacon() {
         // Given
         let session: InstanaSession = .mock(configuration:
-                .default(key: "KEY",reportingURL: .random, enableCrashReporting: true))
+                .default(key: "KEY",reportingURL: .random, enableCrashReporting: true,
+                         deleteOldBeacons: false, maxBeaconResendTries: 999))
         var expectedBeacon: SessionProfileBeacon?
         let reporter = MockReporter {
             if let beacon = $0 as? SessionProfileBeacon {

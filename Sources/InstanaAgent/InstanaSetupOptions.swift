@@ -10,6 +10,7 @@ import Foundation
     @objc public var enableCrashReporting: Bool = false
     @objc public var suspendReportingOnLowBattery: Bool = false
     @objc public var suspendReportingOnCellular: Bool = false
+    @available(*, deprecated, message: "Do not configure.")
     @objc public var slowSendInterval: Instana.Types.Seconds = 0.0
     @objc public var usiRefreshTimeIntervalInHrs: Double = defaultUsiRefreshTimeIntervalInHrs
 
@@ -37,6 +38,17 @@ import Foundation
     // ensuring compatibility with W3C standards for tracing.
     @objc public var enableW3CHeaders: Bool = false
 
+    /**
+     * When enabled, this prevents beacons older than 15 minutes (saved while the device was offline) from being sent to the backend.
+     */
+
+    @objc public var deleteOldBeacons: Bool = false
+    /**
+     * Maximum beacon resend tries on sending failure
+     * (note: On low battery or offline, beacon is not sent.)
+     */
+    @objc public var maxBeaconResendTries: Int = 3
+
     /// Instana custom configuration for setup.
     ///
     /// - Parameters:
@@ -59,7 +71,9 @@ import Foundation
          rateLimits: RateLimits = .DEFAULT_LIMITS,
          perfConfig: InstanaPerformanceConfig? = nil,
          trustDeviceTiming: Bool = false,
-         enableW3CHeaders: Bool = false) {
+         enableW3CHeaders: Bool = false,
+         deleteOldBeacons: Bool = false,
+         maxBeaconResendTries: Int = 3) {
         self.httpCaptureConfig = httpCaptureConfig
         self.collectionEnabled = collectionEnabled
         self.enableCrashReporting = enableCrashReporting
@@ -75,6 +89,8 @@ import Foundation
         self.perfConfig = perfConfig
         self.trustDeviceTiming = trustDeviceTiming
         self.enableW3CHeaders = enableW3CHeaders
+        self.deleteOldBeacons = deleteOldBeacons
+        self.maxBeaconResendTries = maxBeaconResendTries
         super.init()
     }
 

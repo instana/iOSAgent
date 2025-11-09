@@ -47,6 +47,7 @@ public class Reporter {
         self.batterySafeForNetworking = batterySafeForNetworking
         self.rateLimiter = rateLimiter ?? ReporterRateLimiter(configs: session.configuration.reporterRateLimits)
         self.queue = queue ?? InstanaPersistableQueue<CoreBeacon>(identifier: "com.instana.ios.mainqueue", maxItems: session.configuration.maxQueueSize)
+        purgeOldBeacons(session.configuration.deleteOldBeacons)
         networkUtility.connectionUpdateHandler = { [weak self] connectionType in
             guard let self = self else { return }
             self.updateNetworkConnection(connectionType)
@@ -58,6 +59,20 @@ public class Reporter {
             }
         }
         dispatchQueue.asyncAfter(deadline: .now() + session.configuration.preQueueUsageTime, execute: emptyPreQueueIfNeeded)
+    }
+
+    func purgeOldBeacons(_ deleteOldBeacons: Bool, minutes: Double = 15.0) {
+        if !deleteOldBeacons {
+            return
+        }
+        let cutoffTime = Date().millisecondsSince1970 - Int64(minutes * 60.0 * 1000.0)
+        var updatedBeacons: Set<CoreBeacon> = []
+        for coreBeacon in queue.items {
+            if let timestamp = Int64(coreBeacon.ti), timestamp > cutoffTime {
+                updatedBeacons.insert(coreBeacon)
+            }
+        }
+        queue.items = updatedBeacons
     }
 
     func submit(_ beacon: Beacon, _ completion: ((Bool) -> Void)? = nil) {
@@ -196,13 +211,14 @@ public class Reporter {
             debounce = calcDebounceTime()
             beacons = queue.items
         }
+
         let flusher = BeaconFlusher(reporter: self, items: beacons, debounce: debounce,
                                     config: session.configuration, queue: dispatchQueue,
                                     send: send) { [weak self] result in
             guard let self = self else { return }
             self.dispatchQueue.async { [weak self] in
-                guard let self = self else { return }
-                self.handle(flushResult: result, start, fromBeaconFlusherCompletion: true)
+                let originalBeacons: Set<CoreBeacon>? = (result.sentBeacons.count < beacons.count) ? beacons : nil
+                self?.handle(flushResult: result, start, fromBeaconFlusherCompletion: true, originalBeacons: originalBeacons)
             }
         }
         flusher.schedule()
@@ -237,7 +253,8 @@ public class Reporter {
 
     private func handle(flushResult: BeaconFlusher.Result,
                         _ start: Date = Date(),
-                        fromBeaconFlusherCompletion: Bool = false) {
+                        fromBeaconFlusherCompletion: Bool = false,
+                        originalBeacons: Set<CoreBeacon>? = nil) {
         let result: BeaconResult
         let errors = flushResult.errors
         let sent = flushResult.sentBeacons
@@ -253,13 +270,36 @@ public class Reporter {
             result = BeaconResult.failure(error)
             session.logger.add("Failed to send beacons in \(end * 1000) ms")
         }
-        queue.remove(sent) { [weak self] _ in
-            guard let self = self else { return }
-            self.completionHandler.forEach { $0(result) }
+
+        if originalBeacons == nil {
+            // All beacons were successfully sent. Remove them from local file.
+            queue.remove(sent) { [weak self] _ in
+                self?.completionHandler.forEach { $0(result) }
+            }
+        } else {
+            // For beacons failed sending, increase retry count and save back to file.
+            queue.items.subtract(sent)
+            var updatedBeacons: Set<CoreBeacon> = []
+            for var cBeacon in queue.items {
+                if originalBeacons!.contains(cBeacon) {
+                    cBeacon.increaseRetryCount()
+                    if cBeacon.rct! < session.configuration.maxBeaconResendTries {
+                        updatedBeacons.insert(cBeacon)
+                    } // else: throw away the beacon
+                } else {
+                    // new beacons, keep as is
+                    updatedBeacons.insert(cBeacon)
+                }
+            }
+            queue.items = updatedBeacons
+            queue.write { [weak self] _ in
+                self?.completionHandler.forEach { $0(result) }
+            }
         }
 
         if fromBeaconFlusherCompletion {
             flusher = nil // mark this round flush done
+            lastFlushStartTime = nil
             if inSlowModeBeforeFlush {
                 // Another flush either resend 1 beacon (still in slow mode currently)
                 // or flush remaining beacons (got out of slow send mode already)
