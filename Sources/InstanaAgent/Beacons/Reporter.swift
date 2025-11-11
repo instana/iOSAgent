@@ -158,7 +158,30 @@ public class Reporter {
         }
     }
 
+    func deviceAllowFlush() -> Bool {
+        // Check network and battery condition
+        var error: Error?
+        let connectionType = networkUtility.connectionType
+        if connectionType == .none || connectionType == .undetermined {
+            error = InstanaError.offline
+        } else if suspendReporting.contains(.cellularConnection), connectionType == .cellular {
+            error = InstanaError.noWifiAvailable
+        } else if suspendReporting.contains(.lowBattery), !batterySafeForNetworking() {
+            error = InstanaError.lowBattery
+        }
+        if error != nil {
+            session.logger.add("Cannot send beacon: \(error!)", level: .warning)
+            completionHandler.forEach { $0(BeaconResult.failure(error!)) }
+            return false
+        }
+        return true
+    }
+
     func canScheduleFlush() -> Bool {
+        if !deviceAllowFlush() {
+            return false
+        }
+
         if flusher == nil {
             return true
         }
@@ -185,16 +208,6 @@ public class Reporter {
 
         let start = Date()
         var debounce: TimeInterval
-        let connectionType = networkUtility.connectionType
-        guard connectionType != .none else {
-            return handle(flushResult: .failure([InstanaError.offline]))
-        }
-        if suspendReporting.contains(.cellularConnection), connectionType == .cellular {
-            return handle(flushResult: .failure([InstanaError.noWifiAvailable]))
-        }
-        if suspendReporting.contains(.lowBattery), !batterySafeForNetworking() {
-            return handle(flushResult: .failure([InstanaError.lowBattery]))
-        }
         var beacons: Set<CoreBeacon> = Set([])
         inSlowModeBeforeFlush = isInSlowSendMode
         if inSlowModeBeforeFlush {
@@ -218,7 +231,7 @@ public class Reporter {
             guard let self = self else { return }
             self.dispatchQueue.async { [weak self] in
                 let originalBeacons: Set<CoreBeacon>? = (result.sentBeacons.count < beacons.count) ? beacons : nil
-                self?.handle(flushResult: result, start, fromBeaconFlusherCompletion: true, originalBeacons: originalBeacons)
+                self?.handle(flushResult: result, start, originalBeacons: originalBeacons)
             }
         }
         flusher.schedule()
@@ -253,7 +266,6 @@ public class Reporter {
 
     private func handle(flushResult: BeaconFlusher.Result,
                         _ start: Date = Date(),
-                        fromBeaconFlusherCompletion: Bool = false,
                         originalBeacons: Set<CoreBeacon>? = nil) {
         let result: BeaconResult
         let errors = flushResult.errors
@@ -297,22 +309,20 @@ public class Reporter {
             }
         }
 
-        if fromBeaconFlusherCompletion {
-            flusher = nil // mark this round flush done
-            lastFlushStartTime = nil
-            if inSlowModeBeforeFlush {
-                // Another flush either resend 1 beacon (still in slow mode currently)
-                // or flush remaining beacons (got out of slow send mode already)
-                var msg: String
-                if isInSlowSendMode {
-                    msg = "schedule flush to send 1 beacon in slow send mode"
-                } else {
-                    msg = "flush all beacons after out of slow send mode"
-                }
-                session.logger.add(msg)
+        flusher = nil // mark this round flush done
+        lastFlushStartTime = nil
+        if inSlowModeBeforeFlush {
+            // Another flush either resend 1 beacon (still in slow mode currently)
+            // or flush remaining beacons (got out of slow send mode already)
+            var msg: String
+            if isInSlowSendMode {
+                msg = "schedule flush to send 1 beacon in slow send mode"
+            } else {
+                msg = "flush all beacons after out of slow send mode"
             }
-            // schedule next round flush
-            scheduleFlush()
+            session.logger.add(msg)
         }
+        // schedule next round flush
+        scheduleFlush()
     }
 }

@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.9.5
+- check network/battery condition before beacon flush to avoid beacon accidentally get deleted
+
 ## 1.9.4
 - add `deleteOldBeacons` feature to remove older beacons
 - add `maxBeaconResendTries` to configure retry times on beacon send failure

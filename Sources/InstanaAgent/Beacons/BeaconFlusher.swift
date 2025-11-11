@@ -95,6 +95,9 @@ class BeaconFlusher {
     }
 
     private func flush() {
+        if reporter?.deviceAllowFlush() == false {
+            return
+        }
         let batches = items.chunkedBeacons(size: config.maxBeaconsPerRequest)
         let disapatchGroup = DispatchGroup()
         batches.forEach { beaconBatch in
