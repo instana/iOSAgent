@@ -189,7 +189,7 @@ public class Reporter {
             return true
         }
 
-        let maxFlushingTimeAllowed = 100.0 // in seconds
+        let maxFlushingTimeAllowed = session.configuration.timeoutInterval + 100.0 // in seconds
 
         let diff = Date().timeIntervalSince1970 - lastFlushStartTime!
         if diff > maxFlushingTimeAllowed {

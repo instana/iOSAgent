@@ -106,6 +106,7 @@ import Foundation
         var enableW3CHeaders: Bool?
         var deleteOldBeacons: Bool
         var maxBeaconResendTries: Int
+        var timeoutInterval: TimeInterval
 
         if let options = options {
             httpCaptureConfig = options.httpCaptureConfig
@@ -140,10 +141,12 @@ import Foundation
             enableW3CHeaders = options.enableW3CHeaders
             deleteOldBeacons = options.deleteOldBeacons
             maxBeaconResendTries = options.maxBeaconResendTries
+            timeoutInterval = options.timeoutInterval
         } else {
             let defaultOptions = InstanaSetupOptions()
             deleteOldBeacons = defaultOptions.deleteOldBeacons
             maxBeaconResendTries = defaultOptions.maxBeaconResendTries
+            timeoutInterval = defaultOptions.timeoutInterval
         }
 
         var hybridAgentId: String?
@@ -165,6 +168,7 @@ import Foundation
                                                   enableW3CHeaders: enableW3CHeaders,
                                                   deleteOldBeacons: deleteOldBeacons,
                                                   maxBeaconResendTries: maxBeaconResendTries,
+                                                  timeoutInterval: timeoutInterval,
                                                   hybridAgentId: hybridAgentId,
                                                   hybridAgentVersion: hybridAgentVersion)
         let session = InstanaSession(configuration: config, propertyHandler: InstanaPropertyHandler(),
@@ -194,7 +198,8 @@ import Foundation
                                                   httpCaptureConfig: .automatic,
                                                   enableCrashReporting: enableCrashReporting,
                                                   deleteOldBeacons: defaultOptions.deleteOldBeacons,
-                                                  maxBeaconResendTries: defaultOptions.maxBeaconResendTries)
+                                                  maxBeaconResendTries: defaultOptions.maxBeaconResendTries,
+                                                  timeoutInterval: defaultOptions.timeoutInterval)
         let session = InstanaSession(configuration: config, propertyHandler: InstanaPropertyHandler(), collectionEnabled: true)
         Instana.current = Instana(session: session)
     }
@@ -220,7 +225,8 @@ import Foundation
                                                   httpCaptureConfig: httpCaptureConfig,
                                                   enableCrashReporting: enableCrashReporting,
                                                   deleteOldBeacons: defaultOptions.deleteOldBeacons,
-                                                  maxBeaconResendTries: defaultOptions.maxBeaconResendTries)
+                                                  maxBeaconResendTries: defaultOptions.maxBeaconResendTries,
+                                                  timeoutInterval: defaultOptions.timeoutInterval)
         let session = InstanaSession(configuration: config, propertyHandler: InstanaPropertyHandler(), collectionEnabled: collectionEnabled)
         Instana.current = Instana(session: session)
     }

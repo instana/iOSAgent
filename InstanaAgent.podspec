@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
   #
 
   s.name         = "InstanaAgent"
-  s.version      = "1.9.5"
+  s.version      = "1.9.6"
   s.summary      = "Instana iOS agent."
 
   # This description is used to generate tags and improve search results.

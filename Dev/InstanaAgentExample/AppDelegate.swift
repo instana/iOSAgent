@@ -33,6 +33,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 //        options.trustDeviceTiming = true
 //        options.perfConfig = InstanaPerformanceConfig(enableAppStartTimeReport: false, enableAnrReport: true, anrThreshold: 5.0, enableLowMemoryReport: true, enableAppStateDetection: false)
 //        options.enableW3CHeaders = true
+//        options.timeoutInterval = 60.0
         if !Instana.setup(key: InstanaKey, reportingURL: InstanaURL, options: options) {
             os_log("Instana setup failed", log: myLog, type: .error)
         }
@@ -40,6 +41,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let headerFilterReg = try! NSRegularExpression(pattern: "Content-Type", options: .caseInsensitive)
         Instana.setCaptureHeaders(matching: [headerFilterReg])
 
+        Instana.setUser(id: "testUserId1", email: "test1@ibm.com", name:"testUserName1")
         return true
     }
 

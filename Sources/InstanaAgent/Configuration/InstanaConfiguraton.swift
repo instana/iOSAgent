@@ -76,7 +76,8 @@ class InstanaConfiguration {
     var trustDeviceTiming: Bool?
     var enableW3CHeaders: Bool?
     var deleteOldBeacons: Bool
-    var maxBeaconResendTries: Int = 3
+    var maxBeaconResendTries: Int
+    var timeoutInterval: TimeInterval
     var enableAppStateDetection: Bool?
     var reporterSendDebounce: Instana.Types.Seconds
     var reporterSendLowBatteryDebounce: Instana.Types.Seconds
@@ -101,6 +102,7 @@ class InstanaConfiguration {
                   enableW3CHeaders: Bool? = nil,
                   deleteOldBeacons: Bool,
                   maxBeaconResendTries: Int,
+                  timeoutInterval: TimeInterval,
                   hybridAgentId: String?,
                   hybridAgentVersion: String?) {
         self.reportingURL = reportingURL
@@ -142,6 +144,7 @@ class InstanaConfiguration {
         self.enableW3CHeaders = enableW3CHeaders
         self.deleteOldBeacons = deleteOldBeacons
         self.maxBeaconResendTries = maxBeaconResendTries
+        self.timeoutInterval = timeoutInterval
         configRateLimit(rateLimits)
     }
 
@@ -187,6 +190,7 @@ class InstanaConfiguration {
                           enableW3CHeaders: Bool? = nil,
                           deleteOldBeacons: Bool,
                           maxBeaconResendTries: Int,
+                          timeoutInterval: TimeInterval,
                           hybridAgentId: String? = nil,
                           hybridAgentVersion: String? = nil)
         -> InstanaConfiguration {
@@ -201,6 +205,7 @@ class InstanaConfiguration {
                   enableW3CHeaders: enableW3CHeaders,
                   deleteOldBeacons: deleteOldBeacons,
                   maxBeaconResendTries: maxBeaconResendTries,
+                  timeoutInterval: timeoutInterval,
                   hybridAgentId: hybridAgentId,
                   hybridAgentVersion: hybridAgentVersion)
     }

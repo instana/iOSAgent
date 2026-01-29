@@ -29,7 +29,8 @@ extension InstanaConfiguration {
                                           rateLimits: RateLimits.DEFAULT_LIMITS,
                                           perfConfig: nil,
                                           deleteOldBeacons: false,
-                                          maxBeaconResendTries: 999, // not delete failed beacons
+                                          maxBeaconResendTries: testMaxBeaconResendTries, // not delete beacons on send failure
+                                          timeoutInterval: defaultTimeoutInterval,
                                           hybridAgentId: nil,
                                           hybridAgentVersion: nil)
         config.suspendReporting = []

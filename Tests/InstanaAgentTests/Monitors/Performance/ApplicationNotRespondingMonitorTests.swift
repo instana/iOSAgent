@@ -29,26 +29,29 @@ class ApplicationNotRespondingMonitorTests: InstanaTestCase {
     func test_performanceOverload_triggersANRBeacon() {
         var beacon: Beacon?
         let exp = expectation(description: "ANR beacon trigger")
+        var fulfilled = false
         let reporter = MockReporter {
             beacon = $0
-            exp.fulfill()
+            if !fulfilled {
+                exp.fulfill()
+                fulfilled = true
+            }
         }
         reporterRetainer.append(reporter)
         monitor = ApplicationNotRespondingMonitor(threshold: 0.01, samplingInterval: 0.2, reporter: reporter)
 
-        Thread.sleep(forTimeInterval: 0.12)
-        
-        waitForExpectations(timeout: 0.14) { _ in
-            guard let perfBeacon = beacon as? PerfAppNotRespondingBeacon else {
-                XCTFail("Beacon not submitted or wrong type")
-                return
-            }
-            if perfBeacon.subType != .appNotResponding {
-                XCTFail("Wrong performance beacon sub type: \(perfBeacon.subType)")
-                return
-            }
-            XCTAssert(perfBeacon.duration > 0.01)
+        Thread.sleep(forTimeInterval: 0.5)
+        wait(for: [exp], timeout: 1.0)
+
+        guard let perfBeacon = beacon as? PerfAppNotRespondingBeacon else {
+            XCTFail("Beacon not submitted or wrong type")
+            return
         }
+        if perfBeacon.subType != .appNotResponding {
+            XCTFail("Wrong performance beacon sub type: \(perfBeacon.subType)")
+            return
+        }
+        XCTAssert(perfBeacon.duration > 0.01)
     }
     
     func test_backgroundedApplication_shouldNotTriggerANRBeacon() {

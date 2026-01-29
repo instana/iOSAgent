@@ -152,10 +152,10 @@ class BeaconFlusher {
         return retryStep < config.maxRetries
     }
 
-    private func retry() {
-        retryStep += 1
-        queue.asyncAfter(deadline: .now() + .milliseconds(retryDelayMilliseconds(for: retryStep)), execute: flush)
-    }
+//    private func retry() {
+//        retryStep += 1
+//        queue.asyncAfter(deadline: .now() + .milliseconds(retryDelayMilliseconds(for: retryStep)), execute: flush)
+//    }
 
     private func complete() {
         if !errors.isEmpty, !sentBeacons.isEmpty {
@@ -212,6 +212,10 @@ class BeaconFlusher {
         var urlRequest = URLRequest(url: config.reportingURL)
         urlRequest.httpMethod = "POST"
         urlRequest.addValue("text/plain", forHTTPHeaderField: "Content-Type")
+
+        // Default timeout interval 1 minute from URLRequest is too short for some networks.
+        // Increase the interval to 2 minutes by default and also make it configurable to the app.
+        urlRequest.timeoutInterval = config.timeoutInterval
 
         let data = beacons.data(using: .utf8)
 

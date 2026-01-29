@@ -27,7 +27,8 @@ class JSONViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 //        Instana.setView(name: "JSONView")
-        searchTextField.text = "https://www.ibm.com/de-de?abc=123&password=ps"
+//        searchTextField.text = "https://www.ibm.com/de-de?abc=123&password=ps"
+        searchTextField.text = "https://www.example.com"
     }
 
     @IBAction func loadJSON() {

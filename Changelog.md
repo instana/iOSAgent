@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.9.6
+- increase timeoutInterval for beacon flushing URLRequest to 2 minutes and also configurable
+
 ## 1.9.5
 - check network/battery condition before beacon flush to avoid beacon accidentally get deleted
 

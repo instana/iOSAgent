@@ -1455,6 +1455,7 @@ extension ReporterTests {
     }
 }
 
+let testMaxBeaconResendTries = 999 //behaves like infinite resend
 extension ReporterTests {
 
     func createMockSession(_ delay: Instana.Types.Seconds = 0.0, preQueueUsageTime: Instana.Types.Seconds = 0.0, suspend: Set<InstanaConfiguration.SuspendReporting> = [], gzip: Bool = false) -> InstanaSession {
@@ -1464,7 +1465,7 @@ extension ReporterTests {
         config.preQueueUsageTime = preQueueUsageTime
         config.suspendReporting = suspend
         // A big max try number keeps beacons in the queue on failure case
-        config.maxBeaconResendTries = 999
+        config.maxBeaconResendTries = testMaxBeaconResendTries
         return InstanaSession.mock(configuration: config)
     }
 

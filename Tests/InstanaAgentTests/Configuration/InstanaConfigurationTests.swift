@@ -9,7 +9,8 @@ class InstanaConfigurationTests: InstanaTestCase {
                                                   reportingURL: url,
                                                   enableCrashReporting: true,
                                                   deleteOldBeacons: false,
-                                                  maxBeaconResendTries: 999)
+                                                  maxBeaconResendTries: testMaxBeaconResendTries,
+                                                  timeoutInterval: defaultTimeoutInterval)
         AssertTrue(config.key == "a")
         AssertEqualAndNotNil(config.reportingURL, url)
         AssertEqualAndNotNil(config.httpCaptureConfig, .automatic)
@@ -43,7 +44,8 @@ class InstanaConfigurationTests: InstanaTestCase {
                                                   enableCrashReporting: true,
                                                   perfConfig: perfConfig,
                                                   deleteOldBeacons: false,
-                                                  maxBeaconResendTries: 999)
+                                                  maxBeaconResendTries: testMaxBeaconResendTries,
+                                                  timeoutInterval: defaultTimeoutInterval)
 
         AssertTrue(config.monitorTypes.contains(.appLaunchTime))
         AssertTrue(config.monitorTypes.contains(.memoryWarning))
@@ -56,7 +58,8 @@ class InstanaConfigurationTests: InstanaTestCase {
                                                   enableCrashReporting: true,
                                                   rateLimits: RateLimits.DEFAULT_LIMITS,
                                                   deleteOldBeacons: false,
-                                                  maxBeaconResendTries: 999)
+                                                  maxBeaconResendTries: testMaxBeaconResendTries,
+                                                  timeoutInterval: defaultTimeoutInterval)
 
         AssertTrue(config.reporterRateLimits == InstanaConfiguration.Defaults.reporterRateLimits)
     }
@@ -67,7 +70,8 @@ class InstanaConfigurationTests: InstanaTestCase {
                                                   enableCrashReporting: true,
                                                   rateLimits: RateLimits.MID_LIMITS,
                                                   deleteOldBeacons: false,
-                                                  maxBeaconResendTries: 999)
+                                                  maxBeaconResendTries: testMaxBeaconResendTries,
+                                                  timeoutInterval: defaultTimeoutInterval)
 
         AssertTrue(config.reporterRateLimits.count == 2)
 
@@ -86,7 +90,8 @@ class InstanaConfigurationTests: InstanaTestCase {
                                                   enableCrashReporting: true,
                                                   rateLimits: RateLimits.MAX_LIMITS,
                                                   deleteOldBeacons: false,
-                                                  maxBeaconResendTries: 999)
+                                                  maxBeaconResendTries: testMaxBeaconResendTries,
+                                                  timeoutInterval: defaultTimeoutInterval)
 
         AssertTrue(config.reporterRateLimits.count == 2)
 
@@ -104,7 +109,8 @@ class InstanaConfigurationTests: InstanaTestCase {
                                                   reportingURL: url,
                                                   enableCrashReporting: false,
                                                   deleteOldBeacons: false,
-                                                  maxBeaconResendTries: 999)
+                                                  maxBeaconResendTries: testMaxBeaconResendTries,
+                                                  timeoutInterval: defaultTimeoutInterval)
         AssertTrue(config.monitorTypes.contains(.appLaunchTime))
         AssertFalse(config.monitorTypes.contains(.memoryWarning))
         AssertFalse(config.monitorTypes.contains(.alertApplicationNotResponding(threshold: 3.0)))

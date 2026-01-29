@@ -144,7 +144,8 @@ class CoreBeaconTests: InstanaTestCase {
                                              rateLimits: RateLimits.DEFAULT_LIMITS,
                                              perfConfig: nil,
                                              deleteOldBeacons: false,
-                                             maxBeaconResendTries: 999,
+                                             maxBeaconResendTries: testMaxBeaconResendTries,
+                                             timeoutInterval: defaultTimeoutInterval,
                                              hybridAgentId: nil,
                                              hybridAgentVersion: nil)
         let sessionUsi = InstanaSession.mock(configuration: configUsi,

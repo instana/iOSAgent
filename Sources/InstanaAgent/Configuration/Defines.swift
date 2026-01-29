@@ -4,6 +4,12 @@
 
 import Foundation
 
+// Default network timeout interval for posting beacons to Instana backend
+public let defaultTimeoutInterval = 120.0 // default to 2 minutes
+
+// Default beacon send failure retry times
+public let defaultMaxBeaconResendTries = 2
+
 // Default user_session_id refresh time interval as negative number means never refresh
 // ie. keep the same user_session_id forever
 public let defaultUsiRefreshTimeIntervalInHrs: Double = -1.0

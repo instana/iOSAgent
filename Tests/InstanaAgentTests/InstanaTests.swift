@@ -32,7 +32,7 @@ class InstanaTests: InstanaTestCase {
         AssertEqualAndNotNil(config!.usiRefreshTimeIntervalInHrs, defaultUsiRefreshTimeIntervalInHrs)
         AssertFalse(config!.monitorTypes.contains(.crash))
         AssertFalse(config!.deleteOldBeacons)
-        AssertEqualAndNotNil(config!.maxBeaconResendTries, 3)
+        AssertEqualAndNotNil(config!.maxBeaconResendTries, defaultMaxBeaconResendTries)
 
         let session = Instana.current?.session
         XCTAssertNotNil(session)
@@ -125,7 +125,7 @@ class InstanaTests: InstanaTestCase {
         AssertEqualAndNotNil(Instana.current?.session.configuration.slowSendInterval, 0.0)
         AssertEqualAndNotNil(Instana.current?.session.configuration.usiRefreshTimeIntervalInHrs, defaultUsiRefreshTimeIntervalInHrs)
         AssertFalse(Instana.current!.session.configuration.deleteOldBeacons)
-        AssertEqualAndNotNil(Instana.current?.session.configuration.maxBeaconResendTries, 3)
+        AssertEqualAndNotNil(Instana.current?.session.configuration.maxBeaconResendTries, defaultMaxBeaconResendTries)
     }
 
     func test_setupInternal() {
@@ -148,7 +148,8 @@ class InstanaTests: InstanaTestCase {
                              .default(key: key, reportingURL: reportingURL,
                                       enableCrashReporting: false,
                                       deleteOldBeacons: false,
-                                      maxBeaconResendTries: 999))
+                                      maxBeaconResendTries: testMaxBeaconResendTries,
+                                      timeoutInterval: defaultTimeoutInterval))
         AssertEqualAndNotNil(Instana.current?.session.configuration.slowSendInterval, 0.0)
         AssertEqualAndNotNil(Instana.current?.session.configuration.usiRefreshTimeIntervalInHrs, defaultUsiRefreshTimeIntervalInHrs)
     }
@@ -209,7 +210,8 @@ class InstanaTests: InstanaTestCase {
         // Given
         let session: InstanaSession = .mock(configuration:
                 .default(key: "KEY",reportingURL: .random, enableCrashReporting: true,
-                         deleteOldBeacons: false, maxBeaconResendTries: 999))
+                         deleteOldBeacons: false, maxBeaconResendTries: testMaxBeaconResendTries,
+                         timeoutInterval: defaultTimeoutInterval))
         var expectedBeacon: SessionProfileBeacon?
         let reporter = MockReporter {
             if let beacon = $0 as? SessionProfileBeacon {

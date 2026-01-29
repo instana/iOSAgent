@@ -29,10 +29,17 @@
     [perfConfig setAnrThreshold: 5.0];
     [perfConfig setEnableAnrReport: true];
 
+    // note: explicitly get user permission before setting enableCrashReporting to true
+
+    // example 2
+    options = [[InstanaSetupOptions alloc] init];
+    options.enableCrashReporting = true;
+    options.queryTrackedDomainList = queryTrackedDomainList;
+    options.perfConfig = perfConfig;
     options.trustDeviceTiming = true;
     options.enableW3CHeaders = true;
 
-//    note: explicitly get user permission before setting enableCrashReporting to true
+    // example 3
     options = [[InstanaSetupOptions alloc] initWithHttpCaptureConfig: 0
                                            collectionEnabled: true
                                            enableCrashReporting: true
@@ -47,7 +54,11 @@
                                            rateLimits: 0
                                            perfConfig: perfConfig
                                            trustDeviceTiming: false
-                                           enableW3CHeaders: true];
+                                           enableW3CHeaders: true
+                                           deleteOldBeacons: false
+                                           maxBeaconResendTries: 0 // no retry beacon send on failure
+                                           timeoutInterval: 60.0
+                                           ];
      */
 
     (void)[Instana setupWithKey: @"INSTANA_REPORTING_KEY"

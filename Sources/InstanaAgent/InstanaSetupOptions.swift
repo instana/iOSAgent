@@ -47,7 +47,12 @@ import Foundation
      * Maximum beacon resend tries on sending failure
      * (note: On low battery or offline, beacon is not sent.)
      */
-    @objc public var maxBeaconResendTries: Int = 3
+    @objc public var maxBeaconResendTries: Int = defaultMaxBeaconResendTries
+
+    /**
+     * timeoutInterval for sending beacons to backend server (URLRequest timeoutInterval) in seconds
+     */
+    @objc public var timeoutInterval: TimeInterval = defaultTimeoutInterval
 
     /// Instana custom configuration for setup.
     ///
@@ -73,7 +78,8 @@ import Foundation
          trustDeviceTiming: Bool = false,
          enableW3CHeaders: Bool = false,
          deleteOldBeacons: Bool = false,
-         maxBeaconResendTries: Int = 3) {
+         maxBeaconResendTries: Int = defaultMaxBeaconResendTries,
+         timeoutInterval: TimeInterval = defaultTimeoutInterval) {
         self.httpCaptureConfig = httpCaptureConfig
         self.collectionEnabled = collectionEnabled
         self.enableCrashReporting = enableCrashReporting
@@ -91,6 +97,9 @@ import Foundation
         self.enableW3CHeaders = enableW3CHeaders
         self.deleteOldBeacons = deleteOldBeacons
         self.maxBeaconResendTries = maxBeaconResendTries
+        if timeoutInterval > 60.0 {
+            self.timeoutInterval = timeoutInterval
+        }
         super.init()
     }
 
