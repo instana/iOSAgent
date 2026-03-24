@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.9.7
+- workaround XCode 26.4 RC issue
+
 ## 1.9.6
 - increase timeoutInterval for beacon flushing URLRequest to 2 minutes and also configurable
 

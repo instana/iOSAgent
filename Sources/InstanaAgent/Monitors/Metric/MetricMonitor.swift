@@ -56,7 +56,8 @@ class MetricMonitor: NSObject, MXMetricManagerSubscriber {
     ///
     #if os(iOS)
         @available(iOS 13.0, *)
-        public func didReceive(_ payloads: [MXMetricPayload]) {}
+        // workaround XCode 26.4 RC issue
+//        public func didReceive(_ payloads: [MXMetricPayload]) {}
     #endif
 
     ///
