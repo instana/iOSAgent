@@ -5,6 +5,8 @@
 import UIKit
 
 let capturedVCs = NSMapTable<UIViewController, NSNumber>(keyOptions: .weakMemory, valueOptions: .strongMemory)
+private let instanaAutoViewCaptureSwizzleLock = NSLock()
+private var instanaAutoViewCaptureSwizzled = false
 
 extension UIViewController {
     func allowCapture(accessibilityLabel: String?, navigationItemTitle: String?,
@@ -51,24 +53,34 @@ extension UIViewController {
     /// to end of viewDidAppear is also measured and sent to Instana backend through duration of beacon.
     @objc
     public static func instanaSetViewAutomatically() {
-        // First time a viewController shows, screen rendering time starts from beginning of viewDidLoad
-        let viewDidLoadOriginal = class_getInstanceMethod(self, #selector(viewDidLoad))
-        let viewDidLoadSwizzled = class_getInstanceMethod(self, #selector(instana_viewDidLoad))
-        // Switching among on-screen viewControllers, screen rendering time starts from beginning of viewWillAppear
-        let viewWillAppearOriginal = class_getInstanceMethod(self, #selector(viewWillAppear(_:)))
-        let viewWillAppearSwizzled = class_getInstanceMethod(self, #selector(instana_viewWillAppear(_:)))
-        // Screen rendering time measuring ends
-        let viewDidAppearOriginal = class_getInstanceMethod(self, #selector(viewDidAppear(_:)))
-        let viewDidAppearSwizzled = class_getInstanceMethod(self, #selector(instana_viewDidAppear(_:)))
+        instanaAutoViewCaptureSwizzleLock.atomic {
+            guard !instanaAutoViewCaptureSwizzled else {
+                return
+            }
 
-        if let originalMethod = viewDidLoadOriginal, let swizzledMethod = viewDidLoadSwizzled {
-            method_exchangeImplementations(originalMethod, swizzledMethod)
-        }
-        if let originalMethod = viewWillAppearOriginal, let swizzledMethod = viewWillAppearSwizzled {
-            method_exchangeImplementations(originalMethod, swizzledMethod)
-        }
-        if let originalMethod = viewDidAppearOriginal, let swizzledMethod = viewDidAppearSwizzled {
-            method_exchangeImplementations(originalMethod, swizzledMethod)
+            // First time a viewController shows, screen rendering time starts from beginning of viewDidLoad
+            let viewDidLoadOriginal = class_getInstanceMethod(self, #selector(viewDidLoad))
+            let viewDidLoadSwizzled = class_getInstanceMethod(self, #selector(instana_viewDidLoad))
+            // Switching among on-screen viewControllers, screen rendering time starts from beginning of viewWillAppear
+            let viewWillAppearOriginal = class_getInstanceMethod(self, #selector(viewWillAppear(_:)))
+            let viewWillAppearSwizzled = class_getInstanceMethod(self, #selector(instana_viewWillAppear(_:)))
+            // Screen rendering time measuring ends
+            let viewDidAppearOriginal = class_getInstanceMethod(self, #selector(viewDidAppear(_:)))
+            let viewDidAppearSwizzled = class_getInstanceMethod(self, #selector(instana_viewDidAppear(_:)))
+
+            guard let originalViewDidLoad = viewDidLoadOriginal,
+                let swizzledViewDidLoad = viewDidLoadSwizzled,
+                let originalViewWillAppear = viewWillAppearOriginal,
+                let swizzledViewWillAppear = viewWillAppearSwizzled,
+                let originalViewDidAppear = viewDidAppearOriginal,
+                let swizzledViewDidAppear = viewDidAppearSwizzled else {
+                return
+            }
+
+            method_exchangeImplementations(originalViewDidLoad, swizzledViewDidLoad)
+            method_exchangeImplementations(originalViewWillAppear, swizzledViewWillAppear)
+            method_exchangeImplementations(originalViewDidAppear, swizzledViewDidAppear)
+            instanaAutoViewCaptureSwizzled = true
         }
     }
 
