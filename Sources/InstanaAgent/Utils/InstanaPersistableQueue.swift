@@ -4,8 +4,13 @@
 
 import Foundation
 
+protocol RestartRecoverableInFlight: Codable, Hashable {
+    var ifl: Bool? { get set }
+    mutating func clearInFlight()
+}
+
 /// To be used in an asynchronous world (i.e. via a background dispatch queue)
-class InstanaPersistableQueue<T: Codable & Hashable> {
+class InstanaPersistableQueue<T: RestartRecoverableInFlight> {
     typealias Completion = ((Result<Void, Error>) -> Void)
     let maxItems: Int
     var queueJSONFileURL: URL? {
@@ -26,7 +31,16 @@ class InstanaPersistableQueue<T: Codable & Hashable> {
         self.identifier = identifier
         let shouldIgnorePersistence = UserDefaults.standard.bool(forKey: "INSTANA_IGNORE_QUEUE_PERSISTENCE")
         if !shouldIgnorePersistence, let deserializeItems = try? deserialize() {
-            items = Set(deserializeItems)
+            // Clear in-flight flags on app restart.
+            // These items were being sent when app crashed/terminated, so allow retry.
+            var cleanedItems: Set<T> = Set([])
+            for var item in deserializeItems {
+                if item.ifl == true {
+                    item.clearInFlight()
+                }
+                cleanedItems.insert(item)
+            }
+            items = cleanedItems
         } else {
             items = Set([])
         }

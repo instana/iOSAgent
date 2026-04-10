@@ -6,7 +6,7 @@ import Foundation
 import XCTest
 @testable import InstanaAgent
 
-class MockInstanaPersistableQueue<T: Codable & Hashable>: InstanaPersistableQueue<T> {
+class MockInstanaPersistableQueue<T: RestartRecoverableInFlight>: InstanaPersistableQueue<T> {
 
     var addedItems = Set<T>()
     var removedItems = [T]()

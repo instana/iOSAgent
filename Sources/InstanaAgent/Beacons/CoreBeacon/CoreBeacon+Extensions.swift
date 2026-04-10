@@ -23,8 +23,9 @@ extension CoreBeacon {
 
     func formattedKVPair(key: String, value: Any) -> String? {
         guard Mirror.isNotNil(value: value) else { return nil }
-        if key == "rct" {
+        if key == "rct" || key == "ifl" {
             // retry count is internal to agent
+            // in-flight flag is internal to agent
             return nil
         }
         if let dict = value as? [String: String] {

@@ -1193,6 +1193,155 @@ class ReporterTests: InstanaTestCase {
         XCTAssertFalse(reporter.queue.items.isEmpty)
     }
 
+    func test_flushQueue_partialSuccess_removesSentAndClearsInflightOnFailedBeacon() {
+        // Given
+        let waitFor = expectation(description: "test_flushQueue_partialSuccess_removesSentAndClearsInflightOnFailedBeacon")
+        var fulfilled = false
+        let firstBeacon = HTTPBeacon.createMock()
+        let secondBeacon = HTTPBeacon.createMock()
+        let coreBeacons = try! CoreBeaconFactory(session).map([firstBeacon, secondBeacon])
+
+        let networkUtility: NetworkUtility = .wifi
+        let reporter = Reporter(.mock(configuration: .mock(maxBeaconsPerRequest: 1)),
+                                batterySafeForNetworking: { true },
+                                networkUtility: networkUtility,
+                                send: { request, completion in
+            let content = String(decoding: request.httpBody ?? Data(), as: UTF8.self)
+            if content.contains(firstBeacon.id) {
+                completion(.success(200))
+            } else {
+                completion(.failure(InstanaError.httpServerError(500)))
+            }
+        })
+        reporter.queue.add(coreBeacons)
+        reporter.completionHandler.append { _ in
+            if !fulfilled {
+                waitFor.fulfill()
+                fulfilled = true
+            }
+            // Prevent the follow-up flush from being scheduled successfully.
+            networkUtility.connectionType = .none
+        }
+
+        // When
+        reporter.scheduleFlush()
+        wait(for: [waitFor], timeout: 4.0)
+
+        // Then
+        XCTAssertEqual(reporter.queue.items.count, 1)
+        let remainingBeacon = reporter.queue.items.first!
+        XCTAssertEqual(remainingBeacon.bid, secondBeacon.id)
+        XCTAssertNil(remainingBeacon.ifl)   // cleared since flush done
+        XCTAssertEqual(remainingBeacon.rct, 1)
+    }
+
+    func test_flushQueue_partialSuccess_removesSentAndClearsInflightOnFailedBeacon_secondFlushScheduled() {
+        // Given
+        let waitFor = expectation(description: "test_flushQueue_partialSuccess_removesSentAndClearsInflightOnFailedBeacon_secondFlushScheduled")
+        let firstBeacon = HTTPBeacon.createMock()
+        let secondBeacon = HTTPBeacon.createMock()
+        let coreBeacons = try! CoreBeaconFactory(session).map([firstBeacon, secondBeacon])
+        let reporter = Reporter(.mock(configuration: .mock(maxBeaconsPerRequest: 1)),
+                                batterySafeForNetworking: { true },
+                                networkUtility: .wifi,
+                                send: { request, completion in
+            let content = String(decoding: request.httpBody ?? Data(), as: UTF8.self)
+            if content.contains(firstBeacon.id) {
+                completion(.success(200))
+            } else {
+                completion(.failure(InstanaError.httpServerError(500)))
+            }
+        })
+        reporter.queue.add(coreBeacons)
+        reporter.completionHandler.append { _ in
+            waitFor.fulfill()
+            // Allow the follow-up flush to be scheduled, but keep its debounce long
+            // enough that it will not complete during this test window.
+            reporter.session.configuration.reporterSendDebounce = 100.0
+        }
+
+        // When
+        reporter.scheduleFlush()
+        wait(for: [waitFor], timeout: 4.0)
+
+        // Then
+        XCTAssertEqual(reporter.queue.items.count, 1)
+        let remainingBeacon = reporter.queue.items.first!
+        XCTAssertEqual(remainingBeacon.bid, secondBeacon.id)
+        XCTAssertEqual(remainingBeacon.ifl, true) // marked by the next scheduled flush
+        XCTAssertEqual(remainingBeacon.rct, 1)
+    }
+
+    func test_flushQueue_partialSuccess_preservesNewBeaconSubmittedDuringFlush() {
+        // Given
+        let waitFor = expectation(description: "test_flushQueue_partialSuccess_preservesNewBeaconSubmittedDuringFlush")
+        let unexpectedSecondCompletion = expectation(description: "unexpected second completion")
+        unexpectedSecondCompletion.isInverted = true
+
+        let firstBeacon = HTTPBeacon.createMock()
+        let secondBeacon = HTTPBeacon.createMock()
+        let thirdBeacon = HTTPBeacon.createMock()
+        let coreBeacons = try! CoreBeaconFactory(session).map([firstBeacon, secondBeacon])
+
+        let networkUtility: NetworkUtility = .wifi
+        let reporter = Reporter(.mock(configuration: .mock(maxBeaconsPerRequest: 1)),
+                                batterySafeForNetworking: { true },
+                                networkUtility: networkUtility,
+                                send: { request, completion in
+            let content = String(decoding: request.httpBody ?? Data(), as: UTF8.self)
+            if content.contains(firstBeacon.id) {
+                completion(.success(200))
+            } else {
+                completion(.failure(InstanaError.httpServerError(500)))
+            }
+        })
+
+        reporter.queue.add(coreBeacons)
+
+        var completionCount = 0
+        reporter.completionHandler.append { _ in
+            completionCount += 1
+            if completionCount == 1 {
+                waitFor.fulfill()
+                // Keep the follow-up flush debounced long enough that it will not
+                // complete during this observation window.
+                reporter.session.configuration.reporterSendDebounce = 10.0
+            } else if completionCount == 2 {
+                // A second completion is not expected during this observation window.
+                unexpectedSecondCompletion.fulfill()
+            }
+        }
+
+        // When
+        reporter.scheduleFlush()
+        wait(for: [waitFor], timeout: 2.0)
+
+        // Then 1
+        XCTAssertEqual(reporter.queue.items.count, 1)
+        XCTAssertEqual(reporter.queue.items.first!.bid, secondBeacon.id)
+
+        reporter.submit(thirdBeacon)
+        wait(for: [unexpectedSecondCompletion], timeout: 5.0)
+
+        // Then 2
+        XCTAssertEqual(reporter.queue.items.count, 2) // new beacon is preserved
+        let remainingBeaconsByID = Dictionary(uniqueKeysWithValues: reporter.queue.items.map { ($0.bid, $0) })
+
+        XCTAssertNil(remainingBeaconsByID[firstBeacon.id])
+        XCTAssertNotNil(remainingBeaconsByID[secondBeacon.id])
+        XCTAssertNotNil(remainingBeaconsByID[thirdBeacon.id])
+
+        let failedOriginal = remainingBeaconsByID[secondBeacon.id]!
+        XCTAssertEqual(failedOriginal.ifl, true) // failed original is already scheduled for a follow-up flush
+        XCTAssertNotNil(failedOriginal.rct)
+        XCTAssertTrue(failedOriginal.rct! >= 1)
+
+        // The new beacon is preserved and remains untouched during this observation window.
+        let newBeacon = remainingBeaconsByID[thirdBeacon.id]!
+        XCTAssertNil(newBeacon.ifl)
+        XCTAssertNil(newBeacon.rct)
+    }
+
     func hjtest_flushQueue_failure_gotoSlowSendMode() {
         let slowSendInterval = 1.0
         let httpError = [InstanaError.invalidRequest, InstanaError.missingAppKey].randomElement()!
@@ -1348,13 +1497,18 @@ class ReporterTests: InstanaTestCase {
         let corebeacons = try! CoreBeaconFactory(.mock).map(beacons)
         reporter.queue.add(corebeacons)
         reporter.completionHandler.append {_ in
+            if !shouldCallCompletion {
+                waitFor.fulfill()
+            }
             shouldCallCompletion = true
-            waitFor.fulfill()
         }
 
         // When
         reporter.scheduleFlush()
         wait(for: [waitFor], timeout: 4.0)
+
+        // wait for post-flush queue operations complete
+        Thread.sleep(forTimeInterval: 0.1)
 
         // Then
         AssertTrue(shouldCallCompletion)

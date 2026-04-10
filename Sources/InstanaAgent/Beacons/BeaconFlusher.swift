@@ -95,7 +95,11 @@ class BeaconFlusher {
     }
 
     private func flush() {
-        if reporter?.deviceAllowFlush() == false {
+        let deviceError = reporter?.checkDeviceCondition()
+        if deviceError != nil {
+            reporter?.session.logger.add("Device is not ready for flush.")
+            errors.append(deviceError!)
+            complete() // This calls the completion callback with current state
             return
         }
         let batches = items.chunkedBeacons(size: config.maxBeaconsPerRequest)

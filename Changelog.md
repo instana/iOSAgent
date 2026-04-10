@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.9.8
+- add in-flight flag to corebeacon to prevent duplicated beacons
+
 ## 1.9.7
 - workaround XCode 26.4 RC issue
 

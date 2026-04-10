@@ -10,6 +10,7 @@ class InstanaTests: InstanaTestCase {
 
     func test_setup_with_options_default_success() {
         // Given
+        Instana.current = nil
         let key = "KEY"
         let reportingURL = URL(string: "http://www.instana.com")!
 
@@ -41,6 +42,7 @@ class InstanaTests: InstanaTestCase {
 
     func test_setup_with_options_custom_success() {
         // Given
+        Instana.current = nil
         let key = "KEY"
         let reportingURL = URL(string: "http://www.instana.com")!
 
@@ -81,6 +83,7 @@ class InstanaTests: InstanaTestCase {
 
     func test_setup_with_options_failure() {
         // Given
+        Instana.current = nil
         let key = "KEY"
         let reportingURL = URL(string: "http://www.instana.com")!
 
@@ -91,6 +94,7 @@ class InstanaTests: InstanaTestCase {
         AssertFalse(ret1)
 
         // case 2
+        Instana.current = nil
         let ret2 = Instana.setup(key: key, reportingURL: reportingURL, options: InstanaSetupOptions(slowSendInterval: 7777))
         // Then
         AssertFalse(ret2)
@@ -98,6 +102,7 @@ class InstanaTests: InstanaTestCase {
 
     func test_setup_invalid_configuration_empty_key() {
         // Given
+        Instana.current = nil
         let reportingURL = URL(string: "http://www.instana.com")!
         _ = Instana.setup(key: "", reportingURL: reportingURL, options: nil)
 
@@ -107,6 +112,7 @@ class InstanaTests: InstanaTestCase {
 
     func test_setup() {
         // Given
+        Instana.current = nil
         let key = "KEY"
         let reportingURL = URL(string: "http://www.instana.com")!
 
@@ -130,6 +136,7 @@ class InstanaTests: InstanaTestCase {
 
     func test_setupInternal() {
         // Given
+        Instana.current = nil
         let key = "KEY"
         let reportingURL = URL(string: "http://www.instana.com")!
 
@@ -156,6 +163,7 @@ class InstanaTests: InstanaTestCase {
 
     func test_setup_disabled() {
         // Given
+        Instana.current = nil
         let key = "KEY"
         let reportingURL = URL(string: "http://www.instana.com")!
         let httpCaptureConfig: HTTPCaptureConfig = .manual
@@ -172,6 +180,7 @@ class InstanaTests: InstanaTestCase {
 
     func test_setup_manual_http_capture() {
         // Given
+        Instana.current = nil
         let key = "KEY"
         let reportingURL = URL(string: "http://www.instana.com")!
         let httpCaptureConfig: HTTPCaptureConfig = .manual
@@ -190,6 +199,7 @@ class InstanaTests: InstanaTestCase {
 
     func test_setup_automaticAndManual_http_capture() {
         // Given
+        Instana.current = nil
         let key = "KEY"
         let reportingURL = URL(string: "http://www.instana.com")!
         let httpCaptureConfig: HTTPCaptureConfig = .automaticAndManual
@@ -771,6 +781,7 @@ class InstanaTests: InstanaTestCase {
     @available(*, deprecated)
     func test_setup_deprecated1() {
         // Given
+        Instana.current = nil
         let key = "KEY"
         let reportingURL = URL(string: "http://www.instana.com")!
 
@@ -800,6 +811,7 @@ class InstanaTests: InstanaTestCase {
     @available(*, deprecated)
     func test_setup_deprecated2() {
         // Given
+        Instana.current = nil
         let key = "KEY"
         let reportingURL = URL(string: "http://www.instana.com")!
 

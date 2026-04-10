@@ -21,7 +21,7 @@ public class Reporter {
     private let batterySafeForNetworking: () -> Bool
     private let networkUtility: NetworkUtility
     private var suspendReporting: Set<InstanaConfiguration.SuspendReporting> { session.configuration.suspendReporting }
-    private let session: InstanaSession
+    let session: InstanaSession
     private var flushDebounce: TimeInterval {
         batterySafeForNetworking() ? session.configuration.reporterSendDebounce : session.configuration.reporterSendLowBatteryDebounce
     }
@@ -55,7 +55,7 @@ public class Reporter {
         InstanaApplicationStateHandler.shared.listen { [weak self] state, _ in
             guard let self = self else { return }
             if state == .background, !ProcessInfo.isRunningTests {
-                self.runBackgroundFlush()
+//                self.runBackgroundFlush()
             }
         }
         dispatchQueue.asyncAfter(deadline: .now() + session.configuration.preQueueUsageTime, execute: emptyPreQueueIfNeeded)
@@ -158,9 +158,9 @@ public class Reporter {
         }
     }
 
-    func deviceAllowFlush() -> Bool {
+    func checkDeviceCondition() -> InstanaError? {
         // Check network and battery condition
-        var error: Error?
+        var error: InstanaError?
         let connectionType = networkUtility.connectionType
         if connectionType == .none || connectionType == .undetermined {
             error = InstanaError.offline
@@ -172,13 +172,13 @@ public class Reporter {
         if error != nil {
             session.logger.add("Cannot send beacon: \(error!)", level: .warning)
             completionHandler.forEach { $0(BeaconResult.failure(error!)) }
-            return false
+            return error
         }
-        return true
+        return nil
     }
 
     func canScheduleFlush() -> Bool {
-        if !deviceAllowFlush() {
+        if checkDeviceCondition() != nil {
             return false
         }
 
@@ -208,7 +208,7 @@ public class Reporter {
 
         let start = Date()
         var debounce: TimeInterval
-        var beacons: Set<CoreBeacon> = Set([])
+        var beaconsToSend: Set<CoreBeacon> = Set([])
         inSlowModeBeforeFlush = isInSlowSendMode
         if inSlowModeBeforeFlush {
             if sendFirstBeacon {
@@ -219,18 +219,36 @@ public class Reporter {
             }
             var beacon = queue.items.first!
             beacon.updateMetaDataWithSlowSendStartTime(slowSendStartTime)
-            beacons.insert(beacon)
+            beaconsToSend.insert(beacon)
         } else {
             debounce = calcDebounceTime()
-            beacons = queue.items
+            // Filter out beacons already in-flight to prevent duplicate sends
+            beaconsToSend = queue.items.filter { $0.ifl != true }
         }
 
-        let flusher = BeaconFlusher(reporter: self, items: beacons, debounce: debounce,
+        guard !beaconsToSend.isEmpty else {
+            session.logger.add("All beacons are in-flight, skipping flush")
+            return
+        }
+
+        // Mark beacons as in-flight and persist
+        var markedBeacons: Set<CoreBeacon> = []
+        for var beacon in beaconsToSend {
+            beacon.markInFlight()
+            markedBeacons.insert(beacon)
+        }
+
+        // Update queue with in-flight markers
+        queue.items.subtract(beaconsToSend) // Remove unmarked versions
+        queue.items.formUnion(markedBeacons) // Add marked versions
+        queue.write() // Persist in-flight state
+
+        let flusher = BeaconFlusher(reporter: self, items: markedBeacons, debounce: debounce,
                                     config: session.configuration, queue: dispatchQueue,
                                     send: send) { [weak self] result in
             guard let self = self else { return }
             self.dispatchQueue.async { [weak self] in
-                let originalBeacons: Set<CoreBeacon>? = (result.sentBeacons.count < beacons.count) ? beacons : nil
+                let originalBeacons: Set<CoreBeacon>? = (result.sentBeacons.count < markedBeacons.count) ? markedBeacons : nil
                 self?.handle(flushResult: result, start, originalBeacons: originalBeacons)
             }
         }
@@ -276,7 +294,7 @@ public class Reporter {
         }
         if errors.isEmpty {
             result = BeaconResult.success
-            session.logger.add("Did successfully send all beacons in \(end * 1000) ms")
+            session.logger.add("Did successfully send \(sent.count) beacons in \(end * 1000) ms")
         } else {
             let error = errors.count == 1 ? errors.first! : InstanaError.multiple(errors)
             result = BeaconResult.failure(error)
@@ -288,12 +306,29 @@ public class Reporter {
             queue.remove(sent) { [weak self] _ in
                 self?.completionHandler.forEach { $0(result) }
             }
+        } else if isErrorDeviceNotReady(errors) {
+            // Device not ready for flush, beacons were never sent through network.
+            // Clear in-flight flags so they can be retried when device is ready.
+            var clearedBeacons: Set<CoreBeacon> = []
+            for var beacon in queue.items {
+                if originalBeacons!.contains(beacon) {
+                    beacon.clearInFlight()
+                    clearedBeacons.insert(beacon)
+                } else {
+                    clearedBeacons.insert(beacon)
+                }
+            }
+            queue.items = clearedBeacons
+            queue.write { [weak self] _ in
+                self?.completionHandler.forEach { $0(result) }
+            }
         } else {
-            // For beacons failed sending, increase retry count and save back to file.
+            // For beacons failed sending, clear in-flight flag and increase retry count.
             queue.items.subtract(sent)
             var updatedBeacons: Set<CoreBeacon> = []
             for var cBeacon in queue.items {
                 if originalBeacons!.contains(cBeacon) {
+                    cBeacon.clearInFlight() // Clear in-flight flag
                     cBeacon.increaseRetryCount()
                     if cBeacon.rct! < session.configuration.maxBeaconResendTries {
                         updatedBeacons.insert(cBeacon)
@@ -324,5 +359,15 @@ public class Reporter {
         }
         // schedule next round flush
         scheduleFlush()
+    }
+
+    private func isErrorDeviceNotReady(_ errors: [Error]) -> Bool {
+        if errors.isEmpty { return false }
+        return errors.allSatisfy { error in
+            guard let instanaError = error as? InstanaError else { return false }
+            return instanaError == .offline ||
+                instanaError == .noWifiAvailable ||
+                instanaError == .lowBattery
+        }
     }
 }

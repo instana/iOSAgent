@@ -549,7 +549,27 @@ struct CoreBeacon: Codable {
             rct! += 1
         }
     }
+
+    /**
+     * In-flight flag
+     *
+     * Marks beacon as currently being sent to prevent duplicate sends.
+     * Gets cleared on successful send or when device conditions prevent sending.
+     *
+     * Example: true
+     */
+    var ifl: Bool?
+
+    mutating func markInFlight() {
+        ifl = true
+    }
+
+    mutating func clearInFlight() {
+        ifl = nil
+    }
 }
+
+extension CoreBeacon: RestartRecoverableInFlight {}
 
 extension CoreBeacon: Hashable {
     func hash(into hasher: inout Hasher) {

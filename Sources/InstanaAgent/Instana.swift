@@ -108,6 +108,11 @@ import Foundation
         var maxBeaconResendTries: Int
         var timeoutInterval: TimeInterval
 
+        guard Instana.current == nil else {
+            Instana.current?.session.logger.add("setup() should be called only once", level: .warning)
+            return false
+        }
+
         if let options = options {
             httpCaptureConfig = options.httpCaptureConfig
             collectionEnabled = options.collectionEnabled
@@ -193,15 +198,8 @@ import Foundation
     @available(*, deprecated, message: "Use method setup(key: String, reportingURL: URL, options: InstanaSetupOptions?)")
     @objc
     public static func setup(key: String, reportingURL: URL, enableCrashReporting: Bool = false) {
-        let defaultOptions = InstanaSetupOptions()
-        let config = InstanaConfiguration.default(key: key, reportingURL: reportingURL,
-                                                  httpCaptureConfig: .automatic,
-                                                  enableCrashReporting: enableCrashReporting,
-                                                  deleteOldBeacons: defaultOptions.deleteOldBeacons,
-                                                  maxBeaconResendTries: defaultOptions.maxBeaconResendTries,
-                                                  timeoutInterval: defaultOptions.timeoutInterval)
-        let session = InstanaSession(configuration: config, propertyHandler: InstanaPropertyHandler(), collectionEnabled: true)
-        Instana.current = Instana(session: session)
+        let options = InstanaSetupOptions(enableCrashReporting: enableCrashReporting)
+        _ = setupInternal(key: key, reportingURL: reportingURL, options: options, hybridOptions: nil)
     }
 
     /// Configures and sets up the Instana agent with a custom HTTP capture configuration. (deprecated)
@@ -220,15 +218,10 @@ import Foundation
                              httpCaptureConfig: HTTPCaptureConfig = .automatic,
                              collectionEnabled: Bool = true,
                              enableCrashReporting: Bool = false) {
-        let defaultOptions = InstanaSetupOptions()
-        let config = InstanaConfiguration.default(key: key, reportingURL: reportingURL,
-                                                  httpCaptureConfig: httpCaptureConfig,
-                                                  enableCrashReporting: enableCrashReporting,
-                                                  deleteOldBeacons: defaultOptions.deleteOldBeacons,
-                                                  maxBeaconResendTries: defaultOptions.maxBeaconResendTries,
-                                                  timeoutInterval: defaultOptions.timeoutInterval)
-        let session = InstanaSession(configuration: config, propertyHandler: InstanaPropertyHandler(), collectionEnabled: collectionEnabled)
-        Instana.current = Instana(session: session)
+        let options = InstanaSetupOptions(httpCaptureConfig: httpCaptureConfig,
+                                          collectionEnabled: collectionEnabled,
+                                          enableCrashReporting: enableCrashReporting)
+        _ = setupInternal(key: key, reportingURL: reportingURL, options: options, hybridOptions: nil)
     }
 
     /// Manual monitoring of URLRequest.
@@ -265,6 +258,8 @@ import Foundation
     ///   - viewName: (Optional) Name of the current view to group the request
     ///
     /// - Returns: HTTP marker to set the response size, finish state or error when the request has been completed.
+    ///
+    ///  Note: make sure to set httpCaptureConfig to .manual in the options parameter of the Instana.setup call.
     @objc
     public static func startCapture(_ request: URLRequest, viewName: String? = nil) -> HTTPMarker {
         let delegate = Instana.current?.monitors.http
@@ -323,6 +318,8 @@ import Foundation
     ///   - viewName: (Optional) Name of the current view to group the request
     ///
     /// - Returns: HTTP marker to set the response size, finish state or error when the request has been completed.
+    ///
+    ///  Note: make sure to set httpCaptureConfig to .manual in the options parameter of the Instana.setup call.
     @objc
     public static func startCapture(url: URL, method: String, header: [String: String]? = nil, viewName: String? = nil) -> HTTPMarker {
         let delegate = Instana.current?.monitors.http
