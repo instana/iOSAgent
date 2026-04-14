@@ -795,18 +795,74 @@ class ReporterTests: InstanaTestCase {
     func test_flush_queue_when_going_into_background() {
         // Given
         let waitForSend = expectation(description: "Wait for send")
+        waitForSend.isInverted = true
         let reporter = createReporterDefaultWifi([waitForSend])
+        NotificationCenter.default.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
 
         // When
         reporter.submit(HTTPBeacon.createMock())
-        NotificationCenter.default.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
         wait(for: [waitForSend], timeout: 2.0)
 
         // Then
-        AssertTrue(reporter.queue.items.isEmpty)
+        AssertTrue(reporter.queue.items.count == 1)
+
+        // Cleanup - reset to active state
+        NotificationCenter.default.post(name: UIApplication.didBecomeActiveNotification, object: nil)
     }
 
-    // MARK: Test Prequeu
+    func test_background_flush_allows_one_round_but_not_chained_rounds() {
+        // Given
+        let waitForFirstCompletion = expectation(description: "first background flush round completes")
+        let unexpectedSecondCompletion = expectation(description: "second background flush round should not complete")
+        unexpectedSecondCompletion.isInverted = true
+
+        let firstBeacon = HTTPBeacon.createMock()
+        let secondBeacon = HTTPBeacon.createMock()
+        let coreBeacons = try! CoreBeaconFactory(session).map([firstBeacon, secondBeacon])
+
+        let reporter = Reporter(.mock(configuration: .mock(maxBeaconsPerRequest: 1)),
+                                batterySafeForNetworking: { true },
+                                networkUtility: .wifi,
+                                send: { request, completion in
+            let content = String(decoding: request.httpBody ?? Data(), as: UTF8.self)
+            if content.contains(firstBeacon.id) {
+                completion(.success(200))
+            } else {
+                completion(.failure(InstanaError.httpServerError(500)))
+            }
+        })
+        reporter.queue.add(coreBeacons)
+
+        var completionCount = 0
+        reporter.completionHandler.append { _ in
+            completionCount += 1
+            if completionCount == 1 {
+                waitForFirstCompletion.fulfill()
+            } else if completionCount == 2 {
+                unexpectedSecondCompletion.fulfill()
+            }
+        }
+
+        NotificationCenter.default.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
+
+        // When
+        reporter.runBackgroundFlush()
+        wait(for: [waitForFirstCompletion], timeout: 4.0)
+        wait(for: [unexpectedSecondCompletion], timeout: 2.0)
+
+        // Then
+        XCTAssertEqual(completionCount, 1)
+        XCTAssertEqual(reporter.queue.items.count, 1)
+        let remainingBeacon = reporter.queue.items.first!
+        XCTAssertEqual(remainingBeacon.bid, secondBeacon.id)
+        XCTAssertNil(remainingBeacon.ifl)
+        XCTAssertEqual(remainingBeacon.rct, 1)
+
+        // Cleanup - reset to active state
+        NotificationCenter.default.post(name: UIApplication.didBecomeActiveNotification, object: nil)
+    }
+
+    // MARK: Test Prequeue
     func test_preque_items() {
         // Given
         let beacon = HTTPBeacon.createMock()
@@ -1340,112 +1396,6 @@ class ReporterTests: InstanaTestCase {
         let newBeacon = remainingBeaconsByID[thirdBeacon.id]!
         XCTAssertNil(newBeacon.ifl)
         XCTAssertNil(newBeacon.rct)
-    }
-
-    func hjtest_flushQueue_failure_gotoSlowSendMode() {
-        let slowSendInterval = 1.0
-        let httpError = [InstanaError.invalidRequest, InstanaError.missingAppKey].randomElement()!
-        let waitFor = expectation(description: "test_flushQueue_failure")
-        let reporter = Reporter(.mock(configuration: .mock(slowSendInterval: slowSendInterval)),
-                                send:  { _, completion in
-            completion(.failure(httpError))
-        })
-        let corebeacons = try! CoreBeaconFactory(session).map([HTTPBeacon.createMock()])
-        reporter.queue.add(corebeacons)
-        reporter.completionHandler.append {result in
-            waitFor.fulfill()
-        }
-
-        // When
-        reporter.scheduleFlush()
-        wait(for: [waitFor], timeout: 1.0)
-
-        // Then
-        XCTAssertTrue(reporter.isInSlowSendMode)
-        XCTAssertFalse(reporter.queue.items.isEmpty)
-    }
-
-    func hjtest_flushQueue_success_turnsOffSlowSendMode() {
-        let slowSendInterval = 1.0
-        let reporter = Reporter(.mock(configuration: .mock(slowSendInterval: slowSendInterval)),
-                                send:  { _, completion in
-            completion(.success(200))
-        })
-
-        reporter.setSlowSendStartTime(Date())
-        XCTAssertTrue(reporter.isInSlowSendMode)
-
-        // case 2, the reporter is now in slow send mode
-        // a successful beacon send turns slow send mode off
-        let corebeacons = try! CoreBeaconFactory(session).map([HTTPBeacon.createMock()])
-        reporter.queue.add(corebeacons)
-        let waitFor2 = expectation(description: "test_flushQueue_success_turnsOffSlowSendMode")
-        reporter.completionHandler.removeAll()
-        reporter.completionHandler.append {result in
-            waitFor2.fulfill()
-        }
-
-        // When
-        reporter.scheduleFlush()
-        wait(for: [waitFor2], timeout: (slowSendInterval + 1.0))  // wait time should be greater than slowSendInterval
-        // Then
-        XCTAssertFalse(reporter.isInSlowSendMode)
-    }
-
-    func hjtest_flushQueue_debounceInterval() {
-        let slowSendInterval = 3.0
-        let httpError = [InstanaError.httpServerError(504), InstanaError.invalidResponse].randomElement()!
-        let waitFor = expectation(description: "test_flushQueue_failure")
-        let reporter = Reporter(.mock(configuration: .mock(slowSendInterval: slowSendInterval)),
-                                send:  { _, completion in
-            completion(.failure(httpError))
-        })
-        let corebeacons = try! CoreBeaconFactory(session).map([HTTPBeacon.createMock()])
-        reporter.queue.add(corebeacons)
-        reporter.completionHandler.append {result in
-            waitFor.fulfill()
-        }
-
-        // When
-        reporter.scheduleFlush()
-        wait(for: [waitFor], timeout: 1.0)
-
-        // Then
-        XCTAssertTrue(reporter.isInSlowSendMode)
-        XCTAssertFalse(reporter.queue.items.isEmpty)
-    }
-
-    func test_flushQueue_debounceSetTo_slowSendInterval() {
-        let slowSendInterval = 3.0
-        var beaconFlushed = false
-        let reporter = Reporter(.mock(configuration: .mock(slowSendInterval: slowSendInterval)),
-                                send:  { _, completion in
-            beaconFlushed = true
-            completion(.success(200))
-        })
-
-        // case 2, the reporter is now in slow send mode with debounce interval set to slowSendInterval
-        reporter.sendFirstBeacon = false
-        reporter.setSlowSendStartTime(Date())
-        XCTAssertTrue(reporter.isInSlowSendMode)
-
-        let corebeacons = try! CoreBeaconFactory(session).map([HTTPBeacon.createMock()])
-        reporter.queue.add(corebeacons)
-        let waitFor2 = expectation(description: "test_flushQueue_debounceSetTo_slowSendInterval")
-        reporter.completionHandler.append {result in
-            waitFor2.fulfill()
-        }
-
-        // When
-        reporter.scheduleFlush()
-        Thread.sleep(forTimeInterval: (slowSendInterval / 2.0)) // wait time is less than than slowSendInterval
-        // Then
-        XCTAssertFalse(beaconFlushed)
-
-        // case 3, wait long enough now
-        wait(for: [waitFor2], timeout: (slowSendInterval + 2.0))
-        // Then
-        XCTAssertTrue(beaconFlushed)
     }
 
     func hjtest_retry_flushQueue_after_failure() {

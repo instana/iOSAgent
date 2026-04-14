@@ -61,7 +61,6 @@ import Foundation
     ///   - collectionEnabled: Enable or disable collection (instrumentation) on setup. Can be changed later via the property `collectionEnabled` (Default: true)
     ///   - enableCrashReporting: Subscribe to metricKit events so as to enable crash reporting.
     ///                           App must have explicitly asked user permission to subscribe before this call.
-    ///   - slowSendInterval: Enable slow send mode on beacon send failure when a positive number is passed
     @objc public
     init(httpCaptureConfig: HTTPCaptureConfig = .automatic,
          collectionEnabled: Bool = true, enableCrashReporting: Bool = false,

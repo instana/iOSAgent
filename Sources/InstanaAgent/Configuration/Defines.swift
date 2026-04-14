@@ -22,8 +22,6 @@ let usi_startTimeKey = "Instana_usiStartTimeKey"
 
 let ignoreZipReportingKey = "IgnoreZIPReporting"
 
-let maxSlowSendInterval: Instana.Types.Seconds = 3600.0
-
 let maxDaysToKeepCrashLog = 90
 
 let sessionIDKey = "Instana_SessionIdKey"

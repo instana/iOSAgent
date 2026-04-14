@@ -139,7 +139,7 @@ class CoreBeaconTests: InstanaTestCase {
     func test_usiNotAllowed() {
         // Given
         let configUsi = InstanaConfiguration(reportingURL: .random, key: "KEY", httpCaptureConfig: .automatic,
-                                             enableCrashReporting: false, slowSendInterval: 0.0,
+                                             enableCrashReporting: false,
                                              usiRefreshTimeIntervalInHrs: usiTrackingNotAllowed,
                                              rateLimits: RateLimits.DEFAULT_LIMITS,
                                              perfConfig: nil,

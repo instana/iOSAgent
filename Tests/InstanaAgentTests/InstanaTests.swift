@@ -29,7 +29,6 @@ class InstanaTests: InstanaTestCase {
         AssertEqualAndNotNil(config!.key, key)
         AssertEqualAndNotNil(config!.reportingURL, reportingURL)
         AssertEqualAndNotNil(config!.httpCaptureConfig, .automatic)
-        AssertEqualAndNotNil(config!.slowSendInterval, 0.0)
         AssertEqualAndNotNil(config!.usiRefreshTimeIntervalInHrs, defaultUsiRefreshTimeIntervalInHrs)
         AssertFalse(config!.monitorTypes.contains(.crash))
         AssertFalse(config!.deleteOldBeacons)
@@ -51,7 +50,6 @@ class InstanaTests: InstanaTestCase {
         options.enableCrashReporting = true
         options.suspendReportingOnLowBattery = true
         options.suspendReportingOnCellular = true
-        options.slowSendInterval = 20.0
         options.autoCaptureScreenNames = false
         options.deleteOldBeacons = true
         options.maxBeaconResendTries = 888
@@ -71,7 +69,6 @@ class InstanaTests: InstanaTestCase {
         AssertEqualAndNotNil(config!.key, key)
         AssertEqualAndNotNil(config!.reportingURL, reportingURL)
         AssertEqualAndNotNil(config!.httpCaptureConfig, .automaticAndManual)
-        AssertEqualAndNotNil(config!.slowSendInterval, options.slowSendInterval)
         AssertEqualAndNotNil(config!.usiRefreshTimeIntervalInHrs, options.usiRefreshTimeIntervalInHrs)
         AssertTrue(config!.monitorTypes.contains(.crash))
         AssertTrue(config!.deleteOldBeacons)
@@ -79,25 +76,6 @@ class InstanaTests: InstanaTestCase {
 
         AssertEqualAndNotNil(Instana.current?.session.collectionEnabled, options.collectionEnabled)
         AssertFalse(options.collectionEnabled)
-    }
-
-    func test_setup_with_options_failure() {
-        // Given
-        Instana.current = nil
-        let key = "KEY"
-        let reportingURL = URL(string: "http://www.instana.com")!
-
-        let options = InstanaSetupOptions(slowSendInterval: -1.0)
-        let ret1 = Instana.setup(key: key, reportingURL: reportingURL, options: options)
-
-        // Then
-        AssertFalse(ret1)
-
-        // case 2
-        Instana.current = nil
-        let ret2 = Instana.setup(key: key, reportingURL: reportingURL, options: InstanaSetupOptions(slowSendInterval: 7777))
-        // Then
-        AssertFalse(ret2)
     }
 
     func test_setup_invalid_configuration_empty_key() {
@@ -128,7 +106,6 @@ class InstanaTests: InstanaTestCase {
         AssertEqualAndNotNil(Instana.current?.session.configuration.reportingURL, reportingURL)
         AssertEqualAndNotNil(Instana.current?.session.configuration.httpCaptureConfig, .automatic)
         AssertFalse(Instana.current!.session.configuration.monitorTypes.contains(.crash))
-        AssertEqualAndNotNil(Instana.current?.session.configuration.slowSendInterval, 0.0)
         AssertEqualAndNotNil(Instana.current?.session.configuration.usiRefreshTimeIntervalInHrs, defaultUsiRefreshTimeIntervalInHrs)
         AssertFalse(Instana.current!.session.configuration.deleteOldBeacons)
         AssertEqualAndNotNil(Instana.current?.session.configuration.maxBeaconResendTries, defaultMaxBeaconResendTries)
@@ -157,7 +134,6 @@ class InstanaTests: InstanaTestCase {
                                       deleteOldBeacons: false,
                                       maxBeaconResendTries: testMaxBeaconResendTries,
                                       timeoutInterval: defaultTimeoutInterval))
-        AssertEqualAndNotNil(Instana.current?.session.configuration.slowSendInterval, 0.0)
         AssertEqualAndNotNil(Instana.current?.session.configuration.usiRefreshTimeIntervalInHrs, defaultUsiRefreshTimeIntervalInHrs)
     }
 
@@ -799,7 +775,6 @@ class InstanaTests: InstanaTestCase {
         AssertEqualAndNotNil(config!.key, key)
         AssertEqualAndNotNil(config!.reportingURL, reportingURL)
         AssertEqualAndNotNil(config!.httpCaptureConfig, .automatic)
-        AssertEqualAndNotNil(config!.slowSendInterval, 0.0)
         AssertEqualAndNotNil(config!.usiRefreshTimeIntervalInHrs, defaultUsiRefreshTimeIntervalInHrs)
         AssertFalse(config!.monitorTypes.contains(.crash))
 
@@ -832,7 +807,6 @@ class InstanaTests: InstanaTestCase {
         AssertEqualAndNotNil(config!.key, key)
         AssertEqualAndNotNil(config!.reportingURL, reportingURL)
         AssertEqualAndNotNil(config!.httpCaptureConfig, .manual)
-        AssertEqualAndNotNil(config!.slowSendInterval, 0.0)
         AssertEqualAndNotNil(config!.usiRefreshTimeIntervalInHrs, defaultUsiRefreshTimeIntervalInHrs)
         AssertTrue(config!.monitorTypes.contains(.crash))
 

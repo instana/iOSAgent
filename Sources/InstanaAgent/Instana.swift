@@ -74,7 +74,7 @@ import Foundation
     /// - Parameters:
     ///   - key: Instana key to identify your application.
     ///   - reportingURL: Reporting URL for the Instana backend.
-    ///   - options: InstanaSetupOptions which includes collectionEnabled, enableCrashReporting,  slowSendInterval etc.
+    ///   - options: InstanaSetupOptions which includes collectionEnabled, enableCrashReporting etc.
     ///
     /// - Returns: true on success, false on error
     @objc
@@ -95,7 +95,6 @@ import Foundation
         var collectionEnabled = true
         var enableCrashReporting = false
         var suspendReporting = InstanaConfiguration.SuspendReporting.defaults
-        var slowSendInterval = 0.0
         var usiRefreshTimeIntervalInHrs = defaultUsiRefreshTimeIntervalInHrs
         var autoCaptureScreenNames: Bool = false
         var debugAllScreenNames: Bool = false
@@ -128,14 +127,6 @@ import Foundation
                 suspendReporting.insert(InstanaConfiguration.SuspendReporting.cellularConnection)
             }
 
-            let debounce = InstanaConfiguration.Defaults.reporterSendDebounce
-            if options.slowSendInterval != 0.0,
-                options.slowSendInterval < debounce || options.slowSendInterval > maxSlowSendInterval {
-                // Illegal slowSendInterval. Expected value 2 ~ 3600 in seconds
-                return false
-            }
-            slowSendInterval = options.slowSendInterval
-
             usiRefreshTimeIntervalInHrs = options.usiRefreshTimeIntervalInHrs
             autoCaptureScreenNames = options.autoCaptureScreenNames
             debugAllScreenNames = options.debugAllScreenNames
@@ -165,7 +156,6 @@ import Foundation
                                                   httpCaptureConfig: httpCaptureConfig,
                                                   enableCrashReporting: enableCrashReporting,
                                                   suspendReporting: suspendReporting,
-                                                  slowSendInterval: slowSendInterval,
                                                   usiRefreshTimeIntervalInHrs: usiRefreshTimeIntervalInHrs,
                                                   rateLimits: rateLimits,
                                                   perfConfig: perfConfig,

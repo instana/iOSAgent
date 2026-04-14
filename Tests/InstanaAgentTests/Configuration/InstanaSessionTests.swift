@@ -30,7 +30,7 @@ class InstanaSessionTests: InstanaTestCase {
 
         // When
         let configUsi = InstanaConfiguration(reportingURL: .random, key: "KEY1", httpCaptureConfig: .automatic,
-                                             enableCrashReporting: false, slowSendInterval: 0.0,
+                                             enableCrashReporting: false,
                                              usiRefreshTimeIntervalInHrs: defaultUsiRefreshTimeIntervalInHrs,
                                              rateLimits: RateLimits.DEFAULT_LIMITS,
                                              perfConfig: nil,
@@ -57,7 +57,7 @@ class InstanaSessionTests: InstanaTestCase {
 
         // When
         let configUsi = InstanaConfiguration(reportingURL: .random, key: "KEY2", httpCaptureConfig: .automatic,
-                                             enableCrashReporting: false, slowSendInterval: 0.0,
+                                             enableCrashReporting: false,
                                              usiRefreshTimeIntervalInHrs: defaultUsiRefreshTimeIntervalInHrs,
                                              rateLimits: RateLimits.DEFAULT_LIMITS,
                                              perfConfig: nil,
@@ -84,7 +84,7 @@ class InstanaSessionTests: InstanaTestCase {
 
         // When
         let configUsi = InstanaConfiguration(reportingURL: .random, key: "KEY", httpCaptureConfig: .automatic,
-                                             enableCrashReporting: false, slowSendInterval: 0.0,
+                                             enableCrashReporting: false,
                                              usiRefreshTimeIntervalInHrs: usiTrackingNotAllowed,
                                              rateLimits: RateLimits.DEFAULT_LIMITS,
                                              perfConfig: nil,
@@ -153,7 +153,7 @@ class InstanaSessionTests: InstanaTestCase {
 
         // When
         let configUsi = InstanaConfiguration(reportingURL: .random, key: "KEY", httpCaptureConfig: .automatic,
-                                             enableCrashReporting: false, slowSendInterval: 0.0,
+                                             enableCrashReporting: false,
                                              usiRefreshTimeIntervalInHrs: (1.0 / 3600.0),
                                              rateLimits: RateLimits.DEFAULT_LIMITS,
                                              perfConfig: nil,

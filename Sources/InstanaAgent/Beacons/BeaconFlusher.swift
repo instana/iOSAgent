@@ -87,8 +87,7 @@ class BeaconFlusher {
 
     func schedule() {
         let flushItem = DispatchWorkItem { [weak self] in
-            guard let self = self else { return }
-            self.flush()
+            self?.flush()
         }
         queue.asyncAfter(deadline: .now() + debounce, execute: flushItem)
         self.flushItem = flushItem
@@ -125,9 +124,8 @@ class BeaconFlusher {
             }
         }
         disapatchGroup.notify(queue: queue) { [weak self] in
-            guard let self = self else { return }
-            self.urlTasks.removeAll()
-            self.complete()
+            self?.urlTasks.removeAll()
+            self?.complete()
 //            if self.shouldPerformRetry() {
 //                self.retry()
 //            } else {
@@ -139,18 +137,7 @@ class BeaconFlusher {
 
     // When error occurred, either goes into slow send mode, or retry sending.
     internal func shouldPerformRetry() -> Bool {
-        let canDoSlowSend = config.slowSendInterval > 0
-
         guard !errors.isEmpty else {
-            if canDoSlowSend {
-                // No error, reset the flag
-                reporter?.setSlowSendStartTime(nil)
-            }
-            return false
-        }
-
-        if canDoSlowSend {
-            reporter?.setSlowSendStartTime(Date())
             return false
         }
         return retryStep < config.maxRetries

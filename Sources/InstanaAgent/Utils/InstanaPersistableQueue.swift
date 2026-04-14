@@ -80,6 +80,10 @@ class InstanaPersistableQueue<T: RestartRecoverableInFlight> {
         write(completion)
     }
 
+    func flushableItemsAvailable() -> Bool {
+        return items.contains { $0.ifl != true }
+    }
+
     func deserialize() throws -> [T] {
         guard let fileURL = queueJSONFileURL else {
             throw InstanaError.fileHandling("Cache path not found")

@@ -7,7 +7,6 @@
 import UIKit
 import Combine
 import InstanaAgent
-import AFNetworking
 import Alamofire
 
 @available(iOS 13.0, *)
@@ -52,7 +51,7 @@ class ImageViewViewController: UIViewController {
 
     @objc func downloadImage() {
         let url = URL(string: "https://picsum.photos/900")!
-        let function = [downloadWViaAFN, downloadViaCombine, downloadViaAlamofire].randomElement()!
+        let function = [downloadViaCombine, downloadViaAlamofire].randomElement()!
         function(url)
         DispatchQueue.global().async {
             function(url)
@@ -79,18 +78,6 @@ class ImageViewViewController: UIViewController {
             }
             task.resume()
         }
-    }
-
-    func downloadWViaAFN(_ url: URL) {
-        let manager = AFURLSessionManager(sessionConfiguration: .default)
-        manager.responseSerializer = AFHTTPResponseSerializer()
-        let request = URLRequest(url: url)
-        manager.dataTask(with: request, uploadProgress: nil, downloadProgress: nil) { response, data, error in
-            DispatchQueue.main.async {
-                guard let data = data as? Data else { return }
-                self.imageView.image = UIImage(data: data)
-            }
-        }.resume()
     }
 
     func downloadViaAlamofire(_ url: URL) {

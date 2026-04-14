@@ -1,7 +1,9 @@
 # Changelog
 
-## 1.9.8
+## 1.10.0
 - add in-flight flag to corebeacon to prevent duplicated beacons
+- remove slowSendInterval implementation
+- remove AFNetworking from InstanaAgentExample on behalf of XCode 26.4
 
 ## 1.9.7
 - workaround XCode 26.4 RC issue

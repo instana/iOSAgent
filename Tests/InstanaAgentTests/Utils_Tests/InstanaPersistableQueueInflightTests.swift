@@ -221,6 +221,59 @@ class InstanaPersistableQueueInflightTests: InstanaTestCase {
         AssertTrue(loadedBeacon.ifl != true, "In-flight flag should be cleared")
     }
     
+    // MARK: Test flushableItemsAvailable
+
+    func test_flushableItemsAvailable_returns_false_when_queue_is_empty() {
+        // Given
+        queue = InstanaPersistableQueue<CoreBeacon>(identifier: testIdentifier, maxItems: 100)
+
+        // Then
+        XCTAssertFalse(queue.flushableItemsAvailable())
+    }
+
+    func test_flushableItemsAvailable_returns_true_when_queue_has_nonInflight_beacon() {
+        // Given
+        queue = InstanaPersistableQueue<CoreBeacon>(identifier: testIdentifier, maxItems: 100)
+
+        let beacon = HTTPBeacon.createMock()
+        let coreBeacon = try! CoreBeaconFactory(session).map(beacon)
+        queue.add(coreBeacon)
+
+        // Then
+        XCTAssertTrue(queue.flushableItemsAvailable())
+    }
+
+    func test_flushableItemsAvailable_returns_false_when_all_beacons_are_inflight() {
+        // Given
+        queue = InstanaPersistableQueue<CoreBeacon>(identifier: testIdentifier, maxItems: 100)
+
+        let beacons = (0..<3).map { _ in HTTPBeacon.createMock() }
+        var coreBeacons = try! beacons.map { try CoreBeaconFactory(session).map($0) }
+        for index in coreBeacons.indices {
+            coreBeacons[index].markInFlight()
+        }
+        queue.add(coreBeacons)
+
+        // Then
+        XCTAssertFalse(queue.flushableItemsAvailable())
+    }
+
+    func test_flushableItemsAvailable_returns_true_when_queue_has_mixed_inflight_and_nonInflight_beacons() {
+        // Given
+        queue = InstanaPersistableQueue<CoreBeacon>(identifier: testIdentifier, maxItems: 100)
+
+        let firstBeacon = HTTPBeacon.createMock()
+        let secondBeacon = HTTPBeacon.createMock()
+        var firstCoreBeacon = try! CoreBeaconFactory(session).map(firstBeacon)
+        let secondCoreBeacon = try! CoreBeaconFactory(session).map(secondBeacon)
+
+        firstCoreBeacon.markInFlight()
+        queue.add([firstCoreBeacon, secondCoreBeacon])
+
+        // Then
+        XCTAssertTrue(queue.flushableItemsAvailable())
+    }
+
     // MARK: Test Edge Cases
     
     func test_queue_handles_corrupted_file_gracefully() {

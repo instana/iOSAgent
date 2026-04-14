@@ -70,7 +70,6 @@ class InstanaConfiguration {
     var httpCaptureConfig: HTTPCaptureConfig
     var suspendReporting: Set<SuspendReporting>
     var monitorTypes: Set<MonitorTypes>
-    var slowSendInterval: Instana.Types.Seconds
     var usiRefreshTimeIntervalInHrs: Double
     var anrThreshold: Double?
     var trustDeviceTiming: Bool?
@@ -94,7 +93,6 @@ class InstanaConfiguration {
 
     required init(reportingURL: URL, key: String, httpCaptureConfig: HTTPCaptureConfig,
                   enableCrashReporting: Bool, suspendReporting: Set<SuspendReporting>? = nil,
-                  slowSendInterval: Instana.Types.Seconds,
                   usiRefreshTimeIntervalInHrs: Double,
                   rateLimits: RateLimits?,
                   perfConfig: InstanaPerformanceConfig? = nil,
@@ -128,7 +126,6 @@ class InstanaConfiguration {
             monitorTypes.insert(.crash)
         }
         self.suspendReporting = suspendReporting ?? SuspendReporting.defaults
-        self.slowSendInterval = slowSendInterval
         self.usiRefreshTimeIntervalInHrs = usiRefreshTimeIntervalInHrs
         self.hybridAgentId = hybridAgentId
         self.hybridAgentVersion = hybridAgentVersion
@@ -182,7 +179,6 @@ class InstanaConfiguration {
     static func `default`(key: String, reportingURL: URL, httpCaptureConfig: HTTPCaptureConfig = .automatic,
                           enableCrashReporting: Bool,
                           suspendReporting: Set<SuspendReporting>? = nil,
-                          slowSendInterval: Instana.Types.Seconds = 0.0,
                           usiRefreshTimeIntervalInHrs: Double = defaultUsiRefreshTimeIntervalInHrs,
                           rateLimits: RateLimits? = nil,
                           perfConfig: InstanaPerformanceConfig? = nil,
@@ -197,7 +193,6 @@ class InstanaConfiguration {
         self.init(reportingURL: reportingURL, key: key, httpCaptureConfig: httpCaptureConfig,
                   enableCrashReporting: enableCrashReporting,
                   suspendReporting: suspendReporting,
-                  slowSendInterval: slowSendInterval,
                   usiRefreshTimeIntervalInHrs: usiRefreshTimeIntervalInHrs,
                   rateLimits: rateLimits,
                   perfConfig: perfConfig,

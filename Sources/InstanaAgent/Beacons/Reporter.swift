@@ -13,7 +13,7 @@ public class Reporter {
     private let dispatchQueue = DispatchQueue(label: "com.instana.ios.agent.reporter", qos: .utility)
     internal var sendFirstBeacon = true // first beacon is sent all by itself, not in a batch
     private var slowSendStartTime: Date?
-    private var inSlowModeBeforeFlush = false
+    private var allowOneBackgroundFlush = false
     internal var lastFlushStartTime: Double?
     internal var flusher: BeaconFlusher?
     internal var send: BeaconFlusher.Sender?
@@ -53,9 +53,11 @@ public class Reporter {
             self.updateNetworkConnection(connectionType)
         }
         InstanaApplicationStateHandler.shared.listen { [weak self] state, _ in
-            guard let self = self else { return }
             if state == .background, !ProcessInfo.isRunningTests {
-//                self.runBackgroundFlush()
+                self?.runBackgroundFlush()
+            } else if state == .active {
+                self?.allowOneBackgroundFlush = false
+                self?.runActiveFlush()
             }
         }
         dispatchQueue.asyncAfter(deadline: .now() + session.configuration.preQueueUsageTime, execute: emptyPreQueueIfNeeded)
@@ -141,23 +143,6 @@ public class Reporter {
         scheduleFlush()
     }
 
-    internal var isInSlowSendMode: Bool {
-        session.configuration.slowSendInterval > 0 && (sendFirstBeacon || slowSendStartTime != nil)
-    }
-
-    internal func setSlowSendStartTime(_ time: Date?) {
-        if time == nil {
-            if slowSendStartTime != nil {
-                session.logger.add("Slow send ended at \(String(describing: Date()))")
-                slowSendStartTime = nil
-            }
-        } else if slowSendStartTime == nil {
-            // if slow send started, do not update so as to keep the earliest time
-            slowSendStartTime = time
-            session.logger.add("Slow send started at \(String(describing: time!))")
-        }
-    }
-
     func checkDeviceCondition() -> InstanaError? {
         // Check network and battery condition
         var error: InstanaError?
@@ -202,29 +187,27 @@ public class Reporter {
     }
 
     func scheduleFlush() {
-        guard !queue.items.isEmpty else { return }
+        let flushableItemsAvailable = queue.flushableItemsAvailable()
+
+        let isBackground = InstanaApplicationStateHandler.shared.state == .background
+        if isBackground, !allowOneBackgroundFlush {
+            session.logger.add("Skip flush - app has been in background", level: .debug)
+            return
+        }
+        if isBackground {
+            session.logger.add("App entered background, allowOneBackgroundFlush", level: .debug)
+            allowOneBackgroundFlush = false
+        }
+
+        guard flushableItemsAvailable else { return }
 
         if !canScheduleFlush() { return }
 
         let start = Date()
-        var debounce: TimeInterval
+        let debounce: TimeInterval = isBackground ? 0.0 : calcDebounceTime()
         var beaconsToSend: Set<CoreBeacon> = Set([])
-        inSlowModeBeforeFlush = isInSlowSendMode
-        if inSlowModeBeforeFlush {
-            if sendFirstBeacon {
-                debounce = flushDebounce
-                sendFirstBeacon = false
-            } else {
-                debounce = session.configuration.slowSendInterval
-            }
-            var beacon = queue.items.first!
-            beacon.updateMetaDataWithSlowSendStartTime(slowSendStartTime)
-            beaconsToSend.insert(beacon)
-        } else {
-            debounce = calcDebounceTime()
-            // Filter out beacons already in-flight to prevent duplicate sends
-            beaconsToSend = queue.items.filter { $0.ifl != true }
-        }
+        // Filter out beacons already in-flight to prevent duplicate sends
+        beaconsToSend = queue.items.filter { $0.ifl != true }
 
         guard !beaconsToSend.isEmpty else {
             session.logger.add("All beacons are in-flight, skipping flush")
@@ -271,15 +254,17 @@ public class Reporter {
     }
 
     func runBackgroundFlush() {
-        #if os(tvOS) || os(watchOS) || os(iOS)
-            ProcessInfo.processInfo.performExpiringActivity(withReason: "BackgroundFlush") { expired in
-                guard !expired else { return }
-                self.dispatchQueue.async { [weak self] in
-                    guard let self = self else { return }
-                    self.scheduleFlush()
-                }
-            }
-        #endif
+        dispatchQueue.async { [weak self] in
+            self?.allowOneBackgroundFlush = true
+            self?.scheduleFlush()
+        }
+    }
+
+    func runActiveFlush() {
+        dispatchQueue.async { [weak self] in
+            self?.session.logger.add("App entered foreground, resume regular flush", level: .debug)
+            self?.scheduleFlush()
+        }
     }
 
     private func handle(flushResult: BeaconFlusher.Result,
@@ -346,17 +331,6 @@ public class Reporter {
 
         flusher = nil // mark this round flush done
         lastFlushStartTime = nil
-        if inSlowModeBeforeFlush {
-            // Another flush either resend 1 beacon (still in slow mode currently)
-            // or flush remaining beacons (got out of slow send mode already)
-            var msg: String
-            if isInSlowSendMode {
-                msg = "schedule flush to send 1 beacon in slow send mode"
-            } else {
-                msg = "flush all beacons after out of slow send mode"
-            }
-            session.logger.add(msg)
-        }
         // schedule next round flush
         scheduleFlush()
     }

@@ -14,7 +14,6 @@ class InstanaConfigurationTests: InstanaTestCase {
         AssertTrue(config.key == "a")
         AssertEqualAndNotNil(config.reportingURL, url)
         AssertEqualAndNotNil(config.httpCaptureConfig, .automatic)
-        AssertEqualAndNotNil(config.slowSendInterval, 0.0)
         AssertTrue(config.usiRefreshTimeIntervalInHrs == defaultUsiRefreshTimeIntervalInHrs)
         AssertTrue(config.suspendReporting.isEmpty)
         AssertTrue(config.maxRetries == 3)
