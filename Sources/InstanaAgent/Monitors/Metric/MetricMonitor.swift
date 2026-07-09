@@ -52,15 +52,6 @@ class MetricMonitor: NSObject, MXMetricManagerSubscriber {
     }
 
     ///
-    /// Receive daily metrics.
-    ///
-    #if os(iOS)
-        @available(iOS 13.0, *)
-        // workaround XCode 26.4 RC issue
-//        public func didReceive(_ payloads: [MXMetricPayload]) {}
-    #endif
-
-    ///
     /// Receive diagnostics immediately when available.
     ///
     @available(iOS 14.0, macOS 12.0, *)

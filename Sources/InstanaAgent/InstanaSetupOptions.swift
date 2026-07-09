@@ -84,7 +84,6 @@ import Foundation
         self.enableCrashReporting = enableCrashReporting
         self.suspendReportingOnLowBattery = suspendReportingOnLowBattery
         self.suspendReportingOnCellular = suspendReportingOnCellular
-        self.slowSendInterval = slowSendInterval
         self.usiRefreshTimeIntervalInHrs = usiRefreshTimeIntervalInHrs
         self.autoCaptureScreenNames = autoCaptureScreenNames
         self.debugAllScreenNames = debugAllScreenNames

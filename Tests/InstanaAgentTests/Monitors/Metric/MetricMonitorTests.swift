@@ -52,15 +52,6 @@ class MetricMonitorTests: InstanaTestCase {
         XCTAssertTrue(cancelled)
     }
 
-    @available(iOS 13.0, *)
-    func test_didReceive_metricPayload() {
-        // Given
-//        let payloads = [MXMetricPayload]()
-        
-        // When
-//        self.metricMonitor!.didReceive(payloads)
-    }
-
     @available(iOS 14.0, macOS 12.0, *)
     func test_didReceive_diagnosticPayload() {
         // Given

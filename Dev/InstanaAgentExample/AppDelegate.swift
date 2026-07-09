@@ -24,7 +24,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         ]
 
         let options = InstanaSetupOptions(enableCrashReporting: userYes)
-//        options.slowSendInterval = 60.0
         options.autoCaptureScreenNames = true
 //        options.debugAllScreenNames = true
         options.queryTrackedDomainList = queryTrackedDomainList

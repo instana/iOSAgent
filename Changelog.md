@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.10.1
+- fix pod lint error with MXMetricPayload didReceive handling
+
 ## 1.10.0
 - add in-flight flag to corebeacon to prevent duplicated beacons
 - remove slowSendInterval implementation
