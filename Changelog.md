@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.10.2
+- fix reporter beacon double free crash
+
 ## 1.10.1
 - fix pod lint error with MXMetricPayload didReceive handling
 

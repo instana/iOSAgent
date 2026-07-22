@@ -50,7 +50,7 @@ class BeaconFlusher {
     let urlSession = URLSession(configuration: .default)
     var errors = [Error]()
     var retryStep: Int = 0
-    private weak var flushItem: DispatchWorkItem? {
+    private var flushItem: DispatchWorkItem? {
         willSet {
             flushItem?.cancel()
             cancel()
@@ -102,30 +102,48 @@ class BeaconFlusher {
             return
         }
         let batches = items.chunkedBeacons(size: config.maxBeaconsPerRequest)
-        let disapatchGroup = DispatchGroup()
+        let dispatchGroup = DispatchGroup()
         batches.forEach { beaconBatch in
-            disapatchGroup.enter()
+            dispatchGroup.enter()
             let request: URLRequest
             do {
                 request = try createBatchRequest(from: beaconBatch.asString)
             } catch {
                 errors.append(error)
-                disapatchGroup.leave()
+                dispatchGroup.leave()
                 return
             }
-            send(request) { [weak self, capturedBeacons = beaconBatch] sentResult in
-                switch sentResult {
-                case .success:
-                    self?.sentBeacons.formUnion(capturedBeacons)
-                case let .failure(error):
-                    self?.errors.append(error)
+            // Capture the group strongly so leave() is always called even if self (BeaconFlusher)
+            // has been deallocated by the time the network callback fires.
+            send(request) { [weak self, capturedBeacons = beaconBatch, group = dispatchGroup] sentResult in
+                guard let self else {
+                    // BeaconFlusher was deallocated; nothing to mutate, but
+                    // leave() must still be called so notify can fire.
+                    group.leave()
+                    return
                 }
-                disapatchGroup.leave()
+                // Dispatch mutations onto the serial reporter queue so that
+                // sentBeacons/errors are only ever written from one thread.
+                // leave() is called inside the async block so notify cannot fire
+                // until after the mutation has been committed — preserving the
+                // invariant that complete() always sees fully-updated state.
+                self.queue.async {
+                    switch sentResult {
+                    case .success:
+                        self.sentBeacons.formUnion(capturedBeacons)
+                    case let .failure(error):
+                        self.errors.append(error)
+                    }
+                    group.leave()
+                }
             }
         }
-        disapatchGroup.notify(queue: queue) { [weak self] in
-            self?.urlTasks.removeAll()
-            self?.complete()
+        // Use a strong capture so this flusher stays alive until all network
+        // responses have been dispatched back onto the serial queue and complete()
+        // has fired — even if Reporter replaces self.flusher before then.
+        dispatchGroup.notify(queue: queue) { [self] in
+            urlTasks.removeAll()
+            complete()
 //            if self.shouldPerformRetry() {
 //                self.retry()
 //            } else {

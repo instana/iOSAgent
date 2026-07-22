@@ -15,6 +15,11 @@ public class Reporter {
     private var allowOneBackgroundFlush = false
     internal var lastFlushStartTime: Double?
     internal var flusher: BeaconFlusher?
+    // Incremented each time a new flusher is created. The completion closure of
+    // each BeaconFlusher captures its own generation so that a superseded flusher
+    // (force-replaced via the timeout path in canScheduleFlush) can detect it has
+    // been replaced and skip handle() — preventing a double handle() call.
+    private var flusherGeneration: Int = 0
     internal var send: BeaconFlusher.Sender?
     private let rateLimiter: ReporterRateLimiter
     private let batterySafeForNetworking: () -> Bool
@@ -55,7 +60,9 @@ public class Reporter {
             if state == .background, !ProcessInfo.isRunningTests {
                 self?.runBackgroundFlush()
             } else if state == .active {
-                self?.allowOneBackgroundFlush = false
+                // runActiveFlush already dispatches onto dispatchQueue, so move
+                // the allowOneBackgroundFlush write there too — it must be on
+                // the same serial queue as scheduleFlush() which reads it.
                 self?.runActiveFlush()
             }
         }
@@ -225,13 +232,23 @@ public class Reporter {
         queue.items.formUnion(markedBeacons) // Add marked versions
         queue.write() // Persist in-flight state
 
+        flusherGeneration += 1
+        let capturedGeneration = flusherGeneration
         let flusher = BeaconFlusher(reporter: self, items: markedBeacons, debounce: debounce,
                                     config: session.configuration, queue: dispatchQueue,
                                     send: send) { [weak self] result in
             guard let self = self else { return }
             self.dispatchQueue.async { [weak self] in
+                guard let self = self else { return }
+                // If this flusher was superseded by a force-replacement in
+                // canScheduleFlush(), its generation no longer matches the
+                // current one. Drop the result to prevent a double handle().
+                guard self.flusherGeneration == capturedGeneration else {
+                    self.session.logger.add("Dropping result from superseded flusher (generation \(capturedGeneration) vs current \(self.flusherGeneration))", level: .warning)
+                    return
+                }
                 let originalBeacons: Set<CoreBeacon>? = (result.sentBeacons.count < markedBeacons.count) ? markedBeacons : nil
-                self?.handle(flushResult: result, start, originalBeacons: originalBeacons)
+                self.handle(flushResult: result, start, originalBeacons: originalBeacons)
             }
         }
         flusher.schedule()
@@ -261,6 +278,7 @@ public class Reporter {
 
     func runActiveFlush() {
         dispatchQueue.async { [weak self] in
+            self?.allowOneBackgroundFlush = false
             self?.session.logger.add("App entered foreground, resume regular flush", level: .debug)
             self?.scheduleFlush()
         }
