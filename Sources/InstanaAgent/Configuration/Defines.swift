@@ -22,7 +22,7 @@ let usi_startTimeKey = "Instana_usiStartTimeKey"
 
 let ignoreZipReportingKey = "IgnoreZIPReporting"
 
-let maxDaysToKeepCrashLog = 90
+let maxDaysToKeepCrashLog = 7
 
 let sessionIDKey = "Instana_SessionIdKey"
 let sessionStartTimeKey = "Instana_SessionStartTimeKey"
@@ -48,7 +48,7 @@ let crashMetaKeyUserID = "ui"
 let crashMetaKeyUserName = "un"
 let crashMetaKeyUserEmail = "ue"
 
-let currentInstanaCrashPayloadVersion = "0.97"
+let currentInstanaCrashPayloadVersion = "0.98"
 let defaultCrashViewName = "CrashView"
 
 let maxSecondsToKeepCrashLog = (maxDaysToKeepCrashLog * 60 * 60 * 24)

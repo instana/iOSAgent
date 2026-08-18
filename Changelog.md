@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.10.3
+- max 7 days for crash data retention
+
 ## 1.10.2
 - fix reporter beacon double free crash
 

@@ -222,6 +222,7 @@ extension CoreBeacon {
         un = beacon.crashSession.userName
         ue = beacon.crashSession.userEmail
         cas = nil
+        tdt = "1" // trust device timing enabled for crash beacon
 
         m = MetaData()
         m![crashMetaKeyIsSymbolicated] = String(beacon.isSymbolicated)
