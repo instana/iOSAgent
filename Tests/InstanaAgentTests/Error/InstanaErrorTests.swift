@@ -4,7 +4,7 @@
 
 import Foundation
 import XCTest
-@testable import InstanaAgent
+@testable @_spi(Internal) import InstanaAgent
 
 class InstanaErrorTests: InstanaTestCase {
 

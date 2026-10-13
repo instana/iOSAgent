@@ -77,3 +77,11 @@ let mobileFeatureEnableW3CHeaders = "ot"
 // OpenTelemetry
 let TRACE_PARENT = "traceparent"
 let TRACE_STATE = "tracestate"
+
+// runtime configuration
+let configServerSideTimeStampKey = "Instana_ConfigurationServerSideTimeStampKey"
+let configSessionReplayStateKey = "Instana_ConfigurationSessionReplayStateKey"
+
+public extension Notification.Name {
+    static let runtimeConfigurationUpdated = Notification.Name("Instana_RuntimeConfigurationUpdated")
+}

@@ -48,4 +48,12 @@ extension InstanaConfiguration {
         config.reporterRateLimits = [.init(timeout: 10.0, maxItems: 10), .init(timeout: 60.0, maxItems: 20)]
         return config
     }
+
+    static func mockNoFlush() -> InstanaConfiguration {
+        let config = InstanaConfiguration.mock()
+        // A long delay in test environment means no flush of beacons
+        config.reporterSendDebounce = 20.0
+        config.reporterSendLowBatteryDebounce = 30.0
+        return config
+    }
 }

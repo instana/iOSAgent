@@ -39,6 +39,13 @@ class Monitors {
         submitStartBeaconIfNeeded()
     }
 
+    func stepUpRateLimits(_ rateLimits: RateLimits) {
+        guard rateLimits.rawValue > session.configuration.rateLimits.rawValue else { return }
+
+        session.configuration.configRateLimit(rateLimits)
+        reporter.rateLimiter = ReporterRateLimiter(configs: session.configuration.reporterRateLimits)
+    }
+
     func subscribeCrashReporting() {
         guard metric == nil else {
             return
@@ -58,8 +65,12 @@ class Monitors {
 
     func submitStartBeaconIfNeeded() {
         if session.configuration.isValid, session.collectionEnabled, !startBeaconTriggered {
-            reporter.submit(SessionProfileBeacon(state: .start))
-            startBeaconTriggered = true
+            let startTime: Instana.Types.Milliseconds = Date().millisecondsSince1970
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else { return }
+                self.reporter.submit(SessionProfileBeacon(state: .start, timestamp: startTime))
+                self.startBeaconTriggered = true
+            }
         }
     }
 }

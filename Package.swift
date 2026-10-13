@@ -11,9 +11,14 @@ let package = Package(
         .library(
             name: "InstanaAgent",
             targets: ["InstanaAgent"]),
+        .library(
+            name: "InstanaSessionReplay",
+            targets: ["InstanaSessionReplay"]
+        ),
     ],
     dependencies: [
-        .package(url: "https://github.com/1024jp/GzipSwift.git", from: "6.0.1")
+        .package(url: "https://github.com/1024jp/GzipSwift.git", from: "6.0.1"),
+        .package(url: "https://github.com/SDWebImage/SDWebImageWebPCoder.git", from: "0.14.5")
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
@@ -32,5 +37,15 @@ let package = Package(
         .testTarget(
             name: "InstanaAgentTests",
             dependencies: ["InstanaAgent", "ImageTracker"]),
+        .target(
+            name: "InstanaSessionReplay",
+            dependencies: ["InstanaAgent", "ImageTracker",
+                           .product(name: "SDWebImageWebPCoder", package: "SDWebImageWebPCoder")],
+            path: "SessionReplay/Sources"),
+        .testTarget(
+            name: "InstanaSessionReplayTests",
+            dependencies: ["InstanaSessionReplay",
+                           .product(name: "SDWebImageWebPCoder", package: "SDWebImageWebPCoder")],
+            path: "SessionReplay/Tests"),
     ]
 )

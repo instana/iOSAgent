@@ -9,6 +9,7 @@ enum BeaconType: String, Equatable, Codable, CustomStringConvertible {
     case httpRequest
     case viewChange
     case custom
+    case ued // userEventDetails
     case crash
     case dropBeacon
     case perf // performance
@@ -21,7 +22,7 @@ enum BeaconType: String, Equatable, Codable, CustomStringConvertible {
 /// This model uses a short field name to reduce the transfer size
 /// We transfer a simple String (no json) to the backend via the HTTP body.
 /// That means we also loose the type information, so we need treat all fields as String
-struct CoreBeacon: Codable {
+public struct CoreBeacon: Codable {
     /**
      * The max length for each field
      *
@@ -76,7 +77,7 @@ struct CoreBeacon: Codable {
      *
      * The timestamp in ms when the beacon has been created
      */
-    var ti: String
+    public var ti: String
 
     /**
      * Session ID
@@ -117,7 +118,7 @@ struct CoreBeacon: Codable {
      *
      * For example: com.instana.ios.app
      */
-    var bi: String
+    var bi: String?
 
     /**
      * Custom Event name
@@ -197,7 +198,7 @@ struct CoreBeacon: Codable {
      *
      *  For example: 1203A
      */
-    var ab: String
+    var ab: String?
 
     /**
      * App version
@@ -206,49 +207,49 @@ struct CoreBeacon: Codable {
      *
      * For example: 1.3.1
      */
-    var av: String
+    var av: String?
 
     /**
      * Name of the platform (same as osn)
      *
      * For example: iOS or tvOS
      */
-    var p: String
+    var p: String?
 
     /**
      * Name of the OS
      *
      * For example: iOS or tvOS
      */
-    var osn: String
+    var osn: String?
 
     /**
      * The OS version of the platform without any information about OS name itself.
      *
      * For example: 12.0.1
      */
-    var osv: String
+    var osv: String?
 
     /**
      * Device manufacturer
      *
      * For example: Apple
      */
-    var dma: String = "Apple"
+    var dma: String? = "Apple"
 
     /**
      * Device model
      *
      * For example: iPhone12,5  (iPhone 11 Pro Max)
      */
-    var dmo: String
+    var dmo: String?
 
     /**
      * Instana Agent version
      *
      * For example: 1.0.3
      */
-    var agv: String
+    var agv: String?
 
     /**
      * Whether the mobile device is rooted / jailbroken. True indicates that the device is definitely rooted / jailbroken.
@@ -261,14 +262,14 @@ struct CoreBeacon: Codable {
      *
      * For example: 2436
      */
-    var vw: String
+    var vw: String?
 
     /**
      * Device screen height in pixels
      *
      * For example: 1125
      */
-    var vh: String
+    var vh: String?
 
     /**
      * Cellular carrier name
@@ -468,6 +469,75 @@ struct CoreBeacon: Codable {
     var cas: String?
 
     /**
+     *  Session Replay versioin
+     *  Example: "1.0.0"
+     */
+    var srv: String?
+
+    /**
+     * Session Replay status
+     * The "sr" field uses the following numeric values to represent different session replay states:
+     *
+     * Value    Status               Description
+     * 0        Fully Available     Session replay is enabled; both images and action beacons are being captured and are available for playback
+     * 1        Actions Only        Session replay is enabled; only action beacons are available (no images captured)
+     * 2        Sampled Out       Session replay is enabled but no data is available for this session due to sampling configuration
+     * 3        Not Instrumented   Session replay is not added to the mobile app or is not enabled (default state)
+     *
+     * Example: "0"
+     */
+    var sr: String?
+
+    /**
+     *  User Event Details for Session Replay, Event Type
+     *  Example: "tp" - user action to a control or menu (tap)
+     */
+    var evt: String?
+
+    /**
+     *  User Event Details for Session Replay, Event Type Value
+     *  Intermediate data, not sent to server through network
+     */
+    var evv: MetaData?
+
+    /**
+     *  Session Replay device orientation (oc) value
+     *  Example: "l" or "p"
+     */
+    var oc: String?
+    /**
+     * Session Replay keyboardOperation value (when "evt" value is "ke")
+     * Example: o (open), c (close)
+     */
+    var ko: String?
+    /**
+     *  Session Replay frustrationSignal (fs) value
+     *  Example: "fkr", "rt"
+     */
+    var fs: String?
+    /**
+     *  Session Replay appState (as) value
+     *  Example: "bg" or "fg"
+     */
+    var `as`: String?
+
+    /**
+     *  User Event Details for Session Replay
+     *  ViewClassName
+     *
+     *  Example: "UIButton"
+     */
+    var vn: String?
+
+    /**
+     * User Event Details for Session Replay
+     * View Id
+     *
+     * Example: button_login
+     */
+    var vi: String?
+
+    /**
      * Crash Timestamp
      *
      * The timestamp in ms since 1970 when the crash happened.
@@ -560,13 +630,13 @@ struct CoreBeacon: Codable {
 extension CoreBeacon: RestartRecoverableInFlight {}
 
 extension CoreBeacon: Hashable {
-    func hash(into hasher: inout Hasher) {
+    public func hash(into hasher: inout Hasher) {
         hasher.combine(bid)
     }
 }
 
 extension CoreBeacon: Equatable {
-    static func == (lhs: Self, rhs: Self) -> Bool {
+    public static func == (lhs: Self, rhs: Self) -> Bool {
         return lhs.bid == rhs.bid
     }
 }

@@ -4,7 +4,7 @@
 
 import Foundation
 import XCTest
-@testable import InstanaAgent
+@testable @_spi(Internal) import InstanaAgent
 
 class CoreBeaconFactoryTests: InstanaTestCase {
 
@@ -87,7 +87,7 @@ class CoreBeaconFactoryTests: InstanaTestCase {
         AssertTrue(sut.em == nil)
 
         let values = Mirror(reflecting: sut).nonNilChildren
-        XCTAssertEqual(values.count, 24)
+        XCTAssertEqual(values.count, 25)
     }
 
     func test_map_beacon_implicit_values() {

@@ -46,6 +46,8 @@ class InstanaSession {
 
     @Atomic var dropBeaconReporting: Bool
 
+    @Atomic var sessionReplayStatus: String = "3" // Session replay is not enabled
+
     init(configuration: InstanaConfiguration, propertyHandler: InstanaPropertyHandler, sessionID: UUID = UUID(),
          collectionEnabled: Bool, autoCaptureScreenNames: Bool = false, debugAllScreenNames: Bool = false,
          dropBeaconReporting: Bool = false) {
@@ -63,6 +65,10 @@ class InstanaSession {
         id = sessionID
         (userSessionID, usiStartTime) = InstanaSession.usiRetrieve(configuration)
         PreviousSession.persistSessionID(sid: sessionID)
+    }
+
+    func setSrStatus(status: String) {
+        sessionReplayStatus = status
     }
 
     private static func processAutoCaptureScreenNames(collectionEnabled: Bool, acsn: Bool) {

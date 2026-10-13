@@ -31,4 +31,8 @@ extension String {
         }
         return String(prefix(length - trailing.count)) + trailing
     }
+
+    public static func className(of object: AnyObject) -> String? {
+        return String(cString: object_getClassName(object))
+    }
 }

@@ -44,7 +44,8 @@ class CoreBeaconFactory {
         var cbeacon = CoreBeacon.createDefault(viewName: beacon.viewName, key: conf.key,
                                                timestamp: beacon.timestamp,
                                                sid: session.id, usi: session.usi,
-                                               id: beacon.id, mobileFeatures: mobileFeatures,
+                                               id: beacon.id, sessionReplayStatus: session.sessionReplayStatus,
+                                               mobileFeatures: mobileFeatures,
                                                trustDeviceTiming: conf.trustDeviceTiming,
                                                hybridAgentId: conf.hybridAgentId,
                                                hybridAgentVersion: conf.hybridAgentVersion,
@@ -66,6 +67,8 @@ class CoreBeaconFactory {
         case let item as SessionProfileBeacon:
             cbeacon.append(item)
         case let item as CustomBeacon:
+            cbeacon.append(item, properties: properties)
+        case let item as UserEventBeacon:
             cbeacon.append(item, properties: properties)
         default:
             let message = "Beacon <-> CoreBeacon mapping for beacon \(beacon) not defined"
@@ -271,6 +274,48 @@ extension CoreBeacon {
         }
     }
 
+    mutating func append(_ beacon: UserEventBeacon, properties: InstanaProperties) {
+        t = .ued
+        srv = VersionConfig.sessionReplayVersion
+        evt = beacon.eventType
+
+        if let eventValue = beacon.eventValue, let eventValueKey = beacon.eventValueKey {
+            var evvDict: [String: String] = [:]
+            evvDict[eventValueKey] = eventValue
+            evv = evvDict
+        }
+        vn = beacon.viewClassName
+        vi = beacon.viewId
+
+        sr = nil // Session Replay status
+        v = nil // View Name //todo: needed?
+        bt = nil // Backend Tracing ID
+        usi = nil // User Session ID
+        uf = nil // Mobile Feature list
+        bi = nil // Bundle ID
+        m = nil // MetaData
+        ui = nil // User ID
+        un = nil // User Name
+        ue = nil // User’s email address
+        ul = nil // Current selected language for the app
+        ab = nil // Build version
+        av = nil // App version
+        p = nil // Name of the platform (same as osn)
+        osn = nil // Name of the OS
+        osv = nil // OS version of the platform without any information about OS name itself
+        dma = nil // Device manufacturer
+        dmo = nil // Device model
+        agv = nil // Instana Agent version
+        ro = nil // Whether the mobile device is rooted / jailbroken
+        vw = nil // Device screen width in pixels
+        vh = nil // Device screen height in pixels
+        cn = nil // Cellular carrier name
+        ct = nil // Connection type
+        ect = nil // Effective Connection type
+        tdt = nil // Trust Device Timing
+        cas = nil // Current App State
+    }
+
     private mutating func add(error: Error) {
         et = "\(type(of: error))"
         if let httpError = error as? HTTPError {
@@ -288,6 +333,7 @@ extension CoreBeacon {
                               sid: UUID,
                               usi: UUID?,
                               id: String,
+                              sessionReplayStatus: String? = "3",
                               mobileFeatures: String?,
                               trustDeviceTiming: Bool? = nil,
                               hybridAgentId: String?,
@@ -296,6 +342,10 @@ extension CoreBeacon {
                               ect: NetworkUtility.CellularType? = nil,
                               enableAppStateDetection: Bool? = nil)
         -> CoreBeacon {
+        let agentVersion = CoreBeacon.getInstanaAgentVersion(hybridAgentId: hybridAgentId,
+                                                             hybridAgentVersion: hybridAgentVersion)
+        // If session replay is enabled (value not 3), set trustDeviceTiming to 1
+        let tdtValue = sessionReplayStatus != "3" ? "1" : (trustDeviceTiming.map { $0 ? "1" : nil } ?? nil)
         let cas = (enableAppStateDetection != false) ? InstanaApplicationStateHandler.shared.getAppStateForBeacon() : nil
         return CoreBeacon(v: viewName,
                           k: key,
@@ -312,15 +362,15 @@ extension CoreBeacon {
                           osn: InstanaSystemUtils.systemName,
                           osv: InstanaSystemUtils.systemVersion,
                           dmo: InstanaSystemUtils.deviceModel,
-                          agv: CoreBeacon.getInstanaAgentVersion(hybridAgentId: hybridAgentId,
-                                                                 hybridAgentVersion: hybridAgentVersion),
+                          agv: agentVersion,
                           ro: String(InstanaSystemUtils.isDeviceJailbroken),
                           vw: String(Int(InstanaSystemUtils.screenSize.width)),
                           vh: String(Int(InstanaSystemUtils.screenSize.height)),
                           cn: connection.cellular.carrierName,
                           ct: connection.description,
                           ect: ect?.description ?? connection.cellular.description,
-                          tdt: trustDeviceTiming.map { $0 ? "1" : nil } ?? nil,
-                          cas: cas)
+                          tdt: tdtValue,
+                          cas: cas,
+                          sr: sessionReplayStatus)
     }
 }

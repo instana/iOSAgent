@@ -5,7 +5,7 @@
 import Foundation
 import XCTest
 import WebKit
-@testable import InstanaAgent
+@testable @_spi(Internal) import InstanaAgent
 
 @available(iOS 12.0, *)
 class InstanaURLProtocolIntegrationTests: InstanaTestCase {
@@ -21,14 +21,26 @@ class InstanaURLProtocolIntegrationTests: InstanaTestCase {
         customURLSessionDelegate = CustomURLSessionDelegate()
     }
 
+    override func tearDown() {
+        // Restore the shared Instana instance immediately so that any in-flight
+        // async URLProtocol callbacks from this test cannot bleed into the next
+        // test's mock reporter (or vice-versa).
+        Instana.current = instana
+        super.tearDown()
+    }
+
     func test_urlprotocol_with_shared_URLSession_mock_report() {
         // Given
         let didReportWait = expectation(description: "didFinish")
         var resultBeacon: HTTPBeacon?
+        var fulfilled = false
         let mockReporter = MockReporter { submittedBeacon in
             if let httpBeacon = submittedBeacon as? HTTPBeacon {
-                resultBeacon = httpBeacon
-                didReportWait.fulfill()
+                if !fulfilled {
+                    resultBeacon = httpBeacon
+                    didReportWait.fulfill()
+                    fulfilled = true
+                }
             }
         }
         let monitors = Monitors(session, reporter: mockReporter)

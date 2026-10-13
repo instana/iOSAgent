@@ -4,7 +4,7 @@
 
 import Foundation
 import XCTest
-@testable import InstanaAgent
+@testable @_spi(Internal) import InstanaAgent
 
 class InstanaTests: InstanaTestCase {
 
@@ -193,26 +193,41 @@ class InstanaTests: InstanaTestCase {
     }
 
     func test_setup_and_expect_SessionProfileBeacon() {
+        // SessionProfileBeacon is auto genenated when Instana object is created.
+        // Internally, when reporter.submit is called, collectionEnabled is true for sure,
+        // otherwise reporter.submit is not called.
+        // For all other beacons, when reporter.submit is called, collectionEnabled value is unknown
+        // and the beacon submission might be aborted when collectionEnabled is found to be false.
+
         // Given
         let session: InstanaSession = .mock(configuration:
                 .default(key: "KEY",reportingURL: .random, enableCrashReporting: true,
                          deleteOldBeacons: false, maxBeaconResendTries: testMaxBeaconResendTries,
                          timeoutInterval: defaultTimeoutInterval))
         var expectedBeacon: SessionProfileBeacon?
+        let waitFor = expectation(description: "test_setup_and_expect_SessionProfileBeacon")
         let reporter = MockReporter {
             if let beacon = $0 as? SessionProfileBeacon {
                 expectedBeacon = beacon
+                waitFor.fulfill()
             }
         }
 
         // When
         Instana.current = Instana(session: session, monitors: Monitors(.mock, reporter: reporter))
+        wait(for: [waitFor], timeout: 1.0)
 
         // Then
         AssertEqualAndNotNil(expectedBeacon?.state, SessionProfileBeacon.State.start)
     }
 
     func test_setup_and_dont_expect_SessionProfileBeacon_when_disabled() {
+        // SessionProfileBeacon is auto genenated when Instana object is created.
+        // Internally, when reporter.submit is called, collectionEnabled is true for sure,
+        // otherwise reporter.submit is not called.
+        // For all other beacons, when reporter.submit is called, collectionEnabled value is unknown
+        // and the beacon submission might be aborted when collectionEnabled is found to be false.
+
         // Given
         let config = InstanaConfiguration.mock
         let session: InstanaSession = .mock(configuration: config, collectionEnabled: false)
@@ -236,9 +251,11 @@ class InstanaTests: InstanaTestCase {
         let config = InstanaConfiguration.mock
         let session: InstanaSession = .mock(configuration: config, collectionEnabled: false)
         var expectedBeacon: SessionProfileBeacon?
+        let waitFor = expectation(description: "test_setup_and_expect_SessionProfileBeacon_enabled_after_setup")
         let reporter = MockReporter {
             if let beacon = $0 as? SessionProfileBeacon {
                 expectedBeacon = beacon
+                waitFor.fulfill()
             }
         }
 
@@ -251,6 +268,7 @@ class InstanaTests: InstanaTestCase {
 
         // When
         Instana.collectionEnabled = true
+        wait(for: [waitFor], timeout: 1.0)
 
         // Then
         AssertTrue(expectedBeacon != nil)
@@ -905,5 +923,253 @@ class InstanaTests: InstanaTestCase {
         // Then
         AssertEqualAndNotNil(viewChangeBeaconCount, 1)
         AssertEqualAndNotNil(capturedViewInternalMetaMap?["settings.route.name"]?.count, InstanaProperties.viewMaxLength)
+    }
+
+    // MARK: - reportUserEventDetails
+
+    func test_reportUserEventDetails_submits_beacon() {
+        // Given
+        let cfg = InstanaConfiguration.mockNoFlush()
+        let session = InstanaSession.mock(configuration: cfg)
+        let reporter = Reporter(session)
+        Instana.current = Instana(session: session, monitors: Monitors(session, reporter: reporter))
+
+        let beacon = UserEventBeacon(timestamp: 123,
+                                     eventType: "t",
+                                     eventValue: "button_tap",
+                                     viewClassName: "ViewController",
+                                     viewId: "view-1")
+        // When
+        Instana.reportUserEventDetails(beacon: beacon)
+        // wait for beacon gets submitted to queue asynchronously
+        Thread.sleep(forTimeInterval: 0.2)
+
+        // Then
+        XCTAssertEqual(reporter.queue.items.count, 1)
+    }
+
+    func test_reportUserEventDetails_does_not_submit_when_collection_disabled() {
+        // Given
+        let cfg = InstanaConfiguration.mockNoFlush()
+        let session = InstanaSession.mock(configuration: cfg, collectionEnabled: false)
+        let reporter = Reporter(session)
+        Instana.current = Instana(session: session, monitors: Monitors(session, reporter: reporter))
+
+        let beacon = UserEventBeacon(timestamp: 456, eventType: "t")
+
+        // When
+        Instana.reportUserEventDetails(beacon: beacon)
+        // wait for beacon gets submitted to queue asynchronously
+        Thread.sleep(forTimeInterval: 0.5)
+
+        // Then
+        AssertFalse(Instana.collectionEnabled)
+        XCTAssertEqual(reporter.queue.items.count, 0)
+    }
+
+    // MARK: - reportUserEventBeacons
+
+    func test_reportUserEventBeacons_submits_all_beacons() {
+        // Given
+        let cfg = InstanaConfiguration.mockNoFlush()
+        let session = InstanaSession.mock(configuration: cfg)
+        let reporter = Reporter(session)
+        Instana.current = Instana(session: session, monitors: Monitors(session, reporter: reporter))
+
+        let beacon1 = UserEventBeacon(timestamp: 100, eventType: "t")
+        let beacon2 = UserEventBeacon(timestamp: 200, eventType: "tp")
+
+        // When
+        Instana.reportUserEventBeacons(beacons: [beacon1, beacon2])
+        // wait for beacons get submitted to queue asynchronously
+        Thread.sleep(forTimeInterval: 0.5)
+
+        // Then
+        XCTAssertEqual(reporter.queue.items.count, 2)
+    }
+
+    func test_reportUserEventBeacons_empty_array() {
+        // Given
+        let cfg = InstanaConfiguration.mockNoFlush()
+        let session = InstanaSession.mock(configuration: cfg)
+        let reporter = Reporter(session)
+        Instana.current = Instana(session: session, monitors: Monitors(session, reporter: reporter))
+
+        // When
+        // submitBeacons with empty array still runs through the async block and calls completion
+        Instana.reportUserEventBeacons(beacons: [])
+        // wait for beacon gets submitted to queue asynchronously
+        Thread.sleep(forTimeInterval: 0.5)
+
+        // Then
+        XCTAssertEqual(reporter.queue.items.count, 0)
+    }
+
+    func test_reportUserEventBeacons_does_not_submit_when_collection_disabled() {
+        // Given
+        let cfg = InstanaConfiguration.mockNoFlush()
+        let session = InstanaSession.mock(configuration: cfg, collectionEnabled: false)
+        let reporter = Reporter(session)
+        Instana.current = Instana(session: session, monitors: Monitors(session, reporter: reporter))
+
+        let beacon1 = UserEventBeacon(timestamp: 100, eventType: "t")
+        let beacon2 = UserEventBeacon(timestamp: 200, eventType: "tp")
+
+        // When
+        Instana.reportUserEventBeacons(beacons: [beacon1, beacon2])
+        // wait for beacon gets submitted to queue asynchronously
+        Thread.sleep(forTimeInterval: 0.5)
+
+        // Then
+        AssertFalse(Instana.collectionEnabled)
+        XCTAssertEqual(reporter.queue.items.count, 0)
+    }
+
+    // MARK: - reportImage
+
+    func test_reportImage_submits_image_beacon() {
+        // Given
+        let cfg = InstanaConfiguration.mockNoFlush()
+        let session = InstanaSession.mock(configuration: cfg)
+        let reporter = Reporter(session)
+        Instana.current = Instana(session: session, monitors: Monitors(session, reporter: reporter))
+
+        let imageBeacon = ImageBeacon(image: Data([0x01, 0x02, 0x03]),
+                                      meta: ["view": "Home"],
+                                      timestamp: 789)
+
+        // When
+        Instana.reportImage(imageBeacons: [imageBeacon])
+        // wait for image beacon gets submitted to queue asynchronously
+        Thread.sleep(forTimeInterval: 0.5)
+
+        // Then
+        XCTAssertEqual(reporter.imageQ.items.count, 1)
+    }
+
+    func test_reportImage_does_not_submit_when_collection_disabled() {
+        // Given
+        let cfg = InstanaConfiguration.mockNoFlush()
+        let session = InstanaSession.mock(configuration: cfg, collectionEnabled: false)
+        let reporter = Reporter(session)
+        Instana.current = Instana(session: session, monitors: Monitors(session, reporter: reporter))
+
+        let imageBeacon = ImageBeacon(image: Data([0x01, 0x02, 0x03]),
+                                      meta: ["view": "Home"],
+                                      timestamp: 789)
+
+        // When
+        Instana.reportImage(imageBeacons: [imageBeacon])
+        // wait for image beacon gets submitted to queue asynchronously
+        Thread.sleep(forTimeInterval: 0.5)
+
+        // Then
+        XCTAssertEqual(reporter.imageQ.items.count, 0)
+    }
+
+    // MARK: - setSrStatus
+
+    func test_setSrStatus_updates_session_replay_status() {
+        // Given
+        let session = InstanaSession.mock(configuration: config)
+        let reporter = MockReporter()
+        Instana.current = Instana(session: session, monitors: Monitors(session, reporter: reporter))
+
+        // Then - default value
+        AssertEqualAndNotNil(Instana.current?.session.sessionReplayStatus, "3")
+
+        // When
+        Instana.setSrStatus(status: "1")
+
+        // Then
+        AssertEqualAndNotNil(Instana.current?.session.sessionReplayStatus, "1")
+    }
+
+    func test_setSrStatus_updates_with_different_value() {
+        // Given
+        let session = InstanaSession.mock(configuration: config)
+        let reporter = MockReporter()
+        Instana.current = Instana(session: session, monitors: Monitors(session, reporter: reporter))
+
+        // When
+        Instana.setSrStatus(status: "0")
+
+        // Then
+        AssertEqualAndNotNil(Instana.current?.session.sessionReplayStatus, "0")
+    }
+
+    // MARK: - getRuntimeConfiguration
+
+    func test_getRuntimeConfiguration_returns_runtime_config() {
+        // Given
+        let session = InstanaSession.mock(configuration: config)
+        let reporter = MockReporter()
+        Instana.current = Instana(session: session, monitors: Monitors(session, reporter: reporter))
+
+        // When
+        let runtimeConfig = Instana.getRuntimeConfiguration()
+
+        // Then
+        XCTAssertNotNil(runtimeConfig)
+        AssertEqualAndNotNil(runtimeConfig?.srServerConfig, .srDefault)
+        AssertEqualAndNotNil(runtimeConfig?.configurationTimeStamp, 0)
+    }
+
+    func test_getRuntimeConfiguration_returns_nil_when_not_setup() {
+        // Given
+        Instana.current = nil
+
+        // When
+        let runtimeConfig = Instana.getRuntimeConfiguration()
+
+        // Then
+        XCTAssertNil(runtimeConfig)
+    }
+
+    // MARK: - stepUpRateLimits
+
+    func test_stepUpRateLimits_when_new_limits_are_higher_updates() {
+        // Given
+        let session = InstanaSession.mock(configuration: config) // starts at DEFAULT_LIMITS
+        let reporter = MockReporter()
+        Instana.current = Instana(session: session, monitors: Monitors(session, reporter: reporter))
+
+        let initialRateLimits = session.configuration.rateLimits
+        AssertEqualAndNotNil(initialRateLimits, .DEFAULT_LIMITS)
+
+        // When - step up to MID_LIMITS (higher than DEFAULT)
+        Instana.stepUpRateLimits(.MID_LIMITS)
+
+        // Then
+        AssertEqualAndNotNil(session.configuration.rateLimits, .MID_LIMITS)
+    }
+
+    func test_stepUpRateLimits_when_new_limits_are_lower_does_not_update() {
+        // Given
+        let cfg = InstanaConfiguration.mock()
+        cfg.rateLimits = .MAX_LIMITS
+        let session = InstanaSession.mock(configuration: cfg)
+        let reporter = MockReporter()
+        Instana.current = Instana(session: session, monitors: Monitors(session, reporter: reporter))
+
+        // Start with MAX_LIMITS
+        AssertEqualAndNotNil(session.configuration.rateLimits, .MAX_LIMITS)
+
+        // When - try to step down to DEFAULT_LIMITS (lower than MAX)
+        Instana.stepUpRateLimits(.DEFAULT_LIMITS)
+
+        // Then - rate limits should remain at MAX_LIMITS
+        AssertEqualAndNotNil(session.configuration.rateLimits, .MAX_LIMITS)
+    }
+
+    func test_stepUpRateLimits_does_not_update_when_not_setup() {
+        // Given
+        Instana.current = nil
+
+        // When - should not crash
+        Instana.stepUpRateLimits(.MAX_LIMITS)
+
+        // Then
+        XCTAssertNil(Instana.current)
     }
 }

@@ -11,7 +11,7 @@ class MockInstanaPersistableQueue<T: RestartRecoverableInFlight>: InstanaPersist
     var addedItems = Set<T>()
     var removedItems = [T]()
 
-    override init(identifier: String, maxItems: Int) {
+    override init(identifier: String, maxItems: Int, ignorePersistenceKey: String? = nil) {
         super.init(identifier: identifier, maxItems: maxItems)
         // Remove old items first
         items.removeAll()

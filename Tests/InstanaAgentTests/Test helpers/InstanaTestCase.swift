@@ -4,7 +4,7 @@
 
 import Foundation
 import XCTest
-@testable import InstanaAgent
+@testable @_spi(Internal) import InstanaAgent
 
 class InstanaTestCase: XCTestCase {
 
@@ -51,7 +51,9 @@ class InstanaTestCase: XCTestCase {
     func cleanUp() {
         InstanaApplicationStateHandler.shared.removeAllListener()
         Instana.current?.session.propertyHandler.properties = InstanaProperties()
+        Instana.current?.session.collectionEnabled = true
         Instana.current?.monitors.reporter.queue.removeAll()
+        Instana.current?.monitors.reporter.imageQ.removeAll()
         IgnoreURLHandler.exactURLs.removeAll()
         IgnoreURLHandler.regex.removeAll()
         IgnoreURLHandler.urlSessions.removeAll()

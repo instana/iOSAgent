@@ -5,8 +5,9 @@
 import Foundation
 import os
 
-class InstanaLogger {
-    enum Level: Int, RawRepresentable {
+@_spi(Internal)
+public class InstanaLogger {
+    public enum Level: Int, RawRepresentable {
         case debug, warning, error, none
         fileprivate var logTag: String {
             switch self {

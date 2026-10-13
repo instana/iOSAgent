@@ -1,5 +1,5 @@
 import XCTest
-@testable import InstanaAgent
+@testable @_spi(Internal) import InstanaAgent
 import Network
 
 class ReporterTests: InstanaTestCase {
@@ -135,6 +135,66 @@ class ReporterTests: InstanaTestCase {
         AssertTrue(reporter.queue.items.count == 2)
     }
 
+    func test_image_submit() {
+        // Given
+        var didSubmit = false
+        let submittedToImageQueue = expectation(description: "Image beacon submitted to image queue")
+        let reporter = createReporterDefaultWifi()
+
+        // When
+        let imageBeacon = ImageBeacon(image: Data([0x01]), meta: [:], timestamp: Date().millisecondsSince1970)
+        reporter.submitImage(imageBeacons: [imageBeacon]) {_ in
+            didSubmit = true
+            submittedToImageQueue.fulfill()
+        }
+        wait(for: [submittedToImageQueue], timeout: 1.0)
+
+        // Then
+        AssertTrue(didSubmit)
+    }
+
+    func test_image_submit_collection_not_enabled() {
+        // Given
+        session = InstanaSession.mock(configuration: config)
+        session.collectionEnabled = false
+
+        var didSubmit = false
+        let submittedToImageQueue = expectation(description: "Image beacon submitted to image queue")
+        let reporter = Reporter(session, batterySafeForNetworking: { true }, networkUtility: .wifi)
+
+        // When
+        let beacon = ImageBeacon(image: Data([0x01]), meta: [:], timestamp: Date().millisecondsSince1970)
+        reporter.submitImage(imageBeacons: [beacon]) {result in
+            didSubmit = result
+            submittedToImageQueue.fulfill()
+        }
+        wait(for: [submittedToImageQueue], timeout: 1.0)
+
+        // Then
+        AssertFalse(didSubmit)
+    }
+
+    func test_image_submit_imageQueueFull() {
+        // Given
+        let imageConfig = InstanaConfiguration.mock(key: "KEY", reportingURL: .random, httpCaptureConfig: .automatic, maxQueueSize: 0)
+        session = InstanaSession.mock(configuration: imageConfig)
+
+        var didSubmit = false
+        let submittedToImageQueue = expectation(description: "Image beacon submitted to image queue")
+        let reporter = Reporter(session, batterySafeForNetworking: { true }, networkUtility: .wifi)
+
+        // When
+        let imageBeacon = ImageBeacon(image: Data([0x01]), meta: [:], timestamp: Date().millisecondsSince1970)
+        reporter.submitImage(imageBeacons: [imageBeacon]) {result in
+            didSubmit = result
+            submittedToImageQueue.fulfill()
+        }
+        wait(for: [submittedToImageQueue], timeout: 1.0)
+
+        // Then
+        AssertFalse(didSubmit)
+    }
+
     func test_schedule_and_flush_once() {
         // Given
         let expectflush = expectation(description: "Submitted To Queue")
@@ -143,6 +203,7 @@ class ReporterTests: InstanaTestCase {
         // When
         reporter.submit(PerformanceBeacon(subType: .lowMemory))
         wait(for: [expectflush], timeout: 3)
+        reporter.dispatchQueue.sync {}
 
         // Then
         AssertTrue(reporter.queue.items.count == 0)
@@ -152,7 +213,7 @@ class ReporterTests: InstanaTestCase {
         // Given
         let expectflush = expectation(description: "Wait for")
         var sendCount = 0
-        let reporter = createReporterDefaultWifi([expectflush]) { sendCount = $0 }
+        let reporter = createReporterDefaultWifi(delay: 0.5, [expectflush]) { sendCount = $0 }
 
         // When
         reporter.submit(PerformanceBeacon(subType: .lowMemory))
@@ -162,6 +223,7 @@ class ReporterTests: InstanaTestCase {
         reporter.submit(PerformanceBeacon(subType: .lowMemory))
         reporter.submit(PerformanceBeacon(subType: .lowMemory))
         wait(for: [expectflush], timeout: 2.0)
+        reporter.dispatchQueue.sync {}
 
         // Then - Should only flush once when getting more beacons before flushing occured
         AssertEqualAndNotZero(sendCount, 1)
@@ -181,6 +243,7 @@ class ReporterTests: InstanaTestCase {
         AssertEqualAndNotZero(sendCount, 1)
         reporter.submit(PerformanceBeacon(subType: .lowMemory))
         wait(for: [waitForSecond], timeout: 4.0)
+        reporter.dispatchQueue.sync {}
 
         // Then - Should flush twice when getting more beacons after first flushing occured
         AssertEqualAndNotZero(sendCount, 2)
@@ -225,6 +288,7 @@ class ReporterTests: InstanaTestCase {
 
         // Wait for final flush
         wait(for: [finalExp], timeout: 5.0)
+        reporter.dispatchQueue.sync {}
 
         // Then
         AssertEqualAndNotZero(sendCount, 1, "Send count must be 1 and not \(sendCount)")
@@ -847,8 +911,8 @@ class ReporterTests: InstanaTestCase {
 
         // When
         reporter.runBackgroundFlush()
-        wait(for: [waitForFirstCompletion], timeout: 4.0)
-        wait(for: [unexpectedSecondCompletion], timeout: 2.0)
+        wait(for: [waitForFirstCompletion, unexpectedSecondCompletion], timeout: 2.0)
+        reporter.dispatchQueue.sync {}
 
         // Then
         XCTAssertEqual(completionCount, 1)
@@ -976,6 +1040,7 @@ class ReporterTests: InstanaTestCase {
         }
         reporter.submit(givenBeacon)
         wait(for: [waitForSend!], timeout: 2.0)
+        reporter.dispatchQueue.sync {}
 
         // Then
         AssertEqualAndNotNil(resultError, givenError)
@@ -1004,6 +1069,7 @@ class ReporterTests: InstanaTestCase {
         }
         reporter.submit(givenBeacon)
         wait(for: [waitForSend!], timeout: 2.0)
+        reporter.dispatchQueue.sync {}
 
         // Then
         AssertEqualAndNotNil(resultError, givenError)
@@ -1026,6 +1092,10 @@ class ReporterTests: InstanaTestCase {
         }
         reporter.submit(beacon)
         wait(for: [waitForSend], timeout: 20.0)
+
+        // Drain the reporter's serial queue so all post-flush queue mutations
+        // have completed before the test thread reads queue.items.
+        reporter.dispatchQueue.sync {}
 
         // Then
         AssertTrue(reporter.queue.items.contains(where: {$0.bid == beacon.id}))
@@ -1216,6 +1286,7 @@ class ReporterTests: InstanaTestCase {
         // When
         reporter.scheduleFlush()
         wait(for: [waitFor], timeout: 4.0)
+        reporter.dispatchQueue.sync {}
 
         // Then
         XCTAssertNil(sentResult?.error)
@@ -1228,7 +1299,10 @@ class ReporterTests: InstanaTestCase {
         let httpError = [InstanaError.httpServerError(500), InstanaError.httpClientError(404)].randomElement()!
         var sentResult: BeaconResult?
         let waitFor = expectation(description: "test_flushQueue_failure")
-        let reporter = Reporter(.mock, send:  { _, completion in
+        let reporter = Reporter(.mock,
+                                batterySafeForNetworking: { true },
+                                networkUtility: .wifi,
+                                send:  { _, completion in
             sentCount += 1
             completion(.failure(httpError))
         })
@@ -1242,6 +1316,7 @@ class ReporterTests: InstanaTestCase {
         // When
         reporter.scheduleFlush()
         wait(for: [waitFor], timeout: 4.0)
+        reporter.dispatchQueue.sync {}
 
         // Then
         XCTAssertEqual(sentResult?.error as! InstanaError, httpError)
@@ -1282,6 +1357,7 @@ class ReporterTests: InstanaTestCase {
         // When
         reporter.scheduleFlush()
         wait(for: [waitFor], timeout: 4.0)
+        reporter.dispatchQueue.sync {}
 
         // Then
         XCTAssertEqual(reporter.queue.items.count, 1)
@@ -1318,7 +1394,10 @@ class ReporterTests: InstanaTestCase {
 
         // When
         reporter.scheduleFlush()
-        wait(for: [waitFor], timeout: 4.0)
+        wait(for: [waitFor], timeout: 2.0)
+        // Drain the reporter's serial queue so that handle()'s trailing scheduleFlush()
+        // call (which marks the beacon in-flight) completes before assertions run.
+        reporter.dispatchQueue.sync {}
 
         // Then
         XCTAssertEqual(reporter.queue.items.count, 1)
@@ -1434,6 +1513,7 @@ class ReporterTests: InstanaTestCase {
         // Then
         XCTAssertNotNil(sentResult?.error)
         XCTAssertEqual(sentCount, expectecSentCount)
+        Thread.sleep(forTimeInterval: 0.1)
         XCTAssertTrue(reporter.queue.items.isEmpty)
     }
 
@@ -1457,8 +1537,10 @@ class ReporterTests: InstanaTestCase {
         reporter.scheduleFlush()
         wait(for: [waitFor], timeout: 4.0)
 
-        // wait for post-flush queue operations complete
-        Thread.sleep(forTimeInterval: 0.1)
+        // Drain the reporter's serial queue to ensure all post-flush
+        // queue mutations (queue.items = updatedBeacons, etc.) have
+        // completed before the test thread reads queue.items.
+        reporter.dispatchQueue.sync {}
 
         // Then
         AssertTrue(shouldCallCompletion)
@@ -1499,7 +1581,8 @@ extension ReporterTests {
         let config: InstanaConfiguration = .mock(gzipReport: true)
         let beacons = [HTTPBeacon.createMock(), HTTPBeacon.createMock()]
         let cbeacons = try! CoreBeaconFactory(session).map(beacons)
-        let flusher = BeaconFlusher(reporter: nil, items: [], debounce: 0, config: config, queue: .main, send: nil) { _ in}
+        let flusher = BeaconFlusher(reporter: nil, items: [], imageItems: [], debounce: 0, config: config,
+                                    queue: .main, send: nil) { _ in}
         let data = cbeacons.asString.data(using: .utf8)
         let gzippedData = try? data?.gzipped(level: .bestCompression)
 
@@ -1518,7 +1601,8 @@ extension ReporterTests {
     func test_createBatchRequest_invalid_key() {
         // Given
         let invalidConfig = InstanaConfiguration.mock(key: "")
-        let flusher = BeaconFlusher(reporter: nil, items: [], debounce: 0, config: invalidConfig, queue: .main, send: nil) { _ in}
+        let flusher = BeaconFlusher(reporter: nil, items: [], imageItems: [], debounce: 0, config: invalidConfig,
+                                    queue: .main, send: nil) { _ in}
         let beacons = [HTTPBeacon.createMock(), HTTPBeacon.createMock()]
         let corebeacons = try! CoreBeaconFactory(session).map(beacons)
 
@@ -1640,7 +1724,7 @@ extension NetworkUtility {
     }
 }
 
-extension BeaconResult: Equatable {
+extension BeaconResult: @retroactive Equatable {
     public static func == (lhs: BeaconResult, rhs: BeaconResult) -> Bool {
         switch (lhs, rhs) {
         case (.success, .success): return true

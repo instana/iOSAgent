@@ -20,6 +20,48 @@
                ReferencedContainer = "container:InstanaAgentExample.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "InstanaAgent"
+               BuildableName = "InstanaAgent"
+               BlueprintName = "InstanaAgent"
+               ReferencedContainer = "container:..">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "InstanaSessionReplay"
+               BuildableName = "InstanaSessionReplay"
+               BlueprintName = "InstanaSessionReplay"
+               ReferencedContainer = "container:..">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "InstanaSessionReplayTests"
+               BuildableName = "InstanaSessionReplayTests"
+               BlueprintName = "InstanaSessionReplayTests"
+               ReferencedContainer = "container:..">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
@@ -27,20 +69,10 @@
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES"
-      codeCoverageEnabled = "YES"
-      onlyGenerateCoverageForSpecifiedTargets = "YES">
-      <CodeCoverageTargets>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "InstanaAgentTests"
-            BuildableName = "InstanaAgentTests"
-            BlueprintName = "InstanaAgentTests"
-            ReferencedContainer = "container:..">
-         </BuildableReference>
-      </CodeCoverageTargets>
+      codeCoverageEnabled = "YES">
       <Testables>
          <TestableReference
-            skipped = "NO">
+            skipped = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "727AF718263AA09C00B9C59B"
@@ -56,6 +88,16 @@
                BlueprintIdentifier = "InstanaAgentTests"
                BuildableName = "InstanaAgentTests"
                BlueprintName = "InstanaAgentTests"
+               ReferencedContainer = "container:..">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "InstanaSessionReplayTests"
+               BuildableName = "InstanaSessionReplayTests"
+               BlueprintName = "InstanaSessionReplayTests"
                ReferencedContainer = "container:..">
             </BuildableReference>
          </TestableReference>

@@ -29,6 +29,7 @@ identifier_name:
     error: 3 # only error
   excluded: # excluded via string array
     - id
+    - ti
 large_tuple: 3
 cyclomatic_complexity: 20
 

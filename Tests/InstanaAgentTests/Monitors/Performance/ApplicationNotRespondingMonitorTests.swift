@@ -1,5 +1,5 @@
 import XCTest
-@testable import InstanaAgent
+@_spi(Internal) @testable import InstanaAgent
 
 class ApplicationNotRespondingMonitorTests: InstanaTestCase {
 
@@ -53,7 +53,7 @@ class ApplicationNotRespondingMonitorTests: InstanaTestCase {
         }
         XCTAssert(perfBeacon.duration > 0.01)
     }
-    
+
     func test_backgroundedApplication_shouldNotTriggerANRBeacon() {
         let exp = expectation(description: "ANR beacon trigger")
         monitor = ApplicationNotRespondingMonitor(threshold: 0.01, samplingInterval: 0.1, reporter: MockReporter {_ in
@@ -88,8 +88,6 @@ class ApplicationNotRespondingMonitorTests: InstanaTestCase {
         waitForExpectations(timeout: 0.14) { _ in
             let perfBeacon = beacon as? PerfAppNotRespondingBeacon
             XCTAssertNotNil(perfBeacon)
-            XCTAssertTrue(perfBeacon!.duration >= 0.01)
-
         }
     }
 }

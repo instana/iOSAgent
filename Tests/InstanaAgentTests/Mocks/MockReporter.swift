@@ -4,6 +4,7 @@
 
 import Foundation
 @testable import InstanaAgent
+@_spi(Internal) import InstanaAgent
 
 class MockReporter: Reporter {
     var submitter: ((Beacon) -> Void)

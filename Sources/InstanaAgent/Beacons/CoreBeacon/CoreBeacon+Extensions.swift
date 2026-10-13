@@ -28,6 +28,14 @@ extension CoreBeacon {
             // in-flight flag is internal to agent
             return nil
         }
+        if key == "evv" {
+            // Session Replay value type
+            if let dict = value as? [String: String] {
+                for (subKey, subValue) in dict {
+                    return "\(subKey)\t\(subValue)"
+                }
+            }
+        }
         if let dict = value as? [String: String] {
             return dict.asString(prefix: key)
         }

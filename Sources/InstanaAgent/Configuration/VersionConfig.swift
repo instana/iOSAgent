@@ -1,3 +1,4 @@
 struct VersionConfig {
-    static let agentVersion = "1.10.3"
+    static let agentVersion = "2.0.0"
+    static let sessionReplayVersion = "1.0.0-beta2"
 }

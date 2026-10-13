@@ -15,7 +15,8 @@ import Foundation
     /// The current Instana session that holds the configuration, session information, custom properties and more
     internal let session: InstanaSession
 
-    internal static var current: Instana?
+    @_spi(Internal)
+    public static var current: Instana?
 
     internal let appStateHandler = InstanaApplicationStateHandler.shared
 
@@ -563,6 +564,48 @@ import Foundation
     @objc
     public static func setCaptureHeaders(matching regex: [NSRegularExpression]) {
         Instana.current?.monitors.http?.filter.headerFieldsRegEx = AtomicArray(regex)
+    }
+
+    ///
+    /// Step up rate limits
+    /// Only update if existing rate limits is lower than the new rateLimits.
+    /// If existing rate limits is greater than the new rateLimits, existing rate limits remains unchanged.
+    ///
+    /// - Parameters:
+    ///     - the new rate limits
+
+    public static func stepUpRateLimits(_ rateLimits: RateLimits) {
+        Instana.current?.monitors.stepUpRateLimits(rateLimits)
+    }
+
+    @_spi(Internal)
+    public static func getRuntimeConfiguration() -> RuntimeConfiguration? {
+        return Instana.current?.monitors.reporter.runtimeConfig
+    }
+
+    @_spi(Internal)
+    public static func setSrStatus(status: String) {
+        Instana.current?.session.setSrStatus(status: status)
+    }
+
+    @_spi(Internal)
+    public static func reportImage(imageBeacons: [ImageBeacon]) {
+        Instana.current?.monitors.reporter.submitImage(imageBeacons: imageBeacons)
+    }
+
+    @_spi(Internal)
+    public static func reportUserEventDetails(beacon: UserEventBeacon) {
+        Instana.current?.monitors.reporter.submit(beacon)
+    }
+
+    @_spi(Internal)
+    public static func reportUserEventBeacons(beacons: [UserEventBeacon]) {
+        Instana.current?.monitors.reporter.submitBeacons(beacons: beacons)
+    }
+
+    @_spi(Internal)
+    public static func log(_ message: String, level: InstanaLogger.Level = .debug) {
+        Instana.current?.session.logger.add(message, level: level)
     }
 
     ///

@@ -1,5 +1,5 @@
 import XCTest
-@testable import InstanaAgent
+@_spi(Internal) @testable import InstanaAgent
 
 class FramerateDropMonitorTests: InstanaTestCase {
 

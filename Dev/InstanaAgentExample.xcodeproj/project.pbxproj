@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 54;
+	objectVersion = 60;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -30,6 +30,8 @@
 		729C88B8270DF13700492486 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 729C88B7270DF13700492486 /* Alamofire */; };
 		A4059B1F2BD067A400C471B6 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A4059B1E2BD067A400C471B6 /* PrivacyInfo.xcprivacy */; };
 		A412ECE52BCF3F6C007212F9 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A412ECE42BCF3F6C007212F9 /* PrivacyInfo.xcprivacy */; };
+		A46686382F478670008CB8FD /* InstanaSessionReplay in Frameworks */ = {isa = PBXBuildFile; productRef = A46686372F478670008CB8FD /* InstanaSessionReplay */; };
+		A466863A2F478ED0008CB8FD /* InstanaSessionReplay in Frameworks */ = {isa = PBXBuildFile; productRef = A46686392F478ED0008CB8FD /* InstanaSessionReplay */; };
 		A46F87782B44DE8D00302343 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = A46F87772B44DE8D00302343 /* AppDelegate.m */; };
 		A46F877B2B44DE8D00302343 /* SceneDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = A46F877A2B44DE8D00302343 /* SceneDelegate.m */; };
 		A46F877E2B44DE8D00302343 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A46F877D2B44DE8D00302343 /* ViewController.m */; };
@@ -113,6 +115,7 @@
 				A4EFD6A12A9983FB00B9A9A3 /* WebKit.framework in Frameworks */,
 				729C88B8270DF13700492486 /* Alamofire in Frameworks */,
 				727AF748263AA16A00B9C59B /* InstanaAgent in Frameworks */,
+				A46686382F478670008CB8FD /* InstanaSessionReplay in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -128,6 +131,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A46F87912B44E79600302343 /* InstanaAgent in Frameworks */,
+				A466863A2F478ED0008CB8FD /* InstanaSessionReplay in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -274,6 +278,7 @@
 			packageProductDependencies = (
 				727AF747263AA16A00B9C59B /* InstanaAgent */,
 				729C88B7270DF13700492486 /* Alamofire */,
+				A46686372F478670008CB8FD /* InstanaSessionReplay */,
 			);
 			productName = InstanaAgentExample;
 			productReference = 727AF685263A9EBD00B9C59B /* InstanaAgentExample.app */;
@@ -312,6 +317,7 @@
 			name = ObjectiveCAppExample;
 			packageProductDependencies = (
 				A46F87902B44E79600302343 /* InstanaAgent */,
+				A46686392F478ED0008CB8FD /* InstanaSessionReplay */,
 			);
 			productName = ObjectiveCAppExample;
 			productReference = A46F87742B44DE8D00302343 /* ObjectiveCAppExample.app */;
@@ -352,6 +358,7 @@
 			mainGroup = 727AF67C263A9EBD00B9C59B;
 			packageReferences = (
 				729C88B6270DF13700492486 /* XCRemoteSwiftPackageReference "Alamofire" */,
+				A46686362F478670008CB8FD /* XCLocalSwiftPackageReference "../../iOSAgent" */,
 			);
 			productRefGroup = 727AF686263A9EBD00B9C59B /* Products */;
 			projectDirPath = "";
@@ -852,7 +859,8 @@
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -886,7 +894,8 @@
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -963,6 +972,13 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCLocalSwiftPackageReference section */
+		A46686362F478670008CB8FD /* XCLocalSwiftPackageReference "../../iOSAgent" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../../iOSAgent;
+		};
+/* End XCLocalSwiftPackageReference section */
+
 /* Begin XCRemoteSwiftPackageReference section */
 		729C88B6270DF13700492486 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
 			isa = XCRemoteSwiftPackageReference;
@@ -987,6 +1003,15 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 729C88B6270DF13700492486 /* XCRemoteSwiftPackageReference "Alamofire" */;
 			productName = Alamofire;
+		};
+		A46686372F478670008CB8FD /* InstanaSessionReplay */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = InstanaSessionReplay;
+		};
+		A46686392F478ED0008CB8FD /* InstanaSessionReplay */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A46686362F478670008CB8FD /* XCLocalSwiftPackageReference "../../iOSAgent" */;
+			productName = InstanaSessionReplay;
 		};
 		A46F87902B44E79600302343 /* InstanaAgent */ = {
 			isa = XCSwiftPackageProductDependency;

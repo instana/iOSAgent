@@ -5,11 +5,13 @@
 import Foundation
 
 /// Represents errors that can be thrown by the Instana SDK
-enum InstanaError: LocalizedError, Equatable {
-    static func == (lhs: InstanaError, rhs: InstanaError) -> Bool {
+@_spi(Internal)
+public enum InstanaError: LocalizedError, Equatable {
+    public static func == (lhs: InstanaError, rhs: InstanaError) -> Bool {
         lhs as NSError == rhs as NSError
     }
 
+    case notInitialized
     case fileHandling(String)
     case invalidRequest
     case httpClientError(Int)
@@ -25,6 +27,8 @@ enum InstanaError: LocalizedError, Equatable {
 
     var localizedDescription: String {
         switch self {
+        case .notInitialized:
+            return "Instana not initialized"
         case let .fileHandling(value):
             return "File handling failed \(value)"
         case .invalidRequest:
@@ -52,7 +56,7 @@ enum InstanaError: LocalizedError, Equatable {
         }
     }
 
-    var errorDescription: String? {
+    public var errorDescription: String? {
         localizedDescription
     }
 

@@ -85,6 +85,7 @@ class InstanaConfiguration {
     var maxBeaconsPerRequest: Int = 0
     var maxQueueSize: Int
     var preQueueUsageTime: TimeInterval
+    var rateLimits: RateLimits
     var reporterRateLimits: [ReporterRateLimitConfig]
     var isValid: Bool { !key.isEmpty && !reportingURL.absoluteString.isEmpty }
     // set if iOSAgent is invoked by flutter-agent or react-native-agent
@@ -142,7 +143,8 @@ class InstanaConfiguration {
         self.deleteOldBeacons = deleteOldBeacons
         self.maxBeaconResendTries = maxBeaconResendTries
         self.timeoutInterval = timeoutInterval
-        configRateLimit(rateLimits)
+        self.rateLimits = rateLimits ?? .DEFAULT_LIMITS
+        configRateLimit(self.rateLimits)
     }
 
     /**
@@ -162,8 +164,8 @@ class InstanaConfiguration {
      *
      */
 
-    func configRateLimit(_ rateLimits: RateLimits?) {
-        guard let rateLimits = rateLimits else { return }
+    func configRateLimit(_ rateLimits: RateLimits) {
+        self.rateLimits = rateLimits
         switch rateLimits {
         case .MID_LIMITS:
             reporterRateLimits = [ReporterRateLimitConfig(timeout: 10, maxItems: 40),

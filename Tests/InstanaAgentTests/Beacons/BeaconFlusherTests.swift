@@ -1,14 +1,16 @@
 import XCTest
-@testable import InstanaAgent
+@testable @_spi(Internal) import InstanaAgent
 import Network
 
 class BeaconFlusherTests: InstanaTestCase {
 
     var corebeacons: [CoreBeacon]!
+    var imagebeacons: [ImageBeacon]!
 
     override func setUp() {
         super.setUp()
         corebeacons = try! CoreBeaconFactory(.mock).map([HTTPBeacon.createMock()])
+        imagebeacons = []
     }
 
     func test_schedule_no_debounce_success() {
@@ -18,7 +20,7 @@ class BeaconFlusherTests: InstanaTestCase {
         let flushStart = Date()
         var flushResult: BeaconFlusher.Result?
         let waitFor = expectation(description: "test_schedule_no_debounce_success")
-        let flusher = BeaconFlusher(reporter: nil, items: Set(corebeacons), debounce: debounce,
+        let flusher = BeaconFlusher(reporter: nil, items: Set(corebeacons), imageItems: Set(imagebeacons), debounce: debounce,
                                     config: .mock, queue: .main, send: { _, completion in
             completion(.success(200))
         }, completion: { result in
@@ -31,7 +33,7 @@ class BeaconFlusherTests: InstanaTestCase {
         wait(for: [waitFor], timeout: timeout)
 
         // Then
-        XCTAssertEqual(flushResult, .success(corebeacons))
+        XCTAssertEqual(flushResult, .success(corebeacons, imagebeacons))
         XCTAssertTrue(Date().timeIntervalSince(flushStart) < timeout)
     }
 
@@ -42,7 +44,7 @@ class BeaconFlusherTests: InstanaTestCase {
         let flushStart = Date()
         var flushResult: BeaconFlusher.Result?
         let waitFor = expectation(description: "test_schedule_1sec_debounce_success")
-        let flusher = BeaconFlusher(reporter: nil, items: Set(corebeacons), debounce: debounce,
+        let flusher = BeaconFlusher(reporter: nil, items: Set(corebeacons), imageItems: Set(imagebeacons), debounce: debounce,
                                     config: .mock, queue: .main, send: { _, completion in
             completion(.success(200))
         }, completion: { result in
@@ -55,7 +57,7 @@ class BeaconFlusherTests: InstanaTestCase {
         wait(for: [waitFor], timeout: timeout)
 
         // Then
-        XCTAssertEqual(flushResult, .success(corebeacons))
+        XCTAssertEqual(flushResult, .success(corebeacons, imagebeacons))
         XCTAssertTrue(Date().timeIntervalSince(flushStart) < debounce + timeout)
     }
 
@@ -67,7 +69,7 @@ class BeaconFlusherTests: InstanaTestCase {
         let error = InstanaError.httpClientError(402)
         var flushResult: BeaconFlusher.Result?
         let waitFor = expectation(description: "test_schedule_flush_failure")
-        let flusher = BeaconFlusher(reporter: nil, items: Set(corebeacons), debounce: debounce,
+        let flusher = BeaconFlusher(reporter: nil, items: Set(corebeacons), imageItems: Set(imagebeacons), debounce: debounce,
                                     config: .mock, queue: .main, send: { _, completion in
             completion(.failure(error))
         }, completion: { result in
@@ -94,7 +96,7 @@ class BeaconFlusherTests: InstanaTestCase {
         let error = InstanaError.httpClientError(402)
         var flushResult: BeaconFlusher.Result?
         let waitFor = expectation(description: "test_schedule_flush_success_and_failure")
-        let flusher = BeaconFlusher(reporter: nil, items: Set(corebeacons), debounce: 0.0,
+        let flusher = BeaconFlusher(reporter: nil, items: Set(corebeacons), imageItems: Set(imagebeacons), debounce: 0.0,
                                     config: config, queue: .main, send: { request, completion in
             sentCount += 1
             let content = String(decoding: request.httpBody ?? Data(), as: UTF8.self)
@@ -109,7 +111,7 @@ class BeaconFlusherTests: InstanaTestCase {
         wait(for: [waitFor], timeout: 3.0)
 
         // Then
-        XCTAssertEqual(flushResult, .either(sent: [corebeacons.last!], errors: [error]))
+        XCTAssertEqual(flushResult, .either(sent: [corebeacons.last!], sentImages: [], errors: [error]))  //hj todo!!!
         XCTAssertEqual(sentCount, 2)
     }
 
@@ -120,7 +122,7 @@ class BeaconFlusherTests: InstanaTestCase {
         let config = InstanaConfiguration.mock(maxBeaconsPerRequest: 1, maxQueueSize: 1, debounce: 0, maxRetries: 0)
         var flushResult: BeaconFlusher.Result?
         let waitFor = expectation(description: "test_schedule_flush_success_and_failure")
-        let flusher = BeaconFlusher(reporter: nil, items: Set(corebeacons), debounce: 0.0,
+        let flusher = BeaconFlusher(reporter: nil, items: Set(corebeacons), imageItems: Set(imagebeacons), debounce: 0.0,
                                     config: config, queue: .main, send: { _, completion in
             sentCount += 1
             completion(.success(200))
@@ -136,7 +138,7 @@ class BeaconFlusherTests: InstanaTestCase {
         // Then
         XCTAssertEqual(sentCount, corebeacons.count)
         XCTAssertEqual(flushResult?.sentBeacons.count, corebeacons.count)
-        if case let .success(sent) = flushResult {
+        if case let .success(sent, _) = flushResult {
             // Order is random
             XCTAssertTrue(corebeacons.contains(sent.first!))
             XCTAssertTrue(corebeacons.contains(sent.last!))
@@ -152,7 +154,7 @@ class BeaconFlusherTests: InstanaTestCase {
         let error = InstanaError.httpClientError(402)
         var flushResult: BeaconFlusher.Result?
         let waitFor = expectation(description: "test_schedule_flush_success_and_failure")
-        let flusher = BeaconFlusher(reporter: nil, items: Set(corebeacons), debounce: 0.0,
+        let flusher = BeaconFlusher(reporter: nil, items: Set(corebeacons), imageItems: Set(imagebeacons), debounce: 0.0,
                                     config: config, queue: .main, send: { _, completion in
             sentCount += 1
             completion(.failure(error))
@@ -170,6 +172,59 @@ class BeaconFlusherTests: InstanaTestCase {
         XCTAssertEqual(sentCount, 2)
     }
 
+    func test_schedule_image_flush_no_debounce_success() {
+        // Given
+        let debounce = 0.0
+        let timeout: TimeInterval = 1.0
+        let flushStart = Date()
+        var flushResult: BeaconFlusher.Result?
+        let waitFor = expectation(description: "schedule_image_flush_no_debounce_success")
+        let imageBeacon = ImageBeacon(image: Data([0x01]), meta: ["ImageId": "13422339073088273168"],
+                                      timestamp: Date().millisecondsSince1970)
+        let flusher = BeaconFlusher(reporter: nil, items: Set<CoreBeacon>(), imageItems: Set([imageBeacon]), debounce: debounce,
+                                    config: .mock, queue: .main, send: { _, completion in
+            completion(.success(200))
+        }, completion: { result in
+            flushResult = result
+            waitFor.fulfill()
+        })
+
+        // When
+        flusher.schedule()
+        wait(for: [waitFor], timeout: timeout)
+
+        // Then
+        XCTAssertEqual(flushResult, .success([], [imageBeacon]))
+        XCTAssertTrue(Date().timeIntervalSince(flushStart) < timeout)
+    }
+
+    func test_schedule_core_and_image_beacons_flush_no_debounce_success() {
+        // Given
+        let debounce = 0.0
+        let timeout: TimeInterval = 1.0
+        let flushStart = Date()
+        var flushResult: BeaconFlusher.Result?
+        let waitFor = expectation(description: "schedule_both_beacons_flush_no_debounce_success")
+        let imageBeacon = ImageBeacon(image: Data([0x02]),
+                                      meta: ["imageId": "13422339073088273168"],
+                                      timestamp: Date().millisecondsSince1970)
+        let flusher = BeaconFlusher(reporter: nil, items: Set(corebeacons), imageItems: Set([imageBeacon]), debounce: debounce,
+                                    config: .mock, queue: .main, send: { _, completion in
+            completion(.success(200))
+        }, completion: { result in
+            flushResult = result
+            waitFor.fulfill()
+        })
+
+        // When
+        flusher.schedule()
+        wait(for: [waitFor], timeout: timeout)
+
+        // Then
+        XCTAssertEqual(flushResult, .success(corebeacons, [imageBeacon]))
+        XCTAssertTrue(Date().timeIntervalSince(flushStart) < timeout)
+    }
+
     func hjtest_schedule_flush_failure_retry() {
         // Given
         let maxRetries = 2
@@ -182,7 +237,7 @@ class BeaconFlusherTests: InstanaTestCase {
 
         var flushResult: BeaconFlusher.Result?
         let waitFor = expectation(description: "test_schedule_flush_failure_retry")
-        let flusher = BeaconFlusher(reporter: nil, items: Set(corebeacons), debounce: 0.0,
+        let flusher = BeaconFlusher(reporter: nil, items: Set(corebeacons), imageItems: Set(imagebeacons), debounce: 0.0,
                                     config: config, queue: .main, send: { _, completion in
             sentCount += 1
             completion(.failure(error))
@@ -204,7 +259,8 @@ class BeaconFlusherTests: InstanaTestCase {
     func test_cancel() {
         // Given
         let waitFor = expectation(description: "waitForFlushStart")
-        let flusher = BeaconFlusher(reporter: nil, items: Set(corebeacons), debounce: 0.0, config: .mock, queue: .main) { _ in }
+        let flusher = BeaconFlusher(reporter: nil, items: Set(corebeacons), imageItems: Set(imagebeacons), debounce: 0.0,
+                                    config: .mock, queue: .main) { _ in }
         flusher.schedule()
         flusher.didStartFlush = {
             waitFor.fulfill()
@@ -224,7 +280,8 @@ class BeaconFlusherTests: InstanaTestCase {
 
     func test_urlsession_isIgnored() {
         // Given
-        let flusher = BeaconFlusher(reporter: nil, items: Set(corebeacons), debounce: 0.0, config: .mock, queue: .main) { _ in }
+        let flusher = BeaconFlusher(reporter: nil, items: Set(corebeacons), imageItems: Set(imagebeacons), debounce: 0.0,
+                                    config: .mock, queue: .main) { _ in }
 
         // When
         let isIgnored = IgnoreURLHandler.shouldIgnore(flusher.urlSession)
@@ -235,7 +292,8 @@ class BeaconFlusherTests: InstanaTestCase {
 
     func hjtest_retryDelay() {
         // Given
-        let flusher = BeaconFlusher(reporter: nil, items: Set(corebeacons), debounce: 0.0, config: .mock, queue: .main) { _ in }
+        let flusher = BeaconFlusher(reporter: nil, items: Set(corebeacons), imageItems: Set(imagebeacons), debounce: 0.0,
+                                    config: .mock, queue: .main) { _ in }
         let steps = (1...3)
         let maxDelay = 60 * 10 * 1000
 
@@ -258,7 +316,7 @@ class BeaconFlusherTests: InstanaTestCase {
         let max = 3
         let steps = (1...max)
         let config = InstanaConfiguration.mock(maxRetries: max)
-        let flusher = BeaconFlusher(reporter: nil, items: Set(corebeacons), debounce: 0.0,
+        let flusher = BeaconFlusher(reporter: nil, items: Set(corebeacons), imageItems: Set(imagebeacons), debounce: 0.0,
                                     config: config, queue: .main) { _ in }
         flusher.errors.append(InstanaError.invalidResponse)
 
@@ -278,7 +336,8 @@ class BeaconFlusherTests: InstanaTestCase {
     func test_shouldPerformRetry_no_error() {
         // Given
         let config = InstanaConfiguration.mock(maxRetries: 10)
-        let flusher = BeaconFlusher(reporter: nil, items: Set(corebeacons), debounce: 0.0, config: config, queue: .main) { _ in }
+        let flusher = BeaconFlusher(reporter: nil, items: Set(corebeacons), imageItems: Set(imagebeacons), debounce: 0.0,
+                                    config: config, queue: .main) { _ in }
 
         // Then
         XCTAssertFalse(flusher.shouldPerformRetry())
@@ -287,7 +346,8 @@ class BeaconFlusherTests: InstanaTestCase {
     func test_shouldPerformRetry_no() {
         // Given
         let config = InstanaConfiguration.mock(maxRetries: 0)
-        let flusher = BeaconFlusher(reporter: nil, items: Set(corebeacons), debounce: 0.0, config: config, queue: .main) { _ in }
+        let flusher = BeaconFlusher(reporter: nil, items: Set(corebeacons), imageItems: Set(imagebeacons), debounce: 0.0,
+                                    config: config, queue: .main) { _ in }
         flusher.errors.append(InstanaError.invalidResponse)
 
         // Then
@@ -298,7 +358,8 @@ class BeaconFlusherTests: InstanaTestCase {
         // Given
         let max = 3
         let config = InstanaConfiguration.mock(maxRetries: max)
-        let flusher = BeaconFlusher(reporter: nil, items: Set(corebeacons), debounce: 0.0, config: config, queue: .main) { _ in }
+        let flusher = BeaconFlusher(reporter: nil, items: Set(corebeacons), imageItems: Set(imagebeacons), debounce: 0.0,
+                                    config: config, queue: .main) { _ in }
         flusher.errors.append(InstanaError.invalidResponse)
         flusher.retryStep = max
 
@@ -309,7 +370,7 @@ class BeaconFlusherTests: InstanaTestCase {
     func test_no_retainCycle() {
         // Given
         let waitFor = expectation(description: "test_no_retainCycle")
-        var flusher: BeaconFlusher? = BeaconFlusher(reporter: nil, items: Set(corebeacons), debounce: 0.0,
+        var flusher: BeaconFlusher? = BeaconFlusher(reporter: nil, items: Set(corebeacons), imageItems: Set(imagebeacons), debounce: 0.0,
                                                     config: config, queue: .main, send: { _, completion in
             completion(.success(200))
         }, completion: { result in
@@ -328,8 +389,9 @@ class BeaconFlusherTests: InstanaTestCase {
     }
 }
 
-extension BeaconFlusher.Result: Equatable {
+extension BeaconFlusher.Result: @retroactive Equatable {
     public static func == (lhs: BeaconFlusher.Result, rhs: BeaconFlusher.Result) -> Bool {
         lhs.errors as [NSError] == rhs.errors as [NSError] && lhs.sentBeacons == rhs.sentBeacons
+        && lhs.sentImageBeacons == rhs.sentImageBeacons
     }
 }

@@ -7,8 +7,8 @@ import SwiftUI
 
 class BeaconFlusher {
     enum Result {
-        case success([CoreBeacon])
-        case either(sent: [CoreBeacon], errors: [Error])
+        case success([CoreBeacon], [ImageBeacon])
+        case either(sent: [CoreBeacon], sentImages: [ImageBeacon], errors: [Error])
         case failure([Error])
         var errors: [Error] {
             switch self {
@@ -16,19 +16,30 @@ class BeaconFlusher {
                 return errors
             case .success:
                 return []
-            case let .either(sent: _, errors: errors):
+            case let .either(sent: _, sentImages: _, errors: errors):
                 return errors
             }
         }
 
         var sentBeacons: [CoreBeacon] {
             switch self {
-            case let .success(beacons):
+            case let .success(beacons, _):
                 return beacons
             case .failure:
                 return []
-            case let .either(sent: sent, errors: _):
+            case let .either(sent: sent, sentImages: _, errors: _):
                 return sent
+            }
+        }
+
+        var sentImageBeacons: [ImageBeacon] {
+            switch self {
+            case let .success(_, sentImageBeacons):
+                return sentImageBeacons
+            case .failure:
+                return []
+            case let .either(sent: _, sentImages: sentImageBeacons, errors: _):
+                return sentImageBeacons
             }
         }
     }
@@ -46,6 +57,7 @@ class BeaconFlusher {
     let config: InstanaConfiguration
     let debounce: TimeInterval
     let items: Set<CoreBeacon>
+    let imageItems: Set<ImageBeacon>
     var didStartFlush: (() -> Void)?
     let urlSession = URLSession(configuration: .default)
     var errors = [Error]()
@@ -61,10 +73,12 @@ class BeaconFlusher {
     private let queue: DispatchQueue
     private let externalSend: Sender? // Used for Unit Testing
     private var sentBeacons = Set<CoreBeacon>()
+    private var sentImageBeacons = Set<ImageBeacon>()
     private(set) var urlTasks = [URLSessionTask]()
 
     init(reporter: Reporter?,
          items: Set<CoreBeacon>,
+         imageItems: Set<ImageBeacon>,
          debounce: TimeInterval,
          config: InstanaConfiguration,
          queue: DispatchQueue,
@@ -72,6 +86,7 @@ class BeaconFlusher {
          completion: @escaping ((BeaconFlusher.Result) -> Void)) {
         self.reporter = reporter
         self.items = items
+        self.imageItems = imageItems
         self.config = config
         self.debounce = debounce
         self.completion = completion
@@ -101,9 +116,11 @@ class BeaconFlusher {
             complete() // This calls the completion callback with current state
             return
         }
+
+        // flush core beacons
         let batches = items.chunkedBeacons(size: config.maxBeaconsPerRequest)
         let dispatchGroup = DispatchGroup()
-        batches.forEach { beaconBatch in
+        for beaconBatch in batches {
             dispatchGroup.enter()
             let request: URLRequest
             do {
@@ -111,7 +128,7 @@ class BeaconFlusher {
             } catch {
                 errors.append(error)
                 dispatchGroup.leave()
-                return
+                continue
             }
             // Capture the group strongly so leave() is always called even if self (BeaconFlusher)
             // has been deallocated by the time the network callback fires.
@@ -138,12 +155,33 @@ class BeaconFlusher {
                 }
             }
         }
-        // Use a strong capture so this flusher stays alive until all network
-        // responses have been dispatched back onto the serial queue and complete()
-        // has fired — even if Reporter replaces self.flusher before then.
+
+        // flush image beacons
+        for imageBeacon in imageItems {
+            guard let request = createImageRequest(imageBeacon: imageBeacon) else {
+                continue
+            }
+            dispatchGroup.enter()
+            send(request) { [weak self, capturedImageBeacon = imageBeacon, group = dispatchGroup] sentResult in
+                guard let self else {
+                    group.leave()
+                    return
+                }
+                self.queue.async {
+                    switch sentResult {
+                    case .success:
+                        self.sentImageBeacons.insert(capturedImageBeacon)
+                    case let .failure(error):
+                        self.errors.append(error)
+                    }
+                    group.leave()
+                }
+            }
+        }
+
         dispatchGroup.notify(queue: queue) { [self] in
-            urlTasks.removeAll()
-            complete()
+            self.urlTasks.removeAll()
+            self.complete()
 //            if self.shouldPerformRetry() {
 //                self.retry()
 //            } else {
@@ -167,12 +205,12 @@ class BeaconFlusher {
 //    }
 
     private func complete() {
-        if !errors.isEmpty, !sentBeacons.isEmpty {
-            completion(.either(sent: Array(sentBeacons), errors: errors))
+        if !errors.isEmpty, !sentBeacons.isEmpty || !sentImageBeacons.isEmpty {
+            completion(.either(sent: Array(sentBeacons), sentImages: Array(sentImageBeacons), errors: errors))
         } else if !errors.isEmpty {
             completion(.failure(errors))
         } else {
-            completion(.success(Array(sentBeacons)))
+            completion(.success(Array(sentBeacons), Array(sentImageBeacons)))
         }
     }
 
@@ -182,7 +220,7 @@ class BeaconFlusher {
         if let external = externalSend {
             return external(request, completion)
         }
-        let task = urlSession.dataTask(with: request) { _, response, error in
+        let task = urlSession.dataTask(with: request) { data, response, error in
             if let error = error {
                 return completion(.failure(InstanaError.create(from: error)))
             }
@@ -190,7 +228,10 @@ class BeaconFlusher {
                 return completion(.failure(InstanaError.invalidResponse))
             }
             switch httpResponse.statusCode {
-            case 200 ... 399:
+            case 200:
+                self.reporter?.runtimeConfig.handleSRConfigResponse(data: data)
+                completion(.success(httpResponse.statusCode))
+            case 201 ... 399:
                 completion(.success(httpResponse.statusCode))
             case 400 ... 499:
                 completion(.failure(InstanaError.httpClientError(httpResponse.statusCode)))
@@ -226,6 +267,8 @@ class BeaconFlusher {
         // Increase the interval to 2 minutes by default and also make it configurable to the app.
         urlRequest.timeoutInterval = config.timeoutInterval
 
+        reporter?.runtimeConfig.setSRConfigHeader(&urlRequest, srStatus: reporter?.session.sessionReplayStatus)
+
         let data = beacons.data(using: .utf8)
 
         if config.gzipReport, let gzippedData = try? data?.gzipped(level: .bestCompression) {
@@ -238,5 +281,50 @@ class BeaconFlusher {
         }
 
         return urlRequest
+    }
+
+    // MARK: Network for image beacons
+
+    func createImageRequest(imageBeacon: ImageBeacon) -> URLRequest? {
+        let reportingURL = URL(string: "\(config.reportingURL.absoluteString)/eum/images")!
+//        let reportingURL = URL(string: "http://localhost:2999/mobile/eum/images")! // save to local file
+
+        var request = URLRequest(url: reportingURL)
+        request.httpMethod = "POST"
+
+        reporter?.runtimeConfig.setSRConfigHeader(&request, srStatus: reporter?.session.sessionReplayStatus)
+
+        let boundary = "Boundary-\(UUID().uuidString)"
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+
+        var body = Data()
+        // Append text fields
+        var meta = imageBeacon.meta
+        meta["timestamp"] = String(imageBeacon.ti)
+        let imageFormat = meta["imageFormat"]
+        guard let metaData = try? JSONSerialization.data(withJSONObject: meta, options: []),
+            let metaString = String(data: metaData, encoding: .utf8) else {
+            reporter?.session.logger.add("Failed to serialize image beacon dictionary to JSON", level: .warning)
+            return nil
+        }
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"metadata\"\r\n\r\n".data(using: .utf8)!)
+        body.append("\(metaString)\r\n".data(using: .utf8)!)
+
+        if imageBeacon.img != nil, imageFormat != nil {
+            // Append file
+            body.append("--\(boundary)\r\n".data(using: .utf8)!)
+            body.append("Content-Disposition: form-data; name=image\r\n".data(using: .utf8)!)
+            let contentTypeStr = "Content-Type: image/" + imageFormat! + "\r\n\r\n"
+            body.append(contentTypeStr.data(using: .utf8)!)
+            body.append(imageBeacon.img!)
+            body.append("\r\n".data(using: .utf8)!)
+        }
+
+        // End boundary
+        body.append("--\(boundary)--\r\n".data(using: .utf8)!)
+
+        request.httpBody = body
+        return request
     }
 }

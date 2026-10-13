@@ -5,9 +5,10 @@
 import Foundation
 
 /// Base class for Beacon.
-class Beacon: Identifiable {
-    let id = Beacon.generateUniqueIdImpl()
-    var timestamp: Instana.Types.Milliseconds = Date().millisecondsSince1970
+@_spi(Internal)
+public class Beacon: Identifiable {
+    public let id = Beacon.generateUniqueIdImpl()
+    public var timestamp: Instana.Types.Milliseconds = Date().millisecondsSince1970
     let viewName: String?
 
     init(timestamp: Instana.Types.Milliseconds = Date().millisecondsSince1970,

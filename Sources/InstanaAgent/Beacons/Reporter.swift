@@ -9,8 +9,10 @@ import Gzip
 public class Reporter {
     typealias Completion = (BeaconResult) -> Void
     var completionHandler = [Completion]()
+    var imageCompletionHandler = [Completion]()
     let queue: InstanaPersistableQueue<CoreBeacon>
-    private let dispatchQueue = DispatchQueue(label: "com.instana.ios.agent.reporter", qos: .utility)
+    let imageQ: InstanaPersistableQueue<ImageBeacon>
+    internal let dispatchQueue = DispatchQueue(label: "com.instana.ios.agent.reporter", qos: .utility)
     internal var sendFirstBeacon = true // first beacon is sent all by itself, not in a batch
     private var allowOneBackgroundFlush = false
     internal var lastFlushStartTime: Double?
@@ -21,11 +23,11 @@ public class Reporter {
     // been replaced and skip handle() — preventing a double handle() call.
     private var flusherGeneration: Int = 0
     internal var send: BeaconFlusher.Sender?
-    private let rateLimiter: ReporterRateLimiter
+    internal var rateLimiter: ReporterRateLimiter
     private let batterySafeForNetworking: () -> Bool
     private let networkUtility: NetworkUtility
     private var suspendReporting: Set<InstanaConfiguration.SuspendReporting> { session.configuration.suspendReporting }
-    let session: InstanaSession
+    internal let session: InstanaSession
     private var flushDebounce: TimeInterval {
         batterySafeForNetworking() ? session.configuration.reporterSendDebounce : session.configuration.reporterSendLowBatteryDebounce
     }
@@ -37,6 +39,9 @@ public class Reporter {
 
     private let dropBeaconHandler = DropBeaconHandler()
 
+    // runtime configuration
+    var runtimeConfig: RuntimeConfiguration = RuntimeConfiguration()
+
     // MARK: Init
 
     init(_ session: InstanaSession,
@@ -44,6 +49,7 @@ public class Reporter {
          networkUtility: NetworkUtility = NetworkUtility.shared,
          rateLimiter: ReporterRateLimiter? = nil,
          queue: InstanaPersistableQueue<CoreBeacon>? = nil,
+         imageQ: InstanaPersistableQueue<ImageBeacon>? = nil,
          send: BeaconFlusher.Sender? = nil) {
         self.networkUtility = networkUtility
         self.session = session
@@ -51,6 +57,7 @@ public class Reporter {
         self.batterySafeForNetworking = batterySafeForNetworking
         self.rateLimiter = rateLimiter ?? ReporterRateLimiter(configs: session.configuration.reporterRateLimits)
         self.queue = queue ?? InstanaPersistableQueue<CoreBeacon>(identifier: "com.instana.ios.mainqueue", maxItems: session.configuration.maxQueueSize)
+        self.imageQ = imageQ ?? InstanaPersistableQueue<ImageBeacon>(identifier: "com.instana.ios.imagequeue", maxItems: session.configuration.maxQueueSize, ignorePersistenceKey: "INSTANA_IGNORE_IMAGEQUEUE_PERSISTENCE")
         purgeOldBeacons(session.configuration.deleteOldBeacons)
         networkUtility.connectionUpdateHandler = { [weak self] connectionType in
             guard let self = self else { return }
@@ -74,6 +81,8 @@ public class Reporter {
             return
         }
         let cutoffTime = Date().millisecondsSince1970 - Int64(minutes * 60.0 * 1000.0)
+
+        // core beacons
         var updatedBeacons: Set<CoreBeacon> = []
         for coreBeacon in queue.items {
             if let timestamp = Int64(coreBeacon.ti), timestamp > cutoffTime {
@@ -81,6 +90,13 @@ public class Reporter {
             }
         }
         queue.items = updatedBeacons
+
+        // image beacons
+        var updatedImageBeacons: Set<ImageBeacon> = []
+        for imgBeacon in imageQ.items where imgBeacon.ti > cutoffTime {
+            updatedImageBeacons.insert(imgBeacon)
+        }
+        imageQ.items = updatedImageBeacons
     }
 
     func submit(_ beacon: Beacon, _ completion: ((Bool) -> Void)? = nil) {
@@ -130,6 +146,54 @@ public class Reporter {
         }
     }
 
+    func submitBeacons(beacons: [UserEventBeacon], _ completion: ((Bool) -> Void)? = nil) {
+        dispatchQueue.async { [weak self] in
+            guard let self = self else { return }
+            guard self.session.collectionEnabled else {
+                self.session.logger.add("Instana instrumentation is disabled. Beacon might be discarded", level: .warning)
+                completion?(false)
+                return
+            }
+
+            guard !self.queue.isFull else {
+                self.session.logger.add("Queue is full - Beacon might be discarded", level: .warning)
+                completion?(false)
+                return
+            }
+
+            let start = Date()
+            if let coreBeacons = try? CoreBeaconFactory(self.session).map(beacons) {
+                self.queue.add(coreBeacons)
+                let passed = Date().timeIntervalSince(start)
+                self.session.logger.add("\(Date().millisecondsSince1970) Creating the CoreBeacon took \(passed * 1000) ms")
+                self.scheduleFlush()
+            }
+            completion?(true)
+        }
+    }
+
+    func submitImage(imageBeacons: [ImageBeacon], _ completion: ((Bool) -> Void)? = nil) {
+        dispatchQueue.async { [weak self] in
+            guard let self = self else { return }
+            guard self.session.collectionEnabled else {
+                self.session.logger.add("Instana instrumentation is disabled. Image might be discarded", level: .warning)
+                completion?(false)
+                return
+            }
+
+            guard !self.imageQ.isFull else {
+                self.session.logger.add("Image queue is full - Image might be discarded", level: .warning)
+                completion?(false)
+                return
+            }
+
+            self.imageQ.add(imageBeacons)
+            self.scheduleFlush()
+
+            completion?(true)
+        }
+    }
+
     private func updateNetworkConnection(_ connectionType: NetworkUtility.ConnectionType) {
         dispatchQueue.async { [weak self] in
             guard let self = self else { return }
@@ -161,8 +225,9 @@ public class Reporter {
             error = InstanaError.lowBattery
         }
         if error != nil {
-            session.logger.add("Cannot send beacon: \(error!)", level: .warning)
+            session.logger.add("Cannot send beacons or images: \(error!)", level: .warning)
             completionHandler.forEach { $0(BeaconResult.failure(error!)) }
+            imageCompletionHandler.forEach { $0(BeaconResult.failure(error!)) }
             return error
         }
         return nil
@@ -194,6 +259,7 @@ public class Reporter {
 
     func scheduleFlush() {
         let flushableItemsAvailable = queue.flushableItemsAvailable()
+        let flushableImagesAvailable = imageQ.flushableItemsAvailable()
 
         let isBackground = InstanaApplicationStateHandler.shared.state == .background
         if isBackground, !allowOneBackgroundFlush {
@@ -205,7 +271,7 @@ public class Reporter {
             allowOneBackgroundFlush = false
         }
 
-        guard flushableItemsAvailable else { return }
+        guard flushableItemsAvailable || flushableImagesAvailable else { return }
 
         if !canScheduleFlush() { return }
 
@@ -215,8 +281,12 @@ public class Reporter {
         // Filter out beacons already in-flight to prevent duplicate sends
         beaconsToSend = queue.items.filter { $0.ifl != true }
 
-        guard !beaconsToSend.isEmpty else {
-            session.logger.add("All beacons are in-flight, skipping flush")
+        var imageBeaconsToSend: Set<ImageBeacon> = Set([])
+        // Filter out image beacons already in-flight to prevent duplicate sends
+        imageBeaconsToSend = imageQ.items.filter { $0.ifl != true }
+
+        if beaconsToSend.isEmpty, imageBeaconsToSend.isEmpty {
+            session.logger.add("All beacons/images are in-flight, skipping flush")
             return
         }
 
@@ -226,16 +296,26 @@ public class Reporter {
             beacon.markInFlight()
             markedBeacons.insert(beacon)
         }
-
         // Update queue with in-flight markers
         queue.items.subtract(beaconsToSend) // Remove unmarked versions
         queue.items.formUnion(markedBeacons) // Add marked versions
         queue.write() // Persist in-flight state
 
+        // Mark image beacons as in-flight and persist
+        var markedImageBeacons: Set<ImageBeacon> = []
+        for var iBeacon in imageBeaconsToSend {
+            iBeacon.markInFlight()
+            markedImageBeacons.insert(iBeacon)
+        }
+        // Update image queue with in-flight markers
+        imageQ.items.subtract(imageBeaconsToSend) // Remove unmarked versions
+        imageQ.items.formUnion(markedImageBeacons) // Add marked versions
+        imageQ.write() // Persist in-flight state
+
         flusherGeneration += 1
         let capturedGeneration = flusherGeneration
-        let flusher = BeaconFlusher(reporter: self, items: markedBeacons, debounce: debounce,
-                                    config: session.configuration, queue: dispatchQueue,
+        let flusher = BeaconFlusher(reporter: self, items: markedBeacons, imageItems: markedImageBeacons,
+                                    debounce: debounce, config: session.configuration, queue: dispatchQueue,
                                     send: send) { [weak self] result in
             guard let self = self else { return }
             self.dispatchQueue.async { [weak self] in
@@ -248,7 +328,9 @@ public class Reporter {
                     return
                 }
                 let originalBeacons: Set<CoreBeacon>? = (result.sentBeacons.count < markedBeacons.count) ? markedBeacons : nil
-                self.handle(flushResult: result, start, originalBeacons: originalBeacons)
+                let originalImageBeacons: Set<ImageBeacon>? = (result.sentImageBeacons.count < markedImageBeacons.count) ? markedImageBeacons : nil
+                self.handle(flushResult: result, start, originalBeacons: originalBeacons,
+                            originalImageBeacons: originalImageBeacons)
             }
         }
         flusher.schedule()
@@ -262,7 +344,7 @@ public class Reporter {
         if itemsCount >= (queue.maxItems * 4 / 5) {
             // if queue 80% full then flush immediately
             debounce = 0
-        } else if itemsCount >= (queue.maxItems / 2) {
+        } else if itemsCount > (queue.maxItems / 2) {
             // if queue 50% full then flush quicker than default waiting time
             debounce /= 2.0
         }
@@ -286,23 +368,26 @@ public class Reporter {
 
     private func handle(flushResult: BeaconFlusher.Result,
                         _ start: Date = Date(),
-                        originalBeacons: Set<CoreBeacon>? = nil) {
+                        originalBeacons: Set<CoreBeacon>? = nil,
+                        originalImageBeacons: Set<ImageBeacon>? = nil) {
         let result: BeaconResult
         let errors = flushResult.errors
         let sent = flushResult.sentBeacons
+        let sentImageBeacons = flushResult.sentImageBeacons
         let end = Date().timeIntervalSince(start)
         errors.forEach { error in
             session.logger.add("Failed to send Beacon batch: \(error)", level: .warning)
         }
         if errors.isEmpty {
             result = BeaconResult.success
-            session.logger.add("Did successfully send \(sent.count) beacons in \(end * 1000) ms")
+            session.logger.add("Did successfully send \(sent.count + sentImageBeacons.count) beacons in \(end * 1000) ms")
         } else {
             let error = errors.count == 1 ? errors.first! : InstanaError.multiple(errors)
             result = BeaconResult.failure(error)
             session.logger.add("Failed to send beacons in \(end * 1000) ms")
         }
 
+        // CoreBeacon handling
         if originalBeacons == nil {
             // All beacons were successfully sent. Remove them from local file.
             queue.remove(sent) { [weak self] _ in
@@ -336,13 +421,57 @@ public class Reporter {
                         updatedBeacons.insert(cBeacon)
                     } // else: throw away the beacon
                 } else {
-                    // new beacons, keep as is
+                    // new beacon, keep as is
                     updatedBeacons.insert(cBeacon)
                 }
             }
             queue.items = updatedBeacons
             queue.write { [weak self] _ in
                 self?.completionHandler.forEach { $0(result) }
+            }
+        }
+
+        // ImageBeacon handling
+        if originalImageBeacons == nil {
+            // All images beacons were successfully sent. Remove them from local file.
+            imageQ.remove(sentImageBeacons) { [weak self] _ in
+                self?.imageCompletionHandler.forEach { $0(result) }
+            }
+        } else if isErrorDeviceNotReady(errors) {
+            // Device not ready for flush, beacons were never sent through network.
+            // Clear in-flight flags so they can be retried when device is ready.
+            var clearedImageBeacons: Set<ImageBeacon> = []
+            for var iBeacon in imageQ.items {
+                if originalImageBeacons!.contains(iBeacon) {
+                    iBeacon.clearInFlight()
+                    clearedImageBeacons.insert(iBeacon)
+                } else {
+                    clearedImageBeacons.insert(iBeacon)
+                }
+            }
+            imageQ.items = clearedImageBeacons
+            imageQ.write { [weak self] _ in
+                self?.imageCompletionHandler.forEach { $0(result) }
+            }
+        } else {
+            // For image beacons failed sending, increase retry count and save back to file.
+            imageQ.items.subtract(sentImageBeacons)
+            var updatedImageBeacons: Set<ImageBeacon> = []
+            for var iBeacon in imageQ.items {
+                if originalImageBeacons!.contains(iBeacon) {
+                    iBeacon.clearInFlight() // Clear in-flight flag
+                    iBeacon.increaseRetryCount()
+                    if iBeacon.rct! < session.configuration.maxBeaconResendTries {
+                        updatedImageBeacons.insert(iBeacon)
+                    } // else: throw away the image beacon
+                } else {
+                    // new image beacon, keep as is
+                    updatedImageBeacons.insert(iBeacon)
+                }
+            }
+            imageQ.items = updatedImageBeacons
+            imageQ.write { [weak self] _ in
+                self?.imageCompletionHandler.forEach { $0(result) }
             }
         }
 

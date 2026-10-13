@@ -8,7 +8,7 @@
 import Foundation
 @testable import InstanaAgent
 
-extension InstanaConfiguration: Equatable {
+extension InstanaConfiguration: @retroactive Equatable {
     public static func ==(lhs: InstanaConfiguration, rhs: InstanaConfiguration) -> Bool {
         String(dumping: lhs) == String(dumping: rhs)
     }

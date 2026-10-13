@@ -6,6 +6,7 @@
 
 import UIKit
 import InstanaAgent
+import InstanaSessionReplay
 import OSLog
 
 @UIApplicationMain
@@ -27,10 +28,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         options.autoCaptureScreenNames = true
 //        options.debugAllScreenNames = true
         options.queryTrackedDomainList = queryTrackedDomainList
-//        options.dropBeaconReporting = true
+        options.dropBeaconReporting = true
 //        options.rateLimits = .MID_LIMITS
 //        options.trustDeviceTiming = true
-//        options.perfConfig = InstanaPerformanceConfig(enableAppStartTimeReport: false, enableAnrReport: true, anrThreshold: 5.0, enableLowMemoryReport: true, enableAppStateDetection: false)
+        options.perfConfig = InstanaPerformanceConfig(enableAppStartTimeReport: true, enableAnrReport: true, anrThreshold: 2.0, enableLowMemoryReport: true, enableAppStateDetection: true)
 //        options.enableW3CHeaders = true
 //        options.timeoutInterval = 60.0
         if !Instana.setup(key: InstanaKey, reportingURL: InstanaURL, options: options) {
@@ -39,8 +40,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         let headerFilterReg = try! NSRegularExpression(pattern: "Content-Type", options: .caseInsensitive)
         Instana.setCaptureHeaders(matching: [headerFilterReg])
-
         Instana.setUser(id: "testUserId1", email: "test1@ibm.com", name:"testUserName1")
+
+        if #available(iOS 13.0, *) {
+            do {
+                let samplingConfig = SamplingConfig(samplingPercentage: 100) // sampled for sure
+                let srConfig = InstanaSessionReplayConfig(
+                                    framePerSecond: 1,
+                                    maskStrategy: .mask_none,
+                                    maskingColor: UIColor.green,
+                                    hammingDistance: 3,
+                                    samplingConfig: samplingConfig
+                                    )
+                try InstanaSessionReplay.setup(config: srConfig)
+            } catch {
+                print("\(error.localizedDescription)")
+            }
+        }
         return true
     }
 

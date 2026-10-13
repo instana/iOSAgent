@@ -26,10 +26,11 @@ class InstanaPersistableQueue<T: RestartRecoverableInFlight> {
     var isFull: Bool { items.count >= maxItems }
     let identifier: String
 
-    init(identifier: String, maxItems: Int) {
+    init(identifier: String, maxItems: Int, ignorePersistenceKey: String? = nil) {
         self.maxItems = maxItems
         self.identifier = identifier
-        let shouldIgnorePersistence = UserDefaults.standard.bool(forKey: "INSTANA_IGNORE_QUEUE_PERSISTENCE")
+        let key = ignorePersistenceKey ?? "INSTANA_IGNORE_QUEUE_PERSISTENCE"
+        let shouldIgnorePersistence = UserDefaults.standard.bool(forKey: key)
         if !shouldIgnorePersistence, let deserializeItems = try? deserialize() {
             // Clear in-flight flags on app restart.
             // These items were being sent when app crashed/terminated, so allow retry.

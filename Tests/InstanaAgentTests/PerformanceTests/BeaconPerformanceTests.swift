@@ -53,9 +53,11 @@ class BeaconPerformanceTests: InstanaTestCase {
         let config = InstanaConfiguration.mock(debounce: 1.0)
         // Given
         reporter = Reporter(.mock(configuration: config), batterySafeForNetworking: { true }) { _, _ in
-            done = true
             // Must fire only once since we have a debounce of one second
-            waitFor.fulfill()
+            if !done {
+                waitFor.fulfill()
+            }
+            done = true
         }
 
         measure {
